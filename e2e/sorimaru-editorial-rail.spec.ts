@@ -122,14 +122,21 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
 
     return {
       cardBorderWidth: cardStyle.borderWidth,
+      cardBorderStyle: cardStyle.borderStyle,
+      cardBorderColor: cardStyle.borderColor,
       cardBackgroundColor: cardStyle.backgroundColor,
       panelBackgroundColor: panelStyle.backgroundColor,
       panelBottomLeftRadius: panelStyle.borderBottomLeftRadius,
       panelBottomRightRadius: panelStyle.borderBottomRightRadius,
     };
   });
+  const stageBackgroundColor = await page.getByRole('button', { name: '다음 이야기' }).evaluate((node) =>
+    getComputedStyle(node.parentElement as HTMLElement).backgroundColor,
+  );
 
-  expect(styles.cardBorderWidth).toBe('0px');
+  expect(styles.cardBorderWidth).toBe('2px');
+  expect(styles.cardBorderStyle).toBe('solid');
+  expect(styles.cardBorderColor).toBe(stageBackgroundColor);
   expect(styles.panelBackgroundColor).toBe(styles.cardBackgroundColor);
   expect(styles.panelBottomLeftRadius).toBe('0px');
   expect(styles.panelBottomRightRadius).toBe('0px');

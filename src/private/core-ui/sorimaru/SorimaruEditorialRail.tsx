@@ -105,6 +105,7 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   transition: box-shadow 0.3s ease, filter 0.3s ease;
 
   [data-theme='dark'] & {
+    border: 2px solid ${surface.dark.surface};
     background-color: ${surface.dark.card};
     box-shadow: ${({ $isActive }) =>
       $isActive ? '0 14px 32px rgba(0, 0, 0, 0.45)' : '0 4px 14px rgba(0, 0, 0, 0.25)'};
