@@ -208,6 +208,7 @@ export async function getReviews(query: ReviewsQuery = {}): Promise<CursorPageRe
   return {
     schemaVersion: res.schemaVersion || '1.0',
     items,
+    totalCount: Number(res.totalCount ?? items.length),
     hasNext: Boolean(res.hasNext),
     hasMore: Boolean(res.hasNext),
     nextCursor: res.hasNext ? res.nextCursor : null,
@@ -315,6 +316,7 @@ export async function getReports(query: ReportsQuery = {}): Promise<CursorPageRe
   return {
     schemaVersion: res.schemaVersion || '1.0',
     items,
+    totalCount: Number(res.totalCount ?? items.length),
     hasNext: Boolean(res.hasNext),
     hasMore: Boolean(res.hasNext),
     nextCursor: res.hasNext ? res.nextCursor : null,
@@ -369,6 +371,7 @@ export async function getUsers(query: UsersQuery = {}): Promise<CursorPageRespon
   return {
     schemaVersion: res.schemaVersion || '1.0',
     items,
+    totalCount: Number(res.totalCount ?? items.length),
     hasNext: Boolean(res.hasNext),
     hasMore: Boolean(res.hasNext),
     nextCursor: res.hasNext ? res.nextCursor : null,
@@ -454,6 +457,7 @@ export async function getCurations(query: CurationsQuery = {}): Promise<CursorPa
   return {
     schemaVersion: res.schemaVersion || '1.0',
     items,
+    totalCount: Number(res.totalCount ?? items.length),
     hasNext: Boolean(res.hasNext),
     hasMore: Boolean(res.hasNext),
     nextCursor: res.hasNext ? res.nextCursor : null,
@@ -493,6 +497,7 @@ export async function getModerationQueue(
       generatedAt: new Date().toISOString(),
       oldestOpenReportAgeSeconds: 0,
       items: [],
+      totalCount: 0,
       hasNext: false,
       nextCursor: null,
     };
@@ -516,6 +521,7 @@ export async function getOperationsModerationQueue(
       generatedAt: new Date().toISOString(),
       oldestOpenReportAgeSeconds: 0,
       items: [],
+      totalCount: 0,
       hasNext: false,
       nextCursor: null,
     };
@@ -579,6 +585,7 @@ function paginateCursor<T extends { id?: string }>(
   return {
     schemaVersion: '1.0',
     items: pageItems,
+    totalCount: items.length,
     hasNext,
     hasMore: hasNext,
     nextCursor,
