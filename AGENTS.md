@@ -62,6 +62,8 @@
 - Immediately before merge, invoke `cleaning-work-logs` again because PR and Issue state may have changed during review.
 - Every PR must reference its related Issue. Use an auto-close keyword only when that PR's merge target should actually close the Issue.
 - Before closing an Issue, verify its acceptance criteria and merge state.
+- Immediately after a PR is merged, inspect every referenced Issue and reconcile its state. A PR merged into the integration branch (`develop`) may not trigger GitHub auto-close keywords because it is not the default branch.
+- If the merged PR satisfies an Issue's acceptance criteria, leave a completion comment that links the merged PR and close the Issue manually when GitHub did not close it. Do not leave completed Issues open merely because the PR targeted `develop`; keep an Issue open only when verified acceptance criteria or an explicitly tracked production-release step remains.
 
 ## Git Flow branch policy
 
