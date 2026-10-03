@@ -64,27 +64,23 @@ const GradientOverlay = styled.div`
   }
 `;
 
-const HeaderRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 6px;
-`;
-
 const Name = styled.h3`
   font-family: var(--font-hanok);
   font-size: ${fluidHeading.label};
   font-weight: 400;
   color: #ffffff;
-  margin: 0;
+  margin: 0 0 6px;
+  min-height: 2.5em;
   letter-spacing: -0.02em;
   line-height: 1.25;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   word-break: keep-all;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 `;
 
 const TypeBadge = styled.span`
@@ -93,9 +89,9 @@ const TypeBadge = styled.span`
   -webkit-backdrop-filter: blur(12px);
 
   color: #ffffff;
-  font-size: ${fontSize.micro};
+  font-size: ${fontSize.xs};
   font-weight: 500;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 9999px;
   white-space: nowrap;
   flex-shrink: 0;
@@ -131,9 +127,18 @@ const TopBadgeRow = styled.div`
   position: absolute;
   top: 14px;
   left: 14px;
+  right: 14px;
   z-index: 3;
   display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
   gap: 6px;
+
+  @media (max-width: 480px) {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+  }
 `;
 
 const DocentTag = styled.span`
@@ -143,9 +148,9 @@ const DocentTag = styled.span`
   border: none;
   box-shadow: none;
   color: #ffffff;
-  font-size: ${fontSize.micro};
+  font-size: ${fontSize.xs};
   font-weight: 600;
-  padding: 3.5px 9px;
+  padding: 5px 10px;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
@@ -165,6 +170,7 @@ interface VillageCardProps {
 }
 
 export default function VillageCard({ village, onClick }: VillageCardProps) {
+  const typeLabel = filterLabel(village.type);
   const isDocentAvailable =
     village.type !== '한옥스테이' &&
     (HAS_DOCENT_TYPES.includes(village.type) ||
@@ -185,25 +191,23 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
         if (e.key === 'Enter' || e.key === ' ') onClick?.(village);
       }}
     >
-      {isDocentAvailable && (
-        <TopBadgeRow>
+      <TopBadgeRow aria-label={`${typeLabel} 태그`}>
+        <TypeBadge>{typeLabel}</TypeBadge>
+        {isDocentAvailable && (
           <DocentTag>
             <HugeiconsIcon icon={HeadphonesIcon} size={11} color={palette.jangmi[400]} />
             <span>소리마루 도슨트</span>
           </DocentTag>
-        </TopBadgeRow>
-      )}
+        )}
+      </TopBadgeRow>
 
       <ImageLayer $bg={village.hasImage ? village.image : null} />
 
       <GradientOverlay>
-        <HeaderRow>
-          <Name>{village.name}</Name>
-          <TypeBadge>{filterLabel(village.type)}</TypeBadge>
-        </HeaderRow>
+        <Name>{village.name}</Name>
 
         <ActionButton>도감 해설 보기</ActionButton>
       </GradientOverlay>
     </Card>
   );
-}
+}
