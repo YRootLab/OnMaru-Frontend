@@ -9,16 +9,16 @@ export type BackgroundId =
   | 'BACKGROUND_06' | 'BACKGROUND_07' | 'BACKGROUND_08' | 'BACKGROUND_09' | 'BACKGROUND_10';
 
 export const PROFILE_CHARACTER_PATHS: Record<CharacterId, string> = {
-  CHARACTER_01: '/images/profile/눈웃음온이.png',
-  CHARACTER_02: '/images/profile/다도쉼온이.png',
-  CHARACTER_03: '/images/profile/명필온이.png',
-  CHARACTER_04: '/images/profile/무사도령온이.png',
-  CHARACTER_05: '/images/profile/소리몰입온이.png',
-  CHARACTER_06: '/images/profile/쿨쿨낮잠온이.png',
-  CHARACTER_07: '/images/profile/꿀약과온이.png',
-  CHARACTER_08: '/images/profile/윙크온이.png',
-  CHARACTER_09: '/images/profile/청사초롱온이.png',
-  CHARACTER_10: '/images/profile/호기심온이.png',
+  CHARACTER_01: '/images/profile/character_01.png',
+  CHARACTER_02: '/images/profile/character_02.png',
+  CHARACTER_03: '/images/profile/character_03.png',
+  CHARACTER_04: '/images/profile/character_04.png',
+  CHARACTER_05: '/images/profile/character_05.png',
+  CHARACTER_06: '/images/profile/character_06.png',
+  CHARACTER_07: '/images/profile/character_07.png',
+  CHARACTER_08: '/images/profile/character_08.png',
+  CHARACTER_09: '/images/profile/character_09.png',
+  CHARACTER_10: '/images/profile/character_10.png',
 };
 
 export const PROFILE_CHARACTER_NAMES: Record<CharacterId, string> = {
