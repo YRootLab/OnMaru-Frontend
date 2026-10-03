@@ -55,6 +55,7 @@ docs/
 /new
 /claude_workspace
 
+/docs/superpowers
 
 *.tsbuildinfo
 tsconfig.tsbuildinfo

@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     root: path.resolve(process.cwd()),
   },
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.onmaru.site';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL_INTERNAL ?? 'https://api.onmaru.site';
     return [
       {
         source: '/api/proxy/:path*',
