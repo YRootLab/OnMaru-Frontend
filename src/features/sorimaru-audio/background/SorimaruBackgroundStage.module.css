@@ -519,16 +519,15 @@
 
 
 :global([data-theme='dark']) .stage {
-  --sorimaru-bg-canvas: var(--color-bg-app) !important;
-  background: var(--color-bg-app) !important;
-  background-color: var(--color-bg-app) !important;
+  background: var(--sorimaru-bg-canvas) !important;
+  background-color: var(--sorimaru-bg-canvas) !important;
 }
 
 :global([data-theme='dark']) .stage[data-variant='hanji-journey'],
 :global([data-theme='dark']) .stage[data-stage='archive'],
 :global([data-theme='dark']) .stage[data-stage='closing'] {
-  background: var(--color-bg-app) !important;
-  background-color: var(--color-bg-app) !important;
+  background: var(--sorimaru-bg-canvas) !important;
+  background-color: var(--sorimaru-bg-canvas) !important;
 }
 
 :global([data-theme='dark']) .hospitalityLight {
@@ -542,7 +541,7 @@
 }
 
 :global([data-theme='dark']) .deckleBody {
-  fill: var(--color-bg-app) !important;
+  fill: var(--sorimaru-bg-canvas) !important;
 }
 
 :global([data-theme='dark']) .deckleEdge {

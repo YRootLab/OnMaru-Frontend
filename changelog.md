@@ -3,6 +3,10 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 홈·한옥마루·소리마루의 라이트 모드 배경을 공통 중립 회색 캔버스 토큰으로 통일해, 소리마루만 순백색으로 떠 보이던 차이를 없앴다.
+- 소리마루 다크 카드의 밝은 합성 경계를 재현·진단·해결한 과정을 변경 전·변경 후·라이트 모드 캡처와 함께 기술 블로그 초안으로 기록했다.
+- 소리마루 `장면을 따라 걷는 소리`의 라이트 모드 좌우 화살표에서 hover 확대와 배경색 전환을 제거하고 아이콘 색만 바뀌게 했다. 버튼 뒤에 추가됐던 따뜻한 회색 그라데이션을 제거해 기존 카드 마스크 페이드와 투명한 섹션 배경을 복원했다. 라이트·다크 모두 카드의 둥근 모서리를 유지하면서, 모션 버튼과 실제 카드 면을 분리하고 다크 모드에만 무대색 외곽 마스크를 겹쳐 GPU 합성으로 생기던 밝은 하단 프린지를 제거했다.
+- 홈 `이번 주 추천 코스`의 영문 분류 코드를 한국어로 바꾸고, 분류·콘텐츠·저장 상태를 중복 없는 최대 3개의 태그 칩으로 정리했다.
 - 지도 정보모드를 cursor 기반 `/api/v1/map/info/places`와 zoom-aware `/api/v1/map/info/viewport`에 다시 연결했다. 데스크톱·모바일 목록을 `InfoPlaceList`로 통일하고, `totalCount`·중복 없는 cursor append·stale snapshot/abort·409 1회 복구·503 기존 데이터 유지·servedBbox 요청 생략을 보강했다. 정보모드에서는 legacy `/api/map/places`와 TourAPI 직접 조회를 차단하고 상세도 canonical `/api/v1/places/{placeId}`를 사용하며, `HANOK`을 list와 viewport에 같은 서버 category로 전달한다. REGION·DISTRICT·CLUSTER는 서버 aggregate overlay만, PLACE는 canonical `placeId` marker만 렌더링한다. viewport는 확정된 지도 상태에서만 갱신하고 단독 오류에는 기존 오버레이를 유지한 재시도 안내를 표시한다.
 - 최신 develop 병합 후 관리자 빠른 로그인 테스트가 production/development 환경을 명시하도록 교정하고, 한옥 fallback 테스트가 실 staging 재시도 대신 결정적 장애 fake를 사용하도록 격리했다. 브라우저 API 기준은 `NEXT_PUBLIC_API_URL`로 유지하되 `/api/proxy`의 내부 upstream 키는 `next.config.ts`에만 허용하도록 환경변수 계약을 갱신했다.
 - 스테이징 API를 전용 SSH 시작 명령으로 기동해 TLS·OpenAPI·`category=HANOK` 목록 200과 한옥 canonical category 4종을 확인했다. 운영에서는 첫 30건의 `nextCursor`로 두 번째 30건을 조회해 동일 snapshot과 `placeId` 중복 0건을 검증했다. 스테이징 fixture는 2건이라 다음 cursor가 없으며, DISTRICT viewport가 전체 건수와 달리 빈 aggregate를 반환하는 상태는 백엔드 후속 확인 대상으로 남겼다.

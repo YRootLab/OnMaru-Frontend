@@ -136,7 +136,7 @@ export default function JourneyMapView({ board, focusedRef, onFocus }: JourneyMa
 
   return (
     <MapFrame>
-      <Script strategy="afterInteractive" src={KAKAO_SDK_SRC} onLoad={build} />
+      <Script strategy="afterInteractive" src={KAKAO_SDK_SRC} onReady={build} />
       <Canvas ref={containerRef} role="application" aria-label="선택한 장소 지도" />
     </MapFrame>
   );

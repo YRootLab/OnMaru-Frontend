@@ -481,6 +481,7 @@ interface KakaoCluster {
 }
 
 const REGIONS = ['전체', '서울', '경북', '전북', '경남', '충남', '강원', '경기', '전남'];
+const MAP_LOAD_TIMEOUT_MS = 25_000;
 
 const REGION_STORIES: Record<string, string> = {
   전체: '전국에 남은 궁궐과 고택, 서원과 한옥마을을 지도에서 찾아보세요.',
@@ -513,6 +514,16 @@ export default function HanokInteractiveMapFrame({
   const [errorMessage, setErrorMessage] = useState<string | null>(() => kakaoAppKey
     ? null
     : 'NEXT_PUBLIC_KAKAO_MAP_KEY 환경 변수가 없습니다. 개발 서버(npm run dev)를 재시작해 보세요.');
+
+  useEffect(() => {
+    if (isLoaded || errorMessage) return;
+
+    const timeout = window.setTimeout(() => {
+      setErrorMessage('지도를 지금 불러올 수 없어요. 잠시 후 다시 시도해 주세요.');
+    }, MAP_LOAD_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timeout);
+  }, [errorMessage, isLoaded]);
 
   const validVillages = useMemo(
     () => villages.filter((v) => typeof v.lat === 'number' && typeof v.lng === 'number'),
@@ -793,7 +804,7 @@ export default function HanokInteractiveMapFrame({
           onReady={initMap}
           onError={() => {
             setErrorMessage(
-              '카카오 지도 SDK 스크립트를 불러오지 못했습니다. 카카오 개발자 센터에서 http://localhost:3000 도메인이 등록되어 있는지 확인해주세요.'
+              '지도를 지금 불러올 수 없어요. 잠시 후 다시 시도해 주세요.'
             );
           }}
         />
@@ -804,7 +815,7 @@ export default function HanokInteractiveMapFrame({
           <HugeiconsIcon icon={AlertCircleIcon} size={24} strokeWidth={2} />
           <div>{errorMessage}</div>
           <ErrorSubtext>
-            Kakao Developers 콘솔 → [내 애플리케이션] → [플랫폼] → [Web 사이트 도메인]에 현재 개발 도메인이 등록되어 있어야 합니다.
+            네트워크 상태를 확인한 뒤 페이지를 새로고침해 주세요.
           </ErrorSubtext>
         </MapLoadingState>
       ) : !isLoaded ? (
@@ -893,4 +904,4 @@ export default function HanokInteractiveMapFrame({
       </AnimatePresence>
     </Frame>
   );
-}
+}

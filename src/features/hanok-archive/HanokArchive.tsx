@@ -108,7 +108,7 @@ const StyledVesselReveal = styled(VesselReveal)`
 
 const paperGround = css`
   body {
-    background: #ffffff;
+    background: ${surface.light.base};
   }
 
   [data-theme='dark'] body,

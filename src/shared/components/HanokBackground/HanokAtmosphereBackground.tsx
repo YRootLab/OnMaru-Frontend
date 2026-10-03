@@ -14,7 +14,7 @@ const BackgroundContainer = styled.div`
 
   z-index: -1;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: ${surface.light.base};
   transition: background-color 0.4s ease;
 
   [data-theme='dark'] & {

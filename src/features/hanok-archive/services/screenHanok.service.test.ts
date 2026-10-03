@@ -5,7 +5,6 @@ vi.mock('@/features/hanok-archive/infrastructure/screenHanokSource', () => ({
   saveScreenHanokPlace: vi.fn(),
   unsaveScreenHanokPlace: vi.fn(),
 }));
-
 import { screenHanokService } from './screenHanok.service';
 
 describe('screenHanokService (Issue #103)', () => {
