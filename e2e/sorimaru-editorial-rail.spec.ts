@@ -1,5 +1,13 @@
 import { expect, test } from '@playwright/test';
 
+const e2eOrigin = new URL(
+  process.env.PLAYWRIGHT_TEST_BASE_URL ?? `http://localhost:${process.env.E2E_PORT ?? '3000'}`,
+).origin;
+const corsHeaders = {
+  'access-control-allow-origin': e2eOrigin,
+  'access-control-allow-credentials': 'true',
+};
+
 const stories = Array.from({ length: 3 }, (_, index) => ({
   storyId: `visual-story-${index + 1}`,
   title: `라이트 모드 이야기 ${index + 1}`,
@@ -23,16 +31,19 @@ test('light-mode rail arrows change only icon color on hover', async ({ page }) 
   await page.route('**/api/v1/odii/stories**', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify({ items: stories, totalCount: stories.length, nextCursor: null, hasMore: false }),
+    headers: corsHeaders,
+    body: JSON.stringify({ schemaVersion: '1.2', items: stories, totalCount: stories.length, nextCursor: null, hasMore: false }),
   }));
   await page.route('**/api/v1/odii/regions**', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
+    headers: corsHeaders,
     body: JSON.stringify({ groups: [] }),
   }));
   await page.route('**/api/v1/members/me', (route) => route.fulfill({
     status: 401,
     contentType: 'application/json',
+    headers: corsHeaders,
     body: JSON.stringify({ code: 'AUTH_REQUIRED' }),
   }));
 
@@ -78,20 +89,23 @@ test('light-mode rail arrows change only icon color on hover', async ({ page }) 
   expect(after.color).not.toBe(before.color);
 });
 
-test('dark-mode active card has no bright outer border around its rounded edge', async ({ page }) => {
+test('dark-mode active card clips one opaque surface without a bright rounded fringe', async ({ page }) => {
   await page.route('**/api/v1/odii/stories**', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify({ items: stories, totalCount: stories.length, nextCursor: null, hasMore: false }),
+    headers: corsHeaders,
+    body: JSON.stringify({ schemaVersion: '1.2', items: stories, totalCount: stories.length, nextCursor: null, hasMore: false }),
   }));
   await page.route('**/api/v1/odii/regions**', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
+    headers: corsHeaders,
     body: JSON.stringify({ groups: [] }),
   }));
   await page.route('**/api/v1/members/me', (route) => route.fulfill({
     status: 401,
     contentType: 'application/json',
+    headers: corsHeaders,
     body: JSON.stringify({ code: 'AUTH_REQUIRED' }),
   }));
 
@@ -101,5 +115,22 @@ test('dark-mode active card has no bright outer border around its rounded edge',
 
   const activeCard = page.getByRole('button', { name: /현재 선택됨/ }).first();
   await expect(activeCard).toBeVisible();
-  expect(await activeCard.evaluate((node) => getComputedStyle(node).borderWidth)).toBe('0px');
+  const styles = await activeCard.evaluate((node) => {
+    const cardStyle = getComputedStyle(node);
+    const bottomPanel = node.children[1] as HTMLElement;
+    const panelStyle = getComputedStyle(bottomPanel);
+
+    return {
+      cardBorderWidth: cardStyle.borderWidth,
+      cardBackgroundColor: cardStyle.backgroundColor,
+      panelBackgroundColor: panelStyle.backgroundColor,
+      panelBottomLeftRadius: panelStyle.borderBottomLeftRadius,
+      panelBottomRightRadius: panelStyle.borderBottomRightRadius,
+    };
+  });
+
+  expect(styles.cardBorderWidth).toBe('0px');
+  expect(styles.panelBackgroundColor).toBe(styles.cardBackgroundColor);
+  expect(styles.panelBottomLeftRadius).toBe('0px');
+  expect(styles.panelBottomRightRadius).toBe('0px');
 });

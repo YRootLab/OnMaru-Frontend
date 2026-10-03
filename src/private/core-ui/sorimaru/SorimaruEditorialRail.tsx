@@ -157,9 +157,6 @@ const SkeletonBottomPanel = styled.div<{ $isActive: boolean }>`
   box-sizing: border-box;
   width: 100%;
   padding: 0.875rem 1rem;
-  border-bottom-left-radius: 1.25rem;
-  border-bottom-right-radius: 1.25rem;
-  overflow: hidden;
   background: ${({ $isActive }) => ($isActive ? '#f5f5f4' : '#f8f8f7')};
 
   [data-theme='dark'] & {
@@ -253,17 +250,14 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
   padding: 0.875rem 1rem;
   color: ${meok[900]};
   backdrop-filter: blur(24px);
-  border-bottom-left-radius: 1.25rem;
-  border-bottom-right-radius: 1.25rem;
-  overflow: hidden;
 
   background-color: ${({ $isActive }) =>
     $isActive ? 'rgba(255, 248, 245, 0.88)' : 'rgba(255, 255, 255, 0.72)'};
 
   [data-theme='dark'] & {
     color: ${meok[100]};
-    background-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(33, 39, 52, 0.92)' : 'rgba(32, 29, 25, 0.82)'};
+    background-color: ${surface.dark.card};
+    backdrop-filter: none;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 
