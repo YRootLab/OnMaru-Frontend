@@ -20,6 +20,16 @@ import { useAuthSessionStore } from '@/features/auth/store/useAuthSessionStore';
 
 const ONBOARDING_KEY = 'onmaru_onboarding_v1';
 
+// open redirect 방지: 같은 오리진 상대 경로만 허용
+function safeNext(raw: string | null): string {
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) return '/mypage';
+  try {
+    const u = new URL(raw, typeof window !== 'undefined' ? window.location.origin : 'https://onmaru.site');
+    if (u.origin !== (typeof window !== 'undefined' ? window.location.origin : 'https://onmaru.site')) return '/mypage';
+    return u.pathname + u.search + u.hash;
+  } catch { return '/mypage'; }
+}
+
 function markOnboardingDone(userId: string) {
   try {
     localStorage.setItem(`${ONBOARDING_KEY}_${userId}`, '1');
@@ -172,7 +182,7 @@ const StartButton = styled.button<{ disabled: boolean }>`
 export default function OnboardingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const nextUrl = searchParams.get('next') || '/mypage';
+  const nextUrl = safeNext(searchParams.get('next'));
   const { user, isLoading, isLoggedIn } = useAuth();
   const { theme } = useOnmaruTheme();
   const applyProfile = useAuthSessionStore((s) => s.applyProfile);
