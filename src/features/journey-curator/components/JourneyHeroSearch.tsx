@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -90,9 +90,9 @@ const EyebrowBadge = styled.div`
 const Title = styled.h1`
   position: relative;
   z-index: 2;
-  font-family: var(--font-hanok);
+  font-family: var(--font-display);
   font-size: clamp(24px, 4.5vw, 42px);
-  font-weight: 700;
+  font-weight: 400;
   color: #0f172a;
   letter-spacing: -0.035em;
   line-height: 1.28;
@@ -806,7 +806,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const isApple = useIsAppleDevice();
   const [isCancelling, setIsCancelling] = useState(false);
   const [oniVideoError, setOniVideoError] = useState(false);
-  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const oniVideoRef = useRef<HTMLVideoElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -923,7 +923,11 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     <Container $compact={hasSearched}>
       {!hasSearched && (
         <>
-          <Title>어떤 장소로 떠나고 싶으세요?</Title>
+          <Title>
+            {isLoggedIn && user?.displayName
+              ? `${user.displayName}님, 어떤 장소로 떠나고 싶으세요?`
+              : '어떤 장소로 떠나고 싶으세요?'}
+          </Title>
 
           <Subtitle>
             원하는 분위기나 지역을 적어주시면,

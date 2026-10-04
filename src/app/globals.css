@@ -21,11 +21,14 @@
 
 
 :root {
-  --font-hanok: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
-  --font-traditional: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
-  --font-traditional-title: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
-  --font-traditional-body: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
-  --font-dohyun: 'Dohyun', sans-serif;
+  --font-ui: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-display: 'Dohyun', sans-serif;
+  /* 하위 호환 — 기존 코드에서 참조하는 변수명 유지 */
+  --font-hanok: var(--font-ui);
+  --font-traditional: var(--font-ui);
+  --font-traditional-title: 'Dohyun', var(--font-display);
+  --font-traditional-body: var(--font-ui);
+  --font-dohyun: var(--font-display);
   --background: var(--color-bg-app);
   --foreground: var(--color-text-primary);
 }

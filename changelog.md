@@ -3,6 +3,10 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 마이페이지(`src/app/mypage/page.tsx`) Awwwards-grade 2-Column 서재 레이아웃 리뉴얼 및 GNB 메뉴바 너비(`1140px`) 1:1 맞춤 동기화.
+- 헤더 유저 로그인 버튼(`LoginButton`)의 라이트모드 검정 바탕 현상 교정 및 `tokens.ts`의 `ringShadow` 토큰 일괄 적용.
+- `MonthlyTimeline` 컴포넌트 하드코딩 갈색 배경을 `tokens.ts` 시맨틱 토큰(`var(--color-bg-surface)`)으로 전면 전환.
+- 홈 화면 타이틀에 로그인 유저 닉네임 개인화(`{displayName}님, 어떤 장소로 떠나고 싶으세요?`) 반영.
 - fix(map) Issue #321: 온기모드 방문자 수(PERSONS) 관측 데이터가 혼잡도 점수(0~100)로 잘못 사용되어 지도상의 모든 지점이 최대 혼잡(surge/빨간색)으로 표시되던 문제를 수정했다. 점수(SCORE) 단위만 혼잡도 시계열로 매핑하고, 지역 코드(regionCode) 기반의 엄격한 1:1 매칭을 적용하여 타 지역 스팟의 혼잡도 점수 오염을 차단했다.
 - 소리마루 라이트 모드의 전체 캔버스를 순백색으로 복구하고, `오늘, 여기에서`의 `반경 3km`·`전국 큐레이션` 강조색을 선택된 지역 칩과 같은 브랜드 주황색으로 통일했다.
 - 홈·한옥마루·소리마루의 라이트 모드 배경을 공통 중립 회색 캔버스 토큰으로 통일해, 소리마루만 순백색으로 떠 보이던 차이를 없앴다.

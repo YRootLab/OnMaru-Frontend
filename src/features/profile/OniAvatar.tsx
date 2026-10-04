@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { resolveCharacterPath, resolveBackground } from './assets';
 
 interface OniAvatarProps {
@@ -11,7 +11,13 @@ interface OniAvatarProps {
 export function OniAvatar({ characterId, backgroundId, size = 48, className }: OniAvatarProps) {
   const bg = resolveBackground(backgroundId);
   const src = resolveCharacterPath(characterId);
-  const [imgSrc, setImgSrc] = useState(src);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+  }, [src]);
+
+  const currentSrc = hasError ? '/images/character/Oni_hi.png' : src;
 
   return (
     <div
@@ -22,20 +28,25 @@ export function OniAvatar({ characterId, backgroundId, size = 48, className }: O
         borderRadius: '50%',
         backgroundColor: bg,
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'center',
         flexShrink: 0,
         overflow: 'hidden',
+        position: 'relative',
       }}
     >
       <img
-        src={imgSrc}
+        src={currentSrc}
         alt=""
         aria-hidden="true"
-        width={size * 0.78}
-        height={size * 0.78}
-        style={{ objectFit: 'contain', display: 'block' }}
-        onError={() => setImgSrc('/images/character/Oni_hi.png')}
+        style={{
+          width: '92%',
+          height: '92%',
+          objectFit: 'contain',
+          objectPosition: 'center bottom',
+          display: 'block',
+        }}
+        onError={() => setHasError(true)}
       />
     </div>
   );

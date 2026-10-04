@@ -321,11 +321,11 @@ export const semanticTokens = {
       hanokMark: palette.juhong[500],
     },
     action: {
-      primary:        palette.kobalt[200],   // 200-tone 탈채도, 링크·아이콘·포커스
-      primaryHover:   palette.kobalt[100],
-      primaryPressed: palette.kobalt[300],
-      primaryBg:      'rgba(133, 184, 255, 0.12)',
-      primarySubtle:  'rgba(133, 184, 255, 0.08)',
+      primary:        palette.juhong[400],
+      primaryHover:   palette.juhong[300],
+      primaryPressed: palette.juhong[500],
+      primaryBg:      'rgba(255, 106, 16, 0.15)',
+      primarySubtle:  'rgba(255, 106, 16, 0.10)',
     },
     nav: {
       primary:        palette.cheongrok[200],

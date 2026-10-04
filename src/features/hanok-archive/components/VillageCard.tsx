@@ -18,10 +18,19 @@ const Card = styled(motion.article, transientProps)<{ $bg: string | null }>`
   overflow: hidden;
   cursor: pointer;
   user-select: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: box-shadow 0.28s ease, transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   ${({ $bg }) =>
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
       : `background: linear-gradient(135deg, ${palette.cheongrok[900]} 0%, ${meok[900]} 100%);`}
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    &:hover {
+      transform: scale(1.025);
+      box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.2), 0 20px 48px rgba(0, 0, 0, 0.32);
+    }
+  }
 
   @media (max-width: 480px) {
     border-radius: 16px;
@@ -182,9 +191,9 @@ const GradientOverlay = styled.div`
   background: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.15) 40%,
-    rgba(14, 18, 16, 0.7) 70%,
-    rgba(10, 14, 12, 0.88) 100%
+    rgba(0, 0, 0, 0.08) 40%,
+    rgba(14, 18, 16, 0.58) 68%,
+    rgba(10, 14, 12, 0.78) 100%
   );
   display: flex;
   flex-direction: column;
@@ -202,10 +211,9 @@ const Name = styled.h3`
   z-index: 1;
   font-family: var(--font-hanok);
   font-size: ${fluidHeading.label};
-  font-weight: 400;
+  font-weight: 600;
   color: #ffffff;
-  margin: 0 0 6px;
-  min-height: 2.5em;
+  margin: 0 0 4px;
   letter-spacing: -0.02em;
   line-height: 1.25;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
@@ -218,46 +226,31 @@ const Name = styled.h3`
   text-overflow: ellipsis;
 `;
 
-const TypeBadge = styled.span`
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  color: #ffffff;
+const Region = styled.p`
+  position: relative;
+  z-index: 1;
   font-size: ${fontSize.xs};
   font-weight: 500;
-  padding: 5px 10px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 10px;
+  letter-spacing: 0.01em;
+`;
+
+const TypeBadge = styled.span`
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: ${fontSize.xs};
+  font-weight: 500;
+  padding: 4px 10px;
   border-radius: 9999px;
   white-space: nowrap;
   flex-shrink: 0;
+  letter-spacing: 0.01em;
 `;
 
-const ActionButton = styled(motion.div, transientProps)`
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 38px;
-  background: #ffffff;
-  color: #191f28;
-  border-radius: 9999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  letter-spacing: -0.01em;
-
-  transition: background-color 0.2s ease;
-
-  .village-card:hover & {
-    background: #f8fafc;
-  }
-
-  @media (max-width: 480px) {
-    height: 32px;
-    font-size: ${fontSize.micro};
-  }
-`;
 
 const TopBadgeRow = styled.div`
   position: absolute;
@@ -278,19 +271,19 @@ const TopBadgeRow = styled.div`
 `;
 
 const DocentTag = styled.span`
-  background: rgba(11, 18, 32, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: none;
-  box-shadow: none;
-  color: #ffffff;
+  background: rgba(11, 18, 32, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.92);
   font-size: ${fontSize.xs};
   font-weight: 600;
-  padding: 5px 10px;
+  padding: 4px 10px;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  letter-spacing: 0.01em;
 `;
 
 const HAS_DOCENT_TYPES = ['고궁', '민속마을'];
@@ -344,8 +337,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
         <SpotlightLayer data-testid="village-card-spotlight" aria-hidden="true" />
         <GlassLens data-testid="village-card-glass-lens" aria-hidden="true" />
         <Name>{village.name}</Name>
-
-        <ActionButton>도감 해설 보기</ActionButton>
+        {village.region && <Region>{village.region}</Region>}
       </GradientOverlay>
     </Card>
   );
