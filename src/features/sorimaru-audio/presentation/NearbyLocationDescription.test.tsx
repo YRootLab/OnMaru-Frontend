@@ -15,6 +15,8 @@ describe('NearbyLocationDescription', () => {
 
     expect(screen.getByText('반경 3km').getAttribute('data-emphasis')).toBe('nearby-radius');
     expect(screen.getByText('전국 큐레이션').getAttribute('data-emphasis')).toBe('national-curation');
+    expect(getComputedStyle(screen.getByText('반경 3km')).color).toBe('rgb(255, 85, 0)');
+    expect(getComputedStyle(screen.getByText('전국 큐레이션')).color).toBe('rgb(255, 85, 0)');
     expect(document.querySelector('[data-tone="neutral"]')?.textContent).toBe(
       '반경 3km 안에는 아직 등록된 이야기가 없어요. 전국 큐레이션을 보여드릴게요.',
     );

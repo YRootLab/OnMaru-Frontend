@@ -113,7 +113,9 @@ export default function ViewportOverlays() {
     if (!viewportRenderMode || viewportRenderMode === 'PLACE') return;
     if (viewportItems.length === 0) return;
 
-    const displayed = viewportItems.slice(0, MAX_OVERLAYS);
+    const displayed = viewportItems
+      .filter((item) => item.type !== 'PLACE')
+      .slice(0, MAX_OVERLAYS);
 
     displayed.forEach((item) => {
       const { lat, lng } = item.center;

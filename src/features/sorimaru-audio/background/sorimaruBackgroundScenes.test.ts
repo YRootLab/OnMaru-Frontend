@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { surface } from '@/design-system/tokens';
 import {
   getSorimaruTearBoundaries,
   SORIMARU_BACKGROUND_DARK_PALETTE,
@@ -11,9 +10,9 @@ import {
 } from './sorimaruBackgroundScenes';
 
 describe('Sorimaru background scene model', () => {
-  it('uses the shared light app canvas across every experimental background', () => {
+  it('uses a pure white canvas for the Sorimaru light theme', () => {
     expect(SORIMARU_BACKGROUND_PALETTE).toEqual({
-      canvas: surface.light.base,
+      canvas: '#ffffff',
       paper: '#ffffff',
       lightRgb: '255, 255, 255',
       fiberRgb: '112, 112, 112',
