@@ -39,15 +39,6 @@ const Grid = styled(motion.div)`
     gap: 24px;
   }
 
-  .featured-slot {
-    @media (min-width: 400px) {
-      grid-column: span 2;
-
-      .village-card {
-        aspect-ratio: 2 / 1;
-      }
-    }
-  }
 `;
 
 const containerVariants = {
@@ -213,11 +204,10 @@ export default function HanokGrid({
               }}
               onPointerLeave={(event) => clearGridReveal(event.currentTarget)}
             >
-              {paginatedItems.map((v, i) => (
+              {paginatedItems.map((v) => (
                 <motion.div
                   key={v.id}
                   variants={itemVariants}
-                  className={state.page === 1 && i === 0 ? 'featured-slot' : undefined}
                 >
                   <VillageCard village={v} onClick={onSelectVillage} />
                 </motion.div>

@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
     "style-src 'self' 'unsafe-inline' https://spoqa.github.io https://cdn.jsdelivr.net",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://spoqa.github.io https://cdn.jsdelivr.net",
-    "connect-src 'self' https: wss:",
+    "connect-src 'self' blob: https: wss:",
     "media-src 'self' blob:",
     "worker-src 'self' blob: https:",
     "frame-src https://www.googletagmanager.com",

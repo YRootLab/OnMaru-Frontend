@@ -231,6 +231,11 @@ export const semanticTokens = {
       primaryPressed: palette.juhong[700],
       primaryBg:      palette.juhong[50],
       primarySubtle:  palette.juhong[100],
+      secondary:        palette.cheongrok[600],
+      secondaryHover:   palette.cheongrok[500],
+      secondaryPressed: palette.cheongrok[700],
+      secondaryBg:      palette.cheongrok[50],
+      secondarySubtle:  palette.cheongrok[100],
     },
     nav: {
       primary:        palette.cheongrok[500],
@@ -326,6 +331,11 @@ export const semanticTokens = {
       primaryPressed: palette.juhong[500],
       primaryBg:      'rgba(255, 106, 16, 0.15)',
       primarySubtle:  'rgba(255, 106, 16, 0.10)',
+      secondary:        palette.cheongrok[300],
+      secondaryHover:   palette.cheongrok[200],
+      secondaryPressed: palette.cheongrok[400],
+      secondaryBg:      'rgba(0, 196, 113, 0.15)',
+      secondarySubtle:  'rgba(0, 196, 113, 0.10)',
     },
     nav: {
       primary:        palette.cheongrok[200],

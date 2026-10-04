@@ -99,7 +99,7 @@ export default function QuickIndexBar({ className }: QuickIndexBarProps) {
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('hanok-stays')}>
-        <HugeiconsIcon icon={Home01Icon} size={15} strokeWidth={2} color={palette.cheongrok[500]} />
+        <HugeiconsIcon icon={Home01Icon} size={15} strokeWidth={2} color="var(--color-action-secondary)" />
         <span>지역별 한옥 스테이</span>
       </IndexChip>
 

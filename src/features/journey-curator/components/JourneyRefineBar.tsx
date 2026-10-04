@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { SparklesIcon, CornerDownLeftIcon, AlertCircleIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, palette, meok, surface , fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 
 const Wrapper = styled.div`
@@ -59,8 +59,8 @@ const InputRow = styled.form`
 
   &:focus-within {
     background: #ffffff;
-    border-color: ${lightPalette.cheongrok[500]};
-    box-shadow: 0 4px 16px rgba(0, 184, 130, 0.12);
+    border-color: var(--color-action-secondary);
+    box-shadow: 0 4px 16px var(--color-action-secondary-bg);
 
     [data-theme='dark'] & {
       background: ${surface.dark.surface};
@@ -105,7 +105,7 @@ const SendBtn = styled.button<{ $disabled?: boolean }>`
   }
 
   &:hover {
-    background: ${lightPalette.cheongrok[500]};
+    background: var(--color-action-secondary);
     transform: scale(1.06);
   }
 
@@ -190,7 +190,7 @@ export default function JourneyRefineBar() {
             </>
           ) : (
             <>
-              <HugeiconsIcon icon={SparklesIcon} size={16} color={lightPalette.cheongrok[500]} />
+              <HugeiconsIcon icon={SparklesIcon} size={16} color="var(--color-action-secondary)" />
               <span>
                 {isGenerating
                   ? '요청하신 내용을 반영해 코스를 다시 짜고 있어요'
@@ -229,4 +229,4 @@ export default function JourneyRefineBar() {
       </Box>
     </Wrapper>
   );
-}
+}

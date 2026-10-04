@@ -289,13 +289,8 @@ const styles = css`
   }
 
   .om-note-badge.mood-quiet {
-    background: ${lightPalette.cheongrok[50]};
-    color: ${lightPalette.cheongrok[700]};
-  }
-
-  [data-theme='dark'] .om-note-badge.mood-quiet {
-    background: ${darkPalette.cheongrok[900]};
-    color: ${darkPalette.cheongrok[100]};
+    background: var(--color-action-secondary-bg);
+    color: var(--color-action-secondary);
   }
 
 

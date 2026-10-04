@@ -600,7 +600,7 @@ export default function KnowledgeGraphView() {
       >
         <GraphHeader>
           <HeaderTitle>
-            <HugeiconsIcon icon={NetworkIcon} size={16} color={lightPalette.cheongrok[500]} />
+            <HugeiconsIcon icon={NetworkIcon} size={16} color="var(--color-action-secondary)" />
             <span>AI 여정 지식 그래프 · {plan.region}</span>
           </HeaderTitle>
 
@@ -681,4 +681,4 @@ export default function KnowledgeGraphView() {
       </GraphCard>
     </Container>
   );
-}
+}

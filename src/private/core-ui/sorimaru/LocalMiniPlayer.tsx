@@ -537,14 +537,14 @@ const HeartSaveButton = styled(motion.button)<{ $saved: boolean }>`
   justify-content: center;
   border-radius: 9999px;
   cursor: pointer;
-  color: ${({ $saved }) => ($saved ? palette.juhong[500] : meok[600])};
-  background: ${({ $saved }) => ($saved ? palette.juhong[50] : '#efefed')};
-  border: 1px solid ${({ $saved }) => ($saved ? palette.juhong[200] : 'rgba(0, 0, 0, 0.05)')};
+  color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary)' : meok[600])};
+  background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-bg)' : '#efefed')};
+  border: 1px solid ${({ $saved }) => ($saved ? 'var(--color-action-secondary-subtle)' : 'rgba(0, 0, 0, 0.05)')};
 
   [data-theme='dark'] & {
-    color: ${({ $saved }) => ($saved ? palette.juhong[400] : meok[300])};
-    background: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.15)' : 'rgba(255, 255, 255, 0.08)')};
-    border-color: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.3)' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary)' : meok[300])};
+    background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-bg)' : 'rgba(255, 255, 255, 0.08)')};
+    border-color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-subtle)' : 'rgba(255, 255, 255, 0.08)')};
   }
 `;
 
@@ -587,21 +587,21 @@ const MiniHeartBtn = styled(motion.button)<{ $saved: boolean }>`
   justify-content: center;
   border-radius: 9999px;
   cursor: pointer;
-  color: ${({ $saved }) => ($saved ? palette.juhong[500] : meok[600])};
-  background: ${({ $saved }) => ($saved ? palette.juhong[50] : 'transparent')};
+  color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary)' : meok[600])};
+  background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-bg)' : 'transparent')};
   border: none;
   transition: background 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: ${({ $saved }) => ($saved ? palette.juhong[100] : 'rgba(0, 0, 0, 0.05)')};
+    background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-subtle)' : 'rgba(0, 0, 0, 0.05)')};
   }
 
   [data-theme='dark'] & {
-    color: ${({ $saved }) => ($saved ? palette.juhong[400] : meok[400])};
-    background: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.15)' : 'transparent')};
+    color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary)' : meok[400])};
+    background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-bg)' : 'transparent')};
 
     &:hover {
-      background: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.25)' : 'rgba(255, 255, 255, 0.08)')};
+      background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-subtle)' : 'rgba(255, 255, 255, 0.08)')};
     }
   }
 `;

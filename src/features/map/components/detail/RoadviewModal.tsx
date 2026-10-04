@@ -86,15 +86,10 @@ const SubBadge = styled.span`
   gap: 4px;
   padding: 3px 8px;
   border-radius: 9999px;
-  background: ${lightPalette.cheongrok[50]};
-  color: ${lightPalette.cheongrok[700]};
+  background: var(--color-action-secondary-bg);
+  color: var(--color-action-secondary);
   font-size: ${fontSize.micro};
   font-weight: 700;
-
-  [data-theme='dark'] & {
-    background: rgba(0, 167, 106, 0.18);
-    color: ${darkPalette.cheongrok[200]};
-  }
 `;
 
 const CloseButton = styled.button`

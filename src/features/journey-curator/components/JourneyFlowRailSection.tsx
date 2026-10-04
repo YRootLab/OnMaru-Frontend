@@ -125,7 +125,7 @@ const ViewTab = styled.button<{ $active: boolean }>`
   margin-right: 18px;
   background: none;
   border: none;
-  border-bottom: 2px solid ${({ $active }) => ($active ? palette.juhong[500] : 'transparent')};
+  border-bottom: 2px solid ${({ $active }) => ($active ? 'var(--color-action-secondary)' : 'transparent')};
   font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${({ $active }) => ($active ? meok[900] : meok[400])};

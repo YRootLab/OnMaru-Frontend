@@ -396,7 +396,7 @@ export default function PlaceDetail() {
           </SkeletonBox>
         ) : error && !data && !selectedItem ? (
           <ErrorBox role="alert">
-            <HugeiconsIcon icon={AlertCircleIcon} size={32} color={lightPalette.cheongrok[700]} strokeWidth={1.8} style={{ marginBottom: 12 }} />
+            <HugeiconsIcon icon={AlertCircleIcon} size={32} color="var(--color-action-secondary)" strokeWidth={1.8} style={{ marginBottom: 12 }} />
             <p style={{ margin: '0 0 16px', fontSize: 14, color: meok[700] }}>{error}</p>
             <ShareButton type="button" onClick={reload}>
               <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
@@ -683,7 +683,7 @@ export default function PlaceDetail() {
         </BookmarkButton>
 
         <ShareButton type="button" onClick={handleShare} aria-label="장소 링크 공유하기">
-          {copied ? <HugeiconsIcon icon={CheckIcon} size={16} color={lightPalette.cheongrok[700]} strokeWidth={2} /> : <HugeiconsIcon icon={Share01Icon} size={16} strokeWidth={2} />}
+          {copied ? <HugeiconsIcon icon={CheckIcon} size={16} color="var(--color-action-secondary)" strokeWidth={2} /> : <HugeiconsIcon icon={Share01Icon} size={16} strokeWidth={2} />}
           <span>{copied ? '복사됨' : '공유하기'}</span>
         </ShareButton>
 

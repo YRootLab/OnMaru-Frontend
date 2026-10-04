@@ -239,7 +239,7 @@ const MapRetryButton = styled.button`
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.cheongrok[500]};
+    outline: 2px solid var(--color-action-secondary);
     outline-offset: 2px;
   }
 
@@ -446,9 +446,9 @@ const ModalAllowBtn = styled.button`
   &:active { transform: scale(0.97); }
 
   [data-theme='dark'] & {
-    background: ${lightPalette.cheongrok[500]};
+    background: var(--color-action-secondary);
     color: #ffffff;
-    &:hover { background: ${lightPalette.cheongrok[600]}; }
+    &:hover { background: var(--color-action-secondary-hover); }
   }
 `;
 

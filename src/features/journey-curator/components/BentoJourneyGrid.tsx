@@ -131,9 +131,9 @@ const AiBadge = styled.div`
   gap: 5px;
   font-size: ${fontSize.micro};
   font-weight: 500;
-  color: ${lightPalette.cheongrok[500]};
-  background: rgba(0, 184, 130, 0.08);
-  border: 1px solid rgba(0, 184, 130, 0.2);
+  color: var(--color-action-secondary);
+  background: var(--color-action-secondary-bg);
+  border: 1px solid var(--color-action-secondary-subtle);
   padding: 3px 10px;
   border-radius: 9999px;
   width: fit-content;
@@ -518,7 +518,7 @@ const GaugeFill = styled.div<{ $pct: number }>`
   width: ${({ $pct }) => $pct}%;
   height: 100%;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[500]};
+  background: var(--color-action-secondary);
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
@@ -686,7 +686,7 @@ export default function BentoJourneyGrid() {
 
         {}
         <HanokCard>
-          <CardBadge $color={lightPalette.cheongrok[500]}>
+          <CardBadge $color="var(--color-action-secondary)">
             <HugeiconsIcon icon={LandmarkIcon} size={14} strokeWidth={2} />
             <span>공간 기록</span>
           </CardBadge>
@@ -698,7 +698,7 @@ export default function BentoJourneyGrid() {
 
           <HanokDesc>{hanokCard.architecturalPoint}</HanokDesc>
 
-          <ActionLink href={hanokCard.hanokLink} $color={lightPalette.cheongrok[500]}>
+          <ActionLink href={hanokCard.hanokLink} $color="var(--color-action-secondary)">
             <span>한옥 구조 살펴보기</span>
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
@@ -767,4 +767,4 @@ export default function BentoJourneyGrid() {
       </BentoGrid>
     </Container>
   );
-}
+}

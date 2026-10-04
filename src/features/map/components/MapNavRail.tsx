@@ -81,7 +81,7 @@ const LogoArea = styled.div`
   }
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.cheongrok[500]};
+    outline: 2px solid var(--color-action-secondary);
     outline-offset: 2px;
     border-radius: 8px;
   }
