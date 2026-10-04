@@ -6,7 +6,8 @@ export function middleware(request: NextRequest) {
   const csp = [
     "default-src 'self'",
     // strict-dynamic: nonce'd script이 로드한 하위 스크립트도 신뢰. URL 화이트리스트는 CSP1 폴백용.
-    `script-src 'nonce-${nonce}' 'strict-dynamic' https: 'unsafe-inline'`,
+    // unsafe-eval: React 개발 모드 전용 (callstack 재구성 등). 프로덕션에선 포함 안 됨.
+    `script-src 'nonce-${nonce}' 'strict-dynamic' https: 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline' https://spoqa.github.io https://cdn.jsdelivr.net",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://spoqa.github.io https://cdn.jsdelivr.net",
