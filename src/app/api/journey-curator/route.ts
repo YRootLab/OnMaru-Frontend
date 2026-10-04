@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { BentoJourneyPlan } from '@/features/journey-curator/types/journey.types';
 import { matchJourneyPlan } from '@/features/journey-curator/data/curatedJourneys';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 const SYSTEM_PROMPT = `당신은 한국 전통 한옥과 문화유산, 지역 정취를 깊이 있게 연결하는 '온마루(OnMaru) AI 여정 큐레이터'입니다.
 사용자의 감정, 여행 요청 키워드, 또는 이전 여정 수정 요청에 맞추어 깊이 있고 시적인 전통 한옥 여행 플랜을 반드시 유효한 JSON 형식으로만 응답하세요.
@@ -233,6 +234,9 @@ async function callGemini(apiKey: string, modelName: string, userPrompt: string)
 }
 
 export async function POST(req: NextRequest) {
+  if (!rateLimit(getClientIp(req))) {
+    return NextResponse.json({ error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' }, { status: 429 });
+  }
   try {
     const body = await req.json().catch(() => ({}));
     const query = typeof body.query === 'string' ? body.query.trim() : '';
