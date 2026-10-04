@@ -148,6 +148,7 @@ export interface HeatSpot {
   lat: number;
   lng: number;
   district: string;
+  regionCode?: string;
   visitorCount: number;
   congestionScore: number;
   congestionLevel: CongestionLevel;
