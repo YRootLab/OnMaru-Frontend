@@ -24,9 +24,12 @@ const ONBOARDING_KEY = 'onmaru_onboarding_v1';
 function safeNext(raw: string | null): string {
   if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) return '/mypage';
   try {
-    const u = new URL(raw, typeof window !== 'undefined' ? window.location.origin : 'https://onmaru.site');
-    if (u.origin !== (typeof window !== 'undefined' ? window.location.origin : 'https://onmaru.site')) return '/mypage';
-    return u.pathname + u.search + u.hash;
+    const base = typeof window !== 'undefined' ? window.location.origin : 'https://www.onmaru.site';
+    const u = new URL(raw, base);
+    if (u.origin !== base) return '/mypage';
+    const out = u.pathname + u.search + u.hash;
+    if (!out.startsWith('/') || out.startsWith('//') || out.startsWith('/\\')) return '/mypage';
+    return out;
   } catch { return '/mypage'; }
 }
 
