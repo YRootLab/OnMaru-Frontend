@@ -125,31 +125,31 @@ describe('useKakaoMap viewport scheduling', () => {
     vi.useRealTimers();
   });
 
-  it('coalesces repeated idle events and commits once 900ms after the last event', () => {
+  it('coalesces repeated idle events and commits within 200ms after the last event', () => {
     const container = document.createElement('div');
     renderHook(() => useKakaoMap({ current: container }));
     mapLevel = 9;
 
     act(() => idleListener?.());
-    act(() => vi.advanceTimersByTime(600));
+    act(() => vi.advanceTimersByTime(100));
     act(() => idleListener?.());
-    act(() => vi.advanceTimersByTime(899));
+    act(() => vi.advanceTimersByTime(149));
     expect(useMapStore.getState().reloadNonce).toBe(0);
 
     act(() => vi.advanceTimersByTime(1));
     expect(useMapStore.getState().reloadNonce).toBe(1);
   });
 
-  it('does not commit a one-level zoom or a sub-threshold drag', () => {
+  it('commits a one-level zoom', () => {
     const container = document.createElement('div');
     renderHook(() => useKakaoMap({ current: container }));
     mapLevel = 8;
     mapCenter = { lat: DEFAULT_CENTER.lat + 0.005, lng: DEFAULT_CENTER.lng };
 
     act(() => idleListener?.());
-    act(() => vi.advanceTimersByTime(900));
+    act(() => vi.advanceTimersByTime(150));
 
-    expect(useMapStore.getState().reloadNonce).toBe(0);
+    expect(useMapStore.getState().reloadNonce).toBe(1);
   });
 
   it('discards a pending settle when an explicit viewport action commits first', () => {
@@ -158,7 +158,7 @@ describe('useKakaoMap viewport scheduling', () => {
     mapLevel = 9;
 
     act(() => idleListener?.());
-    act(() => vi.advanceTimersByTime(400));
+    act(() => vi.advanceTimersByTime(75));
 
     const explicitSnapshot = {
       center: { lat: 35.815, lng: 127.153 },

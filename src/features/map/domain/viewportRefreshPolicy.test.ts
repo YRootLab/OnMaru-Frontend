@@ -12,12 +12,12 @@ const committed: ViewportSnapshot = {
 };
 
 describe('viewport refresh policy', () => {
-  it('uses a 900ms trailing settle window', () => {
-    expect(VIEWPORT_SETTLE_MS).toBe(900);
+  it('settles a map interaction within 200ms', () => {
+    expect(VIEWPORT_SETTLE_MS).toBeLessThanOrEqual(200);
   });
 
-  it('keeps a one-level zoom on the committed result', () => {
-    expect(shouldCommitViewport({ ...committed, level: 8 }, committed)).toBe(false);
+  it('commits a one-level zoom so the map can request the new aggregate', () => {
+    expect(shouldCommitViewport({ ...committed, level: 8 }, committed)).toBe(true);
   });
 
   it('commits after a cumulative two-level zoom', () => {
