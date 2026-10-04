@@ -4,7 +4,9 @@ import { intensityOf, levelOf } from './congestion';
 export function selectHeatSpotsForDay(heatSpots: HeatSpot[], heatDayIndex: number): HeatSpot[] {
   return heatSpots.map((spot) => {
     const score = spot.series?.[heatDayIndex];
-    if (score === undefined) return spot;
+    if (score === undefined || typeof score !== 'number' || isNaN(score) || score < 0 || score > 100) {
+      return spot;
+    }
 
     return {
       ...spot,
