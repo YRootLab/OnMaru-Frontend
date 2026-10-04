@@ -69,14 +69,14 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
     };
 
     const result = await fetchWarmthData(
-      { date: '2026-09-28' },
+      { date: '2026-09-28', regionCode: 'kr-45-jeonju' },
       { repository, delayFn: mockDelayImmediate },
     );
 
     expect(repository.getHeatmap).toHaveBeenCalledWith({
       date: '2026-09-28',
       metric: 'VISIT_COUNT',
-      regionCode: undefined,
+      regionCode: 'kr-45-jeonju',
     });
 
     expect(result.source).toBe('SPRING');
@@ -96,6 +96,7 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
       lat: 35.815,
       lng: 127.153,
       district: '전주시 완산구',
+      regionCode: 'kr-45-jeonju',
       visitorCount: 12345,
       congestionScore: 62.4,
       congestionLevel: 'moderate',
@@ -368,7 +369,7 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
     expect(r4).toBe(r1);
   });
 
-  it('9. Spring observations 시계열 연동: observations API 호출 시 days 및 spot.series가 복원됨', async () => {
+  it('9. Spring observations 시계열 연동: SCORE 단위 observations API 호출 시 days 및 spot.series가 정상 연동됨', async () => {
     const mockSpringSpot: SpringHeatmapSpot = {
       id: 'spot-jeonju',
       placeId: 'p-jeonju',
@@ -397,9 +398,9 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
             observationId: 'obs-1',
             region: { regionCode: 'kr-45-jeonju', name: '전주시 완산구', level: 'SIGUNGU', parentRegionCode: null },
             observedDate: '2026-09-27',
-            metric: 'VISIT_COUNT',
+            metric: 'CONGESTION_SCORE',
             value: 45,
-            unit: 'PERSONS',
+            unit: 'SCORE',
             spatialLevel: 'SIGUNGU',
             coverageStatus: 'COMPLETE',
           },
@@ -407,9 +408,9 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
             observationId: 'obs-2',
             region: { regionCode: 'kr-45-jeonju', name: '전주시 완산구', level: 'SIGUNGU', parentRegionCode: null },
             observedDate: '2026-09-28',
-            metric: 'VISIT_COUNT',
+            metric: 'CONGESTION_SCORE',
             value: 65,
-            unit: 'PERSONS',
+            unit: 'SCORE',
             spatialLevel: 'SIGUNGU',
             coverageStatus: 'COMPLETE',
           },
@@ -430,5 +431,115 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
     expect(result.days).toHaveLength(2);
     expect(result.days.map((d) => d.ymd)).toEqual(['20260927', '20260928']);
     expect(result.spots[0].series).toEqual([45, 65]);
+    expect(result.spots[0].congestionScore).toBe(60);
+  });
+
+  it('10. Issue #321 회귀 방지: 방문자 수(PERSONS) 단위는 spot.series로 사용하지 않아 혼잡도 점수 오염을 방지한다', async () => {
+    const mockSpringSpot: SpringHeatmapSpot = {
+      id: 'spot-jeonju',
+      placeId: 'p-jeonju',
+      name: '전주 한옥마을',
+      region: { regionCode: 'kr-45-jeonju', name: '전주시 완산구', level: 'SIGUNGU' },
+      coordinates: { lat: 35.815, lng: 127.153 },
+      congestionScore: 35,
+      congestionLevel: 'moderate',
+    };
+
+    const repository: MapInsightsRepository = {
+      getHeatmap: vi.fn().mockResolvedValue({
+        schemaVersion: '1.2',
+        coverageStatus: 'COMPLETE',
+        metric: 'VISIT_COUNT',
+        observedDate: '2026-09-28',
+        generatedAt: '2026-09-28T00:00:00Z',
+        spots: [mockSpringSpot as any],
+      }),
+      getObservations: vi.fn().mockResolvedValue({
+        schemaVersion: '1.2',
+        coverageStatus: 'COMPLETE',
+        generatedAt: '2026-09-28T00:00:00Z',
+        items: [
+          {
+            observationId: 'obs-1',
+            region: { regionCode: 'kr-45-jeonju', name: '전주시 완산구', level: 'SIGUNGU', parentRegionCode: null },
+            observedDate: '2026-09-27',
+            metric: 'VISITOR_COUNT',
+            value: 14500, // 14,500 persons
+            unit: 'PERSONS',
+            spatialLevel: 'SIGUNGU',
+            coverageStatus: 'COMPLETE',
+          },
+          {
+            observationId: 'obs-2',
+            region: { regionCode: 'kr-45-jeonju', name: '전주시 완산구', level: 'SIGUNGU', parentRegionCode: null },
+            observedDate: '2026-09-28',
+            metric: 'VISITOR_COUNT',
+            value: 19800, // 19,800 persons
+            unit: 'PERSONS',
+            spatialLevel: 'SIGUNGU',
+            coverageStatus: 'COMPLETE',
+          },
+        ],
+      }),
+    };
+
+    const result = await fetchWarmthData(
+      { date: '2026-09-28', regionCode: 'kr-45-jeonju' },
+      { repository, delayFn: mockDelayImmediate },
+    );
+
+    expect(result.days).toHaveLength(2);
+    expect(result.days.map((d) => d.ymd)).toEqual(['20260927', '20260928']);
+    // Visitor count is NOT placed into series as a congestion score
+    expect(result.spots[0].series).toBeUndefined();
+    expect(result.spots[0].congestionScore).toBe(35);
+    expect(result.spots[0].congestionLevel).toBe('moderate');
+  });
+
+  it('11. Issue #321 다지역 격리: 전국 조회 시 다른 지역의 혼잡도 점수와 색상이 유지됨', async () => {
+    const jeonjuSpot: SpringHeatmapSpot = {
+      id: 'spot-jeonju',
+      placeId: 'p-jeonju',
+      name: '전주 한옥마을',
+      region: { regionCode: 'kr-45-jeonju', name: '전주시 완산구', level: 'SIGUNGU' },
+      coordinates: { lat: 35.815, lng: 127.153 },
+      congestionScore: 30,
+      congestionLevel: 'relaxed',
+    };
+    const seoulSpot: SpringHeatmapSpot = {
+      id: 'spot-seoul',
+      placeId: 'p-seoul',
+      name: '북촌 한옥마을',
+      region: { regionCode: 'kr-11-jongno', name: '서울시 종로구', level: 'SIGUNGU' },
+      coordinates: { lat: 37.582, lng: 126.983 },
+      congestionScore: 85,
+      congestionLevel: 'surge',
+    };
+
+    const repository: MapInsightsRepository = {
+      getHeatmap: vi.fn().mockResolvedValue({
+        schemaVersion: '1.2',
+        coverageStatus: 'COMPLETE',
+        metric: 'VISIT_COUNT',
+        observedDate: '2026-09-28',
+        generatedAt: '2026-09-28T00:00:00Z',
+        spots: [jeonjuSpot as any, seoulSpot as any],
+      }),
+      getObservations: vi.fn(),
+    };
+
+    const result = await fetchWarmthData(
+      { date: '2026-09-28' },
+      { repository, delayFn: mockDelayImmediate },
+    );
+
+    expect(result.spots).toHaveLength(2);
+    const j = result.spots.find((s) => s.id === 'spot-jeonju')!;
+    const s = result.spots.find((s) => s.id === 'spot-seoul')!;
+
+    expect(j.congestionScore).toBe(30);
+    expect(j.congestionLevel).toBe('relaxed');
+    expect(s.congestionScore).toBe(85);
+    expect(s.congestionLevel).toBe('surge');
   });
 });

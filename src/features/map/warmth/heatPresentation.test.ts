@@ -27,6 +27,21 @@ describe('selectHeatSpotsForDay', () => {
       expect.objectContaining({ id: 'heat-1', congestionScore: 80, congestionLevel: 'surge' }),
     ]);
   });
+
+  it('ignores out-of-range visitor count values (> 100) in series to prevent surge color corruption', () => {
+    const spotWithVisitorCountSeries: HeatSpot = {
+      ...spot,
+      congestionScore: 25,
+      congestionLevel: 'relaxed',
+      intensity: 0.25,
+      series: [12500], // Raw visitor count (persons) instead of 0~100 score
+    };
+
+    const result = selectHeatSpotsForDay([spotWithVisitorCountSeries], 0);
+    expect(result[0].congestionScore).toBe(25);
+    expect(result[0].congestionLevel).toBe('relaxed');
+    expect(result[0].intensity).toBe(0.25);
+  });
 });
 
 describe('decodeHeatPayload', () => {

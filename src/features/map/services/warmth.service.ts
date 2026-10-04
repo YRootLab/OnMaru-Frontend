@@ -200,7 +200,7 @@ async function executeWarmthFetchFlow(
       let spots = adaptSpringSpotsToHeatSpots((response.spots as unknown as SpringHeatmapSpot[]) || []);
       let days: HeatDay[] = [];
 
-      const targetRegion = regionCode || (response.spots?.[0] as any)?.region?.regionCode;
+      const targetRegion = regionCode;
       if (targetRegion) {
         try {
           const obsResult = await repository.getObservations({
