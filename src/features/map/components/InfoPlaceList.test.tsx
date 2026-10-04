@@ -13,6 +13,11 @@ vi.mock('./PlaceListItem', () => ({
   PlaceListItem: ({ item }: { item: { name: string } }) => <li>{item.name}</li>,
 }));
 
+vi.mock('./feed/LiveNoticeBanner', () => ({ default: () => <div>실시간 한옥 소식</div> }));
+vi.mock('./feed/FestivalExhibitionCarousel', () => ({ default: () => <div>축제·기획전</div> }));
+vi.mock('./feed/SorimaruSpotlightBanner', () => ({ default: () => <div>이번 주 소리마루</div> }));
+vi.mock('./feed/SmartAroundFeed', () => ({ default: () => <div>추천 한옥 명소</div> }));
+
 let observerCallback: IntersectionObserverCallback | null = null;
 
 class IntersectionObserverStub {
@@ -60,6 +65,19 @@ describe('InfoPlaceList', () => {
     render(<InfoPlaceList />);
 
     expect(screen.getByText('한옥 23,675곳')).toBeTruthy();
+    expect(screen.getByText('유지되는 한옥')).toBeTruthy();
+  });
+
+  it('restores the editorial discovery modules above the canonical list on initial ALL mode', () => {
+    useMapStore.setState({ infoCategory: 'all' });
+
+    render(<InfoPlaceList />);
+
+    expect(screen.getByText('실시간 한옥 소식')).toBeTruthy();
+    expect(screen.getByText('축제·기획전')).toBeTruthy();
+    expect(screen.getByText('이번 주 소리마루')).toBeTruthy();
+    expect(screen.getByText('추천 한옥 명소')).toBeTruthy();
+    expect(screen.getByText('전체 23,675곳')).toBeTruthy();
     expect(screen.getByText('유지되는 한옥')).toBeTruthy();
   });
 

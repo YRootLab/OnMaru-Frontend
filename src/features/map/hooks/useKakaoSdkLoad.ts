@@ -43,6 +43,11 @@ export function useKakaoSdkLoad({
   const handleSdkError = useCallback(() => {
     invalidAttemptsRef.current.add(sdkAttempt);
     resetMapInitialization();
+    if (sdkAttempt === 0) {
+      setMapLoadError(null);
+      setSdkAttempt(1);
+      return;
+    }
     setMapLoadError(new MapLoadError('network', null, 'Kakao Maps SDK failed to load'));
   }, [resetMapInitialization, sdkAttempt]);
 

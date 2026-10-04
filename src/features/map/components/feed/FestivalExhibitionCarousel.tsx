@@ -70,6 +70,9 @@ import type { Item } from '@/features/map/types';
 
 interface FestivalExhibitionCarouselProps {
   festivals: Item[];
+  loading?: boolean;
+  onShowAll?: () => void;
+  onSelect?: (item: Item) => void;
 }
 
 const SectionWrapper = styled.div`
@@ -382,12 +385,18 @@ const FALLBACK_FESTIVALS: Item[] = [
   },
 ];
 
-export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibitionCarouselProps) {
+export default function FestivalExhibitionCarousel({
+  festivals,
+  loading: loadingOverride,
+  onShowAll,
+  onSelect,
+}: FestivalExhibitionCarouselProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const map = useMapStore((s) => s.map);
   const setCategory = useMapStore((s) => s.setCategory);
-  const loading = useMapStore((s) => s.loading);
+  const legacyLoading = useMapStore((s) => s.loading);
   const items = useMapStore((s) => s.items);
+  const showSkeleton = loadingOverride ?? (legacyLoading && items.length === 0);
 
   const displayList = festivals.length > 0 ? festivals : FALLBACK_FESTIVALS;
 
@@ -405,7 +414,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
   };
 
 
-  if (loading && items.length === 0) {
+  if (showSkeleton) {
     return (
       <SectionWrapper aria-busy="true" aria-label="진행 중인 축제 및 기획전 불러오는 중">
         <SectionHeader>
@@ -443,6 +452,10 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
   }
 
   const handleClick = (item: Item) => {
+    if (onSelect) {
+      onSelect(item);
+      return;
+    }
     const store = useMapStore.getState();
     if (!store.items.some((i) => i.id === item.id)) {
       store.setItems([item, ...store.items]);
@@ -463,7 +476,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
         <TitleGroup>
           <SectionTitle>진행 중인 축제·기획전</SectionTitle>
         </TitleGroup>
-        <MoreBtn type="button" onClick={() => setCategory('festival')}>
+        <MoreBtn type="button" onClick={onShowAll ?? (() => setCategory('festival'))}>
           <span>전체보기</span>
           <HugeiconsIcon icon={ChevronRightIcon} size={13} strokeWidth={2} />
         </MoreBtn>
