@@ -1,9 +1,9 @@
 import type { LatLng } from '@/features/map/types';
 import { distanceInMeters } from '@/features/map/utils/geo';
 
-export const VIEWPORT_SETTLE_MS = 900;
+export const VIEWPORT_SETTLE_MS = 150;
 
-const MIN_ZOOM_DELTA = 2;
+const MIN_ZOOM_DELTA = 1;
 const MIN_MOVE_METERS = 1_200;
 const VIEWPORT_MOVE_RATIO = 0.2;
 
