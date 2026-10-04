@@ -109,7 +109,7 @@ export default function QuickIndexBar({ className }: QuickIndexBarProps) {
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('map')}>
-        <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2} color={palette.juhong[500]} />
+        <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2} color={palette.cheongrok[500]} />
         <span>전국 한옥 지도</span>
       </IndexChip>
     </IndexContainer>

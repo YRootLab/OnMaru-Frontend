@@ -225,6 +225,12 @@ export const semanticTokens = {
       etc:       meok[600],
       hanokMark: palette.juhong[500],
     },
+    /*
+     * ─── 브랜드 핵심 시맨틱 색상 규칙 ─────────────────────────────────
+     * 주황(juhong)   : CTA 버튼, 한옥 강조, 북마크/찜 (action.primary, text.hanokAccent)
+     * 청록(cheongrok) : 저장됨, 탐색, 진행률, 위치 핀, 여정 탭, 게이지, info 배너, 소리 저장 (action.secondary, nav.primary, info.primary, pin, progress)
+     * ─────────────────────────────────────────────────────────────────
+     */
     action: {
       primary:        palette.juhong[500],
       primaryHover:   palette.juhong[400],
@@ -243,6 +249,14 @@ export const semanticTokens = {
       primaryPressed: palette.cheongrok[700],
       primaryBg:      palette.cheongrok[50],
       primarySubtle:  palette.cheongrok[100],
+    },
+    pin: {
+      location:       palette.cheongrok[500],
+      active:         palette.cheongrok[600],
+    },
+    progress: {
+      bar:            palette.cheongrok[500],
+      gauge:          palette.cheongrok[500],
     },
     badge: {
       star:        palette.hwanggeum[400],
@@ -343,6 +357,14 @@ export const semanticTokens = {
       primaryPressed: palette.cheongrok[300],
       primaryBg:      'rgba(112, 237, 187, 0.10)',
       primarySubtle:  'rgba(112, 237, 187, 0.07)',
+    },
+    pin: {
+      location:       palette.cheongrok[400],
+      active:         palette.cheongrok[300],
+    },
+    progress: {
+      bar:            palette.cheongrok[400],
+      gauge:          palette.cheongrok[400],
     },
     badge: {
       star:        palette.hwanggeum[400],

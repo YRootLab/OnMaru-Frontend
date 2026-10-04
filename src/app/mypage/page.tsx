@@ -780,7 +780,7 @@ export default function MyPage() {
           {(activeTab === 'ALL' || activeTab === 'EXPLORATION') && (
             <div>
               <SectionTitle $color={c.text.primary}>
-                <HugeiconsIcon icon={MapPinIcon} size={18} color={c.action.primary} />
+                <HugeiconsIcon icon={MapPinIcon} size={18} color={c.action.secondary} />
                 저장한 여정 {savedExplorations.length > 0 && `(${savedExplorations.length})`}
               </SectionTitle>
               <SurfaceCard $bg={c.bg.surface}>

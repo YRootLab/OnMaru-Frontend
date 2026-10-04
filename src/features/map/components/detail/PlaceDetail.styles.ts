@@ -299,7 +299,7 @@ export const StampCheckInBanner = styled.div<{ $isVisited: boolean }>`
   padding: 10px 14px;
   border-radius: 14px;
   background: ${({ $isVisited }) =>
-    $isVisited ? 'rgba(5, 150, 105, 0.08)' : 'rgba(255, 106, 16, 0.08)'};
+    $isVisited ? 'rgba(0, 196, 113, 0.08)' : 'rgba(255, 85, 0, 0.08)'};
   border: none;
   display: flex;
   align-items: center;
@@ -309,7 +309,7 @@ export const StampCheckInBanner = styled.div<{ $isVisited: boolean }>`
 
   [data-theme='dark'] & {
     background: ${({ $isVisited }) =>
-      $isVisited ? 'rgba(5, 150, 105, 0.18)' : 'rgba(255, 106, 16, 0.12)'};
+      $isVisited ? 'rgba(0, 196, 113, 0.18)' : 'rgba(255, 85, 0, 0.12)'};
   }
 `;
 
@@ -362,13 +362,13 @@ export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
     opacity: 0.6;
   }
   white-space: nowrap;
-  background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.15)' : palette.juhong[600])};
-  color: ${({ $isVisited }) => ($isVisited ? '#047857' : '#ffffff')};
+  background: ${({ $isVisited }) => ($isVisited ? 'rgba(0, 196, 113, 0.15)' : palette.juhong[600])};
+  color: ${({ $isVisited }) => ($isVisited ? palette.cheongrok[700] : '#ffffff')};
   transition: opacity 0.15s ease, transform 0.1s ease, background 0.15s ease;
 
   &:hover {
     opacity: 0.94;
-    background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.22)' : palette.juhong[700])};
+    background: ${({ $isVisited }) => ($isVisited ? 'rgba(0, 196, 113, 0.22)' : palette.juhong[700])};
   }
 
   &:active {
@@ -376,11 +376,11 @@ export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.25)' : palette.juhong[500])};
-    color: ${({ $isVisited }) => ($isVisited ? '#34d399' : '#ffffff')};
+    background: ${({ $isVisited }) => ($isVisited ? 'rgba(0, 196, 113, 0.25)' : palette.juhong[500])};
+    color: ${({ $isVisited }) => ($isVisited ? palette.cheongrok[300] : '#ffffff')};
 
     &:hover {
-      background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.32)' : palette.juhong[400])};
+      background: ${({ $isVisited }) => ($isVisited ? 'rgba(0, 196, 113, 0.32)' : palette.juhong[400])};
     }
   }
 `;
@@ -651,9 +651,9 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
   border-radius: 16px;
   border: none;
   background: ${({ $active }) =>
-    $active ? 'rgba(255, 184, 0, 0.12)' : 'rgba(78, 89, 104, 0.08)'};
+    $active ? 'rgba(235, 94, 40, 0.12)' : 'rgba(78, 89, 104, 0.08)'};
   color: ${({ $active }) =>
-    $active ? lightPalette.hwanggeum[700] : meok[900]};
+    $active ? palette.juhong[500] : meok[900]};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 500;
@@ -662,7 +662,7 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
 
   &:hover {
     background: ${({ $active }) =>
-      $active ? 'rgba(255, 184, 0, 0.2)' : 'rgba(78, 89, 104, 0.14)'};
+      $active ? 'rgba(235, 94, 40, 0.2)' : 'rgba(78, 89, 104, 0.14)'};
   }
 
   &:active {
@@ -671,9 +671,9 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
 
   [data-theme='dark'] & {
     background: ${({ $active }) =>
-      $active ? 'rgba(255, 184, 0, 0.18)' : 'rgba(255, 255, 255, 0.08)'};
+      $active ? 'rgba(235, 94, 40, 0.18)' : 'rgba(255, 255, 255, 0.08)'};
     color: ${({ $active }) =>
-      $active ? darkPalette.hwanggeum[200] : meok[200]};
+      $active ? palette.juhong[400] : meok[200]};
   }
 `;
 

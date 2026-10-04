@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
@@ -445,7 +445,7 @@ function StoryRow({ story, index }: StoryRowProps) {
 
         {story.region.name && (
           <LocationMeta>
-            <HugeiconsIcon icon={MapPinIcon} size={12} strokeWidth={2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
+            <HugeiconsIcon icon={MapPinIcon} size={12} strokeWidth={2} color={palette.cheongrok[500]} style={{ flexShrink: 0 }} />
             <span>{story.region.name}</span>
           </LocationMeta>
         )}
@@ -548,7 +548,7 @@ function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; star
     <PlaceGroupContainer>
       <PlaceGroupHeader>
         <PlaceHeaderLeft>
-          <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2.2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
+          <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2.2} color={palette.cheongrok[500]} style={{ flexShrink: 0 }} />
           <PlaceGroupTitle>{group.label}</PlaceGroupTitle>
         </PlaceHeaderLeft>
         <PlaceCountBadge>{group.stories.length}개의 소리</PlaceCountBadge>

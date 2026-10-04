@@ -119,6 +119,12 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
     --color-nav-primary-pressed: ${theme.colors.nav.primaryPressed};
     --color-nav-primary-bg:      ${theme.colors.nav.primaryBg};
 
+    --color-pin-location:        ${theme.colors.pin.location};
+    --color-pin-active:          ${theme.colors.pin.active};
+
+    --color-progress-bar:        ${theme.colors.progress.bar};
+    --color-gauge-fill:          ${theme.colors.progress.gauge};
+
 
     --color-badge-star:       ${theme.colors.badge.star};
     --color-badge-star-text:  ${theme.colors.badge.starText};

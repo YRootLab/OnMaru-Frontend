@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
 import styled from '@emotion/styled';
@@ -827,8 +827,8 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
     border-radius: 9999px;
     background: linear-gradient(
       to right,
-      ${palette.juhong[400]} 0%,
-      ${palette.juhong[500]} ${({ $progress = 0 }) => $progress}%,
+      ${palette.cheongrok[400]} 0%,
+      ${palette.cheongrok[500]} ${({ $progress = 0 }) => $progress}%,
       #e5e5e3 ${({ $progress = 0 }) => $progress}%,
       #e5e5e3 100%
     );
@@ -839,8 +839,8 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
     [data-theme='dark'] & {
       background: linear-gradient(
         to right,
-        ${palette.juhong[400]} 0%,
-        ${palette.juhong[500]} ${({ $progress = 0 }) => $progress}%,
+        ${palette.cheongrok[400]} 0%,
+        ${palette.cheongrok[500]} ${({ $progress = 0 }) => $progress}%,
         rgba(255, 255, 255, 0.24) ${({ $progress = 0 }) => $progress}%,
         rgba(255, 255, 255, 0.24) 100%
       );
@@ -857,15 +857,15 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
       height: 15px;
       border-radius: 50%;
       background: #ffffff;
-      border: 2.5px solid ${palette.juhong[500]};
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(255, 85, 0, 0.4);
+      border: 2.5px solid ${palette.cheongrok[500]};
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(11, 155, 142, 0.4);
       cursor: grab;
       transition: transform 0.15s ease;
 
       [data-theme='dark'] & {
         background: ${surface.dark.app};
-        border: 2.5px solid ${palette.juhong[400]};
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 85, 0, 0.5);
+        border: 2.5px solid ${palette.cheongrok[400]};
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(11, 155, 142, 0.5);
       }
 
       &:active {
