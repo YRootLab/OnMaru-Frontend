@@ -10,6 +10,7 @@ import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
+import { escapeHtml, safeImageUrl } from '@/features/map/utils/formatters';
 import {
   createKakaoMap,
   fitKakaoMapBounds,
@@ -650,11 +651,13 @@ export default function HanokInteractiveMapFrame({
 
       const content = document.createElement('div');
       content.className = 'custom-overlay-pin';
+      const safePhoto = safeImageUrl(photoUrl) || escapeHtml(FALLBACK_HANOK_IMAGES[0]);
+      const safeFallback = escapeHtml(FALLBACK_HANOK_IMAGES[0]);
       content.innerHTML = `
         <div class="avatar-thumb">
-          <img src="${photoUrl}" alt="${village.name}" loading="lazy" decoding="async" onerror="this.src='${FALLBACK_HANOK_IMAGES[0]}'" />
+          <img src="${safePhoto}" alt="${escapeHtml(village.name)}" loading="lazy" decoding="async" onerror="this.src='${safeFallback}'" />
         </div>
-        <div class="avatar-label">${village.name}</div>
+        <div class="avatar-label">${escapeHtml(village.name)}</div>
       `;
 
       const handleOverlayClick = (e: MouseEvent) => {
