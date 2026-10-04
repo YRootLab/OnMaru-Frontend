@@ -74,14 +74,14 @@ describe('useInfoMapData', () => {
     vi.useRealTimers();
   });
 
-  it('requests one first page and sends HANOK to the debounced viewport request', async () => {
+  it('requests the settled viewport within 100ms while keeping the list separate', async () => {
     renderHook(() => useInfoMapData());
 
     await act(async () => Promise.resolve());
     expect(listInfoPlaces).toHaveBeenCalledTimes(1);
     expect(listInfoPlaces).toHaveBeenCalledWith(expect.objectContaining({ category: 'hanok' }));
 
-    await act(() => vi.advanceTimersByTimeAsync(700));
+    await act(() => vi.advanceTimersByTimeAsync(100));
     expect(loadMapViewport).toHaveBeenCalledTimes(1);
     expect(loadMapViewport).toHaveBeenCalledWith(expect.objectContaining({
       category: 'HANOK',
@@ -172,6 +172,23 @@ describe('useInfoMapData', () => {
 
     expect(loadMapViewport).toHaveBeenCalledTimes(1);
     expect(useMapStore.getState().viewportRenderMode).toBe('DISTRICT');
+  });
+
+  it('refreshes a one-level zoom even when the visible bounds remain inside servedBbox', async () => {
+    renderHook(() => useInfoMapData());
+    await act(() => vi.advanceTimersByTimeAsync(100));
+    await act(async () => Promise.resolve());
+    expect(loadMapViewport).toHaveBeenCalledTimes(1);
+
+    act(() => useMapStore.getState().commitViewportSearch({
+      center: { lat: 37, lng: 127 },
+      level: 10,
+      radius: 3_000,
+    }));
+    await act(() => vi.advanceTimersByTimeAsync(100));
+
+    expect(loadMapViewport).toHaveBeenCalledTimes(2);
+    expect(loadMapViewport).toHaveBeenLastCalledWith(expect.objectContaining({ zoomLevel: 10 }));
   });
 
   it('waits for the committed viewport before requesting after a transient pan', async () => {

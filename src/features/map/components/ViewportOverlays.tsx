@@ -99,6 +99,7 @@ export default function ViewportOverlays() {
   const mode = useMapStore((s) => s.mode);
   const viewportItems = useMapStore((s) => s.viewportItems);
   const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
+  const isViewportLoading = useMapStore((s) => s.isViewportLoading);
   const viewportError = useMapStore((s) => s.viewportError);
   const retryInfoViewport = useMapStore((s) => s.retryInfoViewport);
 
@@ -157,6 +158,31 @@ export default function ViewportOverlays() {
       overlaysRef.current = [];
     };
   }, [map, mode, viewportItems, viewportRenderMode]);
+
+  if (!viewportError && mode === 'info' && isViewportLoading) {
+    return (
+      <div
+        role="status"
+        aria-live="polite"
+        style={{
+          position: 'absolute',
+          top: 86,
+          left: '50%',
+          zIndex: 30,
+          padding: '7px 12px',
+          borderRadius: 999,
+          background: 'rgba(248, 248, 247, 0.94)',
+          color: '#4e5968',
+          fontSize: 12,
+          boxShadow: '0 4px 14px rgba(25, 31, 40, 0.12)',
+          transform: 'translateX(-50%)',
+          pointerEvents: 'none',
+        }}
+      >
+        지도 장소를 업데이트하고 있어요
+      </div>
+    );
+  }
 
   if (!viewportError) return null;
 
