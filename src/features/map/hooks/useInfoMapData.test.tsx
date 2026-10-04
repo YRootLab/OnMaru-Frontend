@@ -33,7 +33,7 @@ function page(overrides: Partial<InfoPlacePage> = {}): InfoPlacePage {
 function viewport(overrides: Partial<MapViewportResponse> = {}): MapViewportResponse {
   return {
     renderMode: 'DISTRICT',
-    servedBbox: '125,35,129,39',
+    servedBbox: { west: 125, south: 35, east: 129, north: 39 },
     snapshotId: 'snap-1',
     items: [],
     ...overrides,
@@ -163,7 +163,11 @@ describe('useInfoMapData', () => {
     expect(loadMapViewport).toHaveBeenCalledTimes(1);
 
     map.setBounds({ west: 126.1, south: 36.1, east: 128.1, north: 38.1 });
-    act(() => useMapStore.getState().setCenter({ lat: 37.1, lng: 127.1 }));
+    act(() => useMapStore.getState().commitViewportSearch({
+      center: { lat: 37.1, lng: 127.1 },
+      level: 9,
+      radius: 3_000,
+    }));
     await act(() => vi.advanceTimersByTimeAsync(700));
 
     expect(loadMapViewport).toHaveBeenCalledTimes(1);
@@ -208,5 +212,83 @@ describe('useInfoMapData', () => {
       bbox: '125.50000,35.50000,128.50000,38.50000',
       zoomLevel: 9,
     }));
+  });
+
+  it('keeps the last aggregate layer when a positive-total response has no items', async () => {
+    const districtItem = {
+      type: 'DISTRICT' as const,
+      name: '서울',
+      regionCode: '11',
+      count: 42,
+      center: { lat: 37.56, lng: 126.98 },
+    };
+    loadMapViewport
+      .mockResolvedValueOnce(viewport({ items: [districtItem], totalCountInViewport: 42 }))
+      .mockResolvedValueOnce(viewport({
+        servedBbox: { west: 129, south: 32, east: 132, north: 35 },
+        items: [],
+        totalCountInViewport: 120,
+      }));
+
+    const map = useMapStore.getState().map as ReturnType<typeof createMap>;
+    renderHook(() => useInfoMapData());
+    await act(() => vi.advanceTimersByTimeAsync(700));
+    await act(async () => Promise.resolve());
+    expect(useMapStore.getState().viewportItems).toEqual([districtItem]);
+
+    map.setBounds({ west: 129, south: 32, east: 131, north: 34 });
+    act(() => useMapStore.getState().commitViewportSearch({
+      center: { lat: 33, lng: 130 },
+      level: 9,
+      radius: 3_000,
+    }));
+    await act(() => vi.advanceTimersByTimeAsync(700));
+    await act(async () => Promise.resolve());
+
+    expect(useMapStore.getState().viewportItems).toEqual([districtItem]);
+    expect(useMapStore.getState().viewportError).toBe('이 축척의 지도 집계를 준비하고 있어요');
+  });
+
+  it('does not retain aggregate markers from a different category', async () => {
+    const districtItem = {
+      type: 'DISTRICT' as const,
+      name: '서울',
+      regionCode: '11',
+      count: 42,
+      center: { lat: 37.56, lng: 126.98 },
+    };
+    loadMapViewport
+      .mockResolvedValueOnce(viewport({ items: [districtItem], totalCountInViewport: 42 }))
+      .mockResolvedValueOnce(viewport({ items: [], totalCountInViewport: 120 }));
+
+    renderHook(() => useInfoMapData());
+    await act(() => vi.advanceTimersByTimeAsync(700));
+    await act(async () => Promise.resolve());
+    expect(useMapStore.getState().viewportItems).toEqual([districtItem]);
+
+    act(() => useMapStore.getState().setInfoCategory('festival'));
+    await act(() => vi.advanceTimersByTimeAsync(700));
+    await act(async () => Promise.resolve());
+
+    expect(useMapStore.getState().viewportItems).toEqual([]);
+    expect(useMapStore.getState().viewportError).toBe('이 축척의 지도 집계를 준비하고 있어요');
+  });
+
+  it('does not send an inverted bbox after panning completely west of the supported map area', async () => {
+    const map = useMapStore.getState().map as ReturnType<typeof createMap>;
+    renderHook(() => useInfoMapData());
+    await act(() => vi.advanceTimersByTimeAsync(700));
+    await act(async () => Promise.resolve());
+    expect(loadMapViewport).toHaveBeenCalledTimes(1);
+
+    map.setBounds({ west: 117, south: 35, east: 119, north: 37 });
+    act(() => useMapStore.getState().commitViewportSearch({
+      center: { lat: 36, lng: 118 },
+      level: 9,
+      radius: 3_000,
+    }));
+    await act(() => vi.advanceTimersByTimeAsync(700));
+
+    expect(loadMapViewport).toHaveBeenCalledTimes(1);
   });
 });

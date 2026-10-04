@@ -2,6 +2,7 @@ import { apiRequest, USE_MOCK } from '@/lib/api/client';
 import type {
   InfoPlacePage,
   MapViewportResponse,
+  ViewportItemBounds,
   ViewportRequestParams,
 } from '@/features/map/types';
 
@@ -27,11 +28,32 @@ const FIXTURE_PLACES: InfoPlacePage = {
 
 const FIXTURE_VIEWPORT: MapViewportResponse = {
   renderMode: 'DISTRICT',
-  servedBbox: '126.0,34.0,130.0,38.5',
+  servedBbox: { west: 126, south: 34, east: 130, north: 38.5 },
   snapshotId: 'fixture-snap-001',
   items: [],
   totalCountInViewport: 0,
 };
+
+function isViewportBounds(value: unknown): value is ViewportItemBounds {
+  if (!value || typeof value !== 'object') return false;
+  const bounds = value as Partial<ViewportItemBounds>;
+  return [bounds.west, bounds.south, bounds.east, bounds.north]
+    .every((coordinate) => typeof coordinate === 'number' && Number.isFinite(coordinate));
+}
+
+function parseMapViewportResponse(value: unknown): MapViewportResponse {
+  if (!value || typeof value !== 'object') throw new Error('Invalid map viewport response');
+  const response = value as Partial<MapViewportResponse>;
+  if (
+    !['REGION', 'DISTRICT', 'CLUSTER', 'PLACE'].includes(response.renderMode ?? '')
+    || !isViewportBounds(response.servedBbox)
+    || !Array.isArray(response.items)
+    || (response.snapshotId !== null && typeof response.snapshotId !== 'string')
+  ) {
+    throw new Error('Invalid map viewport response');
+  }
+  return response as MapViewportResponse;
+}
 
 // ── API calls ─────────────────────────────────────────────────────────────────
 
@@ -63,13 +85,15 @@ export async function loadMapViewport(
     bbox,
     zoomLevel: String(zoomLevel),
     category: category.toUpperCase(),
+    limit: '60',
   };
   if (regionCode) queryParams.regionCode = regionCode;
 
-  return apiRequest<MapViewportResponse>('/map/info/viewport', {
+  const response = await apiRequest<unknown>('/map/info/viewport', {
     method: 'GET',
     params: queryParams,
     signal,
     retry: false,
   });
+  return parseMapViewportResponse(response);
 }

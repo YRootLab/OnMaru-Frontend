@@ -53,8 +53,18 @@ describe('KakaoMap SDK failure state', () => {
     expect(screen.getByText('지도를 지금 불러올 수 없어요')).toBeTruthy();
   });
 
-  it('handles SDK errors and clears them immediately on retry', () => {
+  it('automatically retries the first SDK network error with a cache-busting URL', () => {
     render(<KakaoMap />);
+    fireEvent.doubleClick(screen.getByTestId('kakao-sdk'));
+
+    expect(screen.queryByText('지도를 지금 불러올 수 없어요')).toBeNull();
+    expect(screen.getByTestId('kakao-sdk').getAttribute('data-src')).toContain('omRetry=1');
+    expect(sdk.reset).toHaveBeenCalledOnce();
+  });
+
+  it('shows the SDK error after the automatic retry also fails and supports manual retry', () => {
+    render(<KakaoMap />);
+    fireEvent.doubleClick(screen.getByTestId('kakao-sdk'));
     fireEvent.doubleClick(screen.getByTestId('kakao-sdk'));
     expect(screen.getByText('지도를 지금 불러올 수 없어요')).toBeTruthy();
     sdk.reset.mockClear();
@@ -75,6 +85,7 @@ describe('KakaoMap SDK failure state', () => {
       placeLoadError: new MapLoadError('unavailable', 503),
     });
     render(<KakaoMap />);
+    fireEvent.doubleClick(screen.getByTestId('kakao-sdk'));
     fireEvent.doubleClick(screen.getByTestId('kakao-sdk'));
 
     fireEvent.click(screen.getByRole('button', { name: '지도 다시 불러오기' }));

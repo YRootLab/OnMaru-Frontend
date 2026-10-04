@@ -254,8 +254,8 @@ export interface ViewportItem {
 
 export interface MapViewportResponse {
   renderMode: ViewportRenderMode;
-  servedBbox: string;
-  snapshotId: string;
+  servedBbox: ViewportItemBounds;
+  snapshotId: string | null;
   items: ViewportItem[];
   totalCountInViewport?: number;
 }
