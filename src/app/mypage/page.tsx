@@ -19,7 +19,6 @@ import {
   CheckIcon,
   Compass01Icon,
   Comment01Icon,
-  UserIcon,
 } from '@hugeicons/core-free-icons';
 import type { SavedJourneyDetail } from '@/features/journey-curator/types/exploration.types';
 import { useAuth } from '@/features/auth';
