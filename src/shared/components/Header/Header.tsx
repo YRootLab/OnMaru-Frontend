@@ -460,7 +460,8 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: none;
+  box-shadow: ${({ $isLanding }) =>
+    $isLanding ? ringShadow.dark.button : ringShadow.light.button};
   transition: all 180ms ease;
 
   &:hover {
@@ -473,7 +474,7 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
     color: #ffffff;
     background: rgba(23, 30, 43, 0.96);
     border-color: rgba(100, 150, 255, 0.20);
-    box-shadow: none;
+    box-shadow: ${ringShadow.dark.button};
 
     &:hover {
       background: rgba(33, 40, 56, 0.98);

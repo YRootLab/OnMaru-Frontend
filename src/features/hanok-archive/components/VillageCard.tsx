@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, palette, fluidHeading, fontSize, ringShadow } from '@/design-system/tokens';
+import { meok, palette, fluidHeading, fontSize } from '@/design-system/tokens';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { HeadphonesIcon, MapPinIcon } from '@hugeicons/core-free-icons';
 import type { Village } from '@/features/hanok-archive/types';
@@ -14,39 +14,29 @@ const Card = styled(motion.article, transientProps)<{ $bg: string | null }>`
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4.2;
-  border-radius: 22px;
+  border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
   user-select: none;
-  box-shadow: ${ringShadow.light.card};
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+  box-shadow: none;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.24s ease;
   ${({ $bg }) =>
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
       : `background: linear-gradient(135deg, ${palette.cheongrok[900]} 0%, ${meok[900]} 100%);`}
 
   [data-theme='dark'] & {
-    box-shadow: ${ringShadow.dark.card};
     border-color: rgba(255, 255, 255, 0.08);
   }
 
   @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     &:hover {
-      transform: translateY(-6px) scale(1.02);
-      border-color: rgba(255, 137, 82, 0.45);
-      box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.45), 0 0 16px rgba(255, 85, 0, 0.18);
+      transform: translateY(-4px);
+      border-color: ${palette.juhong[400]};
 
       .village-card-img {
-        transform: scale(1.08);
-      }
-
-      .village-title-underline {
-        width: 100%;
-      }
-
-      .sound-wave-bar {
-        animation-play-state: running;
+        transform: scale(1.05);
       }
     }
   }
@@ -58,9 +48,9 @@ const Card = styled(motion.article, transientProps)<{ $bg: string | null }>`
 
 const ImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }>`
   position: absolute;
-  inset: -1px;
+  inset: 0;
   border-radius: inherit;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
   ${({ $bg }) =>
     $bg
@@ -212,36 +202,19 @@ const GradientOverlay = styled.div`
   background: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.05) 35%,
-    rgba(14, 18, 16, 0.58) 68%,
-    rgba(10, 14, 12, 0.85) 100%
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 0.42) 75%,
+    rgba(0, 0, 0, 0.72) 100%
   );
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 18px 16px 16px;
+  padding: 16px 14px 14px;
   z-index: 2;
 
   @media (max-width: 480px) {
-    padding: 14px 12px 12px;
+    padding: 12px 10px 10px;
   }
-`;
-
-const TitleWrapper = styled.div`
-  position: relative;
-  display: inline-block;
-  margin-bottom: 6px;
-`;
-
-const TitleUnderline = styled.div`
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0%;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, ${palette.juhong[400]}, ${palette.hwanggeum[400]});
-  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
 const Name = styled.h3`
@@ -251,10 +224,10 @@ const Name = styled.h3`
   font-size: ${fluidHeading.label};
   font-weight: 700;
   color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.025em;
-  line-height: 1.28;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   word-break: keep-all;
   overflow-wrap: anywhere;
   display: -webkit-box;
@@ -269,35 +242,35 @@ const Region = styled.p`
   z-index: 1;
   font-size: ${fontSize.xs};
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.75);
   margin: 0;
   letter-spacing: 0.01em;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 `;
 
 const TypeBadge = styled.span`
-  background: rgba(14, 16, 22, 0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(14, 16, 22, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: rgba(255, 255, 255, 0.95);
   font-size: ${fontSize.xs};
   font-weight: 600;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 9999px;
   white-space: nowrap;
   flex-shrink: 0;
-  letter-spacing: 0.02em;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.01em;
+  box-shadow: none;
 `;
 
 const TopBadgeRow = styled.div`
   position: absolute;
-  top: 14px;
-  left: 14px;
-  right: 14px;
+  top: 12px;
+  left: 12px;
+  right: 12px;
   z-index: 3;
   display: flex;
   align-items: flex-start;
@@ -312,47 +285,20 @@ const TopBadgeRow = styled.div`
 `;
 
 const DocentTag = styled.span`
-  background: rgba(20, 10, 16, 0.65);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 148, 194, 0.35);
+  background: rgba(14, 16, 22, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: rgba(255, 255, 255, 0.95);
   font-size: ${fontSize.xs};
   font-weight: 600;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  letter-spacing: 0.02em;
-  box-shadow: 0 4px 12px rgba(255, 10, 114, 0.15);
-`;
-
-const SoundWaveWrap = styled.span`
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 10px;
-  margin-left: 2px;
-`;
-
-const SoundWaveBar = styled.span<{ $delay: string; $height: string }>`
-  width: 2px;
-  height: ${({ $height }) => $height};
-  background-color: ${palette.jangmi[400]};
-  border-radius: 1px;
-  animation: soundBarPulse 0.9s ease-in-out infinite alternate;
-  animation-delay: ${({ $delay }) => $delay};
-  animation-play-state: paused;
-
-  @keyframes soundBarPulse {
-    0% {
-      height: 2px;
-    }
-    100% {
-      height: 10px;
-    }
-  }
+  gap: 4px;
+  letter-spacing: 0.01em;
+  box-shadow: none;
 `;
 
 const HAS_DOCENT_TYPES = ['고궁', '민속마을'];
@@ -393,13 +339,8 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
         <TypeBadge>{typeLabel}</TypeBadge>
         {isDocentAvailable && (
           <DocentTag>
-            <HugeiconsIcon icon={HeadphonesIcon} size={12} color={palette.jangmi[400]} />
+            <HugeiconsIcon icon={HeadphonesIcon} size={11} color={palette.jangmi[400]} />
             <span>소리마루 도슨트</span>
-            <SoundWaveWrap aria-hidden="true">
-              <SoundWaveBar className="sound-wave-bar" $delay="0s" $height="4px" />
-              <SoundWaveBar className="sound-wave-bar" $delay="0.25s" $height="8px" />
-              <SoundWaveBar className="sound-wave-bar" $delay="0.5s" $height="6px" />
-            </SoundWaveWrap>
           </DocentTag>
         )}
       </TopBadgeRow>
@@ -411,14 +352,10 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
         <SpotlightLayer data-testid="village-card-spotlight" aria-hidden="true" />
         <GlassLens data-testid="village-card-glass-lens" aria-hidden="true" />
 
-        <TitleWrapper>
-          <Name>{village.name}</Name>
-          <TitleUnderline className="village-title-underline" />
-        </TitleWrapper>
-
+        <Name>{village.name}</Name>
         {village.region && (
           <Region>
-            <HugeiconsIcon icon={MapPinIcon} size={11} color="rgba(255, 255, 255, 0.65)" />
+            <HugeiconsIcon icon={MapPinIcon} size={11} color="rgba(255, 255, 255, 0.7)" />
             {village.region}
           </Region>
         )}
