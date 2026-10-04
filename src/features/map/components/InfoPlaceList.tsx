@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { isOnmaruApiError } from '@/lib/api/errors';
@@ -14,6 +14,7 @@ import { PlaceListItem } from './PlaceListItem';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { MAP_INFO_CATEGORY_LABELS as CATEGORY_LABELS } from '@/features/map/types';
 import type { Item } from '@/features/map/types';
+import InfoMapEditorialFeed from './InfoMapEditorialFeed';
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -188,6 +189,7 @@ export default function InfoPlaceList() {
   const setSelectedId = useMapStore((s) => s.setSelectedId);
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const infoRegionName = useMapStore((s) => s.infoRegionName);
+  const setInfoCategory = useMapStore((s) => s.setInfoCategory);
   const setInfoRegionCode = useMapStore((s) => s.setInfoRegionCode);
   const retryInfoList = useMapStore((s) => s.retryInfoList);
 
@@ -292,6 +294,7 @@ export default function InfoPlaceList() {
   const headerTitle = isListLoading && listItems.length === 0
     ? `${categoryLabel} 목록`
     : `${categoryLabel} ${listTotalCount.toLocaleString()}곳`;
+  const editorialItems = useMemo(() => listItems.map(mapInfoPlaceToItem), [listItems]);
 
   return (
     <div>
@@ -316,6 +319,15 @@ export default function InfoPlaceList() {
           <span>{headerTitle}</span>
         </CountLabel>
       </StickyHeader>
+
+      <InfoMapEditorialFeed
+        category={infoCategory}
+        regionCode={infoRegionCode}
+        items={editorialItems}
+        loading={isListLoading && listItems.length === 0}
+        onShowAllFestivals={() => setInfoCategory('festival')}
+        onSelectItem={handleSelect}
+      />
 
       {isListLoading && listItems.length === 0 ? (
         <SkeletonWrapper aria-busy="true" aria-label="장소 목록을 불러오는 중이에요">

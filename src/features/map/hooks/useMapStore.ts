@@ -13,6 +13,7 @@ import type {
   MapViewportResponse,
   SheetSnap,
   ViewportItem,
+  ViewportItemBounds,
   ViewportRenderMode,
   Warmth,
 } from '@/features/map/types';
@@ -92,7 +93,7 @@ interface MapState {
   viewportItems: ViewportItem[];
   viewportRenderMode: ViewportRenderMode | null;
   viewportSnapshotId: string | null;
-  servedBbox: string | null;
+  servedBbox: ViewportItemBounds | null;
   isViewportLoading: boolean;
   viewportError: string | null;
   infoViewportReloadNonce: number;
