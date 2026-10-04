@@ -7,6 +7,17 @@ import { USE_MOCK } from '@/lib/api/client';
 import { useAuth } from './useAuth';
 import { buildAuthReturnCleanup, parseAuthReturnParam } from '../services/authReturn';
 import { hasPendingSave } from '@/features/journey-curator/store/pendingSaveBridge';
+import { useAuthSessionStore } from '../store/useAuthSessionStore';
+
+const ONBOARDING_KEY = 'onmaru_onboarding_v1';
+
+function isOnboardingDone(userId: string): boolean {
+  try {
+    return localStorage.getItem(`${ONBOARDING_KEY}_${userId}`) === '1';
+  } catch {
+    return true; // 스토리지 불가 시 온보딩 스킵
+  }
+}
 
 /*
   카카오 로그인 복귀 감지 — 가이드 §1-2.
@@ -51,6 +62,13 @@ export function useAuthReturn(): void {
           // 세션 확정 실패 — MyPage 가드와 router.replace 경쟁을 피하기 위해
           // 직접 로그인 화면으로 이동한다(cleanup URL로 가면 가드 redirect가 묻힌다).
           router.replace('/auth/login');
+          return;
+        }
+        // 신규 가입자 → 온보딩 페이지로 이동
+        const userId = useAuthSessionStore.getState().user?.id;
+        if (userId && !isOnboardingDone(userId)) {
+          const next = buildAuthReturnCleanup(pathname, window.location.search);
+          router.replace(`/auth/onboarding?next=${encodeURIComponent(next)}`);
           return;
         }
       } else {
