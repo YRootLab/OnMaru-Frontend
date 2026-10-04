@@ -18,6 +18,7 @@ import {
 } from '@/design-system/themePreferenceLabels';
 import type { ThemePreference } from '@/design-system/tokens';
 import { useAuth } from '@/features/auth';
+import { OniAvatar } from '@/features/profile/OniAvatar';
 import GlobalMobileTabs, { HeadphonesFilledEars } from './GlobalMobileTabs';
 import { HanokIcon } from '@/features/map/components/HanokIcon';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
@@ -442,11 +443,11 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-size: ${fontSize.sm};
   font-weight: 700;
 
-  color: #ffffff;
+  color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
   background: ${({ $isLanding }) =>
     $isLanding
       ? 'rgba(20, 18, 16, 0.95)'
-      : 'rgba(11, 18, 32, 0.94)'};
+      : 'rgba(0, 0, 0, 0.05)'};
   border: 1px solid ${({ $isLanding }) =>
     $isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)'};
 
@@ -460,14 +461,24 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   align-items: center;
   gap: 8px;
   box-shadow: ${({ $isLanding }) =>
-    $isLanding
-      ? '0 3px 10px rgba(0, 0, 0, 0.35)'
-      : '0 2px 8px rgba(0, 0, 0, 0.1)'};
+    $isLanding ? ringShadow.dark.button : ringShadow.light.button};
+  transition: all 180ms ease;
+
+  &:hover {
+    background: ${({ $isLanding }) =>
+      $isLanding ? 'rgba(35, 32, 28, 0.95)' : 'rgba(0, 0, 0, 0.08)'};
+    transform: translateY(-1px);
+  }
 
   [data-theme='dark'] & {
     color: #ffffff;
     background: rgba(23, 30, 43, 0.96);
     border-color: rgba(100, 150, 255, 0.20);
+    box-shadow: ${ringShadow.dark.button};
+
+    &:hover {
+      background: rgba(33, 40, 56, 0.98);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -927,73 +938,20 @@ export default function Header() {
         </CenterNav>
 
       {}
-      <RightSection $isMapPage={isMapPage} ref={themePickerRef}>
-        <ThemePickerWrap>
-          <ThemeToggleBtn
-            type="button"
-            $isLanding={usesDarkSurface}$isAuto={renderedPreference === 'system'}
-            onClick={() => setIsThemePickerOpen((open) => !open)}
-            title={themeTriggerLabel}
-            aria-label={themeTriggerLabel}
-            aria-haspopup="menu"
-            aria-expanded={isThemePickerOpen}
-          >
-            <HugeiconsIcon icon={themeTriggerIcon} size={16} />
-          </ThemeToggleBtn>
-
-        </ThemePickerWrap>
-
-        <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
-          <LoginLabel>{isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}</LoginLabel>
+      <RightSection $isMapPage={isMapPage}>
+        <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} style={isLoggedIn ? { paddingLeft: 5 } : undefined}>
+          {isLoggedIn ? (
+            <>
+              <OniAvatar characterId={user?.characterId} backgroundId={user?.backgroundId} size={24} />
+              <LoginLabel>{user?.displayName ?? '마이페이지'}</LoginLabel>
+            </>
+          ) : (
+            <LoginLabel>로그인</LoginLabel>
+          )}
           <LoginChevron aria-hidden="true">
             <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2.2} />
           </LoginChevron>
         </LoginButton>
-
-        <AnimatePresence>
-          {isThemePickerOpen && (
-            <ThemePickerPopover
-              $isLanding={usesDarkSurface}
-              role="menu"
-              aria-label="화면 모드 선택"
-              initial={{ opacity: 0, y: -4, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -4, scale: 0.98 }}
-              transition={{ duration: 0.14, ease: 'easeOut' }}
-            >
-              {themeOptions.map((option) => {
-                const active = renderedPreference === option;
-                const optionIcon = option === 'dark' ? Moon01Icon : option === 'light' ? Sun01Icon : SparklesIcon;
-                return (
-                  <ThemeChoiceButton
-                    key={option}
-                    type="button"
-                    role="menuitemradio"
-                    aria-checked={active}
-                    $active={active}$isLanding={usesDarkSurface}
-                    onClick={() => {
-                      setMode(option);
-                      setIsThemePickerOpen(false);
-                    }}
-                  >
-                    <ThemeChoiceIcon>
-                      <HugeiconsIcon icon={optionIcon} size={15} strokeWidth={2} />
-                    </ThemeChoiceIcon>
-                    <ThemeChoiceCopy>
-                      <ThemeChoiceTitle>{getThemePreferenceLabel(option)}</ThemeChoiceTitle>
-                      <ThemeChoiceSummary>
-                        {getThemePreferenceSummary({ preference: option, mode: renderedThemeMode })}
-                      </ThemeChoiceSummary>
-                    </ThemeChoiceCopy>
-                    <ThemeChoiceCheck aria-hidden="true">
-                      {active ? <HugeiconsIcon icon={CheckIcon} size={14} strokeWidth={2.4} /> : null}
-                    </ThemeChoiceCheck>
-                  </ThemeChoiceButton>
-                );
-              })}
-            </ThemePickerPopover>
-          )}
-        </AnimatePresence>
       </RightSection>
 
       <MobileTabNavWrap $isMapPage={isMapPage}>
@@ -1080,53 +1038,15 @@ export default function Header() {
                   <HugeiconsIcon icon={MapIcon} size={15} /> 지도마루
                 </span>
               </MobileMenuLink>
-              <MobileMenuDivider $isLanding={usesDarkSurface} />
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '8px 12px',
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: '13px',
-                    color: usesDarkSurface ? 'rgba(250, 250, 250, 0.75)' : meok[700],
-                  }}
-                >
-                  화면 모드
-                </span>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  {(['light', 'dark', 'system'] as const).map((opt) => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => setMode(opt)}
-                      style={{
-                        padding: '4px 10px',
-                        borderRadius: '9999px',
-                        border: 'none',
-                        background:
-                          renderedPreference === opt ? 'rgba(0, 184, 130, 0.2)' : 'transparent',
-                        color:
-                          renderedPreference === opt
-                            ? '#00b882'
-                            : usesDarkSurface
-                            ? '#a1a1aa'
-                            : meok[700],
-                        fontSize: '12px',
-                        fontWeight: renderedPreference === opt ? 600 : 400,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {opt === 'light' ? '라이트' : opt === 'dark' ? '다크' : '시스템'}
-                    </button>
-                  ))}
-                </div>
-              </div>
               <MobileMenuLink href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                {isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}
+                {isLoggedIn ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    <OniAvatar characterId={user?.characterId} backgroundId={user?.backgroundId} size={22} />
+                    {user?.displayName ?? '마이페이지'}
+                  </span>
+                ) : (
+                  '로그인'
+                )}
               </MobileMenuLink>
             </MobileMenuPanel>
           )}

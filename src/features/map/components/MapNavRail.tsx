@@ -22,6 +22,9 @@ import {
 } from '@/design-system/themePreferenceLabels';
 import type { ThemePreference } from '@/design-system/tokens';
 
+import { useAuth } from '@/features/auth';
+import { OniAvatar } from '@/features/profile/OniAvatar';
+
 export const RAIL_WIDTH = 68;
 export const RAIL_INSET = 14;
 const ONMARU_LOGO_SRC = '/logo.png';
@@ -291,6 +294,7 @@ const ThemeRailChoiceCheck = styled.span`
 
 export default function MapNavRail() {
   const router = useRouter();
+  const { user, isLoggedIn } = useAuth();
   const { preference, mode: themeMode, setMode: setThemeMode } = useOnmaruTheme();
   const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
   const themePickerRef = useRef<HTMLDivElement>(null);
@@ -475,77 +479,21 @@ export default function MapNavRail() {
       {}
       <BottomArea>
         <Divider />
-        <ThemeRailItemWrap ref={themePickerRef}>
-          <NavItemBtn
-            type="button"
-            $active={preference === 'system'}
-            onClick={() => setIsThemePickerOpen((open) => !open)}
-            aria-label={themeTriggerLabel}
-            title={themeTriggerLabel}
-            aria-haspopup="menu"
-            aria-expanded={isThemePickerOpen}
-          >
-            <NavItemIcon>
-              <HugeiconsIcon icon={themeTriggerIcon} size={19} strokeWidth={2} />
-            </NavItemIcon>
-            <NavItemLabel>{preference === 'system' ? '자동' : getThemePreferenceLabel(preference)}</NavItemLabel>
-          </NavItemBtn>
-
-          <AnimatePresence>
-            {isThemePickerOpen && (
-              <ThemeRailPopover
-                role="menu"
-                aria-label="화면 모드 선택"
-                initial={{ opacity: 0, x: -4, scale: 0.98 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: -4, scale: 0.98 }}
-                transition={{ duration: 0.14, ease: 'easeOut' }}
-              >
-                {themeOptions.map((option) => {
-                  const active = preference === option;
-                  const optionIcon = option === 'dark' ? Moon01Icon : option === 'light' ? Sun01Icon : SparklesIcon;
-                  return (
-                    <ThemeRailChoiceButton
-                      key={option}
-                      type="button"
-                      role="menuitemradio"
-                      aria-checked={active}
-                      $active={active}
-                      onClick={() => {
-                        setThemeMode(option);
-                        setIsThemePickerOpen(false);
-                      }}
-                    >
-                      <ThemeRailChoiceIcon>
-                        <HugeiconsIcon icon={optionIcon} size={15} strokeWidth={2} />
-                      </ThemeRailChoiceIcon>
-                      <ThemeRailChoiceCopy>
-                        <ThemeRailChoiceTitle>{getThemePreferenceLabel(option)}</ThemeRailChoiceTitle>
-                        <ThemeRailChoiceSummary>
-                          {getThemePreferenceSummary({ preference: option, mode: themeMode })}
-                        </ThemeRailChoiceSummary>
-                      </ThemeRailChoiceCopy>
-                      <ThemeRailChoiceCheck aria-hidden="true">
-                        {active ? <HugeiconsIcon icon={CheckIcon} size={14} strokeWidth={2.4} /> : null}
-                      </ThemeRailChoiceCheck>
-                    </ThemeRailChoiceButton>
-                  );
-                })}
-              </ThemeRailPopover>
-            )}
-          </AnimatePresence>
-        </ThemeRailItemWrap>
         <NavItemBtn
           type="button"
           $active={false}
-          onClick={() => router.push('/auth/login')}
-          aria-label="마이 / 로그인"
-          title="로그인"
+          onClick={() => router.push(isLoggedIn ? '/mypage' : '/auth/login')}
+          aria-label={isLoggedIn ? '마이페이지' : '로그인'}
+          title={isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}
         >
           <NavItemIcon>
-            <HugeiconsIcon icon={UserIcon} size={19} strokeWidth={2} />
+            {isLoggedIn ? (
+              <OniAvatar characterId={user?.characterId} backgroundId={user?.backgroundId} size={24} />
+            ) : (
+              <HugeiconsIcon icon={UserIcon} size={19} strokeWidth={2} />
+            )}
           </NavItemIcon>
-          <NavItemLabel>마이</NavItemLabel>
+          <NavItemLabel>{isLoggedIn ? (user?.displayName ?? '마이') : '마이'}</NavItemLabel>
         </NavItemBtn>
       </BottomArea>
     </RailContainer>
