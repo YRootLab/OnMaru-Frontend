@@ -19,6 +19,11 @@ export function rateLimit(ip: string, limit = 20, windowMs = 60_000): boolean {
 }
 
 export function getClientIp(request: Request): string {
+  // x-real-ip is set by Vercel's edge from the TCP connection — cannot be spoofed
+  const realIp = request.headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+  // Rightmost entry in x-forwarded-for is appended by the trusted proxy, not user-supplied
   const forwarded = request.headers.get('x-forwarded-for');
-  return forwarded?.split(',')[0]?.trim() ?? 'unknown';
+  if (forwarded) return forwarded.split(',').at(-1)!.trim();
+  return 'unknown';
 }
