@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,17 +30,6 @@ interface WriteWarmthModalProps {
 const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;
 
-const REGIONS = [
-  '전국',
-  '전주',
-  '안동',
-  '경주',
-  '서울',
-  '강릉',
-  '담양',
-  '공주/부여',
-  '제주',
-];
 
 const PRESET_TAGS = [
   '#대청마루',
@@ -538,7 +527,6 @@ export default function WriteWarmthModal({
   const { create, loading: isSubmitting, error: createError } = useCreateVisitReview();
 
   const [mounted, setMounted] = useState(false);
-  const [selectedRegion, setSelectedRegion] = useState('전국');
   const [placeQuery, setPlaceQuery] = useState(defaultPlace?.name || '');
   const [selectedPlace, setSelectedPlace] = useState<{
     id: string;
@@ -599,15 +587,15 @@ export default function WriteWarmthModal({
     const q = placeQuery.trim();
     if (!q || selectedPlace?.name === q) {
       setSearchResults([]);
+      setIsDropdownOpen(false);
       return;
     }
     setIsSearching(true);
+    setIsDropdownOpen(true);
     const timer = setTimeout(async () => {
       try {
-        const regionCode = selectedRegion !== '전국' ? selectedRegion : undefined;
-        const res = await defaultHanokRepository.listHanoks({ keyword: q, regionCode, limit: 5 });
-        setSearchResults(res.items);
-        setIsDropdownOpen(true);
+        const res = await defaultHanokRepository.listHanoks({ keyword: q, limit: 5 });
+        setSearchResults(res.items ?? []);
       } catch {
         setSearchResults([]);
       } finally {
@@ -615,7 +603,7 @@ export default function WriteWarmthModal({
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [placeQuery, selectedRegion, selectedPlace]);
+  }, [placeQuery, selectedPlace]);
 
   const handleSelectPlace = (item: BackendHanokListItem) => {
     setSelectedPlace({ id: item.placeId, name: item.name, lat: 0, lng: 0 });
@@ -687,19 +675,6 @@ export default function WriteWarmthModal({
           {}
           <FormSection>
             <SectionLabel>어디를 다녀오셨나요?</SectionLabel>
-            <RegionScroller>
-              {REGIONS.map((region) => (
-                <RegionChip
-                  key={region}
-                  type="button"
-                  $active={selectedRegion === region}
-                  onClick={() => setSelectedRegion(region)}
-                >
-                  {region}
-                </RegionChip>
-              ))}
-            </RegionScroller>
-
             <PlaceInputWrap ref={placeWrapRef}>
               <PlaceInputIcon>
                 <HugeiconsIcon icon={MapPinIcon} size={16} strokeWidth={2} />
