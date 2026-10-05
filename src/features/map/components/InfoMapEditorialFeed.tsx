@@ -31,7 +31,7 @@ export default function InfoMapEditorialFeed({
   onShowAllFestivals,
   onSelectItem,
 }: InfoMapEditorialFeedProps) {
-  const showDiscovery = category === 'all' && regionCode === null;
+  const showDiscovery = category === 'hanok' && regionCode === null;
   const festivals = items.filter((item) => item.category === 'festival');
 
   return (

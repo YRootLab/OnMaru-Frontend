@@ -149,7 +149,7 @@ interface MapState {
 
 export const useMapStore = create<MapState>((set, get) => ({
   // ── Info list ──────────────────────────────────────────────────────────────
-  infoCategory: 'all',
+  infoCategory: 'hanok',
   infoRegionCode: null,
   infoRegionName: null,
   listItems: [],

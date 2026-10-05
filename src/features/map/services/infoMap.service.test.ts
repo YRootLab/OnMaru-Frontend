@@ -46,15 +46,19 @@ describe('infoMap.service category contract', () => {
     }));
   });
 
-  it('uses the Spring API even when an old preview URL is opened', async () => {
+  it('falls back old ALL requests to the required HANOK category', async () => {
     vi.stubEnv('NODE_ENV', 'development');
     vi.stubGlobal('window', { location: { search: '?mapPreview=500' } });
 
     await listInfoPlaces({ category: 'all' });
     await loadMapViewport({ bbox: '124,32,131,39', zoomLevel: 5, category: 'all' });
 
-    expect(apiRequest).toHaveBeenCalledWith('/map/info/places', expect.any(Object));
-    expect(apiRequest).toHaveBeenCalledWith('/map/info/viewport', expect.any(Object));
+    expect(apiRequest).toHaveBeenCalledWith('/map/info/places', expect.objectContaining({
+      params: expect.objectContaining({ category: 'HANOK' }),
+    }));
+    expect(apiRequest).toHaveBeenCalledWith('/map/info/viewport', expect.objectContaining({
+      params: expect.objectContaining({ category: 'HANOK' }),
+    }));
   });
 
   it('normalizes Spring place categories for the existing list UI', async () => {
@@ -62,7 +66,7 @@ describe('infoMap.service category contract', () => {
       items: [{ placeId: 'place-1', name: '한옥', displayCategory: 'HANOK_STAY', coordinates: { lat: 36, lng: 127 } }],
     });
 
-    const page = await listInfoPlaces({ category: 'all' });
+    const page = await listInfoPlaces({ category: 'hanok' });
 
     expect(page.items[0].category).toBe('HANOK_STAY');
   });
@@ -78,7 +82,7 @@ describe('infoMap.service category contract', () => {
       ],
     });
 
-    const response = await loadMapViewport({ bbox: '126,36,128,38', zoomLevel: 6, category: 'all' });
+    const response = await loadMapViewport({ bbox: '126,36,128,38', zoomLevel: 6, category: 'hanok' });
 
     expect(response.items[0]).toMatchObject({ clusterId: 'cluster:6:0:4', name: '주변 장소' });
     expect(response.items[1]).toMatchObject({ category: 'HANOK_STAY', name: '한옥' });
@@ -96,7 +100,7 @@ describe('infoMap.service category contract', () => {
     await expect(loadMapViewport({
       bbox: '126,36,128,38',
       zoomLevel: 9,
-      category: 'all',
+      category: 'hanok',
     })).resolves.toMatchObject({
       servedBbox: { west: 126, south: 36, east: 128, north: 38 },
       snapshotId: null,
@@ -115,7 +119,7 @@ describe('infoMap.service category contract', () => {
     await expect(loadMapViewport({
       bbox: '126,36,128,38',
       zoomLevel: 9,
-      category: 'all',
+      category: 'hanok',
     })).rejects.toThrow('Invalid map viewport response');
   });
 });

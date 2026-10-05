@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
-import { Calendar01Icon, Coffee01Icon, FlameIcon, GridViewIcon, HeartIcon, LandmarkIcon, Leaf01Icon, Moon01Icon, ShoppingBag01Icon, SparklesIcon, UsersIcon, UtensilsIcon } from '@hugeicons/core-free-icons'
+import { Calendar01Icon, Coffee01Icon, FlameIcon, HeartIcon, LandmarkIcon, Leaf01Icon, Moon01Icon, ShoppingBag01Icon, SparklesIcon, UsersIcon, UtensilsIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { meok, palette, fontFamily, fontSize, ringShadow } from '@/design-system/tokens';
 
@@ -23,7 +23,6 @@ interface CategoryItem {
 
 const CATEGORIES: Record<MapMode, CategoryItem[]> = {
   info: [
-    { id: 'all', label: '전체', keyword: '', icon: GridViewIcon },
     { id: 'hanok', label: '한옥', keyword: '한옥', icon: LandmarkIcon, isEmphasis: true },
     { id: 'stay', label: '숙소', keyword: '한옥스테이', icon: Moon01Icon },
     { id: 'food', label: '전통 맛집', keyword: '향토음식', icon: UtensilsIcon },
@@ -279,11 +278,9 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
 
   const handleChipClick = (item: CategoryItem) => {
     if (mode === 'info') {
-      const nextCategory = item.id === 'all' || infoCategory === item.id
-        ? 'all'
-        : item.id as MapInfoCategory;
+      const nextCategory = item.id as MapInfoCategory;
       setInfoCategory(nextCategory);
-      setSearchQuery(nextCategory === 'all' ? '' : item.keyword);
+      setSearchQuery(item.keyword);
       if (!useMapStore.getState().panelOpen) {
         useMapStore.getState().setPanelOpen(true);
       }

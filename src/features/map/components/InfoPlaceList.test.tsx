@@ -68,16 +68,14 @@ describe('InfoPlaceList', () => {
     expect(screen.getByText('유지되는 한옥')).toBeTruthy();
   });
 
-  it('restores the editorial discovery modules above the canonical list on initial ALL mode', () => {
-    useMapStore.setState({ infoCategory: 'all' });
-
+  it('shows the editorial discovery modules above the initial HANOK list', () => {
     render(<InfoPlaceList />);
 
     expect(screen.getByText('실시간 한옥 소식')).toBeTruthy();
     expect(screen.getByText('축제·기획전')).toBeTruthy();
     expect(screen.getByText('이번 주 소리마루')).toBeTruthy();
     expect(screen.getByText('추천 한옥 명소')).toBeTruthy();
-    expect(screen.getByText('전체 23,675곳')).toBeTruthy();
+    expect(screen.getByText('한옥 23,675곳')).toBeTruthy();
     expect(screen.getByText('유지되는 한옥')).toBeTruthy();
   });
 
@@ -104,7 +102,7 @@ describe('InfoPlaceList', () => {
     });
 
     act(() => {
-      useMapStore.getState().setInfoCategory('all');
+      useMapStore.getState().setInfoCategory('festival');
       useMapStore.getState().setInfoCategory('hanok');
       useMapStore.getState().setListItems(
         [{ ...item, placeId: 'current-2', name: '현재 snapshot 장소' }],

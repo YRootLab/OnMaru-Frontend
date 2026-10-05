@@ -19,8 +19,8 @@ describe('useMapStore info list state', () => {
     useMapStore.setState(useMapStore.getInitialState(), true);
   });
 
-  it('starts information mode with the full ALL catalog selected', () => {
-    expect(useMapStore.getState().infoCategory).toBe('all');
+  it('starts information mode with the required HANOK category selected', () => {
+    expect(useMapStore.getState().infoCategory).toBe('hanok');
   });
 
   it('accepts HANOK as one canonical information category', () => {
