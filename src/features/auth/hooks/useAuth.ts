@@ -30,14 +30,20 @@ export function useAuth() {
   // 실서버: GET /members/me (200 = 로그인, 401 = 비로그인, 자동 재시도 없음 — 가이드 §1-5).
   // 목 모드: 백엔드가 없으니 비로그인으로 시작하고, ?auth=success 복귀 시 흉내로 세션 생성.
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.sessionStorage.getItem(MOCK_SESSION_KEY)) {
-      applyProfile({
-        id: MOCK_USER_ID,
-        displayName: MOCK_USER_NAME,
-        characterId: 'CHARACTER_01',
-        backgroundId: 'BACKGROUND_01',
-      });
-      return;
+    try {
+      if (typeof window !== 'undefined' && window.sessionStorage.getItem(MOCK_SESSION_KEY)) {
+        if (!useAuthSessionStore.getState().user) {
+          applyProfile({
+            id: MOCK_USER_ID,
+            displayName: MOCK_USER_NAME,
+            characterId: 'CHARACTER_01',
+            backgroundId: 'BACKGROUND_01',
+          });
+        }
+        return;
+      }
+    } catch {
+      // Storage read failed; treat as no mock session.
     }
 
     if (!USE_MOCK) {

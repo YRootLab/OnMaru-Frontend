@@ -1,6 +1,27 @@
 import { apiRequest, USE_MOCK, type ApiRequestOptions } from '@/lib/api/client';
 import { useAuthSessionStore } from '../store/useAuthSessionStore';
 
+function isMockSession(): boolean {
+  if (process.env.NODE_ENV === 'production') return false;
+  try {
+    return typeof window !== 'undefined' && window.sessionStorage.getItem('onmaru.mock_session') === '1';
+  } catch {
+    return false;
+  }
+}
+
+function buildMockProfile(
+  current?: { id?: string; displayName?: string; characterId?: string; backgroundId?: string } | null,
+  input?: UpdateProfileInput,
+): MemberProfile {
+  return {
+    id: current?.id ?? 'mock_guest',
+    displayName: input?.displayName ?? current?.displayName ?? '도담',
+    characterId: input?.characterId ?? current?.characterId ?? 'CHARACTER_01',
+    backgroundId: input?.backgroundId ?? current?.backgroundId ?? 'BACKGROUND_01',
+  };
+}
+
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
 /*
@@ -41,41 +62,16 @@ export interface MemberRepository {
 export function createMemberRepository(request: RequestFn = apiRequest): MemberRepository {
   return {
     async getMyProfile() {
-      if (USE_MOCK || (typeof window !== 'undefined' && window.sessionStorage.getItem('onmaru.mock_session'))) {
-        const currentUser = useAuthSessionStore.getState().user;
-        return {
-          id: currentUser?.id || 'mock_guest',
-          displayName: currentUser?.displayName || '도담',
-          characterId: currentUser?.characterId || 'CHARACTER_01',
-          backgroundId: currentUser?.backgroundId || 'BACKGROUND_01',
-        };
+      if (USE_MOCK || isMockSession()) {
+        return buildMockProfile(useAuthSessionStore.getState().user);
       }
       return request<MemberProfile>('/members/me', { method: 'GET', cache: 'no-store' });
     },
     async updateMyProfile(input) {
-      if (USE_MOCK || (typeof window !== 'undefined' && window.sessionStorage.getItem('onmaru.mock_session'))) {
-        const currentUser = useAuthSessionStore.getState().user;
-        return {
-          id: currentUser?.id || 'mock_guest',
-          displayName: input.displayName ?? currentUser?.displayName ?? '도담',
-          characterId: input.characterId ?? currentUser?.characterId ?? 'CHARACTER_01',
-          backgroundId: input.backgroundId ?? currentUser?.backgroundId ?? 'BACKGROUND_01',
-        };
+      if (USE_MOCK || isMockSession()) {
+        return buildMockProfile(useAuthSessionStore.getState().user, input);
       }
-      try {
-        return await request<MemberProfile>('/members/me', { method: 'PATCH', body: input, csrf: true });
-      } catch (err) {
-        if (typeof window !== 'undefined' && window.sessionStorage.getItem('onmaru.mock_session')) {
-          const currentUser = useAuthSessionStore.getState().user;
-          return {
-            id: currentUser?.id || 'mock_guest',
-            displayName: input.displayName ?? currentUser?.displayName ?? '도담',
-            characterId: input.characterId ?? currentUser?.characterId ?? 'CHARACTER_01',
-            backgroundId: input.backgroundId ?? currentUser?.backgroundId ?? 'BACKGROUND_01',
-          };
-        }
-        throw err;
-      }
+      return request<MemberProfile>('/members/me', { method: 'PATCH', body: input, csrf: true });
     },
     deleteMyAccount() {
       return request<DeleteAccountResponse>('/members/me', { method: 'DELETE', csrf: true });

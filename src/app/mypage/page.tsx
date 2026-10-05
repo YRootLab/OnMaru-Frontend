@@ -41,8 +41,6 @@ import MonthlyTimeline from '@/features/member-timeline/components/MonthlyTimeli
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { defaultJourneyThreadsRepository } from '@/features/journey-curator/api/journeyThreadsApi';
 import type { JourneyThreadSummary } from '@/features/journey-curator/api/journeyThreadsApi';
-import { defaultSavedResourcesRepository } from '@/features/saved-resources/api/savedResourcesApi';
-import type { SavedPlaceSummary } from '@/features/saved-resources/api/savedResourcesContract';
 import { defaultVisitReviewRepository } from '@/features/visit-review/api/visitReviewApi';
 import type { VisitReview } from '@/features/visit-review/api/visitReviewContract';
 
@@ -308,7 +306,6 @@ export default function MyPage() {
   const removeSavedSound = useSorimaruAudioStore((s) => s.removeSavedStory);
 
   const [journeyThreads, setJourneyThreads] = useState<JourneyThreadSummary[]>([]);
-  const [savedPlaces, setSavedPlaces] = useState<SavedPlaceSummary[]>([]);
   const [myVisitReviews, setMyVisitReviews] = useState<VisitReview[]>([]);
 
   useEffect(() => {
@@ -336,13 +333,11 @@ export default function MyPage() {
   useEffect(() => {
     const loadServerData = async () => {
       try {
-        const [threads, places, reviews] = await Promise.all([
+        const [threads, reviews] = await Promise.all([
           defaultJourneyThreadsRepository.listThreads({ limit: 10 }).then((r) => r.items),
-          defaultSavedResourcesRepository.listPlaces({ limit: 10 }).then((r) => r.items),
           defaultVisitReviewRepository.listReviews({ scope: 'MY', limit: 10 }).then((r) => r.items),
         ]);
         setJourneyThreads(threads ?? []);
-        setSavedPlaces(places ?? []);
         setMyVisitReviews(reviews ?? []);
       } catch (err) {
         console.warn('[MyPage] 서버 데이터 로드 실패:', err);
@@ -614,9 +609,9 @@ export default function MyPage() {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     type="button"
-                    disabled={profileSaving || !draftName.trim()}
+                    disabled={profileSaving || !(draftName.trim().length >= 2 && draftName.trim().length <= 20)}
                     onClick={async () => {
-                      if (!draftName.trim()) return;
+                      if (!(draftName.trim().length >= 2 && draftName.trim().length <= 20)) return;
                       setProfileSaving(true);
                       try {
                         const updated = await defaultMemberRepository.updateMyProfile({
@@ -642,8 +637,8 @@ export default function MyPage() {
                       color: c.text.inverse,
                       fontSize: '14px',
                       fontWeight: 700,
-                      cursor: (profileSaving || !draftName.trim()) ? 'not-allowed' : 'pointer',
-                      opacity: (profileSaving || !draftName.trim()) ? 0.6 : 1,
+                      cursor: (profileSaving || !(draftName.trim().length >= 2 && draftName.trim().length <= 20)) ? 'not-allowed' : 'pointer',
+                      opacity: (profileSaving || !(draftName.trim().length >= 2 && draftName.trim().length <= 20)) ? 0.6 : 1,
                     }}
                   >
                     {profileSaving ? '저장 중…' : '저장'}

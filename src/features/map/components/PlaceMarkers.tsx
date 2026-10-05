@@ -749,7 +749,7 @@ const styles = css`
     padding: 0 6px;
     border-radius: 9999px;
     background: var(--color-action-secondary);
-    color: #ffffff;
+    color: var(--color-bg-app);
     font-size: ${fontSize.xs};
     font-weight: 700;
     font-variant-numeric: tabular-nums;

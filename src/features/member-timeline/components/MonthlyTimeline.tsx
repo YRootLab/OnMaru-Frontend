@@ -93,7 +93,7 @@ const DayLabel = styled.div`
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
 `;
 
 const TimelineLink = styled(Link)`
@@ -154,7 +154,7 @@ const ItemSub = styled.span`
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
 `;
 
 const Note = styled.p`
@@ -162,7 +162,7 @@ const Note = styled.p`
   padding: 20px 18px;
   font-size: 13px;
   line-height: 1.55;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
 `;
 
 const RetryButton = styled.button`
