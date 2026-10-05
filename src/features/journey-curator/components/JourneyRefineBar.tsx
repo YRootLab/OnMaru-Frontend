@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { SparklesIcon, CornerDownLeftIcon, AlertCircleIcon } from '@hugeicons/core-free-icons'
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, surface, fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 
 const Wrapper = styled.div`
