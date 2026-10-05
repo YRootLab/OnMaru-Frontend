@@ -15,6 +15,10 @@ export interface ListInfoPlacesInput {
   signal?: AbortSignal;
 }
 
+function serverCategory(category: string): string {
+  return category.toUpperCase() === 'ALL' ? 'HANOK' : category.toUpperCase();
+}
+
 function isViewportBounds(value: unknown): value is ViewportItemBounds {
   if (!value || typeof value !== 'object') return false;
   const bounds = value as Partial<ViewportItemBounds>;
@@ -51,7 +55,7 @@ function parseMapViewportResponse(value: unknown): MapViewportResponse {
 
 export async function listInfoPlaces(input: ListInfoPlacesInput): Promise<InfoPlacePage> {
   const params: Record<string, string> = {
-    category: input.category.toUpperCase(),
+    category: serverCategory(input.category),
     limit: String(input.limit ?? 30),
   };
   if (input.regionCode) params.regionCode = input.regionCode;
@@ -79,7 +83,7 @@ export async function loadMapViewport(
   const queryParams: Record<string, string> = {
     bbox,
     zoomLevel: String(zoomLevel),
-    category: category.toUpperCase(),
+    category: serverCategory(category),
     limit: '60',
   };
   if (regionCode) queryParams.regionCode = regionCode;

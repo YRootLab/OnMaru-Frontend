@@ -17,7 +17,7 @@ describe('CategoryChips information mode', () => {
       ...useMapStore.getInitialState(),
       mode: 'info',
       category: null,
-      infoCategory: 'all',
+      infoCategory: 'hanok',
     }, true);
   });
 
@@ -26,7 +26,7 @@ describe('CategoryChips information mode', () => {
     vi.unstubAllGlobals();
   });
 
-  it('selecting 한옥 updates infoCategory without changing the legacy category', () => {
+  it('keeps 한옥 selected when the active information category is clicked again', () => {
     render(<CategoryChips />);
 
     fireEvent.click(screen.getByRole('button', { name: '한옥' }));
@@ -36,12 +36,10 @@ describe('CategoryChips information mode', () => {
     expect(useMapStore.getState().searchQuery).toBe('한옥');
   });
 
-  it('selecting 전체 resets the server category to ALL', () => {
-    useMapStore.setState({ infoCategory: 'hanok' });
+  it('does not expose an unsupported 전체 information category', () => {
     render(<CategoryChips />);
 
-    fireEvent.click(screen.getByRole('button', { name: '전체' }));
-
-    expect(useMapStore.getState().infoCategory).toBe('all');
+    expect(screen.queryByRole('button', { name: '전체' })).toBeNull();
+    expect(useMapStore.getState().infoCategory).toBe('hanok');
   });
 });

@@ -9,6 +9,7 @@ import { AlertCircleIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
 import { StoryCarousel } from './StoryCarousel';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
 import { SorimaruArchiveMetaBar } from './SorimaruArchiveMetaBar';
+import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruPagination } from './SorimaruPagination';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { SorimaruAutoSliceRail } from '@/private/core-ui/sorimaru/SorimaruAutoSliceRail';
@@ -302,7 +303,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   initialPage,
   initialNearbyStories,
   initialHeroStorySets,
-  regionCode,
   onLocationChange,
   backgroundVariant,
 }) => {
@@ -323,7 +323,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
   const hydrateSavedStories = useSorimaruAudioStore((s) => s.hydrateSavedStories);
   const { catalog, initialData, initialError, initialLoading, currentPage, goToPage, retry } = useSorimaruCatalog(
-    activeApiService, '전체', regionCode, initialPage,
+    activeApiService, selectedCategory, undefined, initialPage,
   );
   const selectFromIntent = useSorimaruDetailSelection(activeApiService);
   const [nearbyOverride, setNearbyOverride] = useState<SorimaruStorySummary[] | null>(null);
@@ -579,6 +579,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     <SectionDescription>
                       처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.
                     </SectionDescription>
+                  </div>
+
+                  <div>
+                    <CategoryTagFilter />
                   </div>
 
                   <div>
