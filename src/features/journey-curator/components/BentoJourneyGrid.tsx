@@ -576,21 +576,6 @@ export default function BentoJourneyGrid() {
 
   const isCurrentSaved = isSaved(plan.id, plan.title);
 
-  const handleBookmarkToggle = () => {
-    if (!isLoggedIn) {
-      toast.info('로그인하면 여정을 저장할 수 있어요.');
-      return;
-    }
-
-    if (isCurrentSaved) {
-      removeJourney(plan.id);
-      toast.success('여정 저장을 취소했어요.');
-    } else {
-      saveJourney(plan);
-      toast.success(`'${plan.title}' 여정을 저장했어요.`);
-    }
-  };
-
   const { routeCard, hanokCard, sorimaruCard, warmthCard } = plan;
   const days = routeCard.days;
   const hasMultipleDays = Array.isArray(days) && days.length > 1;
