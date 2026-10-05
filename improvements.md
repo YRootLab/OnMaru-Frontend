@@ -4,6 +4,7 @@ Backlog for follow-up improvements that are useful but not required to resume th
 
 ## Open
 
+- 소리마루 운영 API의 3,664개 이야기가 모두 `category=오디오 관광`으로 저장되어 `한옥`·`시장`·`마을` 등 주제 조회가 `coverageStatus=MISSING`, 0건을 반환한다. 지역 API도 9개 광역권만 제공해 경주·전주·안동 같은 도시 조회를 지원하지 않으며, `서울·경기·인천` 그룹 수 1,082건과 `regionCode=kr-11` 목록 `totalCount` 700건도 일치하지 않는다. 백엔드가 canonical 주제 코드와 조회 가능한 지역 단위, 일관된 집계 계약을 제공하면 `소리로 만나는 한국` 필터 복구를 별도 진행한다. (Refs FE #285)
 - 수결첩 API 1.3은 수결을 처음 지급한 `triggerPlaceId`만 제공한다. 새 수결을 만들지 않은 성공 체크인 장소도 새로고침 후 지도에 정확히 복원하려면 로그인 전용 `GET /api/v1/me/visited-places` 같은 중복 없는 공개 place ID 조회 계약이 필요하다. 그 전까지 FE는 서버 trigger 장소와 현재 브라우저 세션에서 성공한 체크인만 방문 상태로 표시하고 localStorage fallback을 사용하지 않는다. (Refs #262)
 - VisitReview 배포 OpenAPI를 실제 계약과 맞춘다. 현재 `CreateReviewRequest` schema는 `text`만/최대 1,000자로 문서화하지만 FE 계약은 `mood`·`score`·`tags`와 300자 제한을 사용한다. 목록·지역 응답도 구체 schema 대신 `object`로만 노출되고, `scope=REGION&regionCode=kr-45`는 0건이지만 leaf `kr-45-jeonju`는 2건을 반환하므로 부모 지역의 재귀 포함 여부를 백엔드 #256 후속으로 명시해야 한다. (2026-09-26 배포 `/v3/api-docs`·실응답 확인)
 - GitHub Actions Secrets에 `VERCEL_TOKEN`/`VERCEL_ORG_ID`/`VERCEL_PROJECT_ID` 미등록 시 develop push/배포가 실패할 수 있음. Secrets 등록은 관리자가 브라우저에서 수동 진행해야 함. (서브모듈 인증용 `CORE_UI_READ_TOKEN`·`SUBMODULE_SSH_KEY`는 서브모듈 제거로 더 이상 불필요 — 삭제 대기)

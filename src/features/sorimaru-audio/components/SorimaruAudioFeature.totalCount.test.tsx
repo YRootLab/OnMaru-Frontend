@@ -18,7 +18,6 @@ vi.mock('@/shared/hooks/useViewportActivation', () => ({
 
 vi.mock('./StoryCarousel', () => ({ StoryCarousel: () => null }));
 vi.mock('./SorimaruArchiveBrowse', () => ({ SorimaruArchiveBrowse: () => null }));
-vi.mock('./SorimaruPagination', () => ({ SorimaruPagination: () => null }));
 vi.mock('./SavedSoundDrawer', () => ({ SavedSoundDrawer: () => null }));
 vi.mock('./SorimaruAtmosphereBackground', () => ({ SorimaruAtmosphereBackground: () => null }));
 vi.mock('@/private/core-ui/sorimaru/SorimaruAutoSliceRail', () => ({ SorimaruAutoSliceRail: () => null }));
@@ -72,19 +71,16 @@ describe('SorimaruAudioFeature archive count', () => {
     render(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
 
     expect(await screen.findByText('23,675개')).toBeTruthy();
+    expect(screen.getByText('1 / 1184')).toBeTruthy();
     expect(screen.queryByText('1개')).toBeNull();
   });
 
-  it('updates the total from each category and region response', async () => {
-    const categoryPage = { ...initialPage, totalCount: 321, nextCursor: null, hasMore: false };
-    const regionPage = { ...initialPage, totalCount: 87, nextCursor: null, hasMore: false };
-    render(<SorimaruAudioFeature apiService={repository([categoryPage, regionPage])} initialPage={initialPage} />);
+  it('does not offer topic or city filters that the backend cannot query', async () => {
+    render(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
 
-    fireEvent.click(screen.getByRole('button', { name: '한옥과 고택' }));
-    expect(await screen.findByText('321개')).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: '경주' }));
-    expect(await screen.findByText('87개')).toBeTruthy();
+    expect(await screen.findByText('23,675개')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: '한옥과 고택' })).toBeNull();
+    expect(screen.queryByRole('button', { name: '경주' })).toBeNull();
   });
 
   it('shows the filtered current-page count while a keyword search is active', async () => {
