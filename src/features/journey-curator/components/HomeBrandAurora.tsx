@@ -41,10 +41,10 @@ const PrimaryLayer = styled(AuroraLayer)`
 
   @keyframes drift-primary {
     from {
-      transform: translate3d(-1.5%, -1%, 0) scale(1.01);
+      transform: translate3d(-4%, -1.5%, 0) scale(1.01);
     }
     to {
-      transform: translate3d(2%, 1.5%, 0) scale(1.04);
+      transform: translate3d(5%, 2%, 0) scale(1.05);
     }
   }
 
@@ -69,10 +69,10 @@ const WarmthLayer = styled(AuroraLayer)`
 
   @keyframes drift-warmth {
     from {
-      transform: translate3d(1.5%, 1%, 0) scale(1.03);
+      transform: translate3d(4.5%, 1.5%, 0) scale(1.03);
     }
     to {
-      transform: translate3d(-2%, -1.5%, 0) scale(1.06);
+      transform: translate3d(-4%, -2%, 0) scale(1.07);
     }
   }
 
