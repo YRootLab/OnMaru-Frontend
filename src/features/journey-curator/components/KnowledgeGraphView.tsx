@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, FlameIcon, HeadphonesIcon, LandmarkIcon, MapPinIcon, NetworkIcon, RotateCcwIcon, ShoppingBag01Icon, SparklesIcon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, FlameIcon, HeadphonesIcon, LandmarkIcon, MapPinIcon, NetworkIcon, RotateCcwIcon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
 
 import type { GraphNode, NodeCategory } from '../types/journey.types';
 import { useJourneyStore } from '../store/useJourneyStore';
