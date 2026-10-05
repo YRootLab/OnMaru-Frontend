@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,8 @@ import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, MapPinIcon }
 import { meok, palette, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
+import { defaultHanokRepository } from '@/features/hanok-archive/api/hanokApi';
+import type { BackendHanokListItem } from '@/features/hanok-archive/api/hanokApi';
 import { RAIL_INSET, RAIL_WIDTH } from '@/features/map/components/MapNavRail';
 import type { Warmth } from '@/features/map/types';
 import MoodSelector, { type MoodValue } from './MoodSelector';
@@ -530,7 +532,6 @@ export default function WriteWarmthModal({
   defaultPlace,
   onCreated,
 }: WriteWarmthModalProps) {
-  const items = useMapStore((s) => s.items);
   const setWarmths = useMapStore((s) => s.setWarmths);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const setIsWarmthWriteOpen = useMapStore((s) => s.setIsWarmthWriteOpen);
@@ -545,6 +546,8 @@ export default function WriteWarmthModal({
     lat: number;
     lng: number;
   } | null>(defaultPlace || null);
+  const [searchResults, setSearchResults] = useState<BackendHanokListItem[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const [score, setScore] = useState<MoodValue>(1);
   const [mood, setMood] = useState<'한적' | '북적'>('한적');
@@ -552,6 +555,7 @@ export default function WriteWarmthModal({
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const placeWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -567,9 +571,7 @@ export default function WriteWarmthModal({
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
+      if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -581,25 +583,45 @@ export default function WriteWarmthModal({
     setPlaceQuery(defaultPlace?.name ?? '');
   }, [defaultPlace, isOpen]);
 
-
-  const filteredPlaces = useMemo(() => {
-    let list = items;
-    if (selectedRegion !== '전국') {
-      list = list.filter(
-        (i) => i.addr?.includes(selectedRegion) || i.name.includes(selectedRegion),
-      );
+  // 드롭다운 바깥 클릭 닫기
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (placeWrapRef.current && !placeWrapRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
     }
-    if (placeQuery.trim()) {
-      const q = placeQuery.trim().toLowerCase();
-      list = list.filter((i) => i.name.toLowerCase().includes(q));
-    }
-    return list.slice(0, 5);
-  }, [items, selectedRegion, placeQuery]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const handleSelectPlace = (place: { id: string; name: string; lat: number; lng: number }) => {
-    setSelectedPlace(place);
-    setPlaceQuery(place.name);
+  // 장소 검색 디바운스
+  useEffect(() => {
+    const q = placeQuery.trim();
+    if (!q || selectedPlace?.name === q) {
+      setSearchResults([]);
+      return;
+    }
+    setIsSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const regionCode = selectedRegion !== '전국' ? selectedRegion : undefined;
+        const res = await defaultHanokRepository.listHanoks({ keyword: q, regionCode, limit: 5 });
+        setSearchResults(res.items);
+        setIsDropdownOpen(true);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [placeQuery, selectedRegion, selectedPlace]);
+
+  const handleSelectPlace = (item: BackendHanokListItem) => {
+    setSelectedPlace({ id: item.placeId, name: item.name, lat: 0, lng: 0 });
+    setPlaceQuery(item.name);
     setIsDropdownOpen(false);
+    setSearchResults([]);
   };
 
   const handleToggleTag = (tag: string) => {
@@ -678,36 +700,40 @@ export default function WriteWarmthModal({
               ))}
             </RegionScroller>
 
-            <PlaceInputWrap>
+            <PlaceInputWrap ref={placeWrapRef}>
               <PlaceInputIcon>
                 <HugeiconsIcon icon={MapPinIcon} size={16} strokeWidth={2} />
               </PlaceInputIcon>
               <PlaceInput
                 type="text"
                 value={placeQuery}
-                onFocus={() => setIsDropdownOpen(true)}
                 onChange={(e) => {
                   setPlaceQuery(e.target.value);
                   if (e.target.value !== selectedPlace?.name) setSelectedPlace(null);
-                  setIsDropdownOpen(true);
                 }}
                 placeholder="장소 이름을 검색해보세요 (예: 경기전)"
                 required
               />
             </PlaceInputWrap>
 
-            {isDropdownOpen && filteredPlaces.length > 0 && (
+            {isDropdownOpen && (isSearching || searchResults.length > 0) && (
               <PlaceDropdown>
-                {filteredPlaces.map((place) => (
-                  <PlaceOption
-                    key={place.id}
-                    type="button"
-                    onClick={() => handleSelectPlace(place)}
-                  >
-                    <span>{place.name}</span>
-                    <PlaceOptionAddr>{place.addr?.split(' ').slice(0, 2).join(' ')}</PlaceOptionAddr>
+                {isSearching ? (
+                  <PlaceOption as="div" style={{ cursor: 'default', color: meok[400], justifyContent: 'center' }}>
+                    검색 중…
                   </PlaceOption>
-                ))}
+                ) : (
+                  searchResults.map((item) => (
+                    <PlaceOption
+                      key={item.placeId}
+                      type="button"
+                      onClick={() => handleSelectPlace(item)}
+                    >
+                      <span>{item.name}</span>
+                      <PlaceOptionAddr>{item.regionName}</PlaceOptionAddr>
+                    </PlaceOption>
+                  ))
+                )}
               </PlaceDropdown>
             )}
           </FormSection>
