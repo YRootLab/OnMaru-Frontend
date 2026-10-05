@@ -10,12 +10,13 @@ import JourneyDiscoveryFeed from './JourneyDiscoveryFeed';
 import JourneyFlowRailSection from './JourneyFlowRailSection';
 import JourneyEnrichmentSections from './JourneyEnrichmentSections';
 import JourneyAssemblyLoader from './JourneyAssemblyLoader';
+import HomeBrandAurora from './HomeBrandAurora';
 
 const MainWrapper = styled.main`
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background-color: ${surface.light.base};
+  background-color: ${surface.light.card};
   transition: background-color 0.3s ease;
 
   [data-theme='dark'] & {
@@ -52,6 +53,11 @@ const Landing = styled.div<{ $centered: boolean }>`
 const ContentLayer = styled.div`
   position: relative;
   z-index: 1;
+  background-color: ${surface.light.card};
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.app};
+  }
 `;
 
 export default function JourneyHome() {
@@ -63,12 +69,17 @@ export default function JourneyHome() {
   return (
     <MainWrapper ref={mainRef}>
       <JourneyAssemblyLoader />
+      <HomeBrandAurora />
 
       <Landing $centered={!hasSearched}>
         <JourneyHeroSearch searchFormRef={searchFormRef} moodChipsRef={moodChipsRef} />
       </Landing>
 
-      {!hasSearched && <JourneyDiscoveryFeed />}
+      {!hasSearched && (
+        <ContentLayer>
+          <JourneyDiscoveryFeed />
+        </ContentLayer>
+      )}
 
       {hasSearched && (
         <ContentLayer>
