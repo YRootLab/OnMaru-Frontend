@@ -10,7 +10,7 @@ import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
-import { escapeHtml, safeImageUrl } from '@/features/map/utils/formatters';
+import { safeImageUrl } from '@/features/map/utils/formatters';
 import {
   createKakaoMap,
   fitKakaoMapBounds,
