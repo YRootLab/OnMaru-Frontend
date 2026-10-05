@@ -4,7 +4,8 @@ import { useEffect, useRef } from 'react';
 import { isOnmaruApiError } from '@/lib/api/errors';
 import { useMapStore } from './useMapStore';
 import { listInfoPlaces, loadMapViewport } from '@/features/map/services/infoMap.service';
-import type { KakaoMap, ViewportItemBounds, ViewportRenderMode } from '@/features/map/types';
+import { mergePlaceViewportItems } from '../application/mergePlaceViewportItems';
+import type { KakaoMap, ViewportItem, ViewportItemBounds, ViewportRenderMode } from '@/features/map/types';
 
 const VIEWPORT_DEBOUNCE_MS = 100;
 const BBOX_EXPAND_RATIO = 0.25;
@@ -83,6 +84,7 @@ export function useInfoMapData(enabled = true) {
   const lastViewportReloadNonceRef = useRef(infoViewportReloadNonce);
   const viewportControllerRef = useRef<AbortController | null>(null);
   const viewportTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const placeCacheRef = useRef<{ scope: string; items: ViewportItem[] }>({ scope: '', items: [] });
 
   // ── Places list ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -160,6 +162,7 @@ export function useInfoMapData(enabled = true) {
 
     // Skip if viewport is still inside servedBbox with same bucket
     if (isSameBucket && currentServedBbox && isInsideServedBbox(map, currentServedBbox)) {
+      store.setIsViewportLoading(false);
       return;
     }
 
@@ -205,7 +208,15 @@ export function useInfoMapData(enabled = true) {
             return;
           }
           viewportSnapshotRecoveryScopeRef.current = '';
-          store.setViewportResponse(res);
+          if (res.renderMode === 'PLACE') {
+            const scope = `${infoCategory}__${infoRegionCode ?? ''}__${res.snapshotId ?? ''}`;
+            const previous = placeCacheRef.current.scope === scope ? placeCacheRef.current.items : [];
+            const items = mergePlaceViewportItems(previous, res.items);
+            placeCacheRef.current = { scope, items };
+            store.setViewportResponse({ ...res, items });
+          } else {
+            store.setViewportResponse(res);
+          }
           lastSuccessfulViewportScopeRef.current = responseScope;
           lastViewportScopeRef.current = `${res.snapshotId}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}__${committedViewport.level}`;
         })

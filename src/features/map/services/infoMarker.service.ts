@@ -37,7 +37,7 @@ export function selectInfoMarkerItems(
   renderMode: ViewportRenderMode | null,
   viewportItems: ViewportItem[],
 ): Item[] {
-  if (renderMode !== 'PLACE' && renderMode !== 'CLUSTER') return [];
+  if (renderMode !== 'PLACE') return [];
 
   return viewportItems.flatMap((item) => {
     if (item.type !== 'PLACE' || !item.placeId) return [];
