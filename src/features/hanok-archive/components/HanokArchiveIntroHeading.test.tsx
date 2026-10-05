@@ -14,7 +14,7 @@ describe('HanokArchiveIntroHeading', () => {
     const kicker = screen.getByText('사라지기 전에 기록한다 · 전국 322곳');
     const title = screen.getByRole('heading', {
       level: 1,
-      name: '지금 한옥은 어디에 남아 있을까?',
+      name: /지금 한옥은 어디에 남아\s있을까?/,
     });
     const accent = screen.getByText('지금 한옥', { exact: true });
     const titleStyle = getComputedStyle(title);
