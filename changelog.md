@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 홈 첫 검색 영역에 주홍·황금·청록·코발트·자하 브랜드 5색이 은은하게 움직이는 오로라 배경을 추가했다. 색 레이어는 추천 콘텐츠에 닿기 전에 투명해지며, 다크 테마에서는 밝기를 낮추고 모션 감소 설정에서는 정지한다.
 - 마이페이지(`src/app/mypage/page.tsx`) Awwwards-grade 2-Column 서재 레이아웃 리뉴얼 및 GNB 메뉴바 너비(`1140px`) 1:1 맞춤 동기화.
 - 헤더 유저 로그인 버튼(`LoginButton`)의 라이트모드 검정 바탕 현상 교정 및 `tokens.ts`의 `ringShadow` 토큰 일괄 적용.
 - `MonthlyTimeline` 컴포넌트 하드코딩 갈색 배경을 `tokens.ts` 시맨틱 토큰(`var(--color-bg-surface)`)으로 전면 전환.

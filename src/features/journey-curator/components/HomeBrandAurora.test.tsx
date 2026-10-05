@@ -21,7 +21,7 @@ describe('HomeBrandAurora', () => {
 
     const css = document.head.textContent ?? '';
     expect(css).toContain('mask-image');
-    expect(css).toContain('prefers-reduced-motion:reduce');
+    expect(css).toMatch(/prefers-reduced-motion:\s*reduce/);
     expect(css).toContain('animation:none');
   });
 });

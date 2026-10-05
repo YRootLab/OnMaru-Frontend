@@ -10,6 +10,7 @@ import JourneyDiscoveryFeed from './JourneyDiscoveryFeed';
 import JourneyFlowRailSection from './JourneyFlowRailSection';
 import JourneyEnrichmentSections from './JourneyEnrichmentSections';
 import JourneyAssemblyLoader from './JourneyAssemblyLoader';
+import HomeBrandAurora from './HomeBrandAurora';
 
 const MainWrapper = styled.main`
   position: relative;
@@ -63,12 +64,17 @@ export default function JourneyHome() {
   return (
     <MainWrapper ref={mainRef}>
       <JourneyAssemblyLoader />
+      <HomeBrandAurora />
 
       <Landing $centered={!hasSearched}>
         <JourneyHeroSearch searchFormRef={searchFormRef} moodChipsRef={moodChipsRef} />
       </Landing>
 
-      {!hasSearched && <JourneyDiscoveryFeed />}
+      {!hasSearched && (
+        <ContentLayer>
+          <JourneyDiscoveryFeed />
+        </ContentLayer>
+      )}
 
       {hasSearched && (
         <ContentLayer>
