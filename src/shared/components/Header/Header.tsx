@@ -7,17 +7,12 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { BookOpen01Icon, Cancel01Icon, CheckIcon, ChevronRightIcon, HeadphonesIcon, Home01Icon, MapIcon, Menu01Icon, Moon01Icon, SparklesIcon, Sun01Icon } from '@hugeicons/core-free-icons'
+import { BookOpen01Icon, Cancel01Icon, ChevronRightIcon, HeadphonesIcon, Home01Icon, MapIcon, Menu01Icon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
-import {
-  getThemePreferenceLabel,
-  getThemePreferenceSummary,
-  getThemeTriggerLabel,
-} from '@/design-system/themePreferenceLabels';
-import type { ThemePreference } from '@/design-system/tokens';
 import { useAuth } from '@/features/auth';
+import { OniAvatar } from '@/features/profile/OniAvatar';
 import GlobalMobileTabs, { HeadphonesFilledEars } from './GlobalMobileTabs';
 import { HanokIcon } from '@/features/map/components/HanokIcon';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
@@ -442,11 +437,11 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-size: ${fontSize.sm};
   font-weight: 700;
 
-  color: #ffffff;
+  color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
   background: ${({ $isLanding }) =>
     $isLanding
       ? 'rgba(20, 18, 16, 0.95)'
-      : 'rgba(11, 18, 32, 0.94)'};
+      : 'rgba(0, 0, 0, 0.05)'};
   border: 1px solid ${({ $isLanding }) =>
     $isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)'};
 
@@ -460,14 +455,24 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   align-items: center;
   gap: 8px;
   box-shadow: ${({ $isLanding }) =>
-    $isLanding
-      ? '0 3px 10px rgba(0, 0, 0, 0.35)'
-      : '0 2px 8px rgba(0, 0, 0, 0.1)'};
+    $isLanding ? ringShadow.dark.button : ringShadow.light.button};
+  transition: all 180ms ease;
+
+  &:hover {
+    background: ${({ $isLanding }) =>
+      $isLanding ? 'rgba(35, 32, 28, 0.95)' : 'rgba(0, 0, 0, 0.08)'};
+    transform: translateY(-1px);
+  }
 
   [data-theme='dark'] & {
     color: #ffffff;
     background: rgba(23, 30, 43, 0.96);
     border-color: rgba(100, 150, 255, 0.20);
+    box-shadow: ${ringShadow.dark.button};
+
+    &:hover {
+      background: rgba(33, 40, 56, 0.98);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -497,170 +502,6 @@ const LoginChevron = styled.span`
   }
 `;
 
-const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
-  position: relative;
-  width: 30px;
-  height: 30px;
-  border-radius: 9999px;
-  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)')};
-  background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)')};
-  color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[700])};
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  margin-right: 0;
-  transition: all 180ms ease;
-
-  &:hover {
-    background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.08)')};
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  ${({ $isAuto, $isLanding }) => $isAuto ? `
-    &::after {
-      content: '';
-      position: absolute;
-      right: 4px;
-      bottom: 4px;
-      width: 6px;
-      height: 6px;
-      border-radius: 9999px;
-      background: ${$isLanding ? '#ffffff' : meok[700]};
-      box-shadow: 0 0 0 2px ${$isLanding ? 'rgba(20, 18, 16, 0.95)' : 'rgba(255, 255, 255, 0.82)'};
-    }
-  ` : ''}
-
-  [data-theme='dark'] & {
-    border-color: rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.08);
-    color: #ffffff;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.18);
-    }
-
-    &::after {
-      background: #ffffff;
-      box-shadow: 0 0 0 2px rgba(11, 18, 32, 0.9);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-  }
-`;
-
-const ThemePickerWrap = styled.div`
-  position: relative;
-  display: inline-flex;
-  margin-right: 6px;
-`;
-
-const ThemePickerPopover = styled(motion.div, transientProps)<LandingProps>`
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: 214px;
-  padding: 6px;
-  border-radius: 16px;
-  background: ${({ $isLanding }) => ($isLanding ? 'rgba(27, 25, 22, 0.9)' : 'rgba(250, 250, 249, 0.94)')};
-  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)')};
-  box-shadow: ${({ $isLanding }) =>
-    $isLanding
-      ? '0 16px 36px rgba(0, 0, 0, 0.32)'
-      : '0 16px 36px rgba(0, 0, 0, 0.12)'};
-  backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
-  z-index: 3;
-  transform-origin: top right;
-
-  [data-theme='dark'] & {
-    background: rgba(23, 30, 43, 0.96);
-    border-color: rgba(100, 150, 255, 0.14);
-    box-shadow: 0 16px 36px rgba(5, 15, 50, 0.45);
-  }
-`;
-
-const ThemeChoiceButton = styled('button', transientProps)<LandingProps>`
-  width: 100%;
-  min-height: 48px;
-  border: 0;
-  border-radius: 12px;
-  padding: 8px 9px;
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) 18px;
-  align-items: center;
-  gap: 8px;
-  background: ${({ $active, $isLanding }) =>
-    $active
-      ? $isLanding ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.055)'
-      : 'transparent'};
-  color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
-  cursor: pointer;
-  text-align: left;
-  transition: background-color 160ms ease;
-
-  &:hover {
-    background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.045)')};
-  }
-
-  [data-theme='dark'] & {
-    color: #ffffff;
-    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.12)' : 'transparent')};
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-`;
-
-const ThemeChoiceIcon = styled.span`
-  width: 24px;
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const ThemeChoiceCopy = styled.span`
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-`;
-
-const ThemeChoiceTitle = styled.span`
-  font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.xs};
-  font-weight: 700;
-  line-height: 1.2;
-`;
-
-const ThemeChoiceSummary = styled.span`
-  font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 11px;
-  font-weight: 400;
-  line-height: 1.25;
-  color: rgba(87, 79, 68, 0.76);
-
-  [data-theme='dark'] & {
-    color: rgba(255, 255, 255, 0.66);
-  }
-`;
-
-const ThemeChoiceCheck = styled.span`
-  width: 18px;
-  height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 export default function Header() {
   const pathname = usePathname();
   const isMapPage = pathname.startsWith('/map');
@@ -669,21 +510,18 @@ export default function Header() {
   const recordNavigation = useMapEntranceStore((s) => s.recordNavigation);
   const resetJourney = useJourneyStore((s) => s.resetJourney);
   const { user, isLoggedIn } = useAuth();
-  const { preference, mode: themeMode, setMode } = useOnmaruTheme();
+  const { mode: themeMode } = useOnmaruTheme();
   const hasHydrated = useSyncExternalStore(
     subscribeToHydration,
     getClientHydrationSnapshot,
     getServerHydrationSnapshot,
   );
-  const renderedPreference = hasHydrated ? preference : 'system';
   const renderedThemeMode = hasHydrated ? themeMode : 'light';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isLandingLight, setIsLandingLight] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const themePickerRef = useRef<HTMLDivElement>(null);
 
   const [isNarrowMapChrome, setIsNarrowMapChrome] = useState(false);
 
@@ -712,22 +550,10 @@ export default function Header() {
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(target)) {
         setIsMobileMenuOpen(false);
       }
-      if (themePickerRef.current && !themePickerRef.current.contains(target)) {
-        setIsThemePickerOpen(false);
-      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    if (!isThemePickerOpen) return;
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === 'Escape') setIsThemePickerOpen(false);
-    }
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isThemePickerOpen]);
 
   useEffect(() => {
     let frameId: number | null = null;
@@ -813,12 +639,6 @@ export default function Header() {
 
 
   const isNavigationOpen = isMobileMenuOpen;
-  const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
-  const themeTriggerIcon = renderedThemeMode === 'dark' ? Moon01Icon : Sun01Icon;
-  const themeTriggerLabel = getThemeTriggerLabel({
-    preference: renderedPreference,
-    mode: renderedThemeMode,
-  });
 
   if (pathname.startsWith('/admin')) {
     return null;
@@ -927,73 +747,20 @@ export default function Header() {
         </CenterNav>
 
       {}
-      <RightSection $isMapPage={isMapPage} ref={themePickerRef}>
-        <ThemePickerWrap>
-          <ThemeToggleBtn
-            type="button"
-            $isLanding={usesDarkSurface}$isAuto={renderedPreference === 'system'}
-            onClick={() => setIsThemePickerOpen((open) => !open)}
-            title={themeTriggerLabel}
-            aria-label={themeTriggerLabel}
-            aria-haspopup="menu"
-            aria-expanded={isThemePickerOpen}
-          >
-            <HugeiconsIcon icon={themeTriggerIcon} size={16} />
-          </ThemeToggleBtn>
-
-        </ThemePickerWrap>
-
-        <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
-          <LoginLabel>{isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}</LoginLabel>
+      <RightSection $isMapPage={isMapPage}>
+        <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} style={isLoggedIn ? { paddingLeft: 5 } : undefined}>
+          {isLoggedIn ? (
+            <>
+              <OniAvatar characterId={user?.characterId} backgroundId={user?.backgroundId} size={24} />
+              <LoginLabel>{user?.displayName ?? '마이페이지'}</LoginLabel>
+            </>
+          ) : (
+            <LoginLabel>로그인</LoginLabel>
+          )}
           <LoginChevron aria-hidden="true">
             <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2.2} />
           </LoginChevron>
         </LoginButton>
-
-        <AnimatePresence>
-          {isThemePickerOpen && (
-            <ThemePickerPopover
-              $isLanding={usesDarkSurface}
-              role="menu"
-              aria-label="화면 모드 선택"
-              initial={{ opacity: 0, y: -4, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -4, scale: 0.98 }}
-              transition={{ duration: 0.14, ease: 'easeOut' }}
-            >
-              {themeOptions.map((option) => {
-                const active = renderedPreference === option;
-                const optionIcon = option === 'dark' ? Moon01Icon : option === 'light' ? Sun01Icon : SparklesIcon;
-                return (
-                  <ThemeChoiceButton
-                    key={option}
-                    type="button"
-                    role="menuitemradio"
-                    aria-checked={active}
-                    $active={active}$isLanding={usesDarkSurface}
-                    onClick={() => {
-                      setMode(option);
-                      setIsThemePickerOpen(false);
-                    }}
-                  >
-                    <ThemeChoiceIcon>
-                      <HugeiconsIcon icon={optionIcon} size={15} strokeWidth={2} />
-                    </ThemeChoiceIcon>
-                    <ThemeChoiceCopy>
-                      <ThemeChoiceTitle>{getThemePreferenceLabel(option)}</ThemeChoiceTitle>
-                      <ThemeChoiceSummary>
-                        {getThemePreferenceSummary({ preference: option, mode: renderedThemeMode })}
-                      </ThemeChoiceSummary>
-                    </ThemeChoiceCopy>
-                    <ThemeChoiceCheck aria-hidden="true">
-                      {active ? <HugeiconsIcon icon={CheckIcon} size={14} strokeWidth={2.4} /> : null}
-                    </ThemeChoiceCheck>
-                  </ThemeChoiceButton>
-                );
-              })}
-            </ThemePickerPopover>
-          )}
-        </AnimatePresence>
       </RightSection>
 
       <MobileTabNavWrap $isMapPage={isMapPage}>
@@ -1080,53 +847,15 @@ export default function Header() {
                   <HugeiconsIcon icon={MapIcon} size={15} /> 지도마루
                 </span>
               </MobileMenuLink>
-              <MobileMenuDivider $isLanding={usesDarkSurface} />
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '8px 12px',
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: '13px',
-                    color: usesDarkSurface ? 'rgba(250, 250, 250, 0.75)' : meok[700],
-                  }}
-                >
-                  화면 모드
-                </span>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  {(['light', 'dark', 'system'] as const).map((opt) => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => setMode(opt)}
-                      style={{
-                        padding: '4px 10px',
-                        borderRadius: '9999px',
-                        border: 'none',
-                        background:
-                          renderedPreference === opt ? 'rgba(0, 184, 130, 0.2)' : 'transparent',
-                        color:
-                          renderedPreference === opt
-                            ? '#00b882'
-                            : usesDarkSurface
-                            ? '#a1a1aa'
-                            : meok[700],
-                        fontSize: '12px',
-                        fontWeight: renderedPreference === opt ? 600 : 400,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {opt === 'light' ? '라이트' : opt === 'dark' ? '다크' : '시스템'}
-                    </button>
-                  ))}
-                </div>
-              </div>
               <MobileMenuLink href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                {isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}
+                {isLoggedIn ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    <OniAvatar characterId={user?.characterId} backgroundId={user?.backgroundId} size={22} />
+                    {user?.displayName ?? '마이페이지'}
+                  </span>
+                ) : (
+                  '로그인'
+                )}
               </MobileMenuLink>
             </MobileMenuPanel>
           )}

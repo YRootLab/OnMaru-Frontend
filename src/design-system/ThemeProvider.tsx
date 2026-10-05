@@ -107,11 +107,23 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
     --color-action-primary-bg:      ${theme.colors.action.primaryBg};
     --color-action-primary-subtle:  ${theme.colors.action.primarySubtle};
 
+    --color-action-secondary:         ${theme.colors.action.secondary};
+    --color-action-secondary-hover:   ${theme.colors.action.secondaryHover};
+    --color-action-secondary-pressed: ${theme.colors.action.secondaryPressed};
+    --color-action-secondary-bg:      ${theme.colors.action.secondaryBg};
+    --color-action-secondary-subtle:  ${theme.colors.action.secondarySubtle};
+
 
     --color-nav-primary:         ${theme.colors.nav.primary};
     --color-nav-primary-hover:   ${theme.colors.nav.primaryHover};
     --color-nav-primary-pressed: ${theme.colors.nav.primaryPressed};
     --color-nav-primary-bg:      ${theme.colors.nav.primaryBg};
+
+    --color-pin-location:        ${theme.colors.pin.location};
+    --color-pin-active:          ${theme.colors.pin.active};
+
+    --color-progress-bar:        ${theme.colors.progress.bar};
+    --color-gauge-fill:          ${theme.colors.progress.gauge};
 
 
     --color-badge-star:       ${theme.colors.badge.star};

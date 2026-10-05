@@ -728,8 +728,8 @@ const styles = css`
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: ${lightPalette.cheongrok[50]};
-    color: ${lightPalette.cheongrok[700]};
+    background: var(--color-action-secondary-bg);
+    color: var(--color-action-secondary);
     flex-shrink: 0;
   }
 
@@ -748,8 +748,8 @@ const styles = css`
     height: 20px;
     padding: 0 6px;
     border-radius: 9999px;
-    background: ${lightPalette.cheongrok[500]};
-    color: #ffffff;
+    background: var(--color-action-secondary);
+    color: var(--color-bg-app);
     font-size: ${fontSize.xs};
     font-weight: 700;
     font-variant-numeric: tabular-nums;

@@ -239,7 +239,7 @@ const MapRetryButton = styled.button`
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.cheongrok[500]};
+    outline: 2px solid var(--color-action-secondary);
     outline-offset: 2px;
   }
 
@@ -429,7 +429,7 @@ const ModalAllowBtn = styled.button`
   border-radius: 12px;
   border: none;
   background: ${meok[900]};
-  color: #ffffff;
+  color: var(--color-bg-app);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -439,6 +439,7 @@ const ModalAllowBtn = styled.button`
 
   &:hover {
     background: ${meok[800]};
+    color: var(--color-bg-app);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.18);
   }
@@ -446,9 +447,9 @@ const ModalAllowBtn = styled.button`
   &:active { transform: scale(0.97); }
 
   [data-theme='dark'] & {
-    background: ${lightPalette.cheongrok[500]};
-    color: #ffffff;
-    &:hover { background: ${lightPalette.cheongrok[600]}; }
+    background: var(--color-action-secondary);
+    color: var(--color-bg-app);
+    &:hover { background: var(--color-action-secondary-hover); }
   }
 `;
 

@@ -29,7 +29,7 @@ const STATE_LABEL: Record<Exclude<PlaceCardState, 'default'>, string> = {
 const STATE_ACCENT: Record<Exclude<PlaceCardState, 'default'>, string> = {
   pinned: palette.juhong[500],
   kept: meok[500],
-  added: palette.cheongrok[500],
+  added: 'var(--color-action-secondary)',
   removed: meok[400],
 };
 

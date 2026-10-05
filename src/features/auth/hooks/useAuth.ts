@@ -30,6 +30,22 @@ export function useAuth() {
   // 실서버: GET /members/me (200 = 로그인, 401 = 비로그인, 자동 재시도 없음 — 가이드 §1-5).
   // 목 모드: 백엔드가 없으니 비로그인으로 시작하고, ?auth=success 복귀 시 흉내로 세션 생성.
   useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && window.sessionStorage.getItem(MOCK_SESSION_KEY)) {
+        if (!useAuthSessionStore.getState().user) {
+          applyProfile({
+            id: MOCK_USER_ID,
+            displayName: MOCK_USER_NAME,
+            characterId: 'CHARACTER_01',
+            backgroundId: 'BACKGROUND_01',
+          });
+        }
+        return;
+      }
+    } catch {
+      // Storage read failed; treat as no mock session.
+    }
+
     if (!USE_MOCK) {
       // 세션 로드 성공 시 hint 설정 — hasAuthenticatedUser()가 북마크 등에서 체크하기 때문.
       ensureSessionLoaded().then(() => {
@@ -37,12 +53,7 @@ export function useAuth() {
       });
       return;
     }
-    // 목 모드: 백엔드가 없으니 sessionStorage 플래그로 세션을 복원한다.
-    if (window.sessionStorage.getItem(MOCK_SESSION_KEY)) {
-      applyProfile({ id: MOCK_USER_ID, displayName: MOCK_USER_NAME });
-    } else {
-      clearSession();
-    }
+    clearSession();
   }, [USE_MOCK, applyProfile, clearSession, ensureSessionLoaded]);
 
   // 카카오 로그인 시작 (로그인 = 회원가입, 카카오 로그인 단일 창구).
@@ -72,9 +83,16 @@ export function useAuth() {
 
   // 목 모드 전용: 백엔드 왕복 없이 세션을 흉내낸다(?auth=success 복귀 시 호출).
   const completeMockKakaoLogin = useCallback((): boolean => {
-    window.sessionStorage.setItem(MOCK_SESSION_KEY, '1');
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(MOCK_SESSION_KEY, '1');
+    }
     markSessionHint();
-    const nextUser = applyProfile({ id: MOCK_USER_ID, displayName: MOCK_USER_NAME });
+    const nextUser = applyProfile({
+      id: MOCK_USER_ID,
+      displayName: MOCK_USER_NAME,
+      characterId: 'CHARACTER_01',
+      backgroundId: 'BACKGROUND_01',
+    });
     toast.success(`${nextUser.displayName}님, 환영해요!`);
     return true;
   }, [applyProfile]);

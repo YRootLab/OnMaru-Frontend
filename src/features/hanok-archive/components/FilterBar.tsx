@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
@@ -264,15 +264,16 @@ const BadgeCount = styled.span`
   opacity: 0.6;
 `;
 
-function getBadgeVariant(_badge: string): 'juhong' {
+function getBadgeVariant(badge: string): 'cheongrok' | 'juhong' | 'jaha' {
+  if (badge === '서원·향교' || badge === '돌담길' || badge === '세계유산' || badge === '조선시대') return 'cheongrok';
+  if (badge === '왕실' || badge === '고궁') return 'jaha';
   return 'juhong';
 }
 
-const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'hwanggeum' | 'jaha' | 'juhong' }>`
+const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'juhong' | 'jaha' }>`
   background: ${({ $active, $variant }) => {
     if (!$active) return '#ffffff';
     if ($variant === 'cheongrok') return `linear-gradient(135deg, ${palette.cheongrok[500]} 0%, ${palette.cheongrok[700]} 100%)`;
-    if ($variant === 'hwanggeum') return `linear-gradient(135deg, ${palette.hwanggeum[500]} 0%, ${palette.hwanggeum[700]} 100%)`;
     if ($variant === 'jaha') return `linear-gradient(135deg, ${palette.jaha[500]} 0%, ${palette.jaha[700]} 100%)`;
     return `linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.juhong[700]} 100%)`;
   }};
@@ -295,7 +296,6 @@ const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'hw
     background: ${({ $active, $variant }) => {
       if (!$active) return 'rgba(255, 255, 255, 0.07)';
       if ($variant === 'cheongrok') return palette.cheongrok[700];
-      if ($variant === 'hwanggeum') return palette.hwanggeum[700];
       if ($variant === 'jaha') return palette.jaha[700];
       return palette.juhong[700];
     }};
@@ -494,7 +494,7 @@ export default function FilterBar({
       {allBadges.length > 0 && (
         <BadgeContainer>
           <BadgeHeader>
-            <HugeiconsIcon icon={Tag01Icon} size={13} strokeWidth={2} color={palette.hwanggeum[700]} />
+            <HugeiconsIcon icon={Tag01Icon} size={13} strokeWidth={2} color={palette.cheongrok[600]} />
             
           </BadgeHeader>
           <BadgeList>

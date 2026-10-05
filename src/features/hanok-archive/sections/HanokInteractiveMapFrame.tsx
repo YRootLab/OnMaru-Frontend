@@ -10,6 +10,7 @@ import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
+import { safeImageUrl } from '@/features/map/utils/formatters';
 import {
   createKakaoMap,
   fitKakaoMapBounds,
@@ -643,19 +644,29 @@ export default function HanokInteractiveMapFrame({
 
       const position = new window.kakao.maps.LatLng(village.lat, village.lng);
 
-      const photoUrl = village.hasImage && village.image
-        ? village.image
-        : FALLBACK_HANOK_IMAGES[idx % FALLBACK_HANOK_IMAGES.length];
-
+      const villagePhotoUrl = village.hasImage && village.image ? village.image : null;
+      const safeVillagePhoto = villagePhotoUrl ? safeImageUrl(villagePhotoUrl) : null;
+      const photoSrc = safeVillagePhoto ?? FALLBACK_HANOK_IMAGES[idx % FALLBACK_HANOK_IMAGES.length];
 
       const content = document.createElement('div');
       content.className = 'custom-overlay-pin';
-      content.innerHTML = `
-        <div class="avatar-thumb">
-          <img src="${photoUrl}" alt="${village.name}" loading="lazy" decoding="async" onerror="this.src='${FALLBACK_HANOK_IMAGES[0]}'" />
-        </div>
-        <div class="avatar-label">${village.name}</div>
-      `;
+
+      const thumbDiv = document.createElement('div');
+      thumbDiv.className = 'avatar-thumb';
+      const img = document.createElement('img');
+      img.src = photoSrc;
+      img.alt = village.name;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.addEventListener('error', () => { img.src = FALLBACK_HANOK_IMAGES[0]; });
+      thumbDiv.appendChild(img);
+
+      const labelDiv = document.createElement('div');
+      labelDiv.className = 'avatar-label';
+      labelDiv.textContent = village.name;
+
+      content.appendChild(thumbDiv);
+      content.appendChild(labelDiv);
 
       const handleOverlayClick = (e: MouseEvent) => {
         e.stopPropagation();

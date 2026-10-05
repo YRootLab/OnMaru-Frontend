@@ -94,7 +94,7 @@ const IntroContent = styled.div`
 `;
 
 const PageTitle = styled.h1`
-  font-family: var(--font-traditional-title);
+  font-family: 'Dohyun', var(--font-dohyun), var(--font-traditional-title), sans-serif;
   font-size: clamp(1.65rem, 3.2vw, 2.75rem);
   font-weight: 700;
   line-height: 1.3;

@@ -38,6 +38,7 @@ const Grid = styled(motion.div)`
     grid-template-columns: repeat(4, 1fr);
     gap: 24px;
   }
+
 `;
 
 const containerVariants = {
@@ -204,7 +205,10 @@ export default function HanokGrid({
               onPointerLeave={(event) => clearGridReveal(event.currentTarget)}
             >
               {paginatedItems.map((v) => (
-                <motion.div key={v.id} variants={itemVariants}>
+                <motion.div
+                  key={v.id}
+                  variants={itemVariants}
+                >
                   <VillageCard village={v} onClick={onSelectVillage} />
                 </motion.div>
               ))}

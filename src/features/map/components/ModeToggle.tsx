@@ -117,7 +117,7 @@ const IconWrap = styled.span<{ $mode: MapMode; $active: boolean; $compact?: bool
     $active
       ? $mode === 'warmth'
         ? palette.hwanggeum[500]
-        : palette.cheongrok[500]
+        : 'var(--color-action-secondary)'
       : 'currentColor'};
   transform: ${({ $active }) => ($active ? 'scale(1.05)' : 'scale(0.95)')};
   transition:

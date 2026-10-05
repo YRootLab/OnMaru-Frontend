@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Bookmark01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { meok } from '@/design-system/tokens';
 import { hasAuthenticatedUser } from '@/features/auth/privateState';
 import { defaultSavedResourcesRepository, type SavedResourcesRepository } from '../api/savedResourcesApi';
 
@@ -29,8 +29,8 @@ const Button = styled.button<{ $active: boolean; $compact: boolean }>`
   padding: ${({ $compact }) => ($compact ? '0' : '0 12px')};
   border-radius: 9999px;
   border: 0;
-  background: ${({ $active }) => ($active ? 'rgba(47, 111, 78, 0.12)' : 'rgba(25, 31, 40, 0.04)')};
-  color: ${({ $active }) => ($active ? '#2f6f4e' : meok[500])};
+  background: ${({ $active }) => ($active ? 'var(--color-action-secondary-bg)' : 'rgba(25, 31, 40, 0.04)')};
+  color: ${({ $active }) => ($active ? 'var(--color-action-secondary)' : meok[500])};
   font: inherit;
   font-size: 12px;
   font-weight: 700;
@@ -38,8 +38,8 @@ const Button = styled.button<{ $active: boolean; $compact: boolean }>`
   transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
 
   &:hover:not(:disabled) {
-    background: ${({ $active }) => ($active ? 'rgba(47, 111, 78, 0.18)' : 'rgba(25, 31, 40, 0.08)')};
-    color: ${({ $active }) => ($active ? '#245b3f' : meok[900])};
+    background: ${({ $active }) => ($active ? 'var(--color-action-secondary-subtle)' : 'rgba(25, 31, 40, 0.08)')};
+    color: ${({ $active }) => ($active ? 'var(--color-action-secondary-pressed)' : meok[900])};
     transform: scale(1.04);
   }
 
@@ -48,7 +48,7 @@ const Button = styled.button<{ $active: boolean; $compact: boolean }>`
   }
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.cheongrok[500]};
+    outline: 2px solid var(--color-action-secondary);
     outline-offset: 2px;
   }
 
