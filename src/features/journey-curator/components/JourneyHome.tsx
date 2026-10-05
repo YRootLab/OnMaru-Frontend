@@ -16,7 +16,7 @@ const MainWrapper = styled.main`
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background-color: ${surface.light.base};
+  background-color: ${surface.light.card};
   transition: background-color 0.3s ease;
 
   [data-theme='dark'] & {
@@ -53,6 +53,11 @@ const Landing = styled.div<{ $centered: boolean }>`
 const ContentLayer = styled.div`
   position: relative;
   z-index: 1;
+  background-color: ${surface.light.card};
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.app};
+  }
 `;
 
 export default function JourneyHome() {
