@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, palette, surface, fontSize } from '@/design-system/tokens';
+import { meok, palette, fontSize } from '@/design-system/tokens';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { HeadphonesIcon, MapPinIcon, ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
 import type { Village } from '@/features/hanok-archive/types';
@@ -382,7 +382,10 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       whileTap={{ scale: 0.985 }}
       transition={{ type: 'spring', stiffness: 350, damping: 24 }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onClick?.(village);
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === ' ') e.preventDefault();
+          onClick?.(village);
+        }
       }}
     >
       <PhotoContainer>

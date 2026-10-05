@@ -5,11 +5,8 @@ import Link from 'next/link';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Compass01Icon, Clock01Icon, LandmarkIcon, HeadphonesIcon, PlayIcon, PauseIcon, FlameIcon, ArrowRight01Icon, SparklesIcon, Bookmark01Icon, BookmarkCheck01Icon } from '@hugeicons/core-free-icons'
-import { toast } from 'sonner';
-import { useAuth } from '@/features/auth';
-import { useSavedJourneyStore } from '../store/useSavedJourneyStore';
-import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { Compass01Icon, Clock01Icon, LandmarkIcon, HeadphonesIcon, PlayIcon, PauseIcon, FlameIcon, ArrowRight01Icon, SparklesIcon } from '@hugeicons/core-free-icons'
+import { lightPalette, surface, fontSize } from '@/design-system/tokens';
 import { transientProps } from '@/design-system/styled';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -50,36 +47,6 @@ const HeaderRow = styled.div`
   @media (max-width: 480px) {
     flex-direction: column;
     gap: 10px;
-  }
-`;
-
-const BookmarkBtn = styled.button<{ $saved: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  border: 1px solid ${({ $saved }) => ($saved ? '#00b882' : 'rgba(0, 0, 0, 0.1)')};
-  background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.1)' : '#ffffff')};
-  color: ${({ $saved }) => ($saved ? '#00b882' : '#4e5968')};
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  flex-shrink: 0;
-
-  [data-theme='dark'] & {
-    background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.15)' : '${surface.dark.surface}')};
-    border-color: ${({ $saved }) => ($saved ? '#00b882' : 'rgba(255, 255, 255, 0.12)')};
-    color: ${({ $saved }) => ($saved ? '#00b882' : '#a1a1aa')};
-  }
-
-  &:hover {
-    transform: translateY(-1px);
-    border-color: #00b882;
-    color: #00b882;
   }
 `;
 
@@ -560,21 +527,9 @@ export default function BentoJourneyGrid() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedDayIdx, setSelectedDayIdx] = useState(0);
 
-  const { isLoggedIn } = useAuth();
-  const saveJourney = useSavedJourneyStore((s) => s.saveJourney);
-  const removeJourney = useSavedJourneyStore((s) => s.removeJourney);
-  const isSaved = useSavedJourneyStore((s) => s.isSaved);
-  const loadSaved = useSavedJourneyStore((s) => s.loadSaved);
-
-  useEffect(() => {
-    loadSaved();
-  }, [loadSaved]);
-
   useEffect(() => {
     setSelectedDayIdx(0);
   }, [plan.id]);
-
-  const isCurrentSaved = isSaved(plan.id, plan.title);
 
   const { routeCard, hanokCard, sorimaruCard, warmthCard } = plan;
   const days = routeCard.days;
