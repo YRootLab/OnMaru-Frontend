@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,11 +9,18 @@ import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, MapPinIcon }
 import { meok, palette, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
-import { defaultHanokRepository } from '@/features/hanok-archive/api/hanokApi';
-import type { BackendHanokListItem } from '@/features/hanok-archive/api/hanokApi';
 import { RAIL_INSET, RAIL_WIDTH } from '@/features/map/components/MapNavRail';
 import type { Warmth } from '@/features/map/types';
 import MoodSelector, { type MoodValue } from './MoodSelector';
+
+type KakaoPlaceResult = {
+  id: string;
+  place_name: string;
+  address_name: string;
+  road_address_name: string;
+  x: string;
+  y: string;
+};
 
 interface WriteWarmthModalProps {
   isOpen: boolean;
@@ -186,48 +193,6 @@ const SectionLabel = styled.label`
 `;
 
 
-const RegionScroller = styled.div`
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 4px;
-  touch-action: pan-x;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const RegionChip = styled.button<{ $active: boolean }>`
-  flex: none;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 9999px;
-
-  font-family: inherit;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  cursor: pointer;
-  background: ${({ $active }) => ($active ? meok[900] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: ${({ $active }) => ($active ? meok[800] : '#e5e8eb')};
-  }
-
-  [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
-    color: ${({ $active }) => ($active ? '#ffffff' : '#9CA3AF')};
-
-    &:hover {
-      background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
-    }
-  }
-`;
 
 
 const PlaceInputWrap = styled.div`
@@ -377,14 +342,6 @@ const MoodButton = styled.button<{ $active: boolean }>`
   }
 `;
 
-const MoodButtonMascot = styled.img`
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  flex-shrink: 0;
-  display: block;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-`;
 
 
 const TagWrap = styled.div`
@@ -534,7 +491,7 @@ export default function WriteWarmthModal({
     lat: number;
     lng: number;
   } | null>(defaultPlace || null);
-  const [searchResults, setSearchResults] = useState<BackendHanokListItem[]>([]);
+  const [searchResults, setSearchResults] = useState<KakaoPlaceResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
   const [score, setScore] = useState<MoodValue>(1);
@@ -582,7 +539,7 @@ export default function WriteWarmthModal({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // 장소 검색 디바운스
+  // 장소 검색 디바운스 (카카오 키워드 검색 — 전국 모든 장소)
   useEffect(() => {
     const q = placeQuery.trim();
     if (!q || selectedPlace?.name === q) {
@@ -592,22 +549,32 @@ export default function WriteWarmthModal({
     }
     setIsSearching(true);
     setIsDropdownOpen(true);
-    const timer = setTimeout(async () => {
-      try {
-        const res = await defaultHanokRepository.listHanoks({ keyword: q, limit: 5 });
-        setSearchResults(res.items ?? []);
-      } catch {
-        setSearchResults([]);
-      } finally {
+    const timer = setTimeout(() => {
+      if (typeof window === 'undefined' || !window.kakao?.maps?.services) {
         setIsSearching(false);
+        return;
       }
+      const ps = new window.kakao.maps.services.Places();
+      ps.keywordSearch(q, (data: KakaoPlaceResult[], status: string) => {
+        if (status === window.kakao.maps.services.Status.OK) {
+          setSearchResults(data.slice(0, 6));
+        } else {
+          setSearchResults([]);
+        }
+        setIsSearching(false);
+      });
     }, 300);
     return () => clearTimeout(timer);
   }, [placeQuery, selectedPlace]);
 
-  const handleSelectPlace = (item: BackendHanokListItem) => {
-    setSelectedPlace({ id: item.placeId, name: item.name, lat: 0, lng: 0 });
-    setPlaceQuery(item.name);
+  const handleSelectPlace = (item: KakaoPlaceResult) => {
+    setSelectedPlace({
+      id: item.id,
+      name: item.place_name,
+      lat: parseFloat(item.y),
+      lng: parseFloat(item.x),
+    });
+    setPlaceQuery(item.place_name);
     setIsDropdownOpen(false);
     setSearchResults([]);
   };
@@ -700,12 +667,12 @@ export default function WriteWarmthModal({
                 ) : (
                   searchResults.map((item) => (
                     <PlaceOption
-                      key={item.placeId}
+                      key={item.id}
                       type="button"
                       onClick={() => handleSelectPlace(item)}
                     >
-                      <span>{item.name}</span>
-                      <PlaceOptionAddr>{item.regionName}</PlaceOptionAddr>
+                      <span>{item.place_name}</span>
+                      <PlaceOptionAddr>{item.road_address_name || item.address_name}</PlaceOptionAddr>
                     </PlaceOption>
                   ))
                 )}
@@ -728,7 +695,7 @@ export default function WriteWarmthModal({
                 $active={mood === '한적'}
                 onClick={() => setMood('한적')}
               >
-                <MoodButtonMascot src="/images/character/Oni_tea.png" alt="" width={22} height={22} aria-hidden="true" />
+                <HugeiconsIcon icon={Leaf01Icon} size={20} strokeWidth={2} aria-hidden="true" />
                 <span>한적해요</span>
               </MoodButton>
               <MoodButton
@@ -736,7 +703,7 @@ export default function WriteWarmthModal({
                 $active={mood === '북적'}
                 onClick={() => setMood('북적')}
               >
-                <MoodButtonMascot src="/images/character/Oni_sogo.png" alt="" width={22} height={22} aria-hidden="true" />
+                <HugeiconsIcon icon={UsersIcon} size={20} strokeWidth={2} aria-hidden="true" />
                 <span>북적여요</span>
               </MoodButton>
             </MoodButtonGroup>
