@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- PR 자체로 충분히 설명하고 검토할 수 있는 작업은 별도 Issue 생성을 요구하지 않고, 기존 Issue가 있거나 독립적인 추적이 필요한 경우에만 연결하도록 협업 규칙을 정리했다.
 - 소리마루 `소리로 만나는 한국`에서 서버가 지원하지 않는 주제·도시 필터를 제거하고, 커서 페이지 이동을 전체 페이지 수가 고정 표시되는 `이전 · 현재/전체 · 다음` 형태로 정리했다.
 - 소리마루 `지도로 듣는 이야기`의 오른쪽 이야기 목록에 중립 회색 외곽선을 추가하고, 오류 안내 안쪽의 회색 배경과 테두리는 제거했다.
 - 마이페이지(`src/app/mypage/page.tsx`) Awwwards-grade 2-Column 서재 레이아웃 리뉴얼 및 GNB 메뉴바 너비(`1140px`) 1:1 맞춤 동기화.
