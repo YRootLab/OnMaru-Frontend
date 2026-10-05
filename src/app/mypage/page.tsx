@@ -622,7 +622,8 @@ export default function MyPage() {
                         useAuthSessionStore.getState().applyProfile(updated);
                         toast.success('프로필을 변경했어요.');
                         setEditingProfile(false);
-                      } catch {
+                      } catch (err) {
+                        console.error('[MyPage] 프로필 변경 실패:', err);
                         toast.error('프로필 변경에 실패했어요. 잠시 후 다시 시도해주세요.');
                       } finally {
                         setProfileSaving(false);
