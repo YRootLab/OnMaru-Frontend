@@ -249,7 +249,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             <CuratorsNoteSection>
               <NoteHeader>
                 <HeaderBadge>
-                  <HugeiconsIcon icon={SparklesIcon} size={16} color={palette.cheongrok[500]} />
+                  <HugeiconsIcon icon={SparklesIcon} size={16} color="var(--color-action-secondary)" />
                   <span>숙소 소개</span>
                 </HeaderBadge>
               </NoteHeader>
@@ -503,7 +503,7 @@ const DirectBookingButton = styled.a`
   flex: 1.5;
   height: 48px;
   border-radius: 9999px;
-  background: ${palette.cheongrok[700]};
+  background: var(--color-action-secondary);
   color: #ffffff;
   font-size: ${fontSize.sm};
   font-weight: 600;
@@ -515,16 +515,8 @@ const DirectBookingButton = styled.a`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${palette.cheongrok[900]};
+    background: var(--color-action-secondary-pressed);
     transform: translateY(-1px);
-  }
-
-  [data-theme='dark'] & {
-    background: ${palette.cheongrok[500]};
-    color: #ffffff;
-    &:hover {
-      background: ${palette.cheongrok[400]};
-    }
   }
 `;
 

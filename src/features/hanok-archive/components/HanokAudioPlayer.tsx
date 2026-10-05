@@ -357,7 +357,7 @@ const ProgressBar = styled.input`
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: ${palette.jangmi[500]};
+    background: ${palette.cheongrok[500]};
     cursor: pointer;
     transition: transform 0.1s ease;
     border: none;

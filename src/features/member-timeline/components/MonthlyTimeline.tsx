@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { HugeiconsIcon } from '@hugeicons/react'
-import { CalendarDaysIcon, ChevronRightIcon, HeartIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react';
+import { CalendarDaysIcon, ChevronRightIcon, HeartIcon, RotateCcwIcon } from '@hugeicons/core-free-icons';
 import { motion } from 'framer-motion';
 import { getPlaceSlipMotion } from '@/shared/motion/placeSlip';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -48,21 +48,17 @@ const Title = styled.h2`
   font-size: 14px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: #1f2328;
+  color: var(--color-text-primary);
   flex-shrink: 0;
-
-  [data-theme='dark'] & {
-    color: #f0ede9;
-  }
 `;
 
 const MonthInput = styled.input`
   height: 30px;
-  border: none;
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
   padding: 0 10px;
-  background: rgba(0, 0, 0, 0.06);
-  color: #1f2328;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
   font: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -72,40 +68,23 @@ const MonthInput = styled.input`
   max-width: 160px;
 
   &:focus {
-    box-shadow: 0 0 0 2px #2f6f4e;
-  }
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.1);
-    color: #f0ede9;
-    color-scheme: dark;
-
-    &:focus {
-      box-shadow: 0 0 0 2px #4ca97a;
-    }
+    box-shadow: 0 0 0 2px var(--color-action-primary);
   }
 `;
 
 const Panel = styled.div`
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
   overflow: hidden;
   width: 100%;
-
-  [data-theme='dark'] & {
-    background: #1e1c19;
-  }
 `;
 
 const DayGroup = styled(motion.div)`
   padding: 16px 18px;
 
   & + & {
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
-  [data-theme='dark'] & + & {
-    border-top-color: rgba(255, 255, 255, 0.07);
+    border-top: 1px solid var(--color-border-subtle);
   }
 `;
 
@@ -114,11 +93,7 @@ const DayLabel = styled.div`
   font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: #8a929b;
-
-  [data-theme='dark'] & {
-    color: #7a8490;
-  }
+  color: var(--color-text-secondary);
 `;
 
 const TimelineLink = styled(Link)`
@@ -133,7 +108,7 @@ const TimelineLink = styled(Link)`
   transition: background-color 0.15s;
 
   &:hover {
-    background-color: rgba(47, 111, 78, 0.06);
+    background-color: var(--color-action-primary-bg);
     padding-left: 4px;
     padding-right: 4px;
     margin-left: -4px;
@@ -141,12 +116,8 @@ const TimelineLink = styled(Link)`
   }
 
   &:focus-visible {
-    outline: 2px solid #2f6f4e;
+    outline: 2px solid var(--color-action-primary);
     outline-offset: 2px;
-  }
-
-  [data-theme='dark'] &:hover {
-    background-color: rgba(76, 169, 122, 0.1);
   }
 `;
 
@@ -157,14 +128,9 @@ const ItemIcon = styled.span`
   width: 32px;
   height: 32px;
   border-radius: 9999px;
-  background: rgba(47, 111, 78, 0.1);
-  color: #2f6f4e;
+  background: var(--color-action-primary-bg);
+  color: var(--color-action-primary);
   flex-shrink: 0;
-
-  [data-theme='dark'] & {
-    background: rgba(76, 169, 122, 0.15);
-    color: #4ca97a;
-  }
 `;
 
 const ItemText = styled.span`
@@ -178,11 +144,7 @@ const ItemTitle = styled.span`
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #1f2328;
-
-  [data-theme='dark'] & {
-    color: #f0ede9;
-  }
+  color: var(--color-text-primary);
 `;
 
 const ItemSub = styled.span`
@@ -192,11 +154,7 @@ const ItemSub = styled.span`
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #8a929b;
-
-  [data-theme='dark'] & {
-    color: #7a8490;
-  }
+  color: var(--color-text-secondary);
 `;
 
 const Note = styled.p`
@@ -204,11 +162,7 @@ const Note = styled.p`
   padding: 20px 18px;
   font-size: 13px;
   line-height: 1.55;
-  color: #8a929b;
-
-  [data-theme='dark'] & {
-    color: #7a8490;
-  }
+  color: var(--color-text-secondary);
 `;
 
 const RetryButton = styled.button`
@@ -218,10 +172,10 @@ const RetryButton = styled.button`
   height: 30px;
   padding: 0 12px;
   margin-left: 8px;
-  border: none;
+  border: 1px solid var(--color-border-subtle);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.06);
-  color: #1f2328;
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
   font: inherit;
   font-size: 12px;
   font-weight: 700;
@@ -229,26 +183,14 @@ const RetryButton = styled.button`
   vertical-align: middle;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.1);
-  }
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.1);
-    color: #f0ede9;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
+    background: var(--color-action-primary-bg);
+    color: var(--color-action-primary);
   }
 `;
 
 const ChevronIcon = styled(HugeiconsIcon)`
   flex-shrink: 0;
-  color: #c0c7ce;
-
-  [data-theme='dark'] & {
-    color: #555e66;
-  }
+  color: var(--color-text-muted);
 `;
 
 function currentMonth(): string {

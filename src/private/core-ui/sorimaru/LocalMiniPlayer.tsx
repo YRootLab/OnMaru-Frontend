@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
 import styled from '@emotion/styled';
@@ -537,14 +537,14 @@ const HeartSaveButton = styled(motion.button)<{ $saved: boolean }>`
   justify-content: center;
   border-radius: 9999px;
   cursor: pointer;
-  color: ${({ $saved }) => ($saved ? palette.juhong[500] : meok[600])};
-  background: ${({ $saved }) => ($saved ? palette.juhong[50] : '#efefed')};
-  border: 1px solid ${({ $saved }) => ($saved ? palette.juhong[200] : 'rgba(0, 0, 0, 0.05)')};
+  color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary)' : meok[600])};
+  background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-bg)' : '#efefed')};
+  border: 1px solid ${({ $saved }) => ($saved ? 'var(--color-action-secondary-subtle)' : 'rgba(0, 0, 0, 0.05)')};
 
   [data-theme='dark'] & {
-    color: ${({ $saved }) => ($saved ? palette.juhong[400] : meok[300])};
-    background: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.15)' : 'rgba(255, 255, 255, 0.08)')};
-    border-color: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.3)' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary)' : meok[300])};
+    background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-bg)' : 'rgba(255, 255, 255, 0.08)')};
+    border-color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-subtle)' : 'rgba(255, 255, 255, 0.08)')};
   }
 `;
 
@@ -587,21 +587,21 @@ const MiniHeartBtn = styled(motion.button)<{ $saved: boolean }>`
   justify-content: center;
   border-radius: 9999px;
   cursor: pointer;
-  color: ${({ $saved }) => ($saved ? palette.juhong[500] : meok[600])};
-  background: ${({ $saved }) => ($saved ? palette.juhong[50] : 'transparent')};
+  color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary)' : meok[600])};
+  background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-bg)' : 'transparent')};
   border: none;
   transition: background 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: ${({ $saved }) => ($saved ? palette.juhong[100] : 'rgba(0, 0, 0, 0.05)')};
+    background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-subtle)' : 'rgba(0, 0, 0, 0.05)')};
   }
 
   [data-theme='dark'] & {
-    color: ${({ $saved }) => ($saved ? palette.juhong[400] : meok[400])};
-    background: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.15)' : 'transparent')};
+    color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary)' : meok[400])};
+    background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-bg)' : 'transparent')};
 
     &:hover {
-      background: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.25)' : 'rgba(255, 255, 255, 0.08)')};
+      background: ${({ $saved }) => ($saved ? 'var(--color-action-secondary-subtle)' : 'rgba(255, 255, 255, 0.08)')};
     }
   }
 `;
@@ -827,8 +827,8 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
     border-radius: 9999px;
     background: linear-gradient(
       to right,
-      ${palette.juhong[400]} 0%,
-      ${palette.juhong[500]} ${({ $progress = 0 }) => $progress}%,
+      ${palette.cheongrok[400]} 0%,
+      ${palette.cheongrok[500]} ${({ $progress = 0 }) => $progress}%,
       #e5e5e3 ${({ $progress = 0 }) => $progress}%,
       #e5e5e3 100%
     );
@@ -839,8 +839,8 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
     [data-theme='dark'] & {
       background: linear-gradient(
         to right,
-        ${palette.juhong[400]} 0%,
-        ${palette.juhong[500]} ${({ $progress = 0 }) => $progress}%,
+        ${palette.cheongrok[400]} 0%,
+        ${palette.cheongrok[500]} ${({ $progress = 0 }) => $progress}%,
         rgba(255, 255, 255, 0.24) ${({ $progress = 0 }) => $progress}%,
         rgba(255, 255, 255, 0.24) 100%
       );
@@ -857,15 +857,15 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
       height: 15px;
       border-radius: 50%;
       background: #ffffff;
-      border: 2.5px solid ${palette.juhong[500]};
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(255, 85, 0, 0.4);
+      border: 2.5px solid ${palette.cheongrok[500]};
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(11, 155, 142, 0.4);
       cursor: grab;
       transition: transform 0.15s ease;
 
       [data-theme='dark'] & {
         background: ${surface.dark.app};
-        border: 2.5px solid ${palette.juhong[400]};
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 85, 0, 0.5);
+        border: 2.5px solid ${palette.cheongrok[400]};
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(11, 155, 142, 0.5);
       }
 
       &:active {

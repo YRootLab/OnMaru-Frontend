@@ -57,9 +57,8 @@ const ProgressBar = styled.div`
   border-radius: 9999px;
   background: linear-gradient(
     90deg,
-    ${lightPalette.juhong[400]} 0%,
-    ${lightPalette.juhong[500]} 50%,
-    ${lightPalette.hwanggeum[500]} 100%
+    ${lightPalette.cheongrok[400]} 0%,
+    ${lightPalette.cheongrok[500]} 100%
   );
 
   transition: width 0.3s ease-out;
@@ -69,7 +68,7 @@ const Percent = styled.span`
   font-size: 13px;
   font-weight: 700;
   font-family: var(--font-hanok);
-  color: ${lightPalette.juhong[500]};
+  color: ${lightPalette.cheongrok[500]};
   letter-spacing: 0.05em;
 `;
 

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 import type {
   HanokStoryResponse,
   HanokStorySource,
@@ -192,6 +193,9 @@ async function generateGroundedStory(
 }
 
 export async function POST(request: Request) {
+  if (!rateLimit(getClientIp(request))) {
+    return NextResponse.json({ error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' }, { status: 429 });
+  }
   const raw = await request.json().catch(() => ({})) as StoryRequest;
   const contentId = readText(raw.contentId, 80);
   const name = readText(raw.name, 120);
@@ -210,7 +214,7 @@ export async function POST(request: Request) {
     return NextResponse.json(cached.value, { headers: { 'X-Onmaru-Cache': 'HIT' } });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return NextResponse.json(fallback);
 
   for (const model of ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash']) {

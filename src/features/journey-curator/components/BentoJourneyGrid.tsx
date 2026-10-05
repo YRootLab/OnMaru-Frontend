@@ -5,11 +5,8 @@ import Link from 'next/link';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Compass01Icon, Clock01Icon, LandmarkIcon, HeadphonesIcon, PlayIcon, PauseIcon, FlameIcon, ArrowRight01Icon, SparklesIcon, Bookmark01Icon, BookmarkCheck01Icon } from '@hugeicons/core-free-icons'
-import { toast } from 'sonner';
-import { useAuth } from '@/features/auth';
-import { useSavedJourneyStore } from '../store/useSavedJourneyStore';
-import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { Compass01Icon, Clock01Icon, LandmarkIcon, HeadphonesIcon, PlayIcon, PauseIcon, FlameIcon, ArrowRight01Icon, SparklesIcon } from '@hugeicons/core-free-icons'
+import { lightPalette, surface, fontSize } from '@/design-system/tokens';
 import { transientProps } from '@/design-system/styled';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -50,36 +47,6 @@ const HeaderRow = styled.div`
   @media (max-width: 480px) {
     flex-direction: column;
     gap: 10px;
-  }
-`;
-
-const BookmarkBtn = styled.button<{ $saved: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 9999px;
-  border: 1px solid ${({ $saved }) => ($saved ? '#00b882' : 'rgba(0, 0, 0, 0.1)')};
-  background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.1)' : '#ffffff')};
-  color: ${({ $saved }) => ($saved ? '#00b882' : '#4e5968')};
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  flex-shrink: 0;
-
-  [data-theme='dark'] & {
-    background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.15)' : '${surface.dark.surface}')};
-    border-color: ${({ $saved }) => ($saved ? '#00b882' : 'rgba(255, 255, 255, 0.12)')};
-    color: ${({ $saved }) => ($saved ? '#00b882' : '#a1a1aa')};
-  }
-
-  &:hover {
-    transform: translateY(-1px);
-    border-color: #00b882;
-    color: #00b882;
   }
 `;
 
@@ -131,9 +98,9 @@ const AiBadge = styled.div`
   gap: 5px;
   font-size: ${fontSize.micro};
   font-weight: 500;
-  color: ${lightPalette.cheongrok[500]};
-  background: rgba(0, 184, 130, 0.08);
-  border: 1px solid rgba(0, 184, 130, 0.2);
+  color: var(--color-action-secondary);
+  background: var(--color-action-secondary-bg);
+  border: 1px solid var(--color-action-secondary-subtle);
   padding: 3px 10px;
   border-radius: 9999px;
   width: fit-content;
@@ -518,7 +485,7 @@ const GaugeFill = styled.div<{ $pct: number }>`
   width: ${({ $pct }) => $pct}%;
   height: 100%;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[500]};
+  background: var(--color-action-secondary);
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
@@ -560,36 +527,9 @@ export default function BentoJourneyGrid() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedDayIdx, setSelectedDayIdx] = useState(0);
 
-  const { isLoggedIn } = useAuth();
-  const saveJourney = useSavedJourneyStore((s) => s.saveJourney);
-  const removeJourney = useSavedJourneyStore((s) => s.removeJourney);
-  const isSaved = useSavedJourneyStore((s) => s.isSaved);
-  const loadSaved = useSavedJourneyStore((s) => s.loadSaved);
-
-  useEffect(() => {
-    loadSaved();
-  }, [loadSaved]);
-
   useEffect(() => {
     setSelectedDayIdx(0);
   }, [plan.id]);
-
-  const isCurrentSaved = isSaved(plan.id, plan.title);
-
-  const handleBookmarkToggle = () => {
-    if (!isLoggedIn) {
-      toast.info('로그인하면 여정을 저장할 수 있어요.');
-      return;
-    }
-
-    if (isCurrentSaved) {
-      removeJourney(plan.id);
-      toast.success('여정 저장을 취소했어요.');
-    } else {
-      saveJourney(plan);
-      toast.success(`'${plan.title}' 여정을 저장했어요.`);
-    }
-  };
 
   const { routeCard, hanokCard, sorimaruCard, warmthCard } = plan;
   const days = routeCard.days;
@@ -686,7 +626,7 @@ export default function BentoJourneyGrid() {
 
         {}
         <HanokCard>
-          <CardBadge $color={lightPalette.cheongrok[500]}>
+          <CardBadge $color="var(--color-action-secondary)">
             <HugeiconsIcon icon={LandmarkIcon} size={14} strokeWidth={2} />
             <span>공간 기록</span>
           </CardBadge>
@@ -698,7 +638,7 @@ export default function BentoJourneyGrid() {
 
           <HanokDesc>{hanokCard.architecturalPoint}</HanokDesc>
 
-          <ActionLink href={hanokCard.hanokLink} $color={lightPalette.cheongrok[500]}>
+          <ActionLink href={hanokCard.hanokLink} $color="var(--color-action-secondary)">
             <span>한옥 구조 살펴보기</span>
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
@@ -767,4 +707,4 @@ export default function BentoJourneyGrid() {
       </BentoGrid>
     </Container>
   );
-}
+}

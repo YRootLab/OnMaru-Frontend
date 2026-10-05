@@ -374,7 +374,7 @@ const ActionButton = styled.button`
 
   &:hover {
     background: rgba(74, 111, 160, 0.1);
-    color: ${lightPalette.cheongrok[700]};
+    color: var(--color-action-secondary);
   }
 
   &:active {

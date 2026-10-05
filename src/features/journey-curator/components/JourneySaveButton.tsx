@@ -12,7 +12,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Bookmark01Icon, BookmarkCheck01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
 import { useAuth } from '@/features/auth';
-import { meok, palette, fontSize } from '@/design-system/tokens';
+import { meok, fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useSavedExplorationStore } from '../store/useSavedExplorationStore';
 
@@ -27,10 +27,10 @@ const SaveBtn = styled.button<{ $saved: boolean }>`
   cursor: pointer;
   font-size: ${fontSize.xs};
   font-weight: 500;
-  color: ${({ $saved }) => ($saved ? palette.cheongrok[500] : meok[500])};
+  color: ${({ $saved }) => ($saved ? 'var(--color-action-secondary)' : meok[500])};
 
   &:hover {
-    color: ${palette.cheongrok[500]};
+    color: var(--color-action-secondary);
   }
 `;
 

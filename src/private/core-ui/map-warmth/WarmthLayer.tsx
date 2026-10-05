@@ -113,15 +113,15 @@ const CONGESTION_CONFIG = {
     light: {
       badgeBg: surface.light.card,
       badgeColor: meok[900],
-      accentColor: lightPalette.cheongrok[500],
-      tagBg: lightPalette.cheongrok[500],
+      accentColor: 'var(--color-action-secondary)',
+      tagBg: 'var(--color-action-secondary)',
       tagColor: surface.light.card,
     },
     dark: {
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
-      accentColor: darkPalette.cheongrok[400],
-      tagBg: darkPalette.cheongrok[500],
+      accentColor: 'var(--color-action-secondary)',
+      tagBg: 'var(--color-action-secondary)',
       tagColor: meok[100],
     },
   },
@@ -203,7 +203,7 @@ const styles = css`
   }
 
   .om-surge-pill-delta.is-quiet {
-    color: ${lightPalette.cheongrok[500]};
+    color: var(--color-action-secondary);
   }
 
   .om-surge-pill-delta.is-flat {
@@ -215,7 +215,7 @@ const styles = css`
   }
 
   [data-theme='dark'] .om-surge-pill-delta.is-quiet {
-    color: ${darkPalette.cheongrok[400]};
+    color: var(--color-action-secondary);
   }
 
 
@@ -387,7 +387,7 @@ const styles = css`
   }
 
   .om-now-delta.is-quiet {
-    color: ${lightPalette.cheongrok[500]};
+    color: var(--color-action-secondary);
   }
 
   .om-now-delta.is-flat {
@@ -399,7 +399,7 @@ const styles = css`
   }
 
   [data-theme='dark'] .om-now-delta.is-quiet {
-    color: ${darkPalette.cheongrok[400]};
+    color: var(--color-action-secondary);
   }
 
 
@@ -446,11 +446,7 @@ const styles = css`
   }
 
   .om-week-col.is-quiet .om-week-bar {
-    background: ${lightPalette.cheongrok[500]};
-  }
-
-  [data-theme='dark'] .om-week-col.is-quiet .om-week-bar {
-    background: ${darkPalette.cheongrok[500]};
+    background: var(--color-action-secondary);
   }
 
   .om-week-label {
@@ -461,12 +457,12 @@ const styles = css`
   }
 
   .om-week-col.is-quiet .om-week-label {
-    color: ${lightPalette.cheongrok[500]};
+    color: var(--color-action-secondary);
     font-weight: 700;
   }
 
   [data-theme='dark'] .om-week-col.is-quiet .om-week-label {
-    color: ${darkPalette.cheongrok[400]};
+    color: var(--color-action-secondary);
   }
 
   .om-week-say {
@@ -478,7 +474,7 @@ const styles = css`
 
   .om-week-say b {
     font-weight: 700;
-    color: ${lightPalette.cheongrok[500]};
+    color: var(--color-action-secondary);
   }
 
   [data-theme='dark'] .om-week-say {
@@ -486,7 +482,7 @@ const styles = css`
   }
 
   [data-theme='dark'] .om-week-say b {
-    color: ${darkPalette.cheongrok[400]};
+    color: var(--color-action-secondary);
   }
 
   .om-popover-foot {

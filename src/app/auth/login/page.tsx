@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { useAuth } from '@/features/auth';
@@ -51,26 +52,23 @@ const OniContainer = styled.div`
 `;
 
 const SpeechBubble = styled.div`
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   z-index: 10;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 6px 14px;
   border-radius: 9999px;
-  background: rgba(11, 18, 32, 0.82);
+  background: #0b1220;
   color: #ffffff;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255,255,255,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* PNG 상단 투명 여백(약 40px)만큼 당겨서 캐릭터 머리에 바짝 붙임 */
+  margin-bottom: -36px;
   animation: bubbleFloat 3s ease-in-out infinite;
 
   @media (prefers-reduced-motion: reduce) {
@@ -78,12 +76,8 @@ const SpeechBubble = styled.div`
   }
 
   @keyframes bubbleFloat {
-    0%, 100% {
-      transform: translate(-50%, 0);
-    }
-    50% {
-      transform: translate(-50%, -4px);
-    }
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
   }
 
   &::after {
@@ -94,16 +88,16 @@ const SpeechBubble = styled.div`
     transform: translateX(-50%);
     border-width: 4px;
     border-style: solid;
-    border-color: rgba(11, 18, 32, 0.82) transparent transparent transparent;
+    border-color: #0b1220 transparent transparent transparent;
   }
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.82);
+    background: #f5f0eb;
     color: #171513;
-    border-color: rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.08);
 
     &::after {
-      border-color: rgba(255, 255, 255, 0.82) transparent transparent transparent;
+      border-color: #f5f0eb transparent transparent transparent;
     }
   }
 `;
@@ -173,8 +167,30 @@ const KakaoButton = styled.button`
   }
 `;
 
+const DevQuickButton = styled.button`
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 10px;
+  border: 1px dashed rgba(212, 175, 55, 0.5);
+  background-color: transparent;
+  color: #8a8175;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(212, 175, 55, 0.1);
+    color: #d4af37;
+  }
+`;
+
 export default function LoginPage() {
-  const { loginWithKakao } = useAuth();
+  const router = useRouter();
+  const { loginWithKakao, completeMockKakaoLogin } = useAuth();
   const { theme } = useOnmaruTheme();
   const c = theme.colors;
   const isApple = useIsAppleDevice();
@@ -215,6 +231,18 @@ export default function LoginPage() {
           <KakaoBubbleIcon />
           카카오로 시작하기
         </KakaoButton>
+
+        {process.env.NODE_ENV !== 'production' && (
+          <DevQuickButton
+            type="button"
+            onClick={() => {
+              completeMockKakaoLogin();
+              router.push('/mypage');
+            }}
+          >
+            ⚡ 개발용 빠른 로그인 (마이페이지 체험)
+          </DevQuickButton>
+        )}
       </LoginCard>
     </PageWrapper>
   );
@@ -229,4 +257,4 @@ function KakaoBubbleIcon() {
       />
     </svg>
   );
-}
+}

@@ -41,7 +41,7 @@ const FloatingOpenButton = styled.button`
   }
 
   &:hover {
-    color: ${palette.juhong[500]};
+    color: ${palette.cheongrok[600]};
   }
 
   @media (min-width: 640px) {
@@ -204,7 +204,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
         onClick={() => setIsOpen(true)}
         aria-label={`마음 담아둔 소리 ${savedStories.length}개 열기`}
       >
-        <HugeiconsIcon icon={HeartIcon} size={14} strokeWidth={2} fill="currentColor" style={{ color: palette.juhong[500] }} />
+        <HugeiconsIcon icon={HeartIcon} size={14} strokeWidth={2} fill="currentColor" style={{ color: palette.cheongrok[500] }} />
         마음 담아둔 소리
         <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums', fontSize: fontSize.micro, color: meok[700] }}>
           {savedStories.length}
@@ -236,7 +236,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
             >
               <DrawerHeader>
                 <div>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: palette.juhong[500] }}>다시 듣고 싶은 장면</p>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: palette.cheongrok[500] }}>다시 듣고 싶은 장면</p>
                   <h2 style={{ marginTop: '0.25rem', fontFamily: 'var(--font-hanok)', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.045em' }}>
                     마음 담아둔 소리
                   </h2>
