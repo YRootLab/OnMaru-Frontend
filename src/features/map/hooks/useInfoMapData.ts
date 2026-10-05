@@ -6,7 +6,7 @@ import { useMapStore } from './useMapStore';
 import { listInfoPlaces, loadMapViewport } from '@/features/map/services/infoMap.service';
 import type { KakaoMap, ViewportItemBounds, ViewportRenderMode } from '@/features/map/types';
 
-const VIEWPORT_DEBOUNCE_MS = 700;
+const VIEWPORT_DEBOUNCE_MS = 100;
 const BBOX_EXPAND_RATIO = 0.25;
 const BBOX_EDGE_THRESHOLD = 0.20;
 
@@ -155,7 +155,7 @@ export function useInfoMapData(enabled = true) {
     const currentServedBbox = store.servedBbox;
     const currentSnapshotId = store.viewportSnapshotId;
 
-    const cacheKey = `${currentSnapshotId}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
+    const cacheKey = `${currentSnapshotId}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}__${committedViewport.level}`;
     const isSameBucket = cacheKey === lastViewportScopeRef.current;
 
     // Skip if viewport is still inside servedBbox with same bucket
@@ -171,7 +171,7 @@ export function useInfoMapData(enabled = true) {
     viewportControllerRef.current?.abort();
 
     viewportTimerRef.current = setTimeout(() => {
-      const requestKey = `${committedBbox}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
+      const requestKey = `${committedBbox}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}__${committedViewport.level}`;
       if (requestKey === lastViewportKeyRef.current) return;
       lastViewportKeyRef.current = requestKey;
 
@@ -190,7 +190,7 @@ export function useInfoMapData(enabled = true) {
       })
         .then((res) => {
           if (ctrl.signal.aborted) return;
-          const responseScope = `${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
+          const responseScope = `${infoCategory}__${infoRegionCode ?? ''}__${bucket}__${committedViewport.level}`;
           const isMissingAggregate =
             res.renderMode !== 'PLACE'
             && (res.totalCountInViewport ?? 0) > 0
@@ -207,7 +207,7 @@ export function useInfoMapData(enabled = true) {
           viewportSnapshotRecoveryScopeRef.current = '';
           store.setViewportResponse(res);
           lastSuccessfulViewportScopeRef.current = responseScope;
-          lastViewportScopeRef.current = `${res.snapshotId}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
+          lastViewportScopeRef.current = `${res.snapshotId}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}__${committedViewport.level}`;
         })
         .catch((err: unknown) => {
           if (ctrl.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) return;
