@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useEffect, useRef, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import Image from 'next/image';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
@@ -313,15 +313,6 @@ function PlaceListItemComponent({
   onSelect,
   onHover,
 }: PlaceListItemProps) {
-  const itemRef = useRef<HTMLLIElement>(null);
-
-
-  useEffect(() => {
-    if (isSelected && itemRef.current) {
-      itemRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [isSelected]);
-
   const userLocation = useMapStore((s) => s.userLocation);
   const center = useMapStore((s) => s.center);
   const availableStories = useSorimaruAudioStore((s) => s.availableStories);
@@ -352,7 +343,6 @@ function PlaceListItemComponent({
 
   return (
     <ItemContainer
-      ref={itemRef}
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: pageIndex * 0.035, ease: [0.16, 1, 0.3, 1] }}

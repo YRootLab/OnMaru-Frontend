@@ -93,6 +93,13 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
 
       window.kakao.maps.event.addListener(map, 'idle', onIdle);
 
+      const onZoomChanged = () => {
+        if (useMapStore.getState().mode === 'info') {
+          useMapStore.getState().setIsViewportLoading(true);
+        }
+      };
+      window.kakao.maps.event.addListener(map, 'zoom_changed', onZoomChanged);
+
 
 
 
@@ -100,6 +107,7 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
       disposeRef.current = () => {
         if (debounceTimer) clearTimeout(debounceTimer);
         window.kakao?.maps?.event?.removeListener(map, 'idle', onIdle);
+        window.kakao?.maps?.event?.removeListener(map, 'zoom_changed', onZoomChanged);
       };
 
       setMap(map);

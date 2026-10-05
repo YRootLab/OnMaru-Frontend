@@ -22,18 +22,13 @@ import type { PlaceCategory } from '../types';
 const log = logger('map');
 
 
-const LABEL_MAX_LEVEL = 4;
+const LABEL_MAX_LEVEL = 5;
 
 
 
 
 
 
-
-
-
-const LABEL_PIN_LIMIT = 30;
-const BADGE_PIN_LIMIT = 25;
 
 
 
@@ -183,30 +178,36 @@ const styles = css`
     position: relative;
     display: flex;
     align-items: center;
-    gap: 6px;
-    height: 32px;
-    padding: 3px 12px 3px 4.5px;
+    gap: 7px;
+    min-height: 36px;
+    padding: 4px 10px 4px 5px;
     border-radius: 14px;
     background: #ffffff;
     border: 1.5px solid rgba(25, 31, 40, 0.12);
     box-shadow: 0 4px 16px -2px rgba(25, 31, 40, 0.22), 0 1px 4px rgba(25, 31, 40, 0.1);
-    font-size: ${fontSize.xs};
+    font-size: 12px;
     font-weight: 700;
     line-height: 1;
     color: ${meok[900]};
     white-space: nowrap;
     cursor: pointer;
     transform: translateY(-2px);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background 0.15s ease, color 0.15s ease;
+    transition: box-shadow 0.16s ease, border-color 0.16s ease;
     user-select: none;
   }
 
   .om-pin:hover,
   .om-pin[data-hovered='true'] {
-    transform: translateY(-10px) scale(1.12);
-    box-shadow: 0 12px 28px -2px rgba(25, 31, 40, 0.32);
+    box-shadow: 0 6px 18px -2px rgba(25, 31, 40, 0.28), 0 0 0 2px rgba(25, 31, 40, 0.07);
     z-index: 100 !important;
-    animation: none !important;
+  }
+
+  .om-pin[data-pending='true'],
+  .om-badge-pin[data-pending='true'],
+  .om-region-overlay[data-pending='true'] {
+    opacity: 0.35;
+    pointer-events: none;
+    transition: opacity 0.16s ease;
   }
 
   .om-pin::after {
@@ -226,12 +227,34 @@ const styles = css`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
     flex-shrink: 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
+
+  .om-pin-name {
+    max-width: min(180px, 42vw);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .om-pin-hanok-tag {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    height: 20px;
+    padding: 0 6px;
+    border: 1px solid ${palette.juhong[200]};
+    border-radius: 5px;
+    background: ${palette.juhong[50]};
+    color: ${palette.juhong[700]};
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+  }
+
 
 
   .om-pin-eq {
@@ -256,7 +279,7 @@ const styles = css`
     position: absolute;
     bottom: calc(100% + 12px);
     left: 50%;
-    transform: translate(-50%, 6px) scale(0.9);
+    transform: translate(-50%, 4px);
     width: max-content;
     min-width: 220px;
     max-width: 275px;
@@ -266,7 +289,7 @@ const styles = css`
     box-shadow: 0 12px 32px -4px rgba(25, 31, 40, 0.22), 0 1px 4px rgba(25, 31, 40, 0.08);
     pointer-events: none;
     opacity: 0;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.16s ease, transform 0.16s ease;
     z-index: 50;
     display: flex;
     flex-direction: column;
@@ -285,7 +308,7 @@ const styles = css`
   .om-badge-pin:hover .om-pin-hover-card,
   .om-badge-pin[data-hovered='true'] .om-pin-hover-card {
     opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+    transform: translate(-50%, 0);
   }
 
   .om-pin-hover-thumb {
@@ -604,12 +627,6 @@ const styles = css`
     color: #191F28 !important;
   }
 
-  .om-pin[data-dimmed='true'],
-  .om-badge-pin[data-dimmed='true'] {
-    opacity: 0.35;
-    filter: grayscale(30%);
-  }
-
 
 
 
@@ -698,69 +715,6 @@ const styles = css`
   }
 
 
-  .om-cluster-pill {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px 5px 8px;
-    border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(12px);
-    border: none;
-    box-shadow: 0 6px 18px -2px rgba(25, 31, 40, 0.16), 0 1px 4px rgba(25, 31, 40, 0.08);
-    cursor: pointer;
-    transform: translate(-50%, -50%);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
-    user-select: none;
-    white-space: nowrap;
-  }
-
-  .om-cluster-pill:hover {
-    transform: translate(-50%, -54%) scale(1.12);
-    box-shadow: 0 10px 24px -3px rgba(25, 31, 40, 0.22);
-    z-index: 40 !important;
-  }
-
-  .om-cluster-icon-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--color-action-secondary-bg);
-    color: var(--color-action-secondary);
-    flex-shrink: 0;
-  }
-
-  .om-cluster-region-name {
-    font-size: ${fontSize.xs};
-    font-weight: 700;
-    color: ${meok[900]};
-    letter-spacing: -0.2px;
-  }
-
-  .om-cluster-count-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 6px;
-    border-radius: 9999px;
-    background: var(--color-action-secondary);
-    color: var(--color-bg-app);
-    font-size: ${fontSize.xs};
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-  }
-
-
-
-
-
-
-
   .om-hanok-mark {
     position: absolute;
     top: -4px;
@@ -776,35 +730,18 @@ const styles = css`
     box-sizing: border-box;
   }
 
-  .om-cluster-hanok-dot {
-    display: inline-block;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: ${palette.juhong[500]};
-    margin-left: 3px;
-    vertical-align: middle;
-  }
-
   .om-pin:focus-visible,
   .om-badge-pin:focus-visible,
-  .om-cluster-pill:focus-visible {
+  .om-region-overlay:focus-visible {
     outline: 3px solid ${lightPalette.juhong[500]};
     outline-offset: 3px;
-    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.9);
     z-index: 45 !important;
   }
-
-
-
-
-
-
 
   @media (prefers-reduced-motion: reduce) {
     .om-pin,
     .om-badge-pin,
-    .om-cluster-pill,
+    .om-region-overlay,
     .om-pin-hover-card,
     .om-pin--traditional,
     .om-badge-pin--traditional,
@@ -859,7 +796,7 @@ function burstIn(wrappers: HTMLDivElement[]): void {
   );
 }
 
-type OverlayRecord = { overlay: any; el: HTMLElement };
+type OverlayRecord = { overlay: any; el: HTMLElement; map: any; markerKey: string };
 
 export default function PlaceMarkers() {
   const map = useMapStore((s) => s.map);
@@ -870,6 +807,7 @@ export default function PlaceMarkers() {
   const level = useMapStore((s) => s.committedViewport.level);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
+  const isViewportLoading = useMapStore((s) => s.isViewportLoading);
   const detailId = useMapStore((s) => s.detailId);
   const userLocation = useMapStore((s) => s.userLocation);
   const searchCenter = useMapStore((s) => s.searchCenter);
@@ -890,9 +828,6 @@ export default function PlaceMarkers() {
       return;
     }
 
-    overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
-    overlayMapRef.current.clear();
-
     const entranceDecision = advanceMarkerEntranceState(markerEntranceStateRef.current, {
       category: infoCategory,
       markerCount: activeItems.length,
@@ -903,7 +838,6 @@ export default function PlaceMarkers() {
     markerEntranceStateRef.current = entranceDecision.state;
     const shouldAnimate = entranceDecision.animate;
     const withLabel = level <= LABEL_MAX_LEVEL;
-    const maxPins = withLabel ? LABEL_PIN_LIMIT : BADGE_PIN_LIMIT;
 
 
 
@@ -914,19 +848,18 @@ export default function PlaceMarkers() {
 
 
 
-    const bounds = map.getBounds?.();
-    const visibleItems =
-      bounds && window.kakao?.maps
-        ? activeItems.filter((it) =>
-            bounds.contain(new window.kakao.maps.LatLng(it.lat, it.lng)),
-          )
-        : activeItems;
-
-    const targetItems = (visibleItems.length > 0 ? visibleItems : activeItems).slice(0, maxPins);
+    // Keep loaded coordinates mounted so Kakao moves them with the map during dragging.
+    const targetItems = activeItems;
+    const targetIds = new Set(targetItems.map((item) => item.id));
+    overlayMapRef.current.forEach((record, id) => {
+      if (record.map !== map || !targetIds.has(id)) {
+        record.overlay.setMap(null);
+        overlayMapRef.current.delete(id);
+      }
+    });
     const entranceWrappers: HTMLDivElement[] = [];
 
     targetItems.forEach((item) => {
-      const el = document.createElement('div');
       const catStyle = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.spot;
 
 
@@ -943,7 +876,7 @@ export default function PlaceMarkers() {
         ? `${estimate.distanceStr} · ${estimate.travelTimeStr}`
         : estimate.distanceStr;
 
-      const placeIsHanok = isHanok(item);
+      const placeIsHanok = item.isTraditional === true || isHanok(item);
 
       const catLabel = item.category === 'stay'
         ? (placeIsHanok ? '한옥 숙소' : '주변 숙소')
@@ -960,6 +893,20 @@ export default function PlaceMarkers() {
                   : item.category === 'festival'
                     ? '축제'
                     : '전통 시장';
+
+      const markerKey = `${withLabel}|${item.category}|${item.name}|${item.lat}|${item.lng}|${item.image}|${item.isTraditional}`;
+      const existing = overlayMapRef.current.get(item.id);
+      if (existing?.markerKey === markerKey) {
+        existing.el.setAttribute('aria-label', `${item.name}, ${catLabel}${metaText ? `, ${metaText}` : ''}. 상세 정보 열기`);
+        const distance = existing.el.querySelector('.om-pin-hover-dist');
+        if (distance) distance.textContent = distInfo;
+        return;
+      }
+      if (existing) {
+        existing.overlay.setMap(null);
+        overlayMapRef.current.delete(item.id);
+      }
+      const el = document.createElement('div');
 
 
 
@@ -988,9 +935,9 @@ export default function PlaceMarkers() {
         el.className = 'om-pin';
         el.style.position = 'relative';
         el.innerHTML = `
-          <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder}; color: ${catStyle.main};">${catStyle.iconSvg}</span>
-          <span>${escapeHtml(item.name)}</span>
-          ${placeIsHanok ? renderHanokMarkHtml('om-hanok-mark', '한옥') : ''}
+          <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder}; color: ${catStyle.main};">${renderCategoryIconSvg(item.category, 16)}</span>
+          <span class="om-pin-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
+          ${placeIsHanok ? '<span class="om-pin-hanok-tag">한옥</span>' : ''}
         `;
       } else {
         el.className = 'om-badge-pin';
@@ -1004,6 +951,7 @@ export default function PlaceMarkers() {
       }
 
       el.dataset.category = item.category;
+      el.dataset.pending = String(useMapStore.getState().isViewportLoading);
 
 
 
@@ -1042,7 +990,17 @@ export default function PlaceMarkers() {
         store.setSheetSnap('full');
       };
 
-      el.addEventListener('click', open);
+      el.addEventListener('click', () => {
+        if (
+          window.matchMedia?.('(hover: none)').matches
+          && useMapStore.getState().hoveredId !== item.id
+        ) {
+          buildHoverCard();
+          useMapStore.getState().setHoveredId(item.id);
+          return;
+        }
+        open();
+      });
       el.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
@@ -1051,9 +1009,11 @@ export default function PlaceMarkers() {
       });
 
       const handleMouseEnter = () => {
+        if (window.matchMedia?.('(hover: none)').matches) return;
         buildHoverCard();
         overlay.setZIndex(100);
-        useMapStore.getState().setHoveredId(item.id);
+        const store = useMapStore.getState();
+        if (store.hoveredId !== item.id) store.setHoveredId(item.id);
       };
       const handleMouseLeave = () => {
         const store = useMapStore.getState();
@@ -1080,19 +1040,10 @@ export default function PlaceMarkers() {
         zIndex: 1,
       });
       overlay.setMap(map);
-      overlayMapRef.current.set(item.id, { overlay, el });
+      overlayMapRef.current.set(item.id, { overlay, el, map, markerKey });
     });
 
     if (shouldAnimate) burstIn(entranceWrappers);
-
-    return () => {
-      overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
-      overlayMapRef.current.clear();
-    };
-
-
-
-
 
   }, [
     map,
@@ -1105,6 +1056,17 @@ export default function PlaceMarkers() {
     searchCenter,
   ]);
 
+  useEffect(() => () => {
+    overlayMapRef.current.forEach((record) => record.overlay.setMap(null));
+    overlayMapRef.current.clear();
+  }, []);
+
+  useEffect(() => {
+    overlayMapRef.current.forEach(({ el }) => {
+      el.dataset.pending = String(isViewportLoading);
+    });
+  }, [isViewportLoading, viewportItems]);
+
 
   useEffect(() => {
     if (overlayMapRef.current.size === 0) return;
@@ -1113,17 +1075,14 @@ export default function PlaceMarkers() {
       const isDetail = id === detailId;
       const isSelected = id === selectedId || isDetail;
       const isHovered = id === hoveredId;
-      const isDimmed = Boolean(detailId && !isDetail);
-
       val.el.dataset.selected = String(isSelected);
       val.el.dataset.detail = String(isDetail);
       val.el.dataset.hovered = String(isHovered);
-      val.el.dataset.dimmed = String(isDimmed);
 
       const zIndex = isHovered ? 100 : isDetail ? 35 : isSelected ? 30 : 1;
       val.overlay.setZIndex(zIndex);
     });
-  }, [selectedId, hoveredId, detailId]);
+  }, [selectedId, hoveredId, detailId, viewportItems]);
 
   return <Global styles={styles} />;
 }

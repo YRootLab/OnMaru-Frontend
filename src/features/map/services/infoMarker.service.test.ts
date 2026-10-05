@@ -19,10 +19,8 @@ describe('selectInfoMarkerItems', () => {
     },
   );
 
-  it('keeps singleton PLACE items as category markers in the CLUSTER bucket', () => {
-    expect(selectInfoMarkerItems('CLUSTER', [placeItem])).toEqual([
-      expect.objectContaining({ id: 'canonical-1', category: 'spot' }),
-    ]);
+  it('leaves singleton PLACE items in the CLUSTER bucket to the aggregate overlay', () => {
+    expect(selectInfoMarkerItems('CLUSTER', [placeItem])).toEqual([]);
   });
 
   it('maps only canonical PLACE viewport items at the PLACE render bucket', () => {

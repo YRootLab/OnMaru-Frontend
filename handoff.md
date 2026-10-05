@@ -66,7 +66,12 @@
 - 2026-09-23: #184·#185 FE 연동 작업 — 지역 그룹 응답 어댑터(`odii/regions`), 홈 인기 소리(`home/popular-sounds`), 재생 기록(`odii/stories/{storyId}/plays`), 오디오 찜 영속 API를 연결했다. 인기 소리 스켈레톤을 실제 기본 응답 수(7개)에 맞추고 목데이터 기반 찜 저장을 제거했다. `tsc`, 관련 Vitest 14건 통과.
 - 2026-09-23 추가: 홈 인기 소리 UI는 `usePopularSounds`로 `/home/popular-sounds`를 직접 사용하고, 소리마루 `SoundConstellationSection`은 `odii/regions` 그룹 응답의 `storyCount`를 지도 핀/선택 지역 헤더에 반영한다. 지도 지역 API 실패 시 목 카드로 대체하지 않는다.
 - 2026-09-23 추가: 홈 `이번 주 추천 코스` 캐러셀 좌우 버튼을 카드보다 앞선 z-index와 안전한 좌우 inset으로 조정하고, 로딩 상태를 이미지·지역 배지·제목·설명 2줄·태그·CTA까지 실제 카드 구조와 동일하게 구성했다.
-## 2026-10-03 지도 정보모드 신규 API 재연결
+## 2026-10-05 지도 장소 마커와 Spring viewport UI (Refs #325)
+
+- 현재 브랜치 `fix/map-place-markers-at-cluster-zoom`는 최신 `origin/develop` (`8200ba8`)을 포함한다. 레벨 1~5의 PLACE는 카테고리 아이콘·장소명, 레벨 6~11의 집계는 지역명 또는 `주변 장소`·개수를 표시한다. 상세를 열어도 목록은 자동 스크롤하지 않고 다른 마커도 흐려지지 않는다.
+- 개발용 500곳 fixture, 축척 선택기, 비교 페이지와 지도 API의 목 응답 분기를 제거했다. 목록·뷰포트는 Spring `/api/v1/map/info/places`·`/api/v1/map/info/viewport`만 사용한다. 운영 응답의 `displayCategory`, 집계 `id`, nullable 집계 이름을 API 경계에서 내부 마커 형식으로 변환한다.
+- 받은 PLACE는 ID 기준 최대 500곳까지 보존해 드래그 중 같은 오버레이를 재사용한다. 다만 Spring viewport 응답 한도는 60곳이라 아직 받지 않은 장소는 이동 후 추가될 수 있다. 이를 완전히 없애려면 BE의 고정 타일/커서 또는 확대된 PLACE 공급 계약이 필요하다. 운영 목록·viewport는 200으로 확인했고 staging은 503이라 로컬 UI의 실응답 시각 검증은 미완료다.
+- PR 전 검증: 지도 Vitest 32파일/155테스트, TypeScript, 대상 ESLint, `next build`, `git diff --check` 통과. 관련 열린 Issue #325는 기존 PR #326 병합 후에도 후속 줌·집계 확인이 남아 있어 이 PR에서 `Refs #325`로 연결한다.
 
 - 완료: Issue #246 / PR #250에서 구현했던 `/api/v1/map/info/places`·`/api/v1/map/info/viewport` 경계를 현재 UI 위에 재연결했다.
 - 확인한 회귀: `4b0c770`에서 연결된 `useInfoMapData`, `ViewportOverlays`, `InfoPlaceList`, viewport PLACE marker 경계가 `8468e52`에서 제거되어 `/api/map/places`로 돌아갔다.
