@@ -12,67 +12,39 @@ import type { ViewportItem } from '../types';
 const MAX_OVERLAYS = 60;
 
 function countBadgeLabel(count: number): string {
-  if (count >= 200) return '200+';
+  if (count >= 1000) return '999+';
   return String(count);
 }
 
-function buildClusterEl(item: ViewportItem, onZoom: () => void): HTMLElement {
-  const count = item.count ?? 0;
-  const size =
-    count >= 200 ? 52 :
-    count >= 50  ? 44 :
-    count >= 10  ? 38 :
-                   32;
-
+function buildAggregateEl(item: ViewportItem, onZoom: () => void): HTMLElement {
+  const count = item.count ?? (item.type === 'PLACE' ? 1 : 0);
+  const prominence = Math.min(1, Math.log2(Math.max(1, count)) / Math.log2(100));
+  const verticalPadding = Math.round(5 + prominence * 2);
+  const horizontalPadding = Math.round(10 + prominence * 3);
+  const badgeSize = Math.round(18 + prominence * 8);
   const el = document.createElement('button');
   el.type = 'button';
+  el.className = 'om-region-overlay';
   el.style.cssText = `
-    width:${size}px;height:${size}px;border-radius:50%;
-    background:rgba(47,104,255,0.88);backdrop-filter:blur(6px);
-    color:#fff;font-size:${count>=200?10:12}px;font-weight:700;
-    border:2px solid rgba(255,255,255,0.6);
-    box-shadow:0 4px 12px rgba(47,104,255,0.35);
-    cursor:pointer;transform:translate(-50%,-50%);
-    display:flex;align-items:center;justify-content:center;
-    transition:transform .15s ease,box-shadow .15s ease;
-    white-space:nowrap;
-  `;
-  el.textContent = countBadgeLabel(count);
-  el.setAttribute('aria-label', `${item.name ?? '클러스터'} ${count}곳. 확대해서 보기`);
-
-  el.addEventListener('mouseenter', () => {
-    el.style.transform = 'translate(-50%,-50%) scale(1.15)';
-  });
-  el.addEventListener('mouseleave', () => {
-    el.style.transform = 'translate(-50%,-50%)';
-  });
-  el.addEventListener('click', onZoom);
-
-  return el;
-}
-
-function buildRegionEl(item: ViewportItem, onZoom: () => void): HTMLElement {
-  const count = item.count ?? 0;
-  const el = document.createElement('button');
-  el.type = 'button';
-  el.style.cssText = `
-    padding:5px 10px;border-radius:9999px;
+    padding:${verticalPadding}px ${horizontalPadding}px;border-radius:9999px;
     background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
     border:1.5px solid rgba(47,104,255,0.25);
     box-shadow:0 4px 14px rgba(25,31,40,0.14);
     cursor:pointer;transform:translate(-50%,-50%);
     display:flex;align-items:center;gap:6px;
     font-size:12px;font-weight:700;color:#191F28;
-    transition:transform .15s ease,box-shadow .15s ease;
+    transition:box-shadow .15s ease;
     white-space:nowrap;
   `;
+  el.style.setProperty('--aggregate-badge-size', `${badgeSize}px`);
   const nameSpan = document.createElement('span');
-  nameSpan.style.cssText = 'font-size:11px;color:#222;';
+  nameSpan.style.cssText = 'max-width:96px;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:#222;';
   nameSpan.textContent = item.name;
+  nameSpan.title = item.name;
 
   const countSpan = document.createElement('span');
   countSpan.style.cssText =
-    'min-width:18px;height:18px;padding:0 5px;border-radius:9999px;background:#2F68FF;color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;';
+    'min-width:var(--aggregate-badge-size);height:var(--aggregate-badge-size);padding:0 5px;border-radius:9999px;background:#2F68FF;color:#fff;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;justify-content:center;';
   countSpan.textContent = countBadgeLabel(count);
 
   el.appendChild(nameSpan);
@@ -80,46 +52,64 @@ function buildRegionEl(item: ViewportItem, onZoom: () => void): HTMLElement {
   el.setAttribute('aria-label', `${item.name} ${count}곳. 클릭하면 해당 지역으로 이동`);
 
   el.addEventListener('mouseenter', () => {
-    el.style.transform = 'translate(-50%,-50%) scale(1.08)';
     el.style.boxShadow = '0 6px 20px rgba(25,31,40,0.22)';
   });
   el.addEventListener('mouseleave', () => {
-    el.style.transform = 'translate(-50%,-50%)';
     el.style.boxShadow = '0 4px 14px rgba(25,31,40,0.14)';
   });
-  el.addEventListener('click', onZoom);
+  el.onclick = onZoom;
 
   return el;
 }
 
-type OverlayRef = { overlay: any; el: HTMLElement };
+type OverlayRef = { overlay: any; el: HTMLElement; map: any; signature: string };
 
 export default function ViewportOverlays() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
   const viewportItems = useMapStore((s) => s.viewportItems);
   const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
+  const infoCategory = useMapStore((s) => s.infoCategory);
   const isViewportLoading = useMapStore((s) => s.isViewportLoading);
   const viewportError = useMapStore((s) => s.viewportError);
+  const level = useMapStore((s) => s.committedViewport.level);
   const retryInfoViewport = useMapStore((s) => s.retryInfoViewport);
 
-  const overlaysRef = useRef<OverlayRef[]>([]);
+  const overlaysRef = useRef<Map<string, OverlayRef>>(new Map());
 
   useEffect(() => {
-    // Cleanup previous
-    overlaysRef.current.forEach((r) => r.overlay.setMap(null));
-    overlaysRef.current = [];
-
-    if (!map || mode !== 'info' || !window.kakao?.maps) return;
-    if (!viewportRenderMode || viewportRenderMode === 'PLACE') return;
-    if (viewportItems.length === 0) return;
+    if (!map || mode !== 'info' || !window.kakao?.maps || !viewportRenderMode || viewportRenderMode === 'PLACE' || viewportItems.length === 0) {
+      overlaysRef.current.forEach((record) => record.overlay.setMap(null));
+      overlaysRef.current.clear();
+      return;
+    }
 
     const displayed = viewportItems
-      .filter((item) => item.type !== 'PLACE')
+      .filter((item) => viewportRenderMode === 'CLUSTER' || item.type !== 'PLACE')
       .slice(0, MAX_OVERLAYS);
 
-    displayed.forEach((item) => {
+    const seenKeys = new Map<string, number>();
+    const keyed = displayed.map((item) => {
+      const cellSize = level <= 6 ? 0.05 : level === 7 ? 0.1 : 0.5;
+      const spatialKey = `${Math.floor(item.center.lng / cellSize)}:${Math.floor(item.center.lat / cellSize)}`;
+      const base = `${level}:${item.type}:${item.placeId ?? item.clusterId ?? item.regionCode ?? `${item.name}:${spatialKey}`}`;
+      const occurrence = seenKeys.get(base) ?? 0;
+      seenKeys.set(base, occurrence + 1);
+      return { item, key: `${base}:${occurrence}` };
+    });
+    const targetKeys = new Set(keyed.map(({ key }) => key));
+    overlaysRef.current.forEach((record, key) => {
+      if (record.map !== map || !targetKeys.has(key)) {
+        record.overlay.setMap(null);
+        overlaysRef.current.delete(key);
+      }
+    });
+
+    keyed.forEach(({ item, key }) => {
       const { lat, lng } = item.center;
+      const signature = `${viewportRenderMode}|${item.name}|${item.count}|${lat}|${lng}|${infoCategory}|${item.targetZoomLevel}|${JSON.stringify(item.bounds)}`;
+      const existing = overlaysRef.current.get(key);
+      if (existing?.signature === signature) return;
 
       const zoom = () => {
         if (!window.kakao?.maps) return;
@@ -140,8 +130,17 @@ export default function ViewportOverlays() {
         }
       };
 
-      const isCluster = viewportRenderMode === 'CLUSTER';
-      const el = isCluster ? buildClusterEl(item, zoom) : buildRegionEl(item, zoom);
+      if (existing) {
+        const updated = buildAggregateEl(item, zoom);
+        existing.el.replaceChildren(...Array.from(updated.childNodes));
+        existing.el.style.cssText = updated.style.cssText;
+        existing.el.setAttribute('aria-label', updated.getAttribute('aria-label') ?? '');
+        existing.el.onclick = zoom;
+        existing.signature = signature;
+        return;
+      }
+      const el = buildAggregateEl(item, zoom);
+      el.dataset.pending = String(useMapStore.getState().isViewportLoading);
 
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(lat, lng),
@@ -150,14 +149,20 @@ export default function ViewportOverlays() {
         zIndex: 10,
       });
       overlay.setMap(map);
-      overlaysRef.current.push({ overlay, el });
+      overlaysRef.current.set(key, { overlay, el, map, signature });
     });
+  }, [map, mode, viewportItems, viewportRenderMode, infoCategory, level]);
 
-    return () => {
-      overlaysRef.current.forEach((r) => r.overlay.setMap(null));
-      overlaysRef.current = [];
-    };
-  }, [map, mode, viewportItems, viewportRenderMode]);
+  useEffect(() => () => {
+    overlaysRef.current.forEach((record) => record.overlay.setMap(null));
+    overlaysRef.current.clear();
+  }, []);
+
+  useEffect(() => {
+    overlaysRef.current.forEach(({ el }) => {
+      el.dataset.pending = String(isViewportLoading);
+    });
+  }, [isViewportLoading, viewportItems]);
 
   if (!viewportError && mode === 'info' && isViewportLoading) {
     return (

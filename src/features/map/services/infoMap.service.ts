@@ -1,6 +1,7 @@
-import { apiRequest, USE_MOCK } from '@/lib/api/client';
+import { apiRequest } from '@/lib/api/client';
 import type {
   InfoPlacePage,
+  ViewportItem,
   MapViewportResponse,
   ViewportItemBounds,
   ViewportRequestParams,
@@ -13,26 +14,6 @@ export interface ListInfoPlacesInput {
   limit?: number;
   signal?: AbortSignal;
 }
-
-// ── Fixtures (BE 미준비 시 병렬 개발용) ──────────────────────────────────────
-
-const FIXTURE_PLACES: InfoPlacePage = {
-  query: { category: 'ALL' },
-  snapshot: { id: 'fixture-snap-001', publishedAt: new Date().toISOString() },
-  totalCount: 0,
-  items: [],
-  nextCursor: null,
-  appliedCategories: ['HANOK', 'HISTORIC_SITE'],
-  coverage: 'COMPLETE',
-};
-
-const FIXTURE_VIEWPORT: MapViewportResponse = {
-  renderMode: 'DISTRICT',
-  servedBbox: { west: 126, south: 34, east: 130, north: 38.5 },
-  snapshotId: 'fixture-snap-001',
-  items: [],
-  totalCountInViewport: 0,
-};
 
 function isViewportBounds(value: unknown): value is ViewportItemBounds {
   if (!value || typeof value !== 'object') return false;
@@ -52,14 +33,23 @@ function parseMapViewportResponse(value: unknown): MapViewportResponse {
   ) {
     throw new Error('Invalid map viewport response');
   }
-  return response as MapViewportResponse;
+  return {
+    ...response,
+    items: response.items.map((rawItem) => {
+      const item = rawItem as ViewportItem & { id?: string; displayCategory?: string; name?: string | null };
+      return {
+        ...item,
+        name: item.name?.trim() || (item.type === 'CLUSTER' ? '주변 장소' : '장소'),
+        clusterId: item.clusterId ?? (item.type === 'CLUSTER' ? item.id : undefined),
+        category: item.category ?? item.displayCategory,
+      };
+    }),
+  } as MapViewportResponse;
 }
 
 // ── API calls ─────────────────────────────────────────────────────────────────
 
 export async function listInfoPlaces(input: ListInfoPlacesInput): Promise<InfoPlacePage> {
-  if (USE_MOCK) return FIXTURE_PLACES;
-
   const params: Record<string, string> = {
     category: input.category.toUpperCase(),
     limit: String(input.limit ?? 30),
@@ -67,19 +57,24 @@ export async function listInfoPlaces(input: ListInfoPlacesInput): Promise<InfoPl
   if (input.regionCode) params.regionCode = input.regionCode;
   if (input.cursor) params.cursor = input.cursor;
 
-  return apiRequest<InfoPlacePage>('/map/info/places', {
+  const page = await apiRequest<InfoPlacePage>('/map/info/places', {
     method: 'GET',
     params,
     signal: input.signal,
     retry: false,
   });
+  return {
+    ...page,
+    items: page.items.map((item) => ({
+      ...item,
+      category: item.displayCategory ?? item.category,
+    })),
+  };
 }
 
 export async function loadMapViewport(
   params: ViewportRequestParams & { signal?: AbortSignal },
 ): Promise<MapViewportResponse> {
-  if (USE_MOCK) return FIXTURE_VIEWPORT;
-
   const { signal, bbox, zoomLevel, category, regionCode } = params;
   const queryParams: Record<string, string> = {
     bbox,

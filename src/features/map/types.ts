@@ -242,6 +242,7 @@ export interface ViewportItem {
   placeId?: string;
   thumbnailUrl?: string | null;
   // CLUSTER / DISTRICT / REGION fields
+  clusterId?: string;
   regionCode?: string;
   count?: number;
   categoryCounts?: Record<string, number>;
