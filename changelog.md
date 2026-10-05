@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 - 홈 첫 검색 영역에 주홍·황금·청록·코발트·자하 브랜드 5색이 구름처럼 천천히 흐르는 오로라 배경을 추가했다. 두 레이어가 서로 다른 18초·24초 주기로 좌우 8.5~9%를 이동하고, 흰색 홈 캔버스 위에서 추천 콘텐츠에 닿기 전에 투명해져 색 영역과 콘텐츠 사이에 경계선이 생기지 않는다. 다크 테마에서는 밝기를 낮추며 모션 감소 설정에서는 정지한다.
+- 소리마루 `소리로 만나는 한국`에서 서버가 지원하지 않는 주제·도시 필터를 제거하고, 커서 페이지 이동을 전체 페이지 수가 고정 표시되는 `이전 · 현재/전체 · 다음` 형태로 정리했다.
+- 소리마루 `지도로 듣는 이야기`의 오른쪽 이야기 목록에 중립 회색 외곽선을 추가하고, 오류 안내 안쪽의 회색 배경과 테두리는 제거했다.
 - 마이페이지(`src/app/mypage/page.tsx`) Awwwards-grade 2-Column 서재 레이아웃 리뉴얼 및 GNB 메뉴바 너비(`1140px`) 1:1 맞춤 동기화.
 - 헤더 유저 로그인 버튼(`LoginButton`)의 라이트모드 검정 바탕 현상 교정 및 `tokens.ts`의 `ringShadow` 토큰 일괄 적용.
 - `MonthlyTimeline` 컴포넌트 하드코딩 갈색 배경을 `tokens.ts` 시맨틱 토큰(`var(--color-bg-surface)`)으로 전면 전환.

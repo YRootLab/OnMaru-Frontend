@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
-import { palette, meok, surface } from '@/design-system/tokens';
+import { meok } from '@/design-system/tokens';
 
 interface SorimaruPaginationProps {
   currentPage: number;
@@ -79,81 +79,26 @@ const ArrowButton = styled.button`
   }
 `;
 
-const PageNumberButton = styled.button<{ $isActive: boolean }>`
-  position: relative;
+const PageStatus = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
+  min-width: 68px;
   height: 32px;
-  padding: 0 6px;
+  padding: 0 10px;
   border-radius: 9999px;
-  border: none;
   font-family: var(--font-hanok);
-  font-size: 12.5px;
-  font-weight: ${({ $isActive }) => ($isActive ? '700' : '500')};
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  color: ${({ $isActive }) => ($isActive ? '#ffffff' : meok[700])};
-  background: ${({ $isActive }) => ($isActive ? palette.juhong[500] : 'transparent')};
-  box-shadow: none;
-
-  &:hover:not(:disabled) {
-    ${({ $isActive }) =>
-      !$isActive &&
-      `
-      background: rgba(0, 0, 0, 0.05);
-      color: ${meok[900]};
-    `}
-  }
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: ${meok[700]};
+  background: rgba(255, 255, 255, 0.8);
 
   [data-theme='dark'] & {
-    color: ${({ $isActive }) => ($isActive ? '#ffffff' : meok[400])};
-    background: ${({ $isActive }) => ($isActive ? palette.juhong[500] : 'transparent')};
-    box-shadow: none;
-
-    &:hover:not(:disabled) {
-      ${({ $isActive }) =>
-        !$isActive &&
-        `
-        background: rgba(255, 255, 255, 0.08);
-        color: #ffffff;
-      `}
-    }
+    color: ${meok[300]};
+    background: rgba(255, 255, 255, 0.06);
   }
 `;
-
-const EllipsisSpan = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 32px;
-  font-size: 11px;
-  color: ${meok[500]};
-  user-select: none;
-
-  [data-theme='dark'] & {
-    color: ${meok[500]};
-  }
-`;
-
-function getPageNumbers(currentPage: number, totalPages: number): (number | '...')[] {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-
-  if (currentPage <= 4) {
-    return [1, 2, 3, 4, 5, '...', totalPages];
-  }
-
-  if (currentPage >= totalPages - 3) {
-    return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-  }
-
-  return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
-}
 
 export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
   currentPage,
@@ -176,10 +121,8 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
     }
   };
 
-  const pageNumbers = getPageNumbers(currentPage, totalPages);
-
   return (
-    <PaginationContainer aria-label="오디오 아카이브 페이지 번호">
+    <PaginationContainer aria-label="오디오 아카이브 페이지 이동">
       <NavPillGroup>
         <ArrowButton
           type="button"
@@ -191,22 +134,9 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
           <span>이전</span>
         </ArrowButton>
 
-        {pageNumbers.map((page, index) =>
-          page === '...' ? (
-            <EllipsisSpan key={`ellipsis-${index}`}>…</EllipsisSpan>
-          ) : (
-            <PageNumberButton
-              key={page}
-              type="button"
-              $isActive={page === currentPage}
-              onClick={() => handlePageClick(page)}
-              disabled={isLoading}
-              aria-current={page === currentPage ? 'page' : undefined}
-            >
-              {page}
-            </PageNumberButton>
-          )
-        )}
+        <PageStatus aria-current="page" aria-label={`${totalPages}페이지 중 ${currentPage}페이지`}>
+          {currentPage} / {totalPages}
+        </PageStatus>
 
         <ArrowButton
           type="button"
