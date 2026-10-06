@@ -84,37 +84,6 @@ export interface CurationItem {
   isModifiedLocally?: boolean;
 }
 
-export interface PipelineEndpointStats {
-  endpoint: string;
-  used: number;
-  limit: number;
-}
-
-export interface PipelineFailureLog {
-  id: string;
-  timestamp: string;
-  endpoint: string;
-  contentId: string;
-  errorMessage: string;
-}
-
-export interface PipelineStatus {
-  lastBuildAt: string;
-  duration: string;
-  status: 'IDLE' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'MISSING';
-  result: 'SUCCESS' | 'FAILURE';
-  failureCount: number;
-  villageCount: number;
-  villageImageRate: number;
-  stayCount: number;
-  stayImageRate: number;
-  routeCount: number;
-  apiCallUsed: number;
-  apiCallLimit: number;
-  endpoints: PipelineEndpointStats[];
-  failureLogs: PipelineFailureLog[];
-}
-
 export interface DashboardStatCard {
   key: string;
   label: string;

@@ -13,13 +13,11 @@ import {
   mockDashboardStats,
   mockRecentReviews,
   mockPendingReports,
-  mockPipelineSummary,
 } from '@/features/admin/mock/dashboard.mock';
 import { mockReviews } from '@/features/admin/mock/reviews.mock';
 import { mockReports } from '@/features/admin/mock/reports.mock';
 import { mockUsers } from '@/features/admin/mock/users.mock';
 import { mockVillages, mockStays, mockRoutes } from '@/features/admin/mock/curation.mock';
-import { mockPipelineStatus } from '@/features/admin/mock/pipeline.mock';
 import type {
   AdminUser,
   AdminRole,
@@ -34,6 +32,7 @@ import type {
   ModerationQueuePageResponse,
   DashboardStatCard,
 } from '@/features/admin/types';
+import type { AdminPipelineStatus } from '@/features/admin/domain/adminPipeline';
 import type { RecentReviewSummary, PendingReportSummary } from '@/features/admin/mock/dashboard.mock';
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -42,7 +41,7 @@ export interface DashboardSummary {
   stats: DashboardStatCard[];
   recentReviews: RecentReviewSummary[];
   pendingReports: PendingReportSummary[];
-  pipeline: typeof mockPipelineSummary;
+  pipeline: AdminPipelineStatus | null;
 }
 
 export async function getDashboardSummary(): Promise<DashboardSummary> {
@@ -52,7 +51,7 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
       stats: mockDashboardStats,
       recentReviews: mockRecentReviews,
       pendingReports: mockPendingReports,
-      pipeline: mockPipelineSummary,
+      pipeline: null,
     };
   }
 
@@ -128,7 +127,7 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     stats,
     recentReviews,
     pendingReports,
-    pipeline: raw?.pipeline || mockPipelineSummary,
+    pipeline: raw?.pipeline ?? null,
   };
 }
 
@@ -531,25 +530,6 @@ export async function getOperationsModerationQueue(
   if (query.cursor) params.cursor = query.cursor;
 
   return apiRequest<ModerationQueuePageResponse>('/operations/moderation/queue', { params });
-}
-
-// ── Pipelines ─────────────────────────────────────────────────────────────────
-
-export async function getPipelineStatus(dataset: string) {
-  if (USE_MOCK) {
-    await delay(150);
-    return mockPipelineStatus;
-  }
-  return apiRequest(`/admin/pipelines/${dataset}/status`);
-}
-
-export async function runPipeline(dataset: string = 'hanok'): Promise<void> {
-  if (USE_MOCK) { await delay(400); return; }
-  return apiRequest<void>(`/admin/pipelines/${dataset}/runs`, {
-    method: 'POST',
-    csrf: true,
-    idempotencyKey: newIdempotencyKey(),
-  });
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────

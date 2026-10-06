@@ -4,6 +4,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- 관리자 데이터 콘솔을 Backend scheduler의 실제 `kto-korean-tour` 상태·실행 상세·cursor 기반 실패 로그 API에 연결했다. 파이프라인 fixture, 수동 수집 POST, 가짜 진행률을 제거하고, 화면 focus와 `상태 새로고침`은 GET 재조회만 수행한다. 실행 이력·진행률·수집량·쿼터의 nullable 상태, 오래된 runId 404 재조회, 잘못된 cursor 400 초기화, 진단 `requestId` 표시를 지원한다.
+- 관리자 사이드바의 하드코딩된 `신규 8`·`대기 3`은 관리자 대시보드 집계와 전체 미처리 신고 `totalCount`로 교체하고, 사용자 관리 필터 select는 공용 chevron과 좌우 대칭 여백을 적용했다.
+
 ## [v0.1.17] - 2026-10-06
 
 - FE #293: 관리자 세션 검증이 끝난 뒤 인증 사용자가 없으면 관리자 레이아웃과 대시보드 콘텐츠를 렌더링하지 않고 로그인 화면으로 교체 이동한다. 만료되거나 유효하지 않은 세션에서 보호 UI가 잠깐 노출되고 브라우저 기록에 `/admin`이 남던 문제를 수정했다.
