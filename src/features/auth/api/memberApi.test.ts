@@ -29,4 +29,26 @@ describe('member repository (FE #97)', () => {
 
     await expect(repository.deleteMyAccount()).resolves.toEqual({ status: 'DELETING' });
   });
+
+  it('checks nickname availability via GET /members/nickname/check with no-store cache (OnMaru-backend#640)', async () => {
+    const calls: Array<{ path: string; options: unknown }> = [];
+    const repository = createMemberRepository((async (path: string, options: unknown) => {
+      calls.push({ path, options });
+      return { available: true };
+    }) as never);
+
+    const result = await repository.checkNicknameAvailability('새로운닉네임');
+
+    expect(calls).toEqual([
+      {
+        path: '/members/nickname/check',
+        options: {
+          method: 'GET',
+          params: { value: '새로운닉네임' },
+          cache: 'no-store',
+        },
+      },
+    ]);
+    expect(result).toEqual({ available: true });
+  });
 });

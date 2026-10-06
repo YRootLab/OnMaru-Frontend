@@ -20,6 +20,13 @@ import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import type { PlaceCategory } from '../types';
 import { focusMapOnPlace } from '../presentation/mapPlaceFocus';
 import { getSelectedMarkerVisualStyle } from '../presentation/markerSelectionPresentation';
+import {
+  fadeInEl,
+  retireOverlays,
+  cancelActiveAnimations,
+  canCrossfade,
+  type ZoomDir,
+} from '../presentation/overlayTransitionCoordinator';
 
 const log = logger('map');
 const selectedMarkerLight = getSelectedMarkerVisualStyle('light');
@@ -183,6 +190,11 @@ const styles = css`
     z-index: 100 !important;
   }
 
+  .om-pin:active {
+    transform: translateY(-2px) scale(0.94);
+    transition: transform 0.08s ease;
+  }
+
   .om-pin::after {
     content: '';
     position: absolute;
@@ -211,6 +223,15 @@ const styles = css`
     max-width: min(180px, 42vw);
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .om-pin-dist {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 500;
+    color: #6b7684;
+    white-space: nowrap;
+    opacity: 0.85;
   }
 
   .om-pin-hanok-tag {
@@ -628,6 +649,10 @@ const styles = css`
     z-index: 100 !important;
   }
 
+  .om-badge-pin:active {
+    transform: scale(0.88);
+    transition: transform 0.08s ease;
+  }
 
   .om-badge-pin--traditional {
     border: 2px solid #EAB308 !important;
@@ -756,6 +781,42 @@ function burstIn(wrappers: HTMLDivElement[]): void {
 
 type OverlayRecord = { overlay: any; el: HTMLElement; map: any; markerKey: string };
 
+const OVERLAY_BUDGET_DESKTOP = 120;
+const OVERLAY_BUDGET_MOBILE = 80;
+const OVERLAY_HARD_CAP = 200;
+const CULL_OVERSCAN = 0.30;
+
+function cullToViewport(items: ReturnType<typeof selectInfoMarkerItems>, map: any): ReturnType<typeof selectInfoMarkerItems> {
+  const bounds = map.getBounds?.();
+  if (!bounds) return items;
+  const sw = bounds.getSouthWest();
+  const ne = bounds.getNorthEast();
+  const dLat = (ne.getLat() - sw.getLat()) * CULL_OVERSCAN;
+  const dLng = (ne.getLng() - sw.getLng()) * CULL_OVERSCAN;
+  const minLat = sw.getLat() - dLat;
+  const maxLat = ne.getLat() + dLat;
+  const minLng = sw.getLng() - dLng;
+  const maxLng = ne.getLng() + dLng;
+  return items.filter(
+    (item) => item.lat >= minLat && item.lat <= maxLat && item.lng >= minLng && item.lng <= maxLng,
+  );
+}
+
+function applyBudget(items: ReturnType<typeof selectInfoMarkerItems>, map: any): ReturnType<typeof selectInfoMarkerItems> {
+  const isMobile = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 1023px)').matches;
+  const cap = Math.min(isMobile ? OVERLAY_BUDGET_MOBILE : OVERLAY_BUDGET_DESKTOP, OVERLAY_HARD_CAP);
+  if (items.length <= cap) return items;
+  const center = map.getCenter?.();
+  if (!center) return items.slice(0, cap);
+  const cLat = center.getLat();
+  const cLng = center.getLng();
+  return items
+    .map((item) => ({ item, d: (item.lat - cLat) ** 2 + (item.lng - cLng) ** 2 }))
+    .sort((a, b) => a.d - b.d)
+    .slice(0, cap)
+    .map(({ item }) => item);
+}
+
 export default function PlaceMarkers() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
@@ -764,13 +825,20 @@ export default function PlaceMarkers() {
   const infoCategory = useMapStore((s) => s.infoCategory);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
-  const isViewportLoading = useMapStore((s) => s.isViewportLoading);
   const detailId = useMapStore((s) => s.detailId);
   const userLocation = useMapStore((s) => s.userLocation);
   const searchCenter = useMapStore((s) => s.searchCenter);
-
+  const committedLat = useMapStore((s) => s.committedViewport.center.lat);
+  const committedLng = useMapStore((s) => s.committedViewport.center.lng);
+  const committedLevel = useMapStore((s) => s.committedViewport.level);
 
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
+  const prevHoveredIdRef = useRef<string | null>(null);
+  const prevSelectedIdRef = useRef<string | null>(null);
+  const prevDetailIdRef = useRef<string | null>(null);
+  const prevRenderModeRef = useRef<string | null>(null);
+  const prevLevelRef = useRef<number | null>(null);
+  const activeAnimsRef = useRef<Animation[]>([]);
   const markerEntranceStateRef = useRef<MarkerEntranceState>({
     hasRendered: false,
     category: infoCategory,
@@ -778,15 +846,48 @@ export default function PlaceMarkers() {
   });
 
   useEffect(() => {
+    // Phase 3: detect renderMode boundary and zoom direction before touching overlays
+    const prevRenderMode = prevRenderModeRef.current;
+    const modeChanged = prevRenderMode !== null && prevRenderMode !== viewportRenderMode;
+    const prevLevel = prevLevelRef.current;
+    // Kakao: lower level = zoomed in, higher level = zoomed out
+    const zoomDir: ZoomDir =
+      prevLevel === null ? 'none'
+      : committedLevel < prevLevel ? 'in'
+      : committedLevel > prevLevel ? 'out'
+      : 'none';
+    prevRenderModeRef.current = viewportRenderMode ?? prevRenderMode;
+    prevLevelRef.current = committedLevel;
+
     const presentation = getInfoPlaceMarkerPresentation(viewportRenderMode);
-    const activeItems = presentation === 'full'
+    const allActiveItems = presentation === 'full'
       ? selectInfoMarkerItems(viewportRenderMode, viewportItems)
       : [];
-    if (!map || mode !== 'info' || activeItems.length === 0 || !window.kakao?.maps) {
-      overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
+    if (!map || mode !== 'info' || allActiveItems.length === 0 || !window.kakao?.maps) {
+      // On mode boundary with no new items, retire gracefully
+      if (modeChanged && overlayMapRef.current.size > 0) {
+        retireOverlays(Array.from(overlayMapRef.current.values()));
+      } else {
+        overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
+      }
       overlayMapRef.current.clear();
       return;
     }
+
+    // On renderMode boundary: cancel stale animations, then retire current overlays
+    if (modeChanged) {
+      cancelActiveAnimations(activeAnimsRef.current);
+      if (overlayMapRef.current.size > 0) {
+        const outAnims = retireOverlays(Array.from(overlayMapRef.current.values()));
+        activeAnimsRef.current.push(...outAnims);
+        overlayMapRef.current.clear();
+      }
+    }
+
+    // Phase 1: cull to viewport + overscan, then enforce overlay budget
+    const culled = cullToViewport(allActiveItems, map);
+    const degradedPath = allActiveItems.length > culled.length;
+    const activeItems = applyBudget(culled, map);
 
     const entranceDecision = advanceMarkerEntranceState(markerEntranceStateRef.current, {
       category: infoCategory,
@@ -797,7 +898,6 @@ export default function PlaceMarkers() {
     });
     markerEntranceStateRef.current = entranceDecision.state;
     const shouldAnimate = entranceDecision.animate;
-    // Keep loaded coordinates mounted so Kakao moves them with the map during dragging.
     const targetItems = activeItems;
     const targetIds = new Set(targetItems.map((item) => item.id));
     overlayMapRef.current.forEach((record, id) => {
@@ -847,8 +947,10 @@ export default function PlaceMarkers() {
       const existing = overlayMapRef.current.get(item.id);
       if (existing?.markerKey === markerKey) {
         existing.el.setAttribute('aria-label', `${item.name}, ${catLabel}${metaText ? `, ${metaText}` : ''}. 상세 정보 열기`);
-        const distance = existing.el.querySelector('.om-pin-hover-dist');
-        if (distance) distance.textContent = distInfo;
+        const hoverDist = existing.el.querySelector('.om-pin-hover-dist');
+        if (hoverDist) hoverDist.textContent = distInfo;
+        const pinDist = existing.el.querySelector('.om-pin-dist');
+        if (pinDist) pinDist.textContent = distInfo;
         return;
       }
       if (existing) {
@@ -886,10 +988,14 @@ export default function PlaceMarkers() {
         <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder}; color: ${catStyle.main};">${renderCategoryIconSvg(item.category, 16)}</span>
         <span class="om-pin-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
         ${placeIsHanok ? '<span class="om-pin-hanok-tag">한옥</span>' : ''}
+        ${distInfo ? `<span class="om-pin-dist">${escapeHtml(distInfo)}</span>` : ''}
       `;
 
       el.dataset.category = item.category;
-      el.dataset.pending = String(useMapStore.getState().isViewportLoading);
+      // Set initial selection state so the O(1) patch effect doesn't need to run on creation
+      el.dataset.selected = String(item.id === selectedId || item.id === detailId);
+      el.dataset.detail = String(item.id === detailId);
+      el.dataset.hovered = String(item.id === hoveredId);
 
 
 
@@ -968,17 +1074,30 @@ export default function PlaceMarkers() {
       const wrapper = wrapForEntrance(el, 'center bottom');
       entranceWrappers.push(wrapper);
 
+      const initZIndex = item.id === hoveredId ? 100 : item.id === detailId ? 35 : item.id === selectedId ? 30 : 1;
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(item.lat, item.lng),
         content: wrapper,
         yAnchor: 1.0,
-        zIndex: 1,
+        zIndex: initZIndex,
       });
       overlay.setMap(map);
       overlayMapRef.current.set(item.id, { overlay, el, map, markerKey });
     });
 
-    if (shouldAnimate) burstIn(entranceWrappers);
+    if (modeChanged && canCrossfade()) {
+      // Mode boundary: WAAPI scale+fade-in, no GSAP burst; track for cancellation
+      const inAnims = entranceWrappers
+        .map((w) => fadeInEl(w, zoomDir, degradedPath))
+        .filter((a): a is Animation => a !== null);
+      activeAnimsRef.current.push(...inAnims);
+    } else if (shouldAnimate) {
+      // First entry or explicit category change: GSAP burst, capped to center 50
+      burstIn(entranceWrappers.slice(0, 50));
+      if (entranceWrappers.length > 50) {
+        gsap.set(entranceWrappers.slice(50), { scale: 1, opacity: 1 });
+      }
+    }
 
   }, [
     map,
@@ -988,35 +1107,51 @@ export default function PlaceMarkers() {
     infoCategory,
     userLocation,
     searchCenter,
+    committedLat,
+    committedLng,
+    committedLevel,
+    selectedId,
+    hoveredId,
+    detailId,
   ]);
 
   useEffect(() => () => {
+    cancelActiveAnimations(activeAnimsRef.current);
     overlayMapRef.current.forEach((record) => record.overlay.setMap(null));
     overlayMapRef.current.clear();
   }, []);
 
+
+
+  // O(1) patch: only touch the 2-6 overlays whose state actually changed
   useEffect(() => {
-    overlayMapRef.current.forEach(({ el }) => {
-      el.dataset.pending = String(isViewportLoading);
-    });
-  }, [isViewportLoading, viewportItems]);
+    const overlayMap = overlayMapRef.current;
+    if (overlayMap.size === 0) return;
 
+    const affected = new Set<string>();
+    if (prevHoveredIdRef.current) affected.add(prevHoveredIdRef.current);
+    if (hoveredId) affected.add(hoveredId);
+    if (prevSelectedIdRef.current) affected.add(prevSelectedIdRef.current);
+    if (selectedId) affected.add(selectedId);
+    if (prevDetailIdRef.current) affected.add(prevDetailIdRef.current);
+    if (detailId) affected.add(detailId);
 
-  useEffect(() => {
-    if (overlayMapRef.current.size === 0) return;
-
-    overlayMapRef.current.forEach((val: OverlayRecord, id: string) => {
+    affected.forEach((id) => {
+      const rec = overlayMap.get(id);
+      if (!rec) return;
       const isDetail = id === detailId;
       const isSelected = id === selectedId || isDetail;
       const isHovered = id === hoveredId;
-      val.el.dataset.selected = String(isSelected);
-      val.el.dataset.detail = String(isDetail);
-      val.el.dataset.hovered = String(isHovered);
-
-      const zIndex = isHovered ? 100 : isDetail ? 35 : isSelected ? 30 : 1;
-      val.overlay.setZIndex(zIndex);
+      rec.el.dataset.selected = String(isSelected);
+      rec.el.dataset.detail = String(isDetail);
+      rec.el.dataset.hovered = String(isHovered);
+      rec.overlay.setZIndex(isHovered ? 100 : isDetail ? 35 : isSelected ? 30 : 1);
     });
-  }, [selectedId, hoveredId, detailId, viewportItems]);
+
+    prevHoveredIdRef.current = hoveredId;
+    prevSelectedIdRef.current = selectedId;
+    prevDetailIdRef.current = detailId;
+  }, [selectedId, hoveredId, detailId]);
 
   return <Global styles={styles} />;
 }

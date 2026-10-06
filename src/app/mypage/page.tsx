@@ -43,6 +43,7 @@ import { defaultJourneyThreadsRepository } from '@/features/journey-curator/api/
 import type { JourneyThreadSummary } from '@/features/journey-curator/api/journeyThreadsApi';
 import { defaultVisitReviewRepository } from '@/features/visit-review/api/visitReviewApi';
 import type { VisitReview } from '@/features/visit-review/api/visitReviewContract';
+import { isOnmaruApiError } from '@/lib/api/errors';
 
 type FilterTab = 'ALL' | 'TIMELINE' | 'EXPLORATION' | 'JOURNEY' | 'SOUND' | 'BOOKMARK' | 'COMMUNITY';
 
@@ -290,6 +291,9 @@ export default function MyPage() {
   const [draftCharacter, setDraftCharacter] = useState('');
   const [draftBackground, setDraftBackground] = useState('');
   const [profileSaving, setProfileSaving] = useState(false);
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+  const [nicknameAvailable, setNicknameAvailable] = useState<boolean | null>(null);
+  const [nicknameFeedback, setNicknameFeedback] = useState<{ text: string; isError: boolean } | null>(null);
   const [activeTab, setActiveTab] = useState<FilterTab>('ALL');
 
   const savedJourneys = useSavedJourneyStore((s) => s.savedJourneys);
@@ -345,6 +349,90 @@ export default function MyPage() {
     };
     loadServerData();
   }, []);
+
+  useEffect(() => {
+    if (!editingProfile) return;
+    const trimmed = draftName.trim();
+    const currentName = user?.displayName?.trim() || '';
+
+    // 본인 닉네임과 동일한 경우
+    if (trimmed === currentName) {
+      setIsCheckingNickname(false);
+      setNicknameAvailable(true);
+      setNicknameFeedback(null);
+      return;
+    }
+
+    const len = Array.from(trimmed).length;
+    if (len === 0) {
+      setIsCheckingNickname(false);
+      setNicknameAvailable(null);
+      setNicknameFeedback(null);
+      return;
+    }
+
+    if (len < 2 || len > 20) {
+      setIsCheckingNickname(false);
+      setNicknameAvailable(false);
+      setNicknameFeedback({
+        text: '닉네임은 2자 이상 20자 이하로 입력해 주세요.',
+        isError: true,
+      });
+      return;
+    }
+
+    setIsCheckingNickname(true);
+    setNicknameFeedback(null);
+    let cancelled = false;
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await defaultMemberRepository.checkNicknameAvailability(trimmed);
+        if (cancelled) return;
+        setIsCheckingNickname(false);
+        if (res.available) {
+          setNicknameAvailable(true);
+          setNicknameFeedback({
+            text: '사용 가능한 닉네임입니다.',
+            isError: false,
+          });
+        } else {
+          setNicknameAvailable(false);
+          setNicknameFeedback({
+            text: '이미 사용 중인 닉네임입니다.',
+            isError: true,
+          });
+        }
+      } catch (err) {
+        if (cancelled) return;
+        setIsCheckingNickname(false);
+        if (isOnmaruApiError(err)) {
+          if (err.status === 400 || err.code === 'VALIDATION_ERROR') {
+            setNicknameAvailable(false);
+            setNicknameFeedback({
+              text: '닉네임 형식이 올바르지 않습니다. (2~20자)',
+              isError: true,
+            });
+            return;
+          }
+          if (err.status === 401 || err.code === 'AUTH_REQUIRED') {
+            setNicknameAvailable(false);
+            setNicknameFeedback({
+              text: '로그인 세션이 만료되었습니다.',
+              isError: true,
+            });
+            return;
+          }
+        }
+        setNicknameAvailable(null);
+      }
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [draftName, editingProfile, user?.displayName]);
 
   /* -------------------------------------------------------------------------- */
   /* LOADING SKELETON STATE                                                     */
@@ -434,6 +522,9 @@ export default function MyPage() {
                       setDraftName(user.displayName || '');
                       setDraftCharacter(user.characterId || 'CHARACTER_01');
                       setDraftBackground(user.backgroundId || 'BACKGROUND_01');
+                      setNicknameAvailable(true);
+                      setNicknameFeedback(null);
+                      setIsCheckingNickname(false);
                       setEditingProfile(true);
                     }}
                     style={{
@@ -533,15 +624,51 @@ export default function MyPage() {
                       width: '100%',
                       padding: '11px 14px',
                       borderRadius: '12px',
-                      border: `1.5px solid ${c.bg.card}`,
+                      border: `1.5px solid ${
+                        nicknameAvailable === false
+                          ? '#ef4444'
+                          : nicknameAvailable === true && draftName.trim() !== (user.displayName || '')
+                          ? '#10b981'
+                          : c.bg.card
+                      }`,
                       backgroundColor: c.bg.app,
                       color: c.text.primary,
                       fontSize: '14px',
                       outline: 'none',
                     }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = c.action.primary; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = c.bg.card; }}
+                    onFocus={(e) => {
+                      if (nicknameAvailable !== false) {
+                        e.currentTarget.style.borderColor = c.action.primary;
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (nicknameAvailable === false) {
+                        e.currentTarget.style.borderColor = '#ef4444';
+                      } else if (nicknameAvailable === true && draftName.trim() !== (user.displayName || '')) {
+                        e.currentTarget.style.borderColor = '#10b981';
+                      } else {
+                        e.currentTarget.style.borderColor = c.bg.card;
+                      }
+                    }}
                   />
+                  {isCheckingNickname && (
+                    <div style={{ fontSize: '11.5px', color: c.text.muted, marginTop: '6px', marginLeft: '4px' }}>
+                      닉네임 중복 확인 중…
+                    </div>
+                  )}
+                  {!isCheckingNickname && nicknameFeedback && (
+                    <div
+                      style={{
+                        fontSize: '11.5px',
+                        color: nicknameFeedback.isError ? '#ef4444' : '#10b981',
+                        marginTop: '6px',
+                        marginLeft: '4px',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {nicknameFeedback.text}
+                    </div>
+                  )}
                 </div>
 
                 {/* 캐릭터 선택 (5종) */}
@@ -609,9 +736,20 @@ export default function MyPage() {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     type="button"
-                    disabled={profileSaving || !(draftName.trim().length >= 2 && draftName.trim().length <= 20)}
+                    disabled={
+                      profileSaving ||
+                      isCheckingNickname ||
+                      nicknameAvailable === false ||
+                      !(draftName.trim().length >= 2 && draftName.trim().length <= 20)
+                    }
                     onClick={async () => {
-                      if (!(draftName.trim().length >= 2 && draftName.trim().length <= 20)) return;
+                      if (
+                        !(draftName.trim().length >= 2 && draftName.trim().length <= 20) ||
+                        nicknameAvailable === false ||
+                        isCheckingNickname
+                      ) {
+                        return;
+                      }
                       setProfileSaving(true);
                       try {
                         const updated = await defaultMemberRepository.updateMyProfile({
@@ -624,6 +762,30 @@ export default function MyPage() {
                         setEditingProfile(false);
                       } catch (err) {
                         console.error('[MyPage] 프로필 변경 실패:', err);
+                        if (isOnmaruApiError(err)) {
+                          if (err.status === 409 || err.code === 'NICKNAME_DUPLICATED') {
+                            setNicknameAvailable(false);
+                            setNicknameFeedback({
+                              text: '이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해 주세요.',
+                              isError: true,
+                            });
+                            toast.error('이미 사용 중인 닉네임입니다.');
+                            return;
+                          }
+                          if (err.status === 400 || err.code === 'VALIDATION_ERROR') {
+                            toast.error('닉네임 형식이 올바르지 않습니다. (2~20자)');
+                            return;
+                          }
+                          if (err.status === 401 || err.code === 'AUTH_REQUIRED') {
+                            toast.error('로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+                            router.push('/auth/login');
+                            return;
+                          }
+                          if (err.status === 403 || err.code === 'CSRF_INVALID') {
+                            toast.error('보안 검증에 실패했습니다. 다시 시도해 주세요.');
+                            return;
+                          }
+                        }
                         toast.error('프로필 변경에 실패했어요. 잠시 후 다시 시도해주세요.');
                       } finally {
                         setProfileSaving(false);
@@ -638,8 +800,20 @@ export default function MyPage() {
                       color: c.text.inverse,
                       fontSize: '14px',
                       fontWeight: 700,
-                      cursor: (profileSaving || !(draftName.trim().length >= 2 && draftName.trim().length <= 20)) ? 'not-allowed' : 'pointer',
-                      opacity: (profileSaving || !(draftName.trim().length >= 2 && draftName.trim().length <= 20)) ? 0.6 : 1,
+                      cursor:
+                        profileSaving ||
+                        isCheckingNickname ||
+                        nicknameAvailable === false ||
+                        !(draftName.trim().length >= 2 && draftName.trim().length <= 20)
+                          ? 'not-allowed'
+                          : 'pointer',
+                      opacity:
+                        profileSaving ||
+                        isCheckingNickname ||
+                        nicknameAvailable === false ||
+                        !(draftName.trim().length >= 2 && draftName.trim().length <= 20)
+                          ? 0.6
+                          : 1,
                     }}
                   >
                     {profileSaving ? '저장 중…' : '저장'}

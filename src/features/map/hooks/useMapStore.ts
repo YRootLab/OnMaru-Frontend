@@ -65,6 +65,7 @@ interface MapState {
   warmthPeriod: WarmthPeriod;
 
   warmthViewType: 'district' | 'heatmap';
+  warmthCongestionFilter: 'all' | 'busy' | 'quiet' | 'today' | 'mine';
   loading: boolean;
   error: string | null;
   placeLoadError: MapLoadError | null;
@@ -112,6 +113,9 @@ interface MapState {
   isViewportLoading: boolean;
   viewportError: string | null;
   infoViewportReloadNonce: number;
+  // Increments each time renderMode changes; Phase 3 coordinator uses this
+  // to cancel stale rAF/animation callbacks before they start a crossfade.
+  visualGeneration: number;
 
   setInfoCategory: (category: MapInfoCategory) => void;
   setInfoRegionCode: (regionCode: string | null, regionName?: string | null) => void;
@@ -127,11 +131,13 @@ interface MapState {
   setIsViewportLoading: (loading: boolean) => void;
   setViewportError: (error: string | null) => void;
   retryInfoViewport: () => void;
+  advanceVisualGeneration: () => void;
 
   setMap: (map: KakaoMap | null) => void;
   setMode: (mode: MapMode) => void;
   setCategory: (category: string | null) => void;
   setWarmthViewType: (viewType: 'district' | 'heatmap') => void;
+  setWarmthCongestionFilter: (filter: 'all' | 'busy' | 'quiet' | 'today' | 'mine') => void;
   setSearchQuery: (query: string) => void;
   triggerSearch: (query: string) => void;
   setCenter: (center: LatLng, level?: number) => void;
@@ -163,6 +169,15 @@ interface MapState {
   setPanelOpen: (panelOpen: boolean) => void;
   setSheetSnap: (snap: SheetSnap) => void;
   setIsWarmthWriteOpen: (open: boolean) => void;
+  myLocationNonce: number;
+  requestMyLocation: () => void;
+  isLocating: boolean;
+  setIsLocating: (v: boolean) => void;
+
+  journeyPlaces: Array<{ id: string; name: string; lat: number; lng: number }>;
+  addToJourney: (place: { id: string; name: string; lat: number; lng: number }) => void;
+  removeFromJourney: (id: string) => void;
+  clearJourney: () => void;
 }
 
 export const useMapStore = create<MapState>((set, get) => ({
@@ -189,6 +204,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   isViewportLoading: false,
   viewportError: null,
   infoViewportReloadNonce: 0,
+  visualGeneration: 0,
 
   setInfoCategory: (infoCategory) =>
     set({
@@ -276,18 +292,26 @@ export const useMapStore = create<MapState>((set, get) => ({
     return consumed;
   },
   setViewportResponse: (res) =>
-    set({
+    set((state) => ({
       viewportItems: res.items,
       viewportRenderMode: res.renderMode,
       viewportSnapshotId: res.snapshotId,
       servedBbox: res.servedBbox,
-    }),
+      // Advance visual generation when renderMode boundary is crossed so
+      // Phase 3 coordinator can cancel stale rAF/WAAPI before they fire.
+      visualGeneration:
+        res.renderMode !== state.viewportRenderMode
+          ? state.visualGeneration + 1
+          : state.visualGeneration,
+    })),
   setIsViewportLoading: (isViewportLoading) => set({ isViewportLoading }),
   setViewportError: (viewportError) => set({ viewportError }),
   retryInfoViewport: () => set((state) => ({
     viewportError: null,
     infoViewportReloadNonce: state.infoViewportReloadNonce + 1,
   })),
+  advanceVisualGeneration: () =>
+    set((state) => ({ visualGeneration: state.visualGeneration + 1 })),
 
   map: null,
   mode: 'info',
@@ -303,6 +327,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   heatDayIndex: 0,
   warmthPeriod: 'all',
   warmthViewType: 'district',
+  warmthCongestionFilter: 'all',
   loading: true,
   error: null,
   placeLoadError: null,
@@ -331,6 +356,9 @@ export const useMapStore = create<MapState>((set, get) => ({
   setMode: (mode) =>
     set((state) => ({
       mode,
+      // 온기 모드: Sheet를 peek으로 내려 지도+컨트롤이 가려지지 않게
+      sheetSnap: mode === 'warmth' ? 'peek' : state.sheetSnap,
+      warmthCongestionFilter: mode === 'warmth' ? 'all' : state.warmthCongestionFilter,
       ...(mode === 'info' && state.mode !== 'info' ? {
         infoCategory: 'hanok' as const,
         infoRegionCode: null,
@@ -364,6 +392,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       fromPopularRanking: false,
     }),
   setWarmthViewType: (warmthViewType) => set({ warmthViewType }),
+  setWarmthCongestionFilter: (warmthCongestionFilter) => set({ warmthCongestionFilter }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   triggerSearch: (query) =>
     set((state) => ({
@@ -425,4 +454,19 @@ export const useMapStore = create<MapState>((set, get) => ({
   setSheetSnap: (sheetSnap) => set({ sheetSnap }),
   isWarmthWriteOpen: false,
   setIsWarmthWriteOpen: (isWarmthWriteOpen) => set({ isWarmthWriteOpen }),
+  myLocationNonce: 0,
+  requestMyLocation: () => set((s) => ({ myLocationNonce: s.myLocationNonce + 1 })),
+  isLocating: false,
+  setIsLocating: (isLocating) => set({ isLocating }),
+
+  journeyPlaces: [],
+  addToJourney: (place) =>
+    set((s) => ({
+      journeyPlaces: s.journeyPlaces.some((p) => p.id === place.id)
+        ? s.journeyPlaces
+        : [...s.journeyPlaces, place],
+    })),
+  removeFromJourney: (id) =>
+    set((s) => ({ journeyPlaces: s.journeyPlaces.filter((p) => p.id !== id) })),
+  clearJourney: () => set({ journeyPlaces: [] }),
 }));

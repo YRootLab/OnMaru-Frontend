@@ -52,11 +52,16 @@ export interface DeleteAccountResponse {
   status?: string;
 }
 
+export interface NicknameAvailability {
+  available: boolean;
+}
+
 export interface MemberRepository {
   getMyProfile(): Promise<MemberProfile>;
   updateMyProfile(input: UpdateProfileInput): Promise<MemberProfile>;
   deleteMyAccount(): Promise<DeleteAccountResponse>;
   logout(): Promise<void>;
+  checkNicknameAvailability(nickname: string): Promise<NicknameAvailability>;
 }
 
 export function createMemberRepository(request: RequestFn = apiRequest): MemberRepository {
@@ -78,6 +83,24 @@ export function createMemberRepository(request: RequestFn = apiRequest): MemberR
     },
     logout() {
       return request<void>('/auth/logout', { method: 'POST', csrf: true });
+    },
+    async checkNicknameAvailability(nickname: string) {
+      if (USE_MOCK || isMockSession()) {
+        const trimmed = nickname.trim();
+        const length = Array.from(trimmed).length;
+        if (length < 2 || length > 20) {
+          return { available: false };
+        }
+        if (trimmed === '중복닉네임' || trimmed === '이미사용중') {
+          return { available: false };
+        }
+        return { available: true };
+      }
+      return request<NicknameAvailability>('/members/nickname/check', {
+        method: 'GET',
+        params: { value: nickname },
+        cache: 'no-store',
+      });
     },
   };
 }

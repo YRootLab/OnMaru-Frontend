@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- 마이페이지 프로필 수정에서 닉네임 사용 가능 여부 사전 확인 API(`GET /members/nickname/check`)를 연동하고 300ms 디바운스, 인라인 사용 가능/중복 피드백 및 `PATCH /members/me`의 `409 NICKNAME_DUPLICATED` 에러 시 편집 상태 유지 처리를 추가했다. (OnMaru-backend#640)
 - 지도 정보 모드에서 약 500m 축척인 Kakao 레벨 6까지 개별 장소(`PLACE`) 마커를 유지하고, 레벨 7부터 클러스터로 전환하도록 확대 수준 경계를 조정했다. Refs #352.
 - 지도 확대·축소 중 새 응답이 오기 전에 이전 장소 마커가 아이콘 전용 축약형으로 바뀌던 중간 상태를 제거했다. PLACE·CLUSTER·DISTRICT·REGION은 새 `renderMode` 응답이 도착할 때만 완성형 컴포넌트끼리 교체된다. Refs #352.
 - 지도 장소 상세 패널은 상세 API와 실제 이미지가 준비될 때까지 4:3 중립 회색 스켈레톤을 유지하고, 텍스트 등 이미 확보된 장소 정보는 먼저 표시한다. API 이미지를 지도 목록 이미지보다 우선하며 이미지 후보가 모두 실패한 경우에만 카테고리 기본 그래픽을 보여준다.

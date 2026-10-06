@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import type { TourWaypoint } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import { sorimaruRepository } from '@/features/sorimaru-audio/infrastructure/sorimaruHttpRepository';
 
 
 
@@ -103,9 +104,60 @@ export function generateDynamicWaypoints(story: SorimaruStorySummary): TourWaypo
 
 export function useSorimaruPlaceStory(placeName?: string, lat?: number, lng?: number) {
   const availableStories = useSorimaruAudioStore((s) => s.availableStories);
-  const story = useMemo(
+  const mergeAvailableStories = useSorimaruAudioStore((s) => s.mergeAvailableStories);
+
+  const localMatch = useMemo(
     () => matchSorimaruStory({ name: placeName, lat, lng }, availableStories),
     [availableStories, lat, lng, placeName],
   );
-  return { story, loading: false };
+
+  const [keywordMatch, setKeywordMatch] = useState<SorimaruStorySummary | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (localMatch || !placeName) {
+      setKeywordMatch(null);
+      setLoading(false);
+      return;
+    }
+
+    const cleanKeyword = placeName
+      .replace(/\(.*?\)/g, '')
+      .replace(/\[.*?\]/g, '')
+      .replace(/숙박|게스트하우스|체험장|체험관|주차장|식당|카페|호텔|모텔|빌라/g, '')
+      .trim();
+
+    if (cleanKeyword.length < 2) return;
+
+    let cancelled = false;
+    setLoading(true);
+
+    const request = sorimaruRepository.searchStoriesByKeyword(cleanKeyword);
+    if (!request || typeof request.then !== 'function') {
+      setLoading(false);
+      return;
+    }
+
+    request
+      .then((page) => {
+        if (cancelled) return;
+        const matched = matchSorimaruStory({ name: placeName, lat, lng }, page?.items || []);
+        if (matched) {
+          setKeywordMatch(matched);
+          mergeAvailableStories([matched]);
+        }
+      })
+      .catch((err) => {
+        console.warn('[useSorimaruPlaceStory] Keyword search failed:', err);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [placeName, lat, lng, localMatch, mergeAvailableStories]);
+
+  return { story: localMatch ?? keywordMatch, loading };
 }

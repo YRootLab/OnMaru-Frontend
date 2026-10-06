@@ -13,7 +13,6 @@ import {
   moodStatOf,
   type WarmthPeriod,
 } from '@/features/map/warmth/heatScale';
-import { rampCss } from './HeatCanvas';
 import type { WarmthFilter } from '@/features/map/types';
 
 
@@ -79,51 +78,9 @@ const Summary = styled.p<{ $isDark: boolean }>`
   }
 `;
 
-const Ramp = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-`;
 
 
 
-
-
-
-const RampBar = styled.div<{ $gradient: string }>`
-  height: 8px;
-  border-radius: 2px;
-  background-color: rgba(78, 89, 104, 0.1);
-  background-image: ${({ $gradient }) => $gradient};
-
-  [data-theme='dark'] & {
-    background-color: rgba(255, 255, 255, 0.08);
-  }
-`;
-
-const RampEnds = styled.div<{ $isDark: boolean }>`
-  display: flex;
-  justify-content: space-between;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: ${({ $isDark }) => ($isDark ? '#9CA3AF' : meok[700])};
-
-  [data-theme='dark'] & {
-    color: #9CA3AF;
-  }
-`;
-
-const RampNote = styled.p<{ $isDark: boolean }>`
-  margin: 0;
-  font-size: ${fontSize.micro};
-  font-weight: 500;
-  line-height: 1.4;
-  color: ${({ $isDark }) => ($isDark ? '#9CA3AF' : meok[500])};
-
-  [data-theme='dark'] & {
-    color: #9CA3AF;
-  }
-`;
 
 const Divider = styled.div<{ $isDark: boolean }>`
   height: 1px;
@@ -299,15 +256,41 @@ export default function WarmthLegend() {
 
   }, [warmths, period, map, center, level]);
 
-  const rampGradient = useMemo(() => rampCss(isDark), [isDark]);
-
   if (mode !== 'warmth') return null;
 
   const percent = stat.ratio === null ? null : Math.round(stat.ratio * 100);
 
   return (
     <Root $isDark={isDark} aria-label="온기 히트맵 범례">
-      {}
+      <Summary $isDark={isDark} aria-live="polite">
+        {stat.total === 0 ? (
+          '이 일대에 남은 한줄평이 아직 없어요'
+        ) : (
+          <>
+            이 일대 한줄평 <b>{stat.total}</b>편 · 고즈넉함 <b>{100 - (percent ?? 0)}%</b> · 북적이는 정{' '}
+            <b>{percent}%</b>
+          </>
+        )}
+      </Summary>
+
+      <PeriodRow role="group" aria-label="온기 기간">
+        <PeriodLabel $isDark={isDark}>기간</PeriodLabel>
+        {PERIOD_OPTIONS.map((option) => (
+          <PeriodBtn
+            key={option.id}
+            type="button"
+            aria-pressed={period === option.id}
+            $active={period === option.id}
+            $isDark={isDark}
+            onClick={() => setPeriod(option.id as WarmthPeriod)}
+          >
+            {option.label}
+          </PeriodBtn>
+        ))}
+      </PeriodRow>
+
+      <Divider $isDark={isDark} />
+
       <ViewTypeSegment $isDark={isDark} role="tablist" aria-label="온기 표시 방식">
         <ViewTypeBtn
           type="button"
@@ -334,44 +317,6 @@ export default function WarmthLegend() {
           <span>원형 히트맵</span>
         </ViewTypeBtn>
       </ViewTypeSegment>
-
-      <Summary $isDark={isDark} aria-live="polite">
-        {stat.total === 0 ? (
-          '이 일대에 남은 한줄평이 아직 없어요'
-        ) : (
-          <>
-            이 일대 한줄평 <b>{stat.total}</b>편 · 고즈넉함 <b>{100 - (percent ?? 0)}%</b> · 북적이는 정{' '}
-            <b>{percent}%</b>
-          </>
-        )}
-      </Summary>
-
-      <Ramp>
-        <RampBar $gradient={rampGradient} aria-hidden="true" />
-        <RampEnds $isDark={isDark}>
-          <span>한적</span>
-          <span>붐빔</span>
-        </RampEnds>
-        <RampNote $isDark={isDark}>아무 색도 없는 곳은 아직 집계가 닿지 않은 곳이에요.</RampNote>
-      </Ramp>
-
-      <Divider $isDark={isDark} />
-
-      <PeriodRow role="group" aria-label="온기 기간">
-        <PeriodLabel $isDark={isDark}>기간</PeriodLabel>
-        {PERIOD_OPTIONS.map((option) => (
-          <PeriodBtn
-            key={option.id}
-            type="button"
-            aria-pressed={period === option.id}
-            $active={period === option.id}
-            $isDark={isDark}
-            onClick={() => setPeriod(option.id as WarmthPeriod)}
-          >
-            {option.label}
-          </PeriodBtn>
-        ))}
-      </PeriodRow>
     </Root>
   );
 }
