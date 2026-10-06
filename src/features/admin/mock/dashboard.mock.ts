@@ -117,14 +117,3 @@ export const mockPendingReports: PendingReportSummary[] = [
     timeAgo: '3시간 전',
   },
 ];
-
-export const mockPipelineSummary = {
-  lastBuildAt: '2026.08.04 04:00 (2시간 전)',
-  duration: '4분 32초',
-  villageCount: 17,
-  stayCount: 172,
-  routeCount: 41,
-  apiCallUsed: 1247,
-  apiCallLimit: 5000,
-  failureCount: 3,
-};

@@ -13,6 +13,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - 페이지 간 이동 시 이전 화면의 scrollY가 새 화면에 이어지지 않도록 경로별 스크롤 관리자를 추가했다. 처음 방문한 경로는 항상 맨 위에서 시작하고, 같은 탭에서 다시 방문한 경로만 스크롤 정지 후 저장된 위치를 복원한다. 홈의 중복 복원 로직은 전역 정책으로 통합했다.
 - 소리마루 `오늘, 여기에서` 카드 레일의 흰색 leading/trailing 페이드를 스크롤 진행률 계산과 분리해 초기 너비 측정과 관계없이 항상 표시되도록 복구했다.
 - 한옥마루 전국 한옥 도감의 지역 선택 메뉴가 검색창 너비만큼 늘어나지 않도록 선택값·chevron을 내용 너비로 묶고 좌우 16px, 내부 8px의 대칭 간격을 적용했다. Spring 한옥 목록의 `HANOK_STAY` 분류를 화면 도메인의 `한옥스테이`로 정규화해 API 숙소가 있어도 7개 데모 fallback으로 대체되던 회귀를 수정했다.
+- 관리자 데이터 콘솔을 Backend scheduler의 실제 `kto-korean-tour` 상태·실행 상세·cursor 기반 실패 로그 API에 연결했다. 파이프라인 fixture, 수동 수집 POST, 가짜 진행률을 제거하고, 화면 focus와 `상태 새로고침`은 GET 재조회만 수행한다. 실행 이력·진행률·수집량·쿼터의 nullable 상태, 오래된 runId 404 재조회, 잘못된 cursor 400 초기화, 진단 `requestId` 표시를 지원한다.
+- 관리자 사이드바의 하드코딩된 `신규 8`·`대기 3`은 관리자 대시보드 집계와 전체 미처리 신고 `totalCount`로 교체하고, 사용자 관리 필터 select는 공용 chevron과 좌우 대칭 여백을 적용했다.
 
 ## [v0.1.17] - 2026-10-06
 
