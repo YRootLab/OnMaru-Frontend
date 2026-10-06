@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { fadeInEl, fadeOutEl, retireOverlays, scaleFrom, CROSSFADE_MS } from './overlayTransitionCoordinator';
+import { cancelActiveAnimations, fadeInEl, fadeOutEl, retireOverlays, scaleFrom, CROSSFADE_MS } from './overlayTransitionCoordinator';
 
 // Each call produces an independent animation object with controllable onfinish/oncancel.
 function makeAnimObj() {
@@ -109,11 +109,38 @@ describe('fadeOutEl', () => {
   });
 });
 
+describe('fadeInEl return value', () => {
+  it('returns an Animation object when WAAPI available', () => {
+    const el = makeEl();
+    const anim = fadeInEl(el, 'in');
+    expect(anim).not.toBeNull();
+  });
+
+  it('returns null when WAAPI absent', () => {
+    const saved = HTMLElement.prototype.animate;
+    delete (HTMLElement.prototype as any).animate;
+    const el = makeEl();
+    (el as any).animate = undefined;
+    const anim = fadeInEl(el, 'in');
+    (HTMLElement.prototype as any).animate = saved;
+    expect(anim).toBeNull();
+  });
+
+  it('oncancel snaps element to full opacity', () => {
+    const el = makeEl();
+    const anim = fadeInEl(el, 'out')!;
+    (anim as any).cancel?.();
+    (el as any)._animObjs[0].cancel();
+    expect((el as any).style.opacity).toBe('1');
+  });
+});
+
 describe('retireOverlays', () => {
   it('defers setMap(null) until animation completes', () => {
     const el = makeEl();
     const setMap = vi.fn();
-    retireOverlays([{ overlay: { setMap }, el }]);
+    const anims = retireOverlays([{ overlay: { setMap }, el }]);
+    expect(anims).toHaveLength(1);
     expect(setMap).not.toHaveBeenCalled();
     (el as any)._animObjs[0].finish();
     expect(setMap).toHaveBeenCalledWith(null);
@@ -122,16 +149,45 @@ describe('retireOverlays', () => {
   it('handles two records independently — each waits for its own animation', () => {
     const r0 = { overlay: { setMap: vi.fn() }, el: makeEl() };
     const r1 = { overlay: { setMap: vi.fn() }, el: makeEl() };
-    retireOverlays([r0, r1]);
+    const anims = retireOverlays([r0, r1]);
+    expect(anims).toHaveLength(2);
 
     expect(r0.overlay.setMap).not.toHaveBeenCalled();
     expect(r1.overlay.setMap).not.toHaveBeenCalled();
 
     (r0.el as any)._animObjs[0].finish();
     expect(r0.overlay.setMap).toHaveBeenCalledWith(null);
-    expect(r1.overlay.setMap).not.toHaveBeenCalled(); // still waiting
+    expect(r1.overlay.setMap).not.toHaveBeenCalled();
 
     (r1.el as any)._animObjs[0].finish();
     expect(r1.overlay.setMap).toHaveBeenCalledWith(null);
+  });
+});
+
+describe('cancelActiveAnimations', () => {
+  it('cancels all animations and clears the array', () => {
+    const el0 = makeEl();
+    const el1 = makeEl();
+    const setMap0 = vi.fn();
+    const setMap1 = vi.fn();
+    // fade-out animations: oncancel → setMap(null)
+    const anims = retireOverlays([
+      { overlay: { setMap: setMap0 }, el: el0 },
+      { overlay: { setMap: setMap1 }, el: el1 },
+    ]);
+
+    // Before cancellation, setMap not called
+    expect(setMap0).not.toHaveBeenCalled();
+
+    cancelActiveAnimations(anims);
+
+    // cancel() fires oncancel → onDone → setMap(null) immediately
+    expect(setMap0).toHaveBeenCalledWith(null);
+    expect(setMap1).toHaveBeenCalledWith(null);
+    expect(anims).toHaveLength(0); // array cleared
+  });
+
+  it('is safe to call on an empty array', () => {
+    expect(() => cancelActiveAnimations([])).not.toThrow();
   });
 });

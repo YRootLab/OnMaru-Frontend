@@ -12,6 +12,7 @@ import { useDelayedLoadingVisibility } from '../presentation/useDelayedLoadingVi
 import {
   fadeInEl,
   retireOverlays,
+  cancelActiveAnimations,
   type ZoomDir,
 } from '../presentation/overlayTransitionCoordinator';
 
@@ -85,6 +86,7 @@ export default function ViewportOverlays() {
   const overlaysRef = useRef<Map<string, OverlayRef>>(new Map());
   const prevRenderModeRef = useRef<string | null>(null);
   const prevLevelRef = useRef<number | null>(null);
+  const activeAnimsRef = useRef<Animation[]>([]);
 
   useEffect(() => {
     // Phase 3: detect mode boundary and zoom direction
@@ -109,9 +111,13 @@ export default function ViewportOverlays() {
       return;
     }
 
-    if (modeChanged && overlaysRef.current.size > 0) {
-      retireOverlays(Array.from(overlaysRef.current.values()));
-      overlaysRef.current.clear();
+    if (modeChanged) {
+      cancelActiveAnimations(activeAnimsRef.current);
+      if (overlaysRef.current.size > 0) {
+        const outAnims = retireOverlays(Array.from(overlaysRef.current.values()));
+        activeAnimsRef.current.push(...outAnims);
+        overlaysRef.current.clear();
+      }
     }
 
     const displayed = viewportItems
@@ -172,7 +178,10 @@ export default function ViewportOverlays() {
         return;
       }
       const el = buildAggregateEl(item, zoom);
-      if (modeChanged) fadeInEl(el, zoomDir);
+      if (modeChanged) {
+        const inAnim = fadeInEl(el, zoomDir);
+        if (inAnim) activeAnimsRef.current.push(inAnim);
+      }
 
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(lat, lng),
@@ -186,6 +195,7 @@ export default function ViewportOverlays() {
   }, [map, mode, viewportItems, viewportRenderMode, infoCategory, committedLevel]);
 
   useEffect(() => () => {
+    cancelActiveAnimations(activeAnimsRef.current);
     overlaysRef.current.forEach((record) => record.overlay.setMap(null));
     overlaysRef.current.clear();
   }, []);

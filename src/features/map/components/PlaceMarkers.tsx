@@ -23,6 +23,7 @@ import { getSelectedMarkerVisualStyle } from '../presentation/markerSelectionPre
 import {
   fadeInEl,
   retireOverlays,
+  cancelActiveAnimations,
   canCrossfade,
   type ZoomDir,
 } from '../presentation/overlayTransitionCoordinator';
@@ -819,6 +820,7 @@ export default function PlaceMarkers() {
   const prevDetailIdRef = useRef<string | null>(null);
   const prevRenderModeRef = useRef<string | null>(null);
   const prevLevelRef = useRef<number | null>(null);
+  const activeAnimsRef = useRef<Animation[]>([]);
   const markerEntranceStateRef = useRef<MarkerEntranceState>({
     hasRendered: false,
     category: infoCategory,
@@ -854,10 +856,14 @@ export default function PlaceMarkers() {
       return;
     }
 
-    // On renderMode boundary: retire all current overlays with crossfade
-    if (modeChanged && overlayMapRef.current.size > 0) {
-      retireOverlays(Array.from(overlayMapRef.current.values()));
-      overlayMapRef.current.clear();
+    // On renderMode boundary: cancel stale animations, then retire current overlays
+    if (modeChanged) {
+      cancelActiveAnimations(activeAnimsRef.current);
+      if (overlayMapRef.current.size > 0) {
+        const outAnims = retireOverlays(Array.from(overlayMapRef.current.values()));
+        activeAnimsRef.current.push(...outAnims);
+        overlayMapRef.current.clear();
+      }
     }
 
     // Phase 1: cull to viewport + overscan, then enforce overlay budget
@@ -1059,8 +1065,11 @@ export default function PlaceMarkers() {
     });
 
     if (modeChanged && canCrossfade()) {
-      // Mode boundary: WAAPI scale+fade-in, no GSAP burst
-      entranceWrappers.forEach((w) => fadeInEl(w, zoomDir, degradedPath));
+      // Mode boundary: WAAPI scale+fade-in, no GSAP burst; track for cancellation
+      const inAnims = entranceWrappers
+        .map((w) => fadeInEl(w, zoomDir, degradedPath))
+        .filter((a): a is Animation => a !== null);
+      activeAnimsRef.current.push(...inAnims);
     } else if (shouldAnimate) {
       // First entry or explicit category change: GSAP burst, capped to center 50
       burstIn(entranceWrappers.slice(0, 50));
@@ -1086,6 +1095,7 @@ export default function PlaceMarkers() {
   ]);
 
   useEffect(() => () => {
+    cancelActiveAnimations(activeAnimsRef.current);
     overlayMapRef.current.forEach((record) => record.overlay.setMap(null));
     overlayMapRef.current.clear();
   }, []);
