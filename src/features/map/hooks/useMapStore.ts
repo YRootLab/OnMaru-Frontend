@@ -112,6 +112,9 @@ interface MapState {
   isViewportLoading: boolean;
   viewportError: string | null;
   infoViewportReloadNonce: number;
+  // Increments each time renderMode changes; Phase 3 coordinator uses this
+  // to cancel stale rAF/animation callbacks before they start a crossfade.
+  visualGeneration: number;
 
   setInfoCategory: (category: MapInfoCategory) => void;
   setInfoRegionCode: (regionCode: string | null, regionName?: string | null) => void;
@@ -127,6 +130,7 @@ interface MapState {
   setIsViewportLoading: (loading: boolean) => void;
   setViewportError: (error: string | null) => void;
   retryInfoViewport: () => void;
+  advanceVisualGeneration: () => void;
 
   setMap: (map: KakaoMap | null) => void;
   setMode: (mode: MapMode) => void;
@@ -189,6 +193,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   isViewportLoading: false,
   viewportError: null,
   infoViewportReloadNonce: 0,
+  visualGeneration: 0,
 
   setInfoCategory: (infoCategory) =>
     set({
@@ -276,18 +281,26 @@ export const useMapStore = create<MapState>((set, get) => ({
     return consumed;
   },
   setViewportResponse: (res) =>
-    set({
+    set((state) => ({
       viewportItems: res.items,
       viewportRenderMode: res.renderMode,
       viewportSnapshotId: res.snapshotId,
       servedBbox: res.servedBbox,
-    }),
+      // Advance visual generation when renderMode boundary is crossed so
+      // Phase 3 coordinator can cancel stale rAF/WAAPI before they fire.
+      visualGeneration:
+        res.renderMode !== state.viewportRenderMode
+          ? state.visualGeneration + 1
+          : state.visualGeneration,
+    })),
   setIsViewportLoading: (isViewportLoading) => set({ isViewportLoading }),
   setViewportError: (viewportError) => set({ viewportError }),
   retryInfoViewport: () => set((state) => ({
     viewportError: null,
     infoViewportReloadNonce: state.infoViewportReloadNonce + 1,
   })),
+  advanceVisualGeneration: () =>
+    set((state) => ({ visualGeneration: state.visualGeneration + 1 })),
 
   map: null,
   mode: 'info',

@@ -800,7 +800,6 @@ export default function PlaceMarkers() {
   const infoCategory = useMapStore((s) => s.infoCategory);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
-  const isViewportLoading = useMapStore((s) => s.isViewportLoading);
   const detailId = useMapStore((s) => s.detailId);
   const userLocation = useMapStore((s) => s.userLocation);
   const searchCenter = useMapStore((s) => s.searchCenter);
@@ -933,7 +932,6 @@ export default function PlaceMarkers() {
       `;
 
       el.dataset.category = item.category;
-      el.dataset.pending = String(useMapStore.getState().isViewportLoading);
       // Set initial selection state so the O(1) patch effect doesn't need to run on creation
       el.dataset.selected = String(item.id === selectedId || item.id === detailId);
       el.dataset.detail = String(item.id === detailId);
@@ -1050,11 +1048,6 @@ export default function PlaceMarkers() {
     overlayMapRef.current.clear();
   }, []);
 
-  useEffect(() => {
-    overlayMapRef.current.forEach(({ el }) => {
-      el.dataset.pending = String(isViewportLoading);
-    });
-  }, [isViewportLoading, viewportItems]);
 
 
   // O(1) patch: only touch the 2-6 overlays whose state actually changed
