@@ -124,21 +124,22 @@ export function LivePresenceBadge({ connection, snapshot }: LivePresenceBadgePro
           display: 'inline-flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
-          gap: 2,
-          minWidth: 200,
-          minHeight: 44,
-          padding: '6px 12px 6px 10px',
-          borderRadius: 22,
+          gap: 3,
+          minWidth: 204,
+          minHeight: 46,
+          padding: '7px 14px 7px 12px',
+          borderRadius: 23,
           fontVariantNumeric: 'tabular-nums',
-          /* light 기본 */
-          background: `rgba(255,255,255,0.82)`,
-          border: `1px solid ${meok[200]}`,
-          boxShadow: '0 2px 8px rgba(25,31,40,0.06)',
+          /* 하이엔드 다크 글래스모피즘 */
+          background: 'rgba(28, 26, 23, 0.82)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(212, 175, 55, 0.32)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
           /* 상태에 따른 투명도 */
           visibility: isDegraded ? 'hidden' : 'visible',
           opacity: isReconnecting ? 0.5 : 1,
-          transition: 'opacity 0.4s ease',
-          /* dark mode: data-theme 속성으로 전환 — emotion 없이 CSS 변수 사용 */
+          transition: 'opacity 0.4s ease, border-color 0.3s ease',
         }}
         data-omrp-badge=""
       >
@@ -150,29 +151,19 @@ export function LivePresenceBadge({ connection, snapshot }: LivePresenceBadgePro
         />
         {todayText && (
           <span
+            data-omrp-today=""
             style={{
               fontSize: 11,
-              color: meok[500],
+              color: 'rgba(245, 245, 244, 0.55)',
               lineHeight: 1.4,
-              paddingLeft: 18,
+              paddingLeft: 20,
+              letterSpacing: '-0.01em',
             }}
           >
             {todayText}
           </span>
         )}
       </div>
-
-      {/* dark mode 오버라이드 (data-theme='dark' 전략) */}
-      <style>{`
-        [data-theme='dark'] [data-omrp-badge] {
-          background: rgba(23,30,43,0.88);
-          border-color: rgba(255,255,255,0.12);
-          box-shadow: 0 2px 8px rgba(0,0,0,0.44);
-        }
-        [data-theme='dark'] [data-omrp-today] {
-          color: rgba(255,255,255,0.38);
-        }
-      `}</style>
     </>
   );
 }
@@ -189,8 +180,8 @@ interface MainRowProps {
 function MainRow({ isAlone, displayCount, rollKey, isReconnecting }: MainRowProps) {
   if (isAlone) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        {/* 온이 캐릭터 플레이스홀더 — 실제 에셋으로 교체 예정 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+        {/* 온이 캐릭터 플레이스홀더 */}
         <span
           className="omrp-oni"
           aria-hidden="true"
@@ -201,18 +192,19 @@ function MainRow({ isAlone, displayCount, rollKey, isReconnecting }: MainRowProp
             width: 20,
             height: 20,
             borderRadius: '50%',
-            background: palette.hwanggeum[50],
-            border: `1.5px solid ${palette.hwanggeum[300]}`,
+            background: 'rgba(212, 175, 55, 0.18)',
+            border: '1.5px solid rgba(212, 175, 55, 0.65)',
             fontSize: 11,
             fontWeight: 700,
-            color: palette.hwanggeum[700],
+            color: '#f5c842',
             flexShrink: 0,
+            boxShadow: '0 0 10px rgba(212, 175, 55, 0.35)',
             animation: 'omrp-oni-float 2.5s ease-in-out infinite',
           }}
         >
           온
         </span>
-        <span style={{ fontSize: 13, color: meok[700], lineHeight: 1.4 }}>
+        <span style={{ fontSize: 13, color: '#f5f5f4', fontWeight: 500, lineHeight: 1.4 }}>
           지금 대청마루에는 온이와 함께 있어요
         </span>
       </div>
@@ -220,7 +212,7 @@ function MainRow({ isAlone, displayCount, rollKey, isReconnecting }: MainRowProp
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
       {/* 골드 펄스 점 */}
       <span
         className="omrp-pulse-dot"
@@ -230,7 +222,8 @@ function MainRow({ isAlone, displayCount, rollKey, isReconnecting }: MainRowProp
           width: 8,
           height: 8,
           borderRadius: '50%',
-          background: palette.hwanggeum[400],
+          background: '#f5c842',
+          boxShadow: '0 0 10px rgba(245, 200, 66, 0.75)',
           flexShrink: 0,
           animation: isReconnecting
             ? 'none'
@@ -243,8 +236,8 @@ function MainRow({ isAlone, displayCount, rollKey, isReconnecting }: MainRowProp
         className="omrp-roll-num"
         style={{
           fontSize: 13,
-          fontWeight: 600,
-          color: palette.hwanggeum[700],
+          fontWeight: 700,
+          color: '#f5c842',
           animation: `omrp-roll ${ROLL_DURATION_MS}ms ease-out`,
           display: 'inline-block',
           overflow: 'hidden',
@@ -253,7 +246,7 @@ function MainRow({ isAlone, displayCount, rollKey, isReconnecting }: MainRowProp
       >
         {displayCount}
       </span>
-      <span style={{ fontSize: 13, color: meok[700] }}>명이 함께 머무는 중</span>
+      <span style={{ fontSize: 13, color: '#f5f5f4', fontWeight: 500 }}>명이 함께 머무는 중</span>
     </div>
   );
 }

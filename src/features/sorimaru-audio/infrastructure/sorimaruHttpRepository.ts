@@ -49,7 +49,7 @@ export function createSorimaruHttpRepository(request: SorimaruBackendRequester =
 
     listNearbyStories(lat: number, lng: number, radius: number, language = 'ko-KR', options?: { force?: boolean }) {
       return cache.read(sorimaruQueryKeys.nearby(lat, lng, radius, language), async () =>
-        mapStoryPage(await request('/api/stories/nearby', { lat, lng, radius, language })), options);
+        mapStoryPage(await request('/api/stories/nearby', { lat, lng, radius, limit: 30, language })), options);
     },
 
     getRecommendations(keyword: string, language = 'ko-KR', options?: { force?: boolean }) {

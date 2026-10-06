@@ -8,7 +8,7 @@ import { Global, css } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, LocateFixedIcon, MinusSignIcon, Moon01Icon, PlusSignIcon, RotateCcwIcon, Sun01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
-import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, surface, fontSize, palette } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { KAKAO_SDK_SRC, snapshotFromMap, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { useKakaoSdkLoad } from '@/features/map/hooks/useKakaoSdkLoad';
@@ -870,10 +870,10 @@ export default function KakaoMap() {
         center: latLng,
         radius: accuracy,
         strokeWeight: 1,
-        strokeColor: '#4A90D9',
+        strokeColor: palette.cheongrok[500],
         strokeOpacity: 0.35,
-        fillColor: '#4A90D9',
-        fillOpacity: 0.07,
+        fillColor: palette.cheongrok[500],
+        fillOpacity: 0.08,
       });
     }
 
@@ -900,22 +900,26 @@ export default function KakaoMap() {
         }
         if (myLocationCircleRef.current) {
           const oldCircle = myLocationCircleRef.current;
-          const radius = oldCircle.getRadius?.() ?? 60;
-          oldCircle.setMap(null);
-          const m = useMapStore.getState().map;
-          if (m) {
-            myLocationCircleRef.current = new window.kakao.maps.Circle({
-              map: m,
-              center: newLatLng,
-              radius,
-              strokeWeight: 1,
-              strokeColor: '#4A90D9',
-              strokeOpacity: 0.35,
-              fillColor: '#4A90D9',
-              fillOpacity: 0.07,
-            });
+          if (typeof oldCircle.setPosition === 'function') {
+            oldCircle.setPosition(newLatLng);
           } else {
-            myLocationCircleRef.current = null;
+            const radius = oldCircle.getRadius?.() ?? 60;
+            oldCircle.setMap(null);
+            const m = useMapStore.getState().map;
+            if (m) {
+              myLocationCircleRef.current = new window.kakao.maps.Circle({
+                map: m,
+                center: newLatLng,
+                radius,
+                strokeWeight: 1,
+                strokeColor: palette.cheongrok[500],
+                strokeOpacity: 0.35,
+                fillColor: palette.cheongrok[500],
+                fillOpacity: 0.08,
+              });
+            } else {
+              myLocationCircleRef.current = null;
+            }
           }
         }
         useMapStore.getState().setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });

@@ -84,7 +84,7 @@ export default function WarmthFeed() {
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
   const setWarmths = useMapStore((s) => s.setWarmths);
   const heatSpots = useMapStore((s) => s.heatSpots);
-  const category = useMapStore((s) => s.category);
+  const warmthCongestionFilter = useMapStore((s) => s.warmthCongestionFilter);
 
 
 
@@ -120,7 +120,7 @@ export default function WarmthFeed() {
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const curatorInfo = useMemo(() => {
-    switch (category) {
+    switch (warmthCongestionFilter) {
       case 'busy':
         return {
           title: '흥겨운 온기가 모이는 곳',
@@ -155,7 +155,7 @@ export default function WarmthFeed() {
           image: '/images/character/Oni_total.png',
         };
     }
-  }, [category]);
+  }, [warmthCongestionFilter]);
 
   useEffect(() => {
     if (serverWarmths !== null) setWarmths(serverWarmths);
@@ -213,15 +213,15 @@ export default function WarmthFeed() {
     let list = reviews;
 
 
-    if (category === 'busy') {
+    if (warmthCongestionFilter === 'busy') {
       list = list.filter((r) => r.crowdMood === '북적' || r.mood >= 4);
-    } else if (category === 'quiet') {
+    } else if (warmthCongestionFilter === 'quiet') {
       list = list.filter((r) => r.crowdMood === '한적' || r.mood <= 2);
-    } else if (category === 'today') {
+    } else if (warmthCongestionFilter === 'today') {
       const ONE_DAY = 86_400_000;
       const now = Date.now();
       list = list.filter((r) => now - Date.parse(r.createdAt) < ONE_DAY);
-    } else if (category === 'mine') {
+    } else if (warmthCongestionFilter === 'mine') {
       list = list.filter((r) => r.mine === true);
     }
 
@@ -236,14 +236,14 @@ export default function WarmthFeed() {
     }
 
     return [...list].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
-  }, [reviews, warmths, selectedRegion, sortOrder, category]);
+  }, [reviews, warmths, selectedRegion, sortOrder, warmthCongestionFilter]);
 
   const REVIEWS_PER_PAGE = 6;
 
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedRegion, sortOrder, category]);
+  }, [selectedRegion, sortOrder, warmthCongestionFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE));
   const validPage = Math.min(currentPage, totalPages);
@@ -451,7 +451,7 @@ export default function WarmthFeed() {
           <OniSearchEmpty
             size="md"
             title={
-              category === 'mine'
+              warmthCongestionFilter === 'mine'
                 ? '아직 남긴 온기가 없어요'
                 : selectedRegion === 'all'
                   ? '조건에 맞는 이야기가 아직 없어요'

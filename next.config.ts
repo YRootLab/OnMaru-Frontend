@@ -35,11 +35,11 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  env: kakaoMapKey
-    ? {
-        NEXT_PUBLIC_KAKAO_MAP_KEY: kakaoMapKey,
-      }
-    : {},
+  env: {
+    ...(kakaoMapKey ? { NEXT_PUBLIC_KAKAO_MAP_KEY: kakaoMapKey } : {}),
+    NEXT_PUBLIC_PRESENCE_ENABLED: process.env.NEXT_PUBLIC_PRESENCE_ENABLED ?? 'true',
+    NEXT_PUBLIC_PRESENCE_TRANSPORT: process.env.NEXT_PUBLIC_PRESENCE_TRANSPORT ?? 'sse',
+  },
 };
 
 export default nextConfig;

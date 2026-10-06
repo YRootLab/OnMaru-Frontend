@@ -134,8 +134,8 @@ export function useWarmthParticles(
         for (const evt of events) {
           const reduced = reducedMotionRef.current;
           const init: ParticleInit = {
-            x: evt.x * w,
-            y: h * 0.65,
+            x: Math.max(24, Math.min(w - 24, evt.x * w + (Math.random() - 0.5) * 20)),
+            y: h * 0.75,
             vx: reduced ? 0 : (Math.random() - 0.5) * VX_SPREAD,
             vy: reduced ? 0 : -(VY_BASE + Math.random() * VY_SPREAD),
             maxLife: reduced ? REDUCED_LIFE_MS : LIFE_BASE_MS + Math.random() * LIFE_SPREAD_MS,
@@ -155,9 +155,11 @@ export function useWarmthParticles(
         for (const p of poolRef.current) {
           if (!p.active) continue;
           ctx.globalAlpha = p.life / p.maxLife;
+          // 반딧불이 특유의 자연스러운 부유(Sway) 흔들림
+          const sway = Math.sin((p.maxLife - p.life) * 0.005) * 6;
           ctx.drawImage(
             (p.isMine ? spritesRef.current.mine : spritesRef.current.other) as CanvasImageSource,
-            p.x - half,
+            p.x + sway - half,
             p.y - half,
             SPRITE_SIZE,
             SPRITE_SIZE,
@@ -194,27 +196,27 @@ export function useWarmthParticles(
     if (!canvas) return;
 
     function syncSize() {
-      if (!canvasRef.current?.parentElement) return;
-      const parent = canvasRef.current.parentElement;
+      if (!canvasRef.current) return;
       const dpr = Math.min(window.devicePixelRatio ?? 1, 2);
-      const w = parent.clientWidth;
-      const h = parent.clientHeight;
-      canvasRef.current.width = w * dpr;
-      canvasRef.current.height = h * dpr;
+      // fixed position 캔버스이므로 뷰포트 크기를 직접 사용
+      // (스크롤 페이지 전체 높이로 계산되어 파티클이 화면 밖으로 날아가는 현상 방지)
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvasRef.current.width = Math.round(w * dpr);
+      canvasRef.current.height = Math.round(h * dpr);
       canvasRef.current.style.width = `${w}px`;
       canvasRef.current.style.height = `${h}px`;
       sizeRef.current = { w, h, dpr };
-      // 스프라이트는 고정 크기(SPRITE_SIZE)라 리사이즈 시 재생성 불필요
     }
 
     syncSize();
 
     let resizeTimer: ReturnType<typeof setTimeout>;
-    const ro = new ResizeObserver(() => {
+    function handleResize() {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(syncSize, 100);
-    });
-    if (canvas.parentElement) ro.observe(canvas.parentElement);
+    }
+    window.addEventListener('resize', handleResize);
 
     function onVisibility() {
       if (document.visibilityState === 'hidden') {
@@ -227,7 +229,7 @@ export function useWarmthParticles(
     document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
-      ro.disconnect();
+      window.removeEventListener('resize', handleResize);
       clearTimeout(resizeTimer);
       document.removeEventListener('visibilitychange', onVisibility);
       stopLoop();

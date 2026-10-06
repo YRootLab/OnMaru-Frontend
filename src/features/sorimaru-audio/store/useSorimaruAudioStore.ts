@@ -29,6 +29,7 @@ interface SorimaruAudioState {
 
 
   setAvailableStories: (stories: SorimaruStorySummary[]) => void;
+  mergeAvailableStories: (stories: SorimaruStorySummary[]) => void;
   selectAndLoadStory: (
     summary: Pick<SorimaruStorySummary, 'storyId'>,
     intent?: 'select' | 'play',
@@ -78,6 +79,14 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => {
   playbackRate: 1.0,
 
   setAvailableStories: (availableStories) => set({ availableStories }),
+  mergeAvailableStories: (newStories) =>
+    set((state) => {
+      if (!newStories || newStories.length === 0) return state;
+      const existingIds = new Set(state.availableStories.map((s) => s.storyId));
+      const additions = newStories.filter((s) => !existingIds.has(s.storyId));
+      if (additions.length === 0) return state;
+      return { availableStories: [...state.availableStories, ...additions] };
+    }),
 
   selectAndLoadStory: async (summary, intent = 'select', repository = sorimaruApiAdapter, owner) => {
     const storyId = summary.storyId;

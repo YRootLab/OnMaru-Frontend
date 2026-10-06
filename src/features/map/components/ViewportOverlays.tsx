@@ -7,6 +7,7 @@
 
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import { palette } from '@/design-system/tokens';
 import { useMapStore } from '../hooks/useMapStore';
 import type { ViewportItem } from '../types';
 import { useDelayedLoadingVisibility } from '../presentation/useDelayedLoadingVisibility';
@@ -24,7 +25,42 @@ function countBadgeLabel(count: number): string {
   return String(count);
 }
 
-function buildAggregateEl(item: ViewportItem, onZoom: () => void): HTMLElement {
+function getClusterColor(category: string | null): string {
+  switch (category) {
+    case 'hanok':
+      return palette.juhong[500];
+    case 'stay':
+      return palette.jangmi[600];
+    case 'food':
+      return palette.cheongrok[700];
+    case 'cafe':
+      return palette.cheongrok[600];
+    case 'market':
+      return palette.cheongrok[800];
+    case 'spot':
+      return palette.kobalt[600];
+    case 'culture':
+      return palette.kobalt[700];
+    case 'experience':
+      return palette.jaha[500];
+    case 'festival':
+      return palette.jaha[600];
+    default:
+      return palette.juhong[500];
+  }
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const clean = hex.replace('#', '');
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function buildAggregateEl(item: ViewportItem, onZoom: () => void, category?: string | null): HTMLElement {
+  const badgeColor = getClusterColor(category ?? 'hanok');
+  const borderColor = hexToRgba(badgeColor, 0.25);
   const count = item.count ?? (item.type === 'PLACE' ? 1 : 0);
   const prominence = Math.min(1, Math.log2(Math.max(1, count)) / Math.log2(100));
   const verticalPadding = Math.round(5 + prominence * 2);
@@ -36,7 +72,7 @@ function buildAggregateEl(item: ViewportItem, onZoom: () => void): HTMLElement {
   el.style.cssText = `
     padding:${verticalPadding}px ${horizontalPadding}px;border-radius:9999px;
     background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
-    border:1.5px solid rgba(47,104,255,0.25);
+    border:1.5px solid ${borderColor};
     box-shadow:0 4px 14px rgba(25,31,40,0.14);
     cursor:pointer;transform:translate(-50%,-50%);
     display:flex;align-items:center;gap:6px;
@@ -52,7 +88,7 @@ function buildAggregateEl(item: ViewportItem, onZoom: () => void): HTMLElement {
 
   const countSpan = document.createElement('span');
   countSpan.style.cssText =
-    'min-width:var(--aggregate-badge-size);height:var(--aggregate-badge-size);padding:0 5px;border-radius:9999px;background:#2F68FF;color:#fff;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;justify-content:center;';
+    `min-width:var(--aggregate-badge-size);height:var(--aggregate-badge-size);padding:0 5px;border-radius:9999px;background:${badgeColor};color:#fff;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;justify-content:center;`;
   countSpan.textContent = countBadgeLabel(count);
 
   el.appendChild(nameSpan);
@@ -185,7 +221,7 @@ export default function ViewportOverlays() {
       };
 
       if (existing) {
-        const updated = buildAggregateEl(item, zoom);
+        const updated = buildAggregateEl(item, zoom, infoCategory);
         existing.el.replaceChildren(...Array.from(updated.childNodes));
         existing.el.style.cssText = updated.style.cssText;
         existing.el.setAttribute('aria-label', updated.getAttribute('aria-label') ?? '');
@@ -193,7 +229,7 @@ export default function ViewportOverlays() {
         existing.signature = signature;
         return;
       }
-      const el = buildAggregateEl(item, zoom);
+      const el = buildAggregateEl(item, zoom, infoCategory);
       if (modeChanged) {
         const inAnim = fadeInEl(el, zoomDir);
         if (inAnim) activeAnimsRef.current.push(inAnim);

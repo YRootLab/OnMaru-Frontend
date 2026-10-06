@@ -65,6 +65,7 @@ interface MapState {
   warmthPeriod: WarmthPeriod;
 
   warmthViewType: 'district' | 'heatmap';
+  warmthCongestionFilter: 'all' | 'busy' | 'quiet' | 'today' | 'mine';
   loading: boolean;
   error: string | null;
   placeLoadError: MapLoadError | null;
@@ -136,6 +137,7 @@ interface MapState {
   setMode: (mode: MapMode) => void;
   setCategory: (category: string | null) => void;
   setWarmthViewType: (viewType: 'district' | 'heatmap') => void;
+  setWarmthCongestionFilter: (filter: 'all' | 'busy' | 'quiet' | 'today' | 'mine') => void;
   setSearchQuery: (query: string) => void;
   triggerSearch: (query: string) => void;
   setCenter: (center: LatLng, level?: number) => void;
@@ -325,6 +327,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   heatDayIndex: 0,
   warmthPeriod: 'all',
   warmthViewType: 'district',
+  warmthCongestionFilter: 'all',
   loading: true,
   error: null,
   placeLoadError: null,
@@ -353,6 +356,9 @@ export const useMapStore = create<MapState>((set, get) => ({
   setMode: (mode) =>
     set((state) => ({
       mode,
+      // 온기 모드: Sheet를 peek으로 내려 지도+컨트롤이 가려지지 않게
+      sheetSnap: mode === 'warmth' ? 'peek' : state.sheetSnap,
+      warmthCongestionFilter: mode === 'warmth' ? 'all' : state.warmthCongestionFilter,
       ...(mode === 'info' && state.mode !== 'info' ? {
         infoCategory: 'hanok' as const,
         infoRegionCode: null,
@@ -386,6 +392,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       fromPopularRanking: false,
     }),
   setWarmthViewType: (warmthViewType) => set({ warmthViewType }),
+  setWarmthCongestionFilter: (warmthCongestionFilter) => set({ warmthCongestionFilter }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   triggerSearch: (query) =>
     set((state) => ({

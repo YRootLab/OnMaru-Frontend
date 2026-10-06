@@ -771,6 +771,7 @@ export default function WarmthLayer() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
   const heatSpots = useMapStore((s) => s.heatSpots);
+  const warmthCongestionFilter = useMapStore((s) => s.warmthCongestionFilter);
   const level = useMapStore((s) => s.level);
   const heatDayIndex = useMapStore((s) => s.heatDayIndex);
   const heatDays = useMapStore((s) => s.heatDays);
@@ -783,13 +784,15 @@ export default function WarmthLayer() {
 
 
 
-  const baseList = useMemo<HeatSpot[]>(
-    () => selectHeatSpotsForDay(heatSpots, heatDayIndex),
-    [heatSpots, heatDayIndex],
-  );
+  const baseList = useMemo<HeatSpot[]>(() => {
+    const daily = selectHeatSpotsForDay(heatSpots, heatDayIndex);
+    if (warmthCongestionFilter === 'busy') return daily.filter((s) => s.congestionLevel === 'surge' || s.congestionLevel === 'busy');
+    if (warmthCongestionFilter === 'quiet') return daily.filter((s) => s.congestionLevel === 'relaxed' || s.congestionLevel === 'moderate');
+    return daily;
+  }, [heatSpots, heatDayIndex, warmthCongestionFilter]);
 
   useEffect(() => {
-    if (!map || mode !== 'warmth' || baseList.length === 0) return;
+    if (!map || mode !== 'warmth' || warmthViewType === 'heatmap' || baseList.length === 0) return;
 
 
 
@@ -1208,7 +1211,7 @@ export default function WarmthLayer() {
   return (
     <>
       <Global styles={styles} />
-      <HeatCanvas spots={baseList} />
+      {warmthViewType === 'heatmap' && <HeatCanvas spots={baseList} />}
     </>
   );
 }

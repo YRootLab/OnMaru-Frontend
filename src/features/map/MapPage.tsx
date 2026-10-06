@@ -8,10 +8,10 @@ import type { Item, PlaceCategory } from './types';
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ChevronLeftIcon } from '@hugeicons/core-free-icons'
+import { ChevronLeftIcon, LocateFixedIcon } from '@hugeicons/core-free-icons'
 
 import { transientProps } from '@/design-system/styled';
-import { meok, surface , fontSize } from '@/design-system/tokens';
+import { meok, surface, fontSize, palette } from '@/design-system/tokens';
 import {
   FLOATING_ENTER_DELAY_S,
   FLOATING_SPRING_TRANSITION,
@@ -23,6 +23,8 @@ import { useMapStore } from './hooks/useMapStore';
 import { snapshotFromMap } from './hooks/useKakaoMap';
 import { useMapData } from './hooks/useMapData';
 import { useInfoMapData } from './hooks/useInfoMapData';
+import { useMapNearbyStories } from './hooks/useMapNearbyStories';
+import { LocalMiniPlayer } from '@/private/core-ui/sorimaru/LocalMiniPlayer';
 import BottomSheet from './components/BottomSheet';
 import CategoryChips from './components/CategoryChips';
 import DetailPanel from './components/DetailPanel';
@@ -192,8 +194,70 @@ const WarmthControlsCluster = styled.div`
   }
 
   @media (max-width: 1023px) {
-    right: 16px;
-    bottom: 140px;
+    left: 0;
+    right: 0;
+    bottom: calc(58px + max(12px, env(safe-area-inset-bottom)) + 40px + 8px);
+    padding: 0 16px;
+    align-items: stretch;
+    z-index: 29;
+
+    & > :first-of-type {
+      align-self: flex-end;
+    }
+  }
+`;
+
+const MobileWarmthRow = styled.div`
+  order: -1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+
+  @media (max-width: 1023px) {
+    order: 2;
+    justify-content: space-between;
+  }
+`;
+
+const MobileLocationBtn = styled.button<{ $spinning: boolean }>`
+  display: none;
+
+  @media (max-width: 1023px) {
+    display: flex;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(25, 31, 40, 0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: ${palette.cheongrok[600]};
+
+    & svg {
+      ${({ $spinning }) => ($spinning ? 'animation: om-spin 1s linear infinite;' : '')}
+    }
+
+    @keyframes om-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    &:active {
+      transform: scale(0.92);
+    }
+
+    [data-theme='dark'] & {
+      background: rgba(30, 32, 38, 0.92);
+      border-color: rgba(255, 255, 255, 0.12);
+      color: ${palette.cheongrok[400]};
+    }
   }
 `;
 
@@ -242,6 +306,8 @@ export default function MapPage() {
   const detailId = useMapStore((s) => s.detailId);
   const popularPanelOpen = useMapStore((s) => s.popularPanelOpen);
   const isWarmthWriteOpen = useMapStore((s) => s.isWarmthWriteOpen);
+  const isLocating = useMapStore((s) => s.isLocating);
+  const requestMyLocation = useMapStore((s) => s.requestMyLocation);
 
   const isDetailOpen = Boolean(detailId) || popularPanelOpen;
   const isChipsHidden = isDetailOpen;
@@ -399,6 +465,7 @@ export default function MapPage() {
 
   useMapData();
   useInfoMapData(infoUrlHydrated);
+  useMapNearbyStories(infoUrlHydrated);
 
   const infoCategory = useMapStore((s) => s.infoCategory);
   const infoRegionCode = useMapStore((s) => s.infoRegionCode);
@@ -499,8 +566,18 @@ export default function MapPage() {
         {}
         {mode === 'warmth' && (
           <WarmthControlsCluster>
-            <WriteButton />
             <WarmthLegend />
+            <MobileWarmthRow>
+              <WriteButton />
+              <MobileLocationBtn
+                type="button"
+                aria-label="내 위치로 이동"
+                $spinning={isLocating}
+                onClick={() => requestMyLocation()}
+              >
+                <HugeiconsIcon icon={LocateFixedIcon} size={22} strokeWidth={1.8} />
+              </MobileLocationBtn>
+            </MobileWarmthRow>
           </WarmthControlsCluster>
         )}
       </MapArea>
@@ -541,6 +618,8 @@ export default function MapPage() {
         stamp={activeStampModal}
         onClose={closeStampModal}
       />
+
+      <LocalMiniPlayer />
     </Root>
   );
 }
