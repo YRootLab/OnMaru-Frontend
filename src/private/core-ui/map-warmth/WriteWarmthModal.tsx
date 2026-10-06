@@ -1,17 +1,26 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, MapPinIcon } from '@hugeicons/core-free-icons';
+import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, Search01Icon } from '@hugeicons/core-free-icons';
 import { meok, palette, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
 import { RAIL_INSET, RAIL_WIDTH } from '@/features/map/components/MapNavRail';
 import type { Warmth } from '@/features/map/types';
 import MoodSelector, { type MoodValue } from './MoodSelector';
+
+type KakaoPlaceResult = {
+  id: string;
+  place_name: string;
+  address_name: string;
+  road_address_name: string;
+  x: string;
+  y: string;
+};
 
 interface WriteWarmthModalProps {
   isOpen: boolean;
@@ -28,28 +37,7 @@ interface WriteWarmthModalProps {
 const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;
 
-const REGIONS = [
-  '전국',
-  '전주',
-  '안동',
-  '경주',
-  '서울',
-  '강릉',
-  '담양',
-  '공주/부여',
-  '제주',
-];
 
-const PRESET_TAGS = [
-  '#대청마루',
-  '#야경',
-  '#사진맛집',
-  '#전통체험',
-  '#힐링',
-  '#고즈넉함',
-  '#산책코스',
-  '#차한잔',
-];
 
 const PanelContainer = styled(motion.aside)<{ $panelOpen: boolean }>`
   position: fixed;
@@ -195,48 +183,6 @@ const SectionLabel = styled.label`
 `;
 
 
-const RegionScroller = styled.div`
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 4px;
-  touch-action: pan-x;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const RegionChip = styled.button<{ $active: boolean }>`
-  flex: none;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 9999px;
-
-  font-family: inherit;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  cursor: pointer;
-  background: ${({ $active }) => ($active ? meok[900] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: ${({ $active }) => ($active ? meok[800] : '#e5e8eb')};
-  }
-
-  [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
-    color: ${({ $active }) => ($active ? '#ffffff' : '#9CA3AF')};
-
-    &:hover {
-      background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
-    }
-  }
-`;
 
 
 const PlaceInputWrap = styled.div`
@@ -386,46 +332,8 @@ const MoodButton = styled.button<{ $active: boolean }>`
   }
 `;
 
-const MoodButtonMascot = styled.img`
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  flex-shrink: 0;
-  display: block;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-`;
 
 
-const TagWrap = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-`;
-
-const TagChip = styled.button<{ $selected: boolean }>`
-  padding: 6px 12px;
-  border-radius: 9999px;
-
-  background: ${({ $selected }) => ($selected ? meok[900] : '#f2f4f6')};
-  color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: ${({ $selected }) => ($selected ? meok[800] : '#e5e8eb')};
-  }
-
-  [data-theme='dark'] & {
-    background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
-    color: ${({ $selected }) => ($selected ? '#ffffff' : '#D1D5DB')};
-
-    &:hover {
-      background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
-    }
-  }
-`;
 
 
 const TextArea = styled.textarea`
@@ -492,7 +400,7 @@ const SubmitBtn = styled.button`
   margin-top: 8px;
 
   border-radius: 14px;
-  background: ${meok[900]};
+  background: ${palette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.sm};
@@ -501,7 +409,7 @@ const SubmitBtn = styled.button`
   transition: all 0.18s ease;
 
   &:hover:not(:disabled) {
-    background: ${meok[800]};
+    background: ${palette.juhong[600]};
   }
 
   &:disabled {
@@ -511,10 +419,10 @@ const SubmitBtn = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: ${meok[900]};
+    background: ${palette.juhong[500]};
 
     &:hover:not(:disabled) {
-      background: ${meok[800]};
+      background: ${palette.juhong[600]};
     }
 
     &:disabled {
@@ -530,14 +438,12 @@ export default function WriteWarmthModal({
   defaultPlace,
   onCreated,
 }: WriteWarmthModalProps) {
-  const items = useMapStore((s) => s.items);
   const setWarmths = useMapStore((s) => s.setWarmths);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const setIsWarmthWriteOpen = useMapStore((s) => s.setIsWarmthWriteOpen);
   const { create, loading: isSubmitting, error: createError } = useCreateVisitReview();
 
   const [mounted, setMounted] = useState(false);
-  const [selectedRegion, setSelectedRegion] = useState('전국');
   const [placeQuery, setPlaceQuery] = useState(defaultPlace?.name || '');
   const [selectedPlace, setSelectedPlace] = useState<{
     id: string;
@@ -545,13 +451,15 @@ export default function WriteWarmthModal({
     lat: number;
     lng: number;
   } | null>(defaultPlace || null);
+  const [searchResults, setSearchResults] = useState<KakaoPlaceResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const [score, setScore] = useState<MoodValue>(1);
   const [mood, setMood] = useState<'한적' | '북적'>('한적');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const placeWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -567,9 +475,7 @@ export default function WriteWarmthModal({
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
+      if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -581,36 +487,65 @@ export default function WriteWarmthModal({
     setPlaceQuery(defaultPlace?.name ?? '');
   }, [defaultPlace, isOpen]);
 
-
-  const filteredPlaces = useMemo(() => {
-    let list = items;
-    if (selectedRegion !== '전국') {
-      list = list.filter(
-        (i) => i.addr?.includes(selectedRegion) || i.name.includes(selectedRegion),
-      );
+  // 드롭다운 바깥 클릭 닫기
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (placeWrapRef.current && !placeWrapRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
     }
-    if (placeQuery.trim()) {
-      const q = placeQuery.trim().toLowerCase();
-      list = list.filter((i) => i.name.toLowerCase().includes(q));
-    }
-    return list.slice(0, 5);
-  }, [items, selectedRegion, placeQuery]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-  const handleSelectPlace = (place: { id: string; name: string; lat: number; lng: number }) => {
-    setSelectedPlace(place);
-    setPlaceQuery(place.name);
+  // 장소 검색 디바운스 (카카오 키워드 검색 — 전국 모든 장소)
+  useEffect(() => {
+    const q = placeQuery.trim();
+    if (!q || selectedPlace?.name === q) {
+      setSearchResults([]);
+      setIsDropdownOpen(false);
+      return;
+    }
+    setIsSearching(true);
+    setIsDropdownOpen(true);
+    const timer = setTimeout(() => {
+      if (typeof window === 'undefined' || !window.kakao?.maps?.services) {
+        setIsSearching(false);
+        return;
+      }
+      const ps = new window.kakao.maps.services.Places();
+      ps.keywordSearch(q, (data: KakaoPlaceResult[], status: string) => {
+        if (status === window.kakao.maps.services.Status.OK) {
+          setSearchResults(data.slice(0, 6));
+        } else {
+          setSearchResults([]);
+        }
+        setIsSearching(false);
+      });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [placeQuery, selectedPlace]);
+
+  const handleSelectPlace = (item: KakaoPlaceResult) => {
+    setSelectedPlace({
+      id: item.id,
+      name: item.place_name,
+      lat: parseFloat(item.y),
+      lng: parseFloat(item.x),
+    });
+    setPlaceQuery(item.place_name);
     setIsDropdownOpen(false);
-  };
-
-  const handleToggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
-    );
+    setSearchResults([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim() || !selectedPlace) return;
+    if (!text.trim()) return;
+    if (!selectedPlace) {
+      // 입력만 하고 드롭다운에서 선택 안 한 경우
+      setIsDropdownOpen(true);
+      return;
+    }
 
     try {
       const created = await create({
@@ -618,7 +553,6 @@ export default function WriteWarmthModal({
         text: text.trim(),
         mood,
         score,
-        tags: selectedTags,
       });
 
       setWarmths([
@@ -630,7 +564,6 @@ export default function WriteWarmthModal({
       setTimeout(() => {
         setIsSuccess(false);
         setText('');
-        setSelectedTags([]);
         onClose();
       }, 900);
     } catch {}
@@ -665,49 +598,40 @@ export default function WriteWarmthModal({
           {}
           <FormSection>
             <SectionLabel>어디를 다녀오셨나요?</SectionLabel>
-            <RegionScroller>
-              {REGIONS.map((region) => (
-                <RegionChip
-                  key={region}
-                  type="button"
-                  $active={selectedRegion === region}
-                  onClick={() => setSelectedRegion(region)}
-                >
-                  {region}
-                </RegionChip>
-              ))}
-            </RegionScroller>
-
-            <PlaceInputWrap>
+            <PlaceInputWrap ref={placeWrapRef}>
               <PlaceInputIcon>
-                <HugeiconsIcon icon={MapPinIcon} size={16} strokeWidth={2} />
+                <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={2} />
               </PlaceInputIcon>
               <PlaceInput
                 type="text"
                 value={placeQuery}
-                onFocus={() => setIsDropdownOpen(true)}
                 onChange={(e) => {
                   setPlaceQuery(e.target.value);
                   if (e.target.value !== selectedPlace?.name) setSelectedPlace(null);
-                  setIsDropdownOpen(true);
                 }}
                 placeholder="장소 이름을 검색해보세요 (예: 경기전)"
                 required
               />
             </PlaceInputWrap>
 
-            {isDropdownOpen && filteredPlaces.length > 0 && (
+            {isDropdownOpen && (isSearching || searchResults.length > 0) && (
               <PlaceDropdown>
-                {filteredPlaces.map((place) => (
-                  <PlaceOption
-                    key={place.id}
-                    type="button"
-                    onClick={() => handleSelectPlace(place)}
-                  >
-                    <span>{place.name}</span>
-                    <PlaceOptionAddr>{place.addr?.split(' ').slice(0, 2).join(' ')}</PlaceOptionAddr>
+                {isSearching ? (
+                  <PlaceOption as="div" style={{ cursor: 'default', color: meok[400], justifyContent: 'center' }}>
+                    검색 중…
                   </PlaceOption>
-                ))}
+                ) : (
+                  searchResults.map((item) => (
+                    <PlaceOption
+                      key={item.id}
+                      type="button"
+                      onClick={() => handleSelectPlace(item)}
+                    >
+                      <span>{item.place_name}</span>
+                      <PlaceOptionAddr>{item.road_address_name || item.address_name}</PlaceOptionAddr>
+                    </PlaceOption>
+                  ))
+                )}
               </PlaceDropdown>
             )}
           </FormSection>
@@ -724,38 +648,21 @@ export default function WriteWarmthModal({
             <MoodButtonGroup>
               <MoodButton
                 type="button"
-                $active={mood === '한적'}
-                onClick={() => setMood('한적')}
-              >
-                <MoodButtonMascot src="/images/character/Oni_tea.png" alt="" width={22} height={22} aria-hidden="true" />
-                <span>한적해요</span>
-              </MoodButton>
-              <MoodButton
-                type="button"
                 $active={mood === '북적'}
                 onClick={() => setMood('북적')}
               >
-                <MoodButtonMascot src="/images/character/Oni_sogo.png" alt="" width={22} height={22} aria-hidden="true" />
+                <HugeiconsIcon icon={UsersIcon} size={20} strokeWidth={2} aria-hidden="true" />
                 <span>북적여요</span>
               </MoodButton>
+              <MoodButton
+                type="button"
+                $active={mood === '한적'}
+                onClick={() => setMood('한적')}
+              >
+                <HugeiconsIcon icon={Leaf01Icon} size={20} strokeWidth={2} aria-hidden="true" />
+                <span>한적해요</span>
+              </MoodButton>
             </MoodButtonGroup>
-          </FormSection>
-
-          {}
-          <FormSection>
-            <SectionLabel>어울리는 분위기를 골라보세요 (선택)</SectionLabel>
-            <TagWrap>
-              {PRESET_TAGS.map((tag) => (
-                <TagChip
-                  key={tag}
-                  type="button"
-                  $selected={selectedTags.includes(tag)}
-                  onClick={() => handleToggleTag(tag)}
-                >
-                  {tag}
-                </TagChip>
-              ))}
-            </TagWrap>
           </FormSection>
 
           {}
@@ -778,7 +685,7 @@ export default function WriteWarmthModal({
             </ErrorText>
           )}
 
-          <SubmitBtn type="submit" disabled={!text.trim() || !selectedPlace || isSuccess || isSubmitting}>
+          <SubmitBtn type="submit" disabled={!text.trim() || !placeQuery.trim() || isSuccess || isSubmitting} style={{ marginTop: 'auto' }}>
             {isSuccess ? (
               <>
                 <HugeiconsIcon icon={CheckIcon} size={18} strokeWidth={2} />

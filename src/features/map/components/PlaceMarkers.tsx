@@ -13,6 +13,7 @@ import {
   advanceMarkerEntranceState,
   type MarkerEntranceState,
 } from './markerEntrancePolicy';
+import { toast } from 'sonner';
 import { useMapStore } from '../hooks/useMapStore';
 import { getInfoPlaceMarkerPresentation, selectInfoMarkerItems } from '../services/infoMarker.service';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
@@ -919,6 +920,9 @@ export default function PlaceMarkers() {
           focusMapOnPlace(store.map, item.lat, item.lng, store.panelOpen);
         }
         store.setSheetSnap('full');
+        if (!store.isWarmthWriteOpen) {
+          toast('이 장소에서의 기억, 온기로 남겨보세요 🔥', { duration: 2500 });
+        }
       };
 
       el.addEventListener('click', () => {
