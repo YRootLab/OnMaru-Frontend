@@ -84,7 +84,7 @@ describe('useInfoMapData', () => {
     await act(() => vi.advanceTimersByTimeAsync(100));
     expect(loadMapViewport).toHaveBeenCalledTimes(1);
     expect(loadMapViewport).toHaveBeenCalledWith(expect.objectContaining({
-      category: 'HANOK',
+      category: 'hanok',
       zoomLevel: 9,
     }));
   });

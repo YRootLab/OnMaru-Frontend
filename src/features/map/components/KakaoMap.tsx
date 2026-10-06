@@ -740,6 +740,20 @@ export default function KakaoMap() {
     };
   }, [map]);
 
+  useEffect(() => {
+    if (!map || !window.kakao?.maps) return;
+    const clearPlaceFocus = () => {
+      const store = useMapStore.getState();
+      store.setSelectedId(null);
+      store.setHoveredId(null);
+      store.setDetailId(null);
+    };
+    window.kakao.maps.event.addListener(map, 'click', clearPlaceFocus);
+    return () => {
+      window.kakao?.maps?.event?.removeListener(map, 'click', clearPlaceFocus);
+    };
+  }, [map]);
+
   const moveTo = (target: LatLng, targetLevel = 3, accuracy?: number) => {
     const currentMap = useMapStore.getState().map;
     if (!currentMap || !window.kakao?.maps) return;

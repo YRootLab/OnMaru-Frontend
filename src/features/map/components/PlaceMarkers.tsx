@@ -18,8 +18,12 @@ import { useMapStore } from '../hooks/useMapStore';
 import { selectInfoMarkerItems } from '../services/infoMarker.service';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import type { PlaceCategory } from '../types';
+import { focusMapOnPlace } from '../presentation/mapPlaceFocus';
+import { getSelectedMarkerVisualStyle } from '../presentation/markerSelectionPresentation';
 
 const log = logger('map');
+const selectedMarkerLight = getSelectedMarkerVisualStyle('light');
+const selectedMarkerDark = getSelectedMarkerVisualStyle('dark');
 
 
 const LABEL_MAX_LEVEL = 5;
@@ -161,19 +165,6 @@ const styles = css`
 
 
 
-  @keyframes om-click-bounce {
-    0%   { transform: translateY(-2px) scale(1); }
-    25%  { transform: translateY(-14px) scale(1.18); }
-    55%  { transform: translateY(-1px) scale(0.96); }
-    75%  { transform: translateY(-8px) scale(1.08); }
-    100% { transform: translateY(-6px) scale(1.15); }
-  }
-
-
-
-
-
-
   .om-pin {
     position: relative;
     display: flex;
@@ -192,7 +183,7 @@ const styles = css`
     white-space: nowrap;
     cursor: pointer;
     transform: translateY(-2px);
-    transition: box-shadow 0.16s ease, border-color 0.16s ease;
+    transition: background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
     user-select: none;
   }
 
@@ -200,14 +191,6 @@ const styles = css`
   .om-pin[data-hovered='true'] {
     box-shadow: 0 6px 18px -2px rgba(25, 31, 40, 0.28), 0 0 0 2px rgba(25, 31, 40, 0.07);
     z-index: 100 !important;
-  }
-
-  .om-pin[data-pending='true'],
-  .om-badge-pin[data-pending='true'],
-  .om-region-overlay[data-pending='true'] {
-    opacity: 0.35;
-    pointer-events: none;
-    transition: opacity 0.16s ease;
   }
 
   .om-pin::after {
@@ -375,42 +358,6 @@ const styles = css`
   }
 
 
-  @keyframes om-ripple-expand {
-    0% {
-      transform: translate(-50%, -50%) scale(0.3);
-      opacity: 0.85;
-    }
-    100% {
-      transform: translate(-50%, -50%) scale(2.8);
-      opacity: 0;
-    }
-  }
-
-  .om-pin-ripple {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    pointer-events: none;
-    border: 2px solid #d4af37;
-    background: radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, rgba(212, 175, 55, 0) 75%);
-    animation: om-ripple-expand 0.55s cubic-bezier(0.12, 0.8, 0.32, 1) forwards;
-    z-index: 10;
-  }
-
-
-  @keyframes om-glow-ring {
-    0%, 100% {
-      box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7), 0 8px 24px -2px rgba(25, 31, 40, 0.45);
-    }
-    50% {
-      box-shadow: 0 0 0 8px rgba(212, 175, 55, 0), 0 10px 28px -2px rgba(25, 31, 40, 0.55);
-    }
-  }
-
-
   .om-pin-stamp-badge {
     position: absolute;
     top: -5px;
@@ -431,13 +378,21 @@ const styles = css`
 
   .om-pin[data-selected='true'],
   .om-pin[data-detail='true'] {
-    color: #ffffff !important;
-    background: #191F28 !important;
-    border-color: #d4af37 !important;
-    box-shadow: 0 8px 26px -2px rgba(25, 31, 40, 0.45);
-    animation: om-click-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, om-glow-ring 2.4s ease-in-out infinite !important;
+    color: ${selectedMarkerLight.foreground} !important;
+    background: ${selectedMarkerLight.background} !important;
+    border-color: ${selectedMarkerLight.border} !important;
+    box-shadow: 0 5px 18px -2px rgba(25, 31, 40, 0.28);
+    transform: ${selectedMarkerLight.transform};
+    animation: ${selectedMarkerLight.animation} !important;
     z-index: 40 !important;
     opacity: 1 !important;
+  }
+
+  [data-theme='dark'] .om-pin[data-selected='true'],
+  [data-theme='dark'] .om-pin[data-detail='true'] {
+    color: ${selectedMarkerDark.foreground} !important;
+    background: ${selectedMarkerDark.background} !important;
+    border-color: ${selectedMarkerDark.border} !important;
   }
 
 
@@ -617,8 +572,14 @@ const styles = css`
 
   .om-pin[data-selected='true']::after,
   .om-pin[data-detail='true']::after {
-    background: #191F28 !important;
-    border-color: #191F28 !important;
+    background: ${selectedMarkerLight.background} !important;
+    border-color: ${selectedMarkerLight.border} !important;
+  }
+
+  [data-theme='dark'] .om-pin[data-selected='true']::after,
+  [data-theme='dark'] .om-pin[data-detail='true']::after {
+    background: ${selectedMarkerDark.background} !important;
+    border-color: ${selectedMarkerDark.border} !important;
   }
 
   .om-pin[data-selected='true'] .om-pin-icon-box,
@@ -695,12 +656,19 @@ const styles = css`
 
   .om-badge-pin[data-selected='true'],
   .om-badge-pin[data-detail='true'] {
-    transform: translateY(-4px) scale(1.25);
-    background: #191F28 !important;
-    box-shadow: 0 6px 20px rgba(25, 31, 40, 0.45);
+    transform: none;
+    background: ${selectedMarkerLight.background} !important;
+    border-color: ${selectedMarkerLight.border} !important;
+    box-shadow: 0 3px 10px rgba(25, 31, 40, 0.24);
     z-index: 40 !important;
     opacity: 1 !important;
-    animation: om-click-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+    animation: none !important;
+  }
+
+  [data-theme='dark'] .om-badge-pin[data-selected='true'],
+  [data-theme='dark'] .om-badge-pin[data-detail='true'] {
+    background: ${selectedMarkerDark.background} !important;
+    border-color: ${selectedMarkerDark.border} !important;
   }
 
   .om-badge-pin[data-selected='true']::before,
@@ -975,18 +943,12 @@ export default function PlaceMarkers() {
       }
 
       const open = () => {
-
-        const ripple = document.createElement('span');
-        ripple.className = 'om-pin-ripple';
-        el.appendChild(ripple);
-        setTimeout(() => {
-          if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
-        }, 580);
-
         const store = useMapStore.getState();
         store.setSelectedId(item.id);
         store.setDetailId(item.id);
-        store.map?.panTo(new window.kakao.maps.LatLng(item.lat, item.lng));
+        if (store.map) {
+          focusMapOnPlace(store.map, item.lat, item.lng, store.panelOpen);
+        }
         store.setSheetSnap('full');
       };
 

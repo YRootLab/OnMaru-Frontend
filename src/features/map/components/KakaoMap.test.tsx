@@ -35,6 +35,38 @@ afterEach(() => {
 });
 
 describe('KakaoMap SDK failure state', () => {
+  it('clears marker focus and detail when the bare map is clicked', () => {
+    const listeners = new Map<string, () => void>();
+    const map = { relayout: vi.fn(), getLevel: vi.fn(() => 9) };
+    Object.assign(window, {
+      kakao: {
+        maps: {
+          event: {
+            addListener: vi.fn((_map: unknown, event: string, listener: () => void) => {
+              listeners.set(event, listener);
+            }),
+            removeListener: vi.fn(),
+          },
+        },
+      },
+    });
+    useMapStore.setState({
+      map,
+      selectedId: 'selected-place',
+      hoveredId: 'selected-place',
+      detailId: 'selected-place',
+    });
+
+    render(<KakaoMap />);
+    act(() => listeners.get('click')?.());
+
+    expect(useMapStore.getState()).toMatchObject({
+      selectedId: null,
+      hoveredId: null,
+      detailId: null,
+    });
+  });
+
   it('replaces the pending canvas with an error after 25 seconds', () => {
     render(<KakaoMap />);
     expect(screen.queryByText('지도를 지금 불러올 수 없어요')).toBeNull();

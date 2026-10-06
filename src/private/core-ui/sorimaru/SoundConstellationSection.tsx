@@ -283,20 +283,28 @@ const AsidePanel = styled.aside`
   border-radius: 1rem;
   overflow: hidden;
   background-color: rgba(255, 255, 255, 0.85);
-  border: none;
+  border: 1px solid #e5e5e3;
   box-shadow: none;
   padding: 1rem 0.25rem;
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
     background-color: rgba(23, 30, 43, 0.88);
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: none;
   }
 
   @media (min-width: 640px) {
     height: 560px;
     padding: 1.25rem 0.25rem;
+  }
+`;
+
+const RegionErrorFallback = styled(SectionErrorFallback)`
+  &&,
+  [data-theme='dark'] && {
+    background-color: transparent;
+    border: 0;
   }
 `;
 
@@ -894,7 +902,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
             {isRegionLoading ? (
               <RegionStoryListSkeleton />
             ) : regionError ? (
-              <SectionErrorFallback
+              <RegionErrorFallback
                 compact
                 error={regionError}
                 title={`${selectedRegion.label} 이야기를 불러오지 못했어요`}

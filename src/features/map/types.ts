@@ -178,17 +178,8 @@ export type KakaoMap = any;
 
 // ── Info map ──────────────────────────────────────────────────────────────────
 
-export type MapInfoCategory =
-  | 'hanok'
-  | 'spot'
-  | 'experience'
-  | 'culture'
-  | 'festival'
-  | 'stay'
-  | 'food'
-  | 'cafe'
-  | 'market'
-  | 'all';
+export type { MapInfoCategory } from './domain/infoCategory';
+import type { MapInfoCategory } from './domain/infoCategory';
 
 export const MAP_INFO_CATEGORY_LABELS: Record<MapInfoCategory, string> = {
   hanok: '한옥',
@@ -200,7 +191,6 @@ export const MAP_INFO_CATEGORY_LABELS: Record<MapInfoCategory, string> = {
   food: '전통 맛집',
   cafe: '전통 카페',
   market: '전통 시장',
-  all: '전체',
 };
 
 export interface InfoPlaceItem {

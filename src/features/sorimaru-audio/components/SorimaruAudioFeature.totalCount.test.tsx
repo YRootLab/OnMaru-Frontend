@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
 import type { SorimaruStoryPage } from '../domain/sorimaruStory';
@@ -18,7 +18,6 @@ vi.mock('@/shared/hooks/useViewportActivation', () => ({
 
 vi.mock('./StoryCarousel', () => ({ StoryCarousel: () => null }));
 vi.mock('./SorimaruArchiveBrowse', () => ({ SorimaruArchiveBrowse: () => null }));
-vi.mock('./SorimaruPagination', () => ({ SorimaruPagination: () => null }));
 vi.mock('./SavedSoundDrawer', () => ({ SavedSoundDrawer: () => null }));
 vi.mock('./SorimaruAtmosphereBackground', () => ({ SorimaruAtmosphereBackground: () => null }));
 vi.mock('@/private/core-ui/sorimaru/SorimaruAutoSliceRail', () => ({ SorimaruAutoSliceRail: () => null }));
@@ -72,19 +71,35 @@ describe('SorimaruAudioFeature archive count', () => {
     render(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
 
     expect(await screen.findByText('23,675개')).toBeTruthy();
+    expect(screen.getByText('1 / 1184')).toBeTruthy();
     expect(screen.queryByText('1개')).toBeNull();
   });
 
-  it('updates the total from each category and region response', async () => {
-    const categoryPage = { ...initialPage, totalCount: 321, nextCursor: null, hasMore: false };
-    const regionPage = { ...initialPage, totalCount: 87, nextCursor: null, hasMore: false };
-    render(<SorimaruAudioFeature apiService={repository([categoryPage, regionPage])} initialPage={initialPage} />);
+  it.each([
+    ['한옥과 고택', 'HANOK_HERITAGE'],
+    ['전통 시장', 'TRADITIONAL_MARKET'],
+    ['마을과 골목', 'VILLAGE_STREETS'],
+    ['궁궐과 역사', 'PALACE_HISTORY'],
+    ['소리와 문화', 'SOUND_CULTURE'],
+    ['자연과 숲길', 'NATURE_TRAILS'],
+  ])('requests %s with the fixed backend code %s', async (label, category) => {
+    const api = repository([{ ...initialPage, totalCount: 42 }]);
+    render(<SorimaruAudioFeature apiService={api} initialPage={initialPage} />);
 
-    fireEvent.click(screen.getByRole('button', { name: '한옥과 고택' }));
-    expect(await screen.findByText('321개')).toBeTruthy();
+    expect(await screen.findByText('23,675개')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: label }));
 
-    fireEvent.click(screen.getByRole('button', { name: '경주' }));
-    expect(await screen.findByText('87개')).toBeTruthy();
+    await waitFor(() => expect(api.listStories).toHaveBeenCalledWith({
+      language: 'ko-KR', limit: 20, category,
+    }));
+    expect(await screen.findByText('42개')).toBeTruthy();
+  });
+
+  it('does not render region chips in the theme tab list', async () => {
+    render(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
+
+    expect(await screen.findByText('23,675개')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: '경주' })).toBeNull();
   });
 
   it('shows the filtered current-page count while a keyword search is active', async () => {

@@ -2,10 +2,9 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { SORIMARU_REGION_CHIPS, SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
-import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
+import { palette, meok, ringShadow } from '@/design-system/tokens';
 
 export interface CategoryTagFilterProps {
   variant?: 'default' | 'store' | 'compact';
@@ -15,7 +14,6 @@ const FilterContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
   padding: 0.25rem 0 0.5rem;
 `;
 
@@ -88,73 +86,10 @@ const ThemePillButton = styled.button<{ $selected: boolean }>`
 `;
 
 
-const RegionPillButton = styled.button<{ $selected: boolean }>`
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.3rem 0.75rem;
-  border-radius: 9999px;
-  font-size: ${fontSize.micro};
-  font-weight: ${({ $selected }) => ($selected ? '700' : '500')};
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  border: none;
-  cursor: pointer;
-  transition: all 0.18s ease;
-
-  ${({ $selected }) =>
-    $selected
-      ? `
-        background-color: ${palette.juhong[500]};
-        color: #ffffff;
-      `
-      : `
-        background-color: transparent;
-        color: ${meok[600]};
-        border: 1px solid ${meok[200]};
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.04);
-          color: ${meok[900]};
-        }
-      `}
-
-  [data-theme='dark'] & {
-    ${({ $selected }) =>
-      $selected
-        ? `
-          background-color: ${palette.juhong[500]};
-          color: #ffffff;
-        `
-        : `
-          background-color: transparent;
-          color: ${meok[400]};
-          border: 1px solid ${meok[700]};
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: #ffffff;
-          }
-        `}
-  }
-`;
-
 export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = () => {
   const selectedCategory = useSorimaruAudioStore((s) => s.selectedCategory);
   const setSelectedCategory = useSorimaruAudioStore((s) => s.setSelectedCategory);
   const setSearchQuery = useSorimaruAudioStore((s) => s.setSearchQuery);
-
-  const handleRegionClick = (region: string) => {
-    if (selectedCategory === region) {
-      setSelectedCategory('전체');
-    } else {
-      setSelectedCategory(region);
-      setSearchQuery('');
-    }
-  };
-
-  const isRegionSelected = SORIMARU_REGION_CHIPS.includes(
-    selectedCategory as (typeof SORIMARU_REGION_CHIPS)[number]
-  );
 
   return (
     <FilterContainer>
@@ -171,13 +106,13 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = () => {
           전체 보기
         </ThemePillButton>
         {SORIMARU_THEME_CATEGORIES.map((theme) => {
-          const isSelected = selectedCategory === theme.keyword;
+          const isSelected = selectedCategory === theme.apiCategory;
           return (
             <ThemePillButton
               key={theme.id}
               type="button"
               onClick={() => {
-                setSelectedCategory(theme.keyword);
+                setSelectedCategory(theme.apiCategory);
                 setSearchQuery('');
               }}
               title={theme.description}
@@ -189,32 +124,6 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = () => {
         })}
       </ScrollRail>
 
-      {}
-      <ScrollRail as="nav" aria-label="지역별 필터" style={{ gap: '0.35rem' }}>
-        <RegionPillButton
-          type="button"
-          onClick={() => {
-            setSelectedCategory('전체');
-            setSearchQuery('');
-          }}
-          $selected={!isRegionSelected}
-        >
-          전국
-        </RegionPillButton>
-        {SORIMARU_REGION_CHIPS.map((region) => {
-          const isSelected = selectedCategory === region;
-          return (
-            <RegionPillButton
-              key={region}
-              type="button"
-              onClick={() => handleRegionClick(region)}
-              $selected={isSelected}
-            >
-              {region}
-            </RegionPillButton>
-          );
-        })}
-      </ScrollRail>
     </FilterContainer>
   );
 };

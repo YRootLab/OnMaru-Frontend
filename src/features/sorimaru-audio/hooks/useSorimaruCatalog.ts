@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
 import type { SorimaruRegionGroups, SorimaruStoryPage } from '../domain/sorimaruStory';
-import { SORIMARU_REGION_CHIPS } from '../data/sorimaruCategoryData';
 import { loadNextSorimaruPage, loadSorimaruInitialData, type SorimaruInitialData } from '../components/sorimaruInitialLoad';
 
 export type CatalogState = {
@@ -30,12 +29,6 @@ export class SorimaruRegionMappingError extends Error {
     super('Sorimaru region label has no single canonical region code');
     this.name = 'SorimaruRegionMappingError';
   }
-}
-
-export function catalogCategoryForSelection(selectedCategory: string): string {
-  return SORIMARU_REGION_CHIPS.includes(selectedCategory as (typeof SORIMARU_REGION_CHIPS)[number])
-    ? '전체'
-    : selectedCategory;
 }
 
 export function createSorimaruCatalogController(repository: SorimaruRepository, initialPage?: SorimaruStoryPage) {

@@ -19,6 +19,7 @@ import SmartAroundFeed from './feed/SmartAroundFeed';
 import type { Item, PlaceCategory } from '@/features/map/types';
 import { isHanok } from '@/features/map/utils/isHanok';
 import { getMapLoadErrorCopy } from '@/features/map/presentation/mapLoadErrorCopy';
+import { focusMapOnPlace } from '@/features/map/presentation/mapPlaceFocus';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -540,7 +541,7 @@ export default function PlaceList() {
     setSelectedId(item.id);
     setDetailId(item.id);
     if (map && window.kakao?.maps) {
-      map.panTo(new window.kakao.maps.LatLng(item.lat, item.lng));
+      focusMapOnPlace(map, item.lat, item.lng, useMapStore.getState().panelOpen);
     }
     useMapStore.getState().setSheetSnap('full');
   };
