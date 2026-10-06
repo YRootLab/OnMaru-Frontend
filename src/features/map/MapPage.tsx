@@ -230,7 +230,7 @@ const MobileChipsScroller = styled.div`
 
 
 
-const MobileMyLocationButton = styled.button<{ $hidden: boolean }>`
+const MobileMyLocationButton = styled.button<{ $hidden: boolean; $locating: boolean }>`
   position: absolute;
   right: 16px;
   bottom: 100px;
@@ -251,6 +251,14 @@ const MobileMyLocationButton = styled.button<{ $hidden: boolean }>`
   transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
   opacity: ${({ $hidden }) => ($hidden ? 0 : 1)};
   pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
+
+  & svg {
+    ${({ $locating }) => $locating ? 'animation: om-spin 1s linear infinite;' : ''}
+  }
+
+  @keyframes om-spin {
+    to { transform: rotate(360deg); }
+  }
 
   &:active {
     transform: scale(0.92);
@@ -279,6 +287,7 @@ export default function MapPage() {
   const isWarmthWriteOpen = useMapStore((s) => s.isWarmthWriteOpen);
 
   const requestMyLocation = useMapStore((s) => s.requestMyLocation);
+  const isLocating = useMapStore((s) => s.isLocating);
   const isDetailOpen = Boolean(detailId) || popularPanelOpen;
   const isChipsHidden = isDetailOpen;
 
@@ -572,6 +581,7 @@ export default function MapPage() {
         aria-label="내 위치로 이동"
         onClick={requestMyLocation}
         $hidden={isDetailOpen || mode === 'warmth'}
+        $locating={isLocating}
       >
         <HugeiconsIcon icon={LocateFixedIcon} size={22} strokeWidth={1.8} />
       </MobileMyLocationButton>

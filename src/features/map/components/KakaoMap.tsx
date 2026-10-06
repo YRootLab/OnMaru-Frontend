@@ -520,7 +520,6 @@ const SogoOniWrap = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  animation: sogo-bounce 0.65s ease-in-out infinite;
 
   @media (max-width: 1023px) {
     width: 140px;
@@ -660,8 +659,10 @@ export default function KakaoMap() {
   // ── Auto-locate on mount with permission flow ───────────────────────────────
   const doAutoLocate = () => {
     if (!navigator.geolocation) return;
+    useMapStore.getState().setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        useMapStore.getState().setIsLocating(false);
         const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         const level = useMapStore.getState().mode === 'info' ? 7 : 5;
         moveTo(currentPos, level, pos.coords.accuracy);
@@ -670,12 +671,13 @@ export default function KakaoMap() {
       () => {
         navigator.geolocation.getCurrentPosition(
           (fallbackPos) => {
+            useMapStore.getState().setIsLocating(false);
             const fallbackCoord = { lat: fallbackPos.coords.latitude, lng: fallbackPos.coords.longitude };
             const level = useMapStore.getState().mode === 'info' ? 7 : 5;
             moveTo(fallbackCoord, level, fallbackPos.coords.accuracy);
             localStorage.setItem(LOC_PERMISSION_KEY, 'granted');
           },
-          () => { /* denied silently */ },
+          () => { useMapStore.getState().setIsLocating(false); },
           { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
         );
       },

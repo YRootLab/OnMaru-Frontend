@@ -169,6 +169,8 @@ interface MapState {
   setIsWarmthWriteOpen: (open: boolean) => void;
   myLocationNonce: number;
   requestMyLocation: () => void;
+  isLocating: boolean;
+  setIsLocating: (v: boolean) => void;
 }
 
 export const useMapStore = create<MapState>((set, get) => ({
@@ -442,4 +444,6 @@ export const useMapStore = create<MapState>((set, get) => ({
   setIsWarmthWriteOpen: (isWarmthWriteOpen) => set({ isWarmthWriteOpen }),
   myLocationNonce: 0,
   requestMyLocation: () => set((s) => ({ myLocationNonce: s.myLocationNonce + 1 })),
+  isLocating: false,
+  setIsLocating: (isLocating) => set({ isLocating }),
 }));
