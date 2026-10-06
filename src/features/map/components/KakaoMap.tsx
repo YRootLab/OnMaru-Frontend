@@ -522,7 +522,7 @@ const Controls = styled.div`
   gap: 8px;
 
   @media (max-width: 1023px) {
-    bottom: 136px;
+    display: none;
   }
 `;
 
@@ -899,7 +899,7 @@ export default function KakaoMap() {
           myLocationOverlayRef.current.setPosition(newLatLng);
         }
         if (myLocationCircleRef.current) {
-          myLocationCircleRef.current.setCenter(newLatLng);
+          myLocationCircleRef.current.setOptions({ center: newLatLng });
         }
         useMapStore.getState().setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
