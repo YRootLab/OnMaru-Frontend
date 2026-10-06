@@ -4,29 +4,31 @@
 
 
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { meok, palette } from '@/design-system/tokens';
 import { StatCard } from '@/features/admin/components/StatCard';
-import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
-import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
-import { getDashboardSummary, runPipeline } from '@/features/admin/api/adminApi';
+import { getDashboardSummary } from '@/features/admin/api/adminApi';
 import type { DashboardSummary } from '@/features/admin/api/adminApi';
+import { getPipelineStatusPresentation } from '@/features/admin/services/adminPipelinePresentation';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowRight01Icon, RefreshCwIcon, FlameIcon, ShieldAlertIcon } from '@hugeicons/core-free-icons'
+import { ArrowRight01Icon, FlameIcon, ShieldAlertIcon } from '@hugeicons/core-free-icons'
+
+function formatPipelineDate(value: string | null | undefined): string {
+  if (!value) return '성공 이력 없음';
+  return new Intl.DateTimeFormat('ko-KR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Asia/Seoul',
+  }).format(new Date(value));
+}
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { isAdmin } = useAdminAuth();
-
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [isRebuilding, setIsRebuilding] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [progressText, setProgressText] = useState('');
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
 
@@ -38,35 +40,12 @@ export default function AdminDashboardPage() {
   const recentReviews = dashboardData?.recentReviews ?? [];
   const pendingReports = dashboardData?.pendingReports ?? [];
   const pipelineSummary = dashboardData?.pipeline ?? null;
-
-
-  const handleStartRebuild = useCallback(() => {
-    setIsConfirmOpen(false);
-    setIsRebuilding(true);
-    setProgress(10);
-    setProgressText('파이프라인 실행 요청 중...');
-
-    runPipeline('hanok')
-      .then(() => {
-        setProgress(100);
-        setProgressText('파이프라인 갱신 완료!');
-        setTimeout(() => {
-          setIsRebuilding(false);
-          setToastMessage('데이터 파이프라인이 성공적으로 갱신되었습니다.');
-        }, 500);
-      })
-      .catch(() => {
-        setIsRebuilding(false);
-        setToastMessage('파이프라인 실행 중 오류가 발생했습니다.');
-      });
-  }, []);
+  const pipelineState = pipelineSummary
+    ? getPipelineStatusPresentation(pipelineSummary.status)
+    : null;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      {toastMessage && (
-        <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
-      )}
-
       {}
       <section
         style={{
@@ -298,10 +277,8 @@ export default function AdminDashboardPage() {
           </div>
 
           {isAdmin && (
-            <button
-              type="button"
-              onClick={() => setIsConfirmOpen(true)}
-              disabled={isRebuilding}
+            <Link
+              href="/admin/data"
               style={{
                 height: '40px',
                 padding: '0 18px',
@@ -314,62 +291,16 @@ export default function AdminDashboardPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                cursor: isRebuilding ? 'not-allowed' : 'pointer',
-                opacity: isRebuilding ? 0.6 : 1,
+                textDecoration: 'none',
                 boxShadow: '0 2px 6px rgba(235, 94, 40, 0.25)',
                 transition: 'all 0.15s ease',
               }}
             >
-              <HugeiconsIcon icon={RefreshCwIcon} size={16} strokeWidth={2} className={isRebuilding ? 'animate-spin' : ''} />
-              <span>{isRebuilding ? '갱신 중...' : '지금 갱신하기'}</span>
-            </button>
+              <span>상태 보기</span>
+              <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
+            </Link>
           )}
         </div>
-
-        {}
-        {isRebuilding && (
-          <div
-            style={{
-              padding: '16px 20px',
-              borderRadius: '12px',
-              backgroundColor: palette.juhong[50],
-              border: `1px solid ${palette.juhong[200]}`,
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '13px',
-                fontWeight: 600,
-                color: palette.juhong[700],
-                marginBottom: '10px',
-              }}
-            >
-              <span>{progressText}</span>
-              <span>{progress}%</span>
-            </div>
-            <div
-              style={{
-                width: '100%',
-                height: '8px',
-                backgroundColor: 'rgba(255, 85, 0, 0.15)',
-                borderRadius: '4px',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  width: `${progress}%`,
-                  height: '100%',
-                  backgroundColor: palette.juhong[500],
-                  borderRadius: '4px',
-                  transition: 'width 0.4s ease',
-                }}
-              />
-            </div>
-          </div>
-        )}
 
         <div
           style={{
@@ -389,7 +320,7 @@ export default function AdminDashboardPage() {
           >
             <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>마지막 갱신</div>
             <div style={{ fontSize: '16px', fontWeight: 700, color: meok[800] }}>
-              {pipelineSummary?.lastBuildAt ?? '-'}
+              {formatPipelineDate(pipelineSummary?.lastSuccessAt)}
             </div>
           </div>
 
@@ -401,9 +332,9 @@ export default function AdminDashboardPage() {
               border: '1px solid rgba(78, 89, 104, 0.06)',
             }}
           >
-            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>수집 현황</div>
+            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>현재 상태</div>
             <div style={{ fontSize: '15px', fontWeight: 700, color: meok[800] }}>
-              마을 {pipelineSummary?.villageCount ?? 0} · 숙소 {pipelineSummary?.stayCount ?? 0} · 루트 {pipelineSummary?.routeCount ?? 0}
+              {pipelineState?.label ?? '상태 확인 필요'}
             </div>
           </div>
 
@@ -415,9 +346,9 @@ export default function AdminDashboardPage() {
               border: '1px solid rgba(78, 89, 104, 0.06)',
             }}
           >
-            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>API 일일 호출</div>
+            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>최근 실행 실패 항목</div>
             <div style={{ fontSize: '16px', fontWeight: 700, color: meok[800], fontVariantNumeric: 'tabular-nums' }}>
-              {(pipelineSummary?.apiCallUsed ?? 0).toLocaleString()} / {(pipelineSummary?.apiCallLimit ?? 0).toLocaleString()}
+              {pipelineSummary ? `${pipelineSummary.failureCount.toLocaleString()}건` : '집계 준비 중'}
             </div>
           </div>
 
@@ -429,18 +360,18 @@ export default function AdminDashboardPage() {
               border: '1px solid rgba(78, 89, 104, 0.06)',
             }}
           >
-            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>실패 건수</div>
+            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>누적 실패 실행</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
                 style={{
                   fontSize: '16px',
                   fontWeight: 700,
-                  color: (pipelineSummary?.failureCount ?? 0) > 0 ? palette.danpung[500] : meok[800],
+                  color: (pipelineSummary?.cumulativeFailureRunCount ?? 0) > 0 ? palette.danpung[500] : meok[800],
                 }}
               >
-                {pipelineSummary?.failureCount ?? 0}건
+                {pipelineSummary ? `${pipelineSummary.cumulativeFailureRunCount.toLocaleString()}회` : '집계 준비 중'}
               </span>
-              {isAdmin && (pipelineSummary?.failureCount ?? 0) > 0 && (
+              {isAdmin && pipelineSummary && pipelineSummary.failureCount > 0 && (
                 <Link
                   href="/admin/data"
                   style={{
@@ -458,16 +389,6 @@ export default function AdminDashboardPage() {
         </div>
       </section>
 
-      {}
-      <ConfirmDialog
-        isOpen={isConfirmOpen}
-        title="데이터 파이프라인 수동 갱신"
-        description={`한국관광공사 TourAPI를 호출하여 마을, 숙소, 루트 데이터를 전면 재수집하고 정적 데이터셋을 다시 빌드합니다.\n\n실행 시 약 2~4분의 시간이 소요되며, 기존 캐시 데이터가 덮어씌워집니다. 진행하시겠습니까?`}
-        confirmText="지금 갱신하기"
-        cancelText="취소"
-        onConfirm={handleStartRebuild}
-        onCancel={() => setIsConfirmOpen(false)}
-      />
     </div>
   );
 }
