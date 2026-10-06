@@ -261,6 +261,8 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
+  const warmthCongestionFilter = useMapStore((s) => s.warmthCongestionFilter);
+  const setWarmthCongestionFilter = useMapStore((s) => s.setWarmthCongestionFilter);
   const infoCategory = useMapStore((s) => s.infoCategory);
   const setInfoCategory = useMapStore((s) => s.setInfoCategory);
   const setSearchQuery = useMapStore((s) => s.setSearchQuery);
@@ -277,10 +279,14 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const isItemActive = useCallback(
     (item: CategoryItem) => {
       if (mode === 'info') return infoCategory === item.id;
+      if (mode === 'warmth') {
+        if (item.id === 'all') return warmthCongestionFilter === 'all';
+        return warmthCongestionFilter === item.id;
+      }
       if (item.id === 'all') return !category || category === 'all';
       return category === item.id;
     },
-    [category, infoCategory, mode]
+    [category, warmthCongestionFilter, infoCategory, mode]
   );
 
   const handleChipClick = (item: CategoryItem) => {
@@ -302,10 +308,17 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       return;
     }
 
+    if (mode === 'warmth') {
+      const next = (item.id === 'all' || warmthCongestionFilter === item.id)
+        ? 'all'
+        : item.id as 'busy' | 'quiet' | 'today' | 'mine';
+      setWarmthCongestionFilter(next);
+      return;
+    }
+
     const isDeselect = item.id === 'all' || category === item.id;
     if (isDeselect) {
       setCategory(null);
-      // 검색창 초기화
       setSearchQuery('');
     } else {
       setCategory(item.id);

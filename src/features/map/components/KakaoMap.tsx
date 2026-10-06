@@ -8,7 +8,7 @@ import { Global, css } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, LocateFixedIcon, MinusSignIcon, Moon01Icon, PlusSignIcon, RotateCcwIcon, Sun01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
-import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, surface, fontSize, palette } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { KAKAO_SDK_SRC, snapshotFromMap, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { useKakaoSdkLoad } from '@/features/map/hooks/useKakaoSdkLoad';
@@ -158,28 +158,6 @@ const mapGlobalStyles = css`
   }
 
   /* ── 소고 춤 로딩 애니메이션 ─────────────────────────────────────────── */
-  @keyframes sogo-body-sway {
-    0%   { transform: rotate(-6deg) translateX(-2px); }
-    25%  { transform: rotate(0deg)  translateX(0px); }
-    50%  { transform: rotate(6deg)  translateX(2px); }
-    75%  { transform: rotate(0deg)  translateX(0px); }
-    100% { transform: rotate(-6deg) translateX(-2px); }
-  }
-
-  @keyframes sogo-drum-wave {
-    0%   { transform: rotate(-20deg) translateY(0px); }
-    30%  { transform: rotate(15deg)  translateY(-6px); }
-    60%  { transform: rotate(-25deg) translateY(2px); }
-    80%  { transform: rotate(10deg)  translateY(-4px); }
-    100% { transform: rotate(-20deg) translateY(0px); }
-  }
-
-  @keyframes sogo-bounce {
-    0%, 100% { transform: translateY(0px) scaleY(1); }
-    30%       { transform: translateY(-8px) scaleY(1.04); }
-    60%       { transform: translateY(-3px) scaleY(0.98); }
-  }
-
   @keyframes sogo-card-in {
     from { opacity: 0; transform: translateY(12px) scale(0.9); }
     to   { opacity: 1; transform: translateY(0)    scale(1); }
@@ -520,7 +498,6 @@ const SogoOniWrap = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  animation: sogo-bounce 0.65s ease-in-out infinite;
 
   @media (max-width: 1023px) {
     width: 140px;
@@ -545,7 +522,7 @@ const Controls = styled.div`
   gap: 8px;
 
   @media (max-width: 1023px) {
-    bottom: 136px;
+    display: none;
   }
 `;
 
@@ -615,6 +592,8 @@ export default function KakaoMap() {
   const map = useMapStore((s) => s.map);
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
+  const detailId = useMapStore((s) => s.detailId);
+  const sheetSnap = useMapStore((s) => s.sheetSnap);
   const [isLocating, setIsLocating] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const { sdkAttempt, mapLoadError, handleSdkLoad, handleSdkError, retryMapLoad } =
@@ -629,9 +608,19 @@ export default function KakaoMap() {
     return () => clearTimeout(id);
   }, [map, panelOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+    };
+  }, []);
+
   const hasAutoLocatedRef = useRef(false);
   const myLocationOverlayRef = useRef<any>(null);
   const myLocationCircleRef = useRef<any>(null);
+  const watchIdRef = useRef<number | null>(null);
   // Track current level for overlay visibility
   const currentLevelRef = useRef<number>(useMapStore.getState().level);
 
@@ -660,8 +649,10 @@ export default function KakaoMap() {
   // ── Auto-locate on mount with permission flow ───────────────────────────────
   const doAutoLocate = () => {
     if (!navigator.geolocation) return;
+    useMapStore.getState().setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        useMapStore.getState().setIsLocating(false);
         const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         const level = useMapStore.getState().mode === 'info' ? 7 : 5;
         moveTo(currentPos, level, pos.coords.accuracy);
@@ -670,12 +661,18 @@ export default function KakaoMap() {
       () => {
         navigator.geolocation.getCurrentPosition(
           (fallbackPos) => {
+            useMapStore.getState().setIsLocating(false);
             const fallbackCoord = { lat: fallbackPos.coords.latitude, lng: fallbackPos.coords.longitude };
             const level = useMapStore.getState().mode === 'info' ? 7 : 5;
             moveTo(fallbackCoord, level, fallbackPos.coords.accuracy);
             localStorage.setItem(LOC_PERMISSION_KEY, 'granted');
           },
-          () => { /* denied silently */ },
+          (err) => {
+            useMapStore.getState().setIsLocating(false);
+            if (err.code === err.PERMISSION_DENIED) {
+              toast.error('브라우저 상단 주소창 왼쪽의 위치 권한을 [허용]으로 변경해 주세요.');
+            }
+          },
           { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
         );
       },
@@ -715,6 +712,14 @@ export default function KakaoMap() {
     }
   }, [map, hasQueryCoords]);
 
+  const myLocationNonce = useMapStore((s) => s.myLocationNonce);
+  const myLocationNonceInitRef = useRef(myLocationNonce);
+  useEffect(() => {
+    if (myLocationNonce === myLocationNonceInitRef.current) return;
+    if (!map) return;
+    doAutoLocate();
+  }, [myLocationNonce, map]);
+
   // ── Zoom-level based overlay visibility ─────────────────────────────────────
   // Kakao level: 1=최대확대, 14=최대축소. level >= 9 이면 아이콘 숨김
   const MY_LOCATION_HIDE_LEVEL = 9;
@@ -739,6 +744,37 @@ export default function KakaoMap() {
       window.kakao?.maps?.event?.removeListener(map, 'zoom_changed', onZoomChanged);
     };
   }, [map]);
+
+  // ── Mobile map padding: pan marker into visible area above BottomSheet ──────
+  useEffect(() => {
+    if (!map || !detailId || !window.kakao?.maps) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 1024) return;
+
+    const { items, listItems } = useMapStore.getState();
+    let lat: number | null = null;
+    let lng: number | null = null;
+    const item = items.find((i) => i.id === detailId);
+    if (item) { lat = item.lat; lng = item.lng; }
+    else {
+      const infoItem = listItems.find((i) => i.placeId === detailId);
+      if (infoItem) { lat = infoItem.coordinates.lat; lng = infoItem.coordinates.lng; }
+    }
+    if (lat === null || lng === null) return;
+
+    const vh = window.innerHeight;
+    const sheetH =
+      sheetSnap === 'full' ? vh * 0.86
+      : sheetSnap === 'half' ? vh * 0.46
+      : 110; // peek ≈ 58px tabbar + 12px + 40px
+
+    // Shift target center down by half sheet height → marker appears in center of visible area
+    const markerLatLng = new window.kakao.maps.LatLng(lat, lng);
+    const proj = map.getProjection();
+    const markerPt = proj.pointFromCoords(markerLatLng);
+    const targetPt = new window.kakao.maps.Point(markerPt.x, markerPt.y + sheetH / 2);
+    const targetLatLng = proj.coordsFromPoint(targetPt);
+    map.panTo(targetLatLng);
+  }, [detailId, sheetSnap, map]);
 
   useEffect(() => {
     if (!map || !window.kakao?.maps) return;
@@ -785,7 +821,9 @@ export default function KakaoMap() {
       `;
       el.addEventListener('click', () => {
         currentMap.setLevel(3, { animate: true });
-        currentMap.panTo(latLng);
+        // Use live position from ref so click always pans to current location
+        const livePos = myLocationOverlayRef.current?.getPosition() ?? latLng;
+        currentMap.panTo(livePos);
       });
       const vid = el.querySelector('video');
       if (vid) {
@@ -832,10 +870,10 @@ export default function KakaoMap() {
         center: latLng,
         radius: accuracy,
         strokeWeight: 1,
-        strokeColor: '#4A90D9',
+        strokeColor: palette.cheongrok[500],
         strokeOpacity: 0.35,
-        fillColor: '#4A90D9',
-        fillOpacity: 0.07,
+        fillColor: palette.cheongrok[500],
+        fillOpacity: 0.08,
       });
     }
 
@@ -843,6 +881,57 @@ export default function KakaoMap() {
     store.setUserLocation(target);
     store.setCenter(target, targetLevel);
     store.commitViewportSearch(snapshotFromMap(currentMap, { center: target, level: targetLevel }));
+
+    startLocationWatch();
+  };
+
+  // ── Continuous location tracking ─────────────────────────────────────────────
+  const startLocationWatch = () => {
+    if (typeof window === 'undefined' || !navigator.geolocation) return;
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+    }
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        if (!window.kakao?.maps) return;
+        const newLatLng = new window.kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+        if (myLocationOverlayRef.current) {
+          myLocationOverlayRef.current.setPosition(newLatLng);
+        }
+        if (myLocationCircleRef.current) {
+          const oldCircle = myLocationCircleRef.current;
+          if (typeof oldCircle.setPosition === 'function') {
+            oldCircle.setPosition(newLatLng);
+          } else {
+            const radius = oldCircle.getRadius?.() ?? 60;
+            oldCircle.setMap(null);
+            const m = useMapStore.getState().map;
+            if (m) {
+              myLocationCircleRef.current = new window.kakao.maps.Circle({
+                map: m,
+                center: newLatLng,
+                radius,
+                strokeWeight: 1,
+                strokeColor: palette.cheongrok[500],
+                strokeOpacity: 0.35,
+                fillColor: palette.cheongrok[500],
+                fillOpacity: 0.08,
+              });
+            } else {
+              myLocationCircleRef.current = null;
+            }
+          }
+        }
+        useMapStore.getState().setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED && watchIdRef.current !== null) {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 },
+    );
   };
 
   const zoom = (delta: number) => {

@@ -155,15 +155,15 @@ const MainSections = styled.main`
 `;
 
 const HeroStageDiv = styled.div`
-  padding-top: 2.5rem;
+  margin-top: 1.5rem;
   padding-bottom: clamp(40px, 5vh, 64px);
 
   @media (min-width: 768px) {
-    padding-top: clamp(3.5rem, 6vh, 4rem);
+    margin-top: clamp(5.5rem, 9vh, 6.5rem);
   }
 
   @media (max-width: 480px) {
-    padding-top: 2rem;
+    margin-top: 1rem;
     padding-bottom: clamp(28px, 4vh, 48px);
   }
 `;

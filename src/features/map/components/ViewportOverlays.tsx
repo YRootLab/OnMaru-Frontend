@@ -6,9 +6,17 @@
  */
 
 import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
+import { palette } from '@/design-system/tokens';
 import { useMapStore } from '../hooks/useMapStore';
 import type { ViewportItem } from '../types';
 import { useDelayedLoadingVisibility } from '../presentation/useDelayedLoadingVisibility';
+import {
+  fadeInEl,
+  retireOverlays,
+  cancelActiveAnimations,
+  type ZoomDir,
+} from '../presentation/overlayTransitionCoordinator';
 
 const MAX_OVERLAYS = 60;
 
@@ -17,7 +25,42 @@ function countBadgeLabel(count: number): string {
   return String(count);
 }
 
-function buildAggregateEl(item: ViewportItem, onZoom: () => void): HTMLElement {
+function getClusterColor(category: string | null): string {
+  switch (category) {
+    case 'hanok':
+      return palette.juhong[500];
+    case 'stay':
+      return palette.jangmi[600];
+    case 'food':
+      return palette.cheongrok[700];
+    case 'cafe':
+      return palette.cheongrok[600];
+    case 'market':
+      return palette.cheongrok[800];
+    case 'spot':
+      return palette.kobalt[600];
+    case 'culture':
+      return palette.kobalt[700];
+    case 'experience':
+      return palette.jaha[500];
+    case 'festival':
+      return palette.jaha[600];
+    default:
+      return palette.juhong[500];
+  }
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const clean = hex.replace('#', '');
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function buildAggregateEl(item: ViewportItem, onZoom: () => void, category?: string | null): HTMLElement {
+  const badgeColor = getClusterColor(category ?? 'hanok');
+  const borderColor = hexToRgba(badgeColor, 0.25);
   const count = item.count ?? (item.type === 'PLACE' ? 1 : 0);
   const prominence = Math.min(1, Math.log2(Math.max(1, count)) / Math.log2(100));
   const verticalPadding = Math.round(5 + prominence * 2);
@@ -29,7 +72,7 @@ function buildAggregateEl(item: ViewportItem, onZoom: () => void): HTMLElement {
   el.style.cssText = `
     padding:${verticalPadding}px ${horizontalPadding}px;border-radius:9999px;
     background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);
-    border:1.5px solid rgba(47,104,255,0.25);
+    border:1.5px solid ${borderColor};
     box-shadow:0 4px 14px rgba(25,31,40,0.14);
     cursor:pointer;transform:translate(-50%,-50%);
     display:flex;align-items:center;gap:6px;
@@ -45,7 +88,7 @@ function buildAggregateEl(item: ViewportItem, onZoom: () => void): HTMLElement {
 
   const countSpan = document.createElement('span');
   countSpan.style.cssText =
-    'min-width:var(--aggregate-badge-size);height:var(--aggregate-badge-size);padding:0 5px;border-radius:9999px;background:#2F68FF;color:#fff;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;justify-content:center;';
+    `min-width:var(--aggregate-badge-size);height:var(--aggregate-badge-size);padding:0 5px;border-radius:9999px;background:${badgeColor};color:#fff;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;justify-content:center;`;
   countSpan.textContent = countBadgeLabel(count);
 
   el.appendChild(nameSpan);
@@ -71,18 +114,62 @@ export default function ViewportOverlays() {
   const viewportItems = useMapStore((s) => s.viewportItems);
   const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
   const infoCategory = useMapStore((s) => s.infoCategory);
+  const committedLevel = useMapStore((s) => s.committedViewport.level);
   const isViewportLoading = useMapStore((s) => s.isViewportLoading);
   const viewportError = useMapStore((s) => s.viewportError);
   const retryInfoViewport = useMapStore((s) => s.retryInfoViewport);
   const showLoadingNotice = useDelayedLoadingVisibility(isViewportLoading, 2_000);
 
   const overlaysRef = useRef<Map<string, OverlayRef>>(new Map());
+  const prevRenderModeRef = useRef<string | null>(null);
+  const prevLevelRef = useRef<number | null>(null);
+  const activeAnimsRef = useRef<Animation[]>([]);
+  const zoomHintShownRef = useRef(false);
 
   useEffect(() => {
+    // Phase 3: detect mode boundary and zoom direction
+    const prevRenderMode = prevRenderModeRef.current;
+    const modeChanged = prevRenderMode !== null && prevRenderMode !== viewportRenderMode;
+    const prevLevel = prevLevelRef.current;
+    const zoomDir: ZoomDir =
+      prevLevel === null ? 'none'
+      : committedLevel < prevLevel ? 'in'
+      : committedLevel > prevLevel ? 'out'
+      : 'none';
+    prevRenderModeRef.current = viewportRenderMode ?? prevRenderMode;
+    prevLevelRef.current = committedLevel;
+
+    // 1회성 줌 가이드: PLACE에서 광역 모드로 전환 시
+    if (
+      !zoomHintShownRef.current &&
+      modeChanged &&
+      prevRenderMode === 'PLACE' &&
+      (viewportRenderMode === 'DISTRICT' || viewportRenderMode === 'REGION')
+    ) {
+      zoomHintShownRef.current = true;
+      toast('지도를 더 확대하면 개별 장소를 볼 수 있어요 🔍', { duration: 3000 });
+    }
+
     if (!map || mode !== 'info' || !window.kakao?.maps || !viewportRenderMode || viewportRenderMode === 'PLACE' || viewportItems.length === 0) {
-      overlaysRef.current.forEach((record) => record.overlay.setMap(null));
+      if (modeChanged && overlaysRef.current.size > 0) {
+        // Lower z-index before fade so retiring aggregates don't float above incoming PLACE markers
+        overlaysRef.current.forEach((r) => { try { r.overlay.setZIndex?.(0); } catch { /* noop */ } });
+        retireOverlays(Array.from(overlaysRef.current.values()));
+      } else {
+        overlaysRef.current.forEach((record) => record.overlay.setMap(null));
+      }
       overlaysRef.current.clear();
       return;
+    }
+
+    if (modeChanged) {
+      cancelActiveAnimations(activeAnimsRef.current);
+      if (overlaysRef.current.size > 0) {
+        overlaysRef.current.forEach((r) => { try { r.overlay.setZIndex?.(0); } catch { /* noop */ } });
+        const outAnims = retireOverlays(Array.from(overlaysRef.current.values()));
+        activeAnimsRef.current.push(...outAnims);
+        overlaysRef.current.clear();
+      }
     }
 
     const displayed = viewportItems
@@ -134,7 +221,7 @@ export default function ViewportOverlays() {
       };
 
       if (existing) {
-        const updated = buildAggregateEl(item, zoom);
+        const updated = buildAggregateEl(item, zoom, infoCategory);
         existing.el.replaceChildren(...Array.from(updated.childNodes));
         existing.el.style.cssText = updated.style.cssText;
         existing.el.setAttribute('aria-label', updated.getAttribute('aria-label') ?? '');
@@ -142,8 +229,11 @@ export default function ViewportOverlays() {
         existing.signature = signature;
         return;
       }
-      const el = buildAggregateEl(item, zoom);
-      el.dataset.pending = String(useMapStore.getState().isViewportLoading);
+      const el = buildAggregateEl(item, zoom, infoCategory);
+      if (modeChanged) {
+        const inAnim = fadeInEl(el, zoomDir);
+        if (inAnim) activeAnimsRef.current.push(inAnim);
+      }
 
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(lat, lng),
@@ -154,18 +244,13 @@ export default function ViewportOverlays() {
       overlay.setMap(map);
       overlaysRef.current.set(key, { overlay, el, map, signature });
     });
-  }, [map, mode, viewportItems, viewportRenderMode, infoCategory]);
+  }, [map, mode, viewportItems, viewportRenderMode, infoCategory, committedLevel]);
 
   useEffect(() => () => {
+    cancelActiveAnimations(activeAnimsRef.current);
     overlaysRef.current.forEach((record) => record.overlay.setMap(null));
     overlaysRef.current.clear();
   }, []);
-
-  useEffect(() => {
-    overlaysRef.current.forEach(({ el }) => {
-      el.dataset.pending = String(isViewportLoading);
-    });
-  }, [isViewportLoading, viewportItems]);
 
   if (!viewportError && mode === 'info' && showLoadingNotice) {
     return (

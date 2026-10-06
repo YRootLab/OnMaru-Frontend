@@ -8,7 +8,8 @@ import { mergePlaceViewportItems } from '../application/mergePlaceViewportItems'
 import { resolveViewportRenderMode } from '@/features/map/domain/viewportRenderMode';
 import type { KakaoMap, ViewportItem, ViewportItemBounds } from '@/features/map/types';
 
-const VIEWPORT_DEBOUNCE_MS = 100;
+// ponytail: removed second debounce layer; idle settle in useKakaoMap (~150ms) is the single gate
+const VIEWPORT_DEBOUNCE_MS = 0;
 const BBOX_EXPAND_RATIO = 0.25;
 const BBOX_EDGE_THRESHOLD = 0.20;
 
@@ -78,6 +79,10 @@ export function useInfoMapData(enabled = true) {
   const viewportControllerRef = useRef<AbortController | null>(null);
   const viewportTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const placeCacheRef = useRef<{ scope: string; items: ViewportItem[] }>({ scope: '', items: [] });
+  // Generation counter: each new request gets a unique gen; stale responses
+  // (from rapid zoom sequences that abort mid-flight) are blocked even if
+  // AbortController races or signal check happens after .then() starts.
+  const requestGenRef = useRef(0);
 
   // ── Places list ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -173,6 +178,7 @@ export function useInfoMapData(enabled = true) {
 
       const ctrl = new AbortController();
       viewportControllerRef.current = ctrl;
+      const gen = ++requestGenRef.current;
 
       store.setIsViewportLoading(true);
       store.setViewportError(null);
@@ -186,6 +192,8 @@ export function useInfoMapData(enabled = true) {
       })
         .then((res) => {
           if (ctrl.signal.aborted) return;
+          // Block stale responses from rapid zoom sequences
+          if (gen !== requestGenRef.current) return;
           const responseScope = `${infoCategory}__${infoRegionCode ?? ''}__${bucket}__${committedViewport.level}`;
           const isMissingAggregate =
             res.renderMode !== 'PLACE'
@@ -215,6 +223,7 @@ export function useInfoMapData(enabled = true) {
         })
         .catch((err: unknown) => {
           if (ctrl.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) return;
+          if (gen !== requestGenRef.current) return;
           lastViewportKeyRef.current = '';
           lastViewportScopeRef.current = '';
           if (isOnmaruApiError(err) && err.code === 'SNAPSHOT_EXPIRED') {

@@ -15,6 +15,9 @@ const STYLES = `
   outline: 3px solid rgba(245,200,66,0.7);
   outline-offset: 2px;
 }
+[data-omrp-react-btn]:active {
+  transform: scale(0.94);
+}
 @keyframes omrp-btn-glow {
   0%   { box-shadow: 0 0 0 0   rgba(245,200,66,0.85); }
   100% { box-shadow: 0 0 0 14px rgba(245,200,66,0);   }
@@ -53,9 +56,11 @@ export function WarmthReactionButton({
   style,
 }: WarmthReactionButtonProps) {
   const [ariaLabel, setAriaLabel] = useState(LABEL_DEFAULT);
+  const [combo, setCombo] = useState(0);
   const [glowing, setGlowing] = useState(false);
   const lastSentRef = useRef(0);
   const labelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const comboTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reducedMotionRef = useRef(false);
 
   useEffect(() => {
@@ -71,6 +76,13 @@ export function WarmthReactionButton({
       const x = (rect.left + rect.width / 2) / window.innerWidth;
       const now = Date.now();
       const reduced = reducedMotionRef.current;
+
+      // 콤보 카운트 업데이트
+      setCombo((prev) => prev + 1);
+      if (comboTimerRef.current) clearTimeout(comboTimerRef.current);
+      comboTimerRef.current = setTimeout(() => {
+        setCombo(0);
+      }, 1800);
 
       // 로컬 이펙트: 항상 (연타 포함)
       if (reduced) {
@@ -103,10 +115,10 @@ export function WarmthReactionButton({
   useEffect(
     () => () => {
       if (labelTimerRef.current) clearTimeout(labelTimerRef.current);
+      if (comboTimerRef.current) clearTimeout(comboTimerRef.current);
     },
     [],
   );
-
   return (
     <button
       type="button"
@@ -119,21 +131,25 @@ export function WarmthReactionButton({
         display: 'inline-flex',
         alignItems: 'center',
         gap: 6,
-        padding: '8px 16px',
+        padding: '7px 15px',
         borderRadius: 20,
-        border: '1.5px solid rgba(245,200,66,0.5)',
-        background: 'rgba(245,200,66,0.08)',
+        border: '1px solid rgba(212, 175, 55, 0.35)',
+        background: 'rgba(28, 26, 23, 0.82)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         color: '#f5c842',
-        fontSize: 14,
+        fontSize: 12,
+        fontWeight: 600,
         cursor: 'pointer',
         outline: 'none',
         fontFamily: 'inherit',
-        transition: 'background 0.15s',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)',
+        transition: 'background 0.2s, border-color 0.2s, transform 0.12s ease',
         ...style,
       }}
     >
       <span aria-hidden="true">✨</span>
-      {LABEL_DEFAULT}
+      {ariaLabel}
     </button>
   );
 }

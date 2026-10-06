@@ -327,6 +327,11 @@ export default function PlaceDetail() {
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(detailId || ''));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
+  const journeyPlaces = useMapStore((s) => s.journeyPlaces);
+  const addToJourney = useMapStore((s) => s.addToJourney);
+  const removeFromJourney = useMapStore((s) => s.removeFromJourney);
+  const isInJourney = journeyPlaces.some((p) => p.id === detailId);
+
   const isPlaceVisited = useStampStore((s) => s.isPlaceVisited(detailId || ''));
   const { checkIn, checkingIn, isUnavailable } = useStampCheckIn();
 
@@ -341,6 +346,15 @@ export default function PlaceDetail() {
       lat: hasValidCoords ? lat : undefined,
       lng: hasValidCoords ? lng : undefined,
     });
+  };
+
+  const handleToggleJourney = () => {
+    if (!detailId || !hasValidCoords) return;
+    if (isInJourney) {
+      removeFromJourney(detailId);
+    } else {
+      addToJourney({ id: detailId, name: title, lat, lng });
+    }
   };
 
   return (
@@ -683,6 +697,20 @@ export default function PlaceDetail() {
           <HugeiconsIcon icon={Bookmark01Icon} size={16} strokeWidth={2} fill={isBookmarked ? 'currentColor' : 'none'} />
           <span>{isBookmarked ? '저장됨' : '마음에 담기'}</span>
         </BookmarkButton>
+
+        {hasValidCoords && (
+          <BookmarkButton
+            type="button"
+            $active={isInJourney}
+            onClick={handleToggleJourney}
+            aria-label={isInJourney ? '코스에서 제거' : '코스에 추가'}
+            title={isInJourney ? '코스에서 제거' : '코스에 추가'}
+            style={{ color: isInJourney ? '#2F68FF' : undefined, background: isInJourney ? 'rgba(47,104,255,0.08)' : undefined }}
+          >
+            <HugeiconsIcon icon={Compass01Icon} size={16} strokeWidth={2} />
+            <span>{isInJourney ? '코스에 있음' : '코스 추가'}</span>
+          </BookmarkButton>
+        )}
 
         <ShareButton type="button" onClick={handleShare} aria-label="장소 링크 공유하기">
           {copied ? <HugeiconsIcon icon={CheckIcon} size={16} color="var(--color-action-secondary)" strokeWidth={2} /> : <HugeiconsIcon icon={Share01Icon} size={16} strokeWidth={2} />}
