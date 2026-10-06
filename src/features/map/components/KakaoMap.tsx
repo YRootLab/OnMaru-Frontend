@@ -608,9 +608,19 @@ export default function KakaoMap() {
     return () => clearTimeout(id);
   }, [map, panelOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+    };
+  }, []);
+
   const hasAutoLocatedRef = useRef(false);
   const myLocationOverlayRef = useRef<any>(null);
   const myLocationCircleRef = useRef<any>(null);
+  const watchIdRef = useRef<number | null>(null);
   // Track current level for overlay visibility
   const currentLevelRef = useRef<number>(useMapStore.getState().level);
 
@@ -811,7 +821,9 @@ export default function KakaoMap() {
       `;
       el.addEventListener('click', () => {
         currentMap.setLevel(3, { animate: true });
-        currentMap.panTo(latLng);
+        // Use live position from ref so click always pans to current location
+        const livePos = myLocationOverlayRef.current?.getPosition() ?? latLng;
+        currentMap.panTo(livePos);
       });
       const vid = el.querySelector('video');
       if (vid) {
@@ -869,6 +881,36 @@ export default function KakaoMap() {
     store.setUserLocation(target);
     store.setCenter(target, targetLevel);
     store.commitViewportSearch(snapshotFromMap(currentMap, { center: target, level: targetLevel }));
+
+    startLocationWatch();
+  };
+
+  // ── Continuous location tracking ─────────────────────────────────────────────
+  const startLocationWatch = () => {
+    if (typeof window === 'undefined' || !navigator.geolocation) return;
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+    }
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        if (!window.kakao?.maps) return;
+        const newLatLng = new window.kakao.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+        if (myLocationOverlayRef.current) {
+          myLocationOverlayRef.current.setPosition(newLatLng);
+        }
+        if (myLocationCircleRef.current) {
+          myLocationCircleRef.current.setCenter(newLatLng);
+        }
+        useMapStore.getState().setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED && watchIdRef.current !== null) {
+          navigator.geolocation.clearWatch(watchIdRef.current);
+          watchIdRef.current = null;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 },
+    );
   };
 
   const zoom = (delta: number) => {
