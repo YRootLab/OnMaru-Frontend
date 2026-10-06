@@ -27,7 +27,7 @@ export default function AdminLayout({
 
   useEffect(() => {
     if (!isLoading && !user && !isLoginPage) {
-      router.push('/admin/login');
+      router.replace('/admin/login');
     }
   }, [isLoading, user, isLoginPage, router]);
 
@@ -68,8 +68,27 @@ export default function AdminLayout({
     );
   }
 
+  if (!user) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          backgroundColor: '#FAFAFA',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: meok[500],
+          fontSize: '14px',
+          fontWeight: 500,
+        }}
+      >
+        <span>로그인 화면으로 이동 중...</span>
+      </div>
+    );
+  }
 
-  if (user && role === 'USER') {
+
+  if (role === 'USER') {
     return (
       <div
         style={{
