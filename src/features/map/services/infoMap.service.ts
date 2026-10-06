@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api/client';
+import { normalizeInfoCategory } from '@/features/map/domain/infoCategory';
 import type {
   InfoPlacePage,
   ViewportItem,
@@ -13,10 +14,6 @@ export interface ListInfoPlacesInput {
   cursor?: string | null;
   limit?: number;
   signal?: AbortSignal;
-}
-
-function serverCategory(category: string): string {
-  return category.toUpperCase() === 'ALL' ? 'HANOK' : category.toUpperCase();
 }
 
 function isViewportBounds(value: unknown): value is ViewportItemBounds {
@@ -55,7 +52,7 @@ function parseMapViewportResponse(value: unknown): MapViewportResponse {
 
 export async function listInfoPlaces(input: ListInfoPlacesInput): Promise<InfoPlacePage> {
   const params: Record<string, string> = {
-    category: serverCategory(input.category),
+    category: normalizeInfoCategory(input.category).toUpperCase(),
     limit: String(input.limit ?? 30),
   };
   if (input.regionCode) params.regionCode = input.regionCode;
@@ -83,7 +80,7 @@ export async function loadMapViewport(
   const queryParams: Record<string, string> = {
     bbox,
     zoomLevel: String(zoomLevel),
-    category: serverCategory(category),
+    category: normalizeInfoCategory(category).toUpperCase(),
     limit: '60',
   };
   if (regionCode) queryParams.regionCode = regionCode;

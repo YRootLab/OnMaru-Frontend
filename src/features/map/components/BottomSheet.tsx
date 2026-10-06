@@ -11,6 +11,7 @@ import PlaceDetail from './PlaceDetail';
 import InfoPlaceList from './InfoPlaceList';
 import WarmthFeed from '@/private/core-ui/map-warmth/WarmthFeed';
 import PopularPlacesPanel from '@/private/core-ui/map-warmth/PopularPlacesPanel';
+import { useInfoListScrollRestoration } from '@/features/map/presentation/useInfoListScrollRestoration';
 
 const SNAPS: SheetSnap[] = ['peek', 'half', 'full'];
 
@@ -141,6 +142,7 @@ export default function BottomSheet() {
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const { onScroll: onInfoListScroll } = useInfoListScrollRestoration('mobile', listRef);
   const drag = useRef<{ startY: number; startH: number; active: boolean } | null>(null);
   const velocitySamples = useRef<{ t: number; y: number }[]>([]);
   const releaseAnim = useRef<ReturnType<typeof animate> | null>(null);
@@ -294,7 +296,7 @@ export default function BottomSheet() {
               <ModeToggleHeader>
                 <ModeToggle compact fullWidth />
               </ModeToggleHeader>
-              <ListArea ref={listRef}>
+              <ListArea ref={listRef} onScroll={onInfoListScroll}>
                 {mode === 'warmth' ? <WarmthFeed /> : <InfoPlaceList />}
               </ListArea>
             </MotionView>

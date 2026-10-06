@@ -178,16 +178,8 @@ export type KakaoMap = any;
 
 // ── Info map ──────────────────────────────────────────────────────────────────
 
-export type MapInfoCategory =
-  | 'hanok'
-  | 'spot'
-  | 'experience'
-  | 'culture'
-  | 'festival'
-  | 'stay'
-  | 'food'
-  | 'cafe'
-  | 'market';
+export type { MapInfoCategory } from './domain/infoCategory';
+import type { MapInfoCategory } from './domain/infoCategory';
 
 export const MAP_INFO_CATEGORY_LABELS: Record<MapInfoCategory, string> = {
   hanok: '한옥',

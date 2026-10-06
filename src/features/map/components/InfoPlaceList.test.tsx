@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { InfoPlaceItem } from '../types';
 import { useMapStore } from '../hooks/useMapStore';
@@ -68,7 +68,7 @@ describe('InfoPlaceList', () => {
     expect(screen.getByText('유지되는 한옥')).toBeTruthy();
   });
 
-  it('shows the editorial discovery modules above the initial HANOK list', () => {
+  it('shows the editorial discovery modules above the canonical HANOK list', () => {
     render(<InfoPlaceList />);
 
     expect(screen.getByText('실시간 한옥 소식')).toBeTruthy();
@@ -77,6 +77,48 @@ describe('InfoPlaceList', () => {
     expect(screen.getByText('추천 한옥 명소')).toBeTruthy();
     expect(screen.getByText('한옥 23,675곳')).toBeTruthy();
     expect(screen.getByText('유지되는 한옥')).toBeTruthy();
+  });
+
+  it('places the count heading immediately before the actual place list', () => {
+    render(<InfoPlaceList />);
+
+    const editorial = screen.getByText('추천 한옥 명소');
+    const countHeading = screen.getByText('한옥 23,675곳');
+    const firstPlace = screen.getByText('유지되는 한옥');
+
+    expect(editorial.compareDocumentPosition(countHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(countHeading.compareDocumentPosition(firstPlace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('shows one map-home action for category and region subviews', () => {
+    useMapStore.setState({ infoCategory: 'market' });
+    const view = render(<InfoPlaceList />);
+
+    expect(screen.getByRole('button', { name: '지도 홈으로 가기' })).toBeTruthy();
+    expect(screen.queryByText('전국')).toBeNull();
+
+    view.unmount();
+    useMapStore.setState({ infoCategory: 'hanok', infoRegionCode: '11', infoRegionName: '서울' });
+    render(<InfoPlaceList />);
+    expect(screen.getByRole('button', { name: '지도 홈으로 가기' })).toBeTruthy();
+    expect(screen.queryByText('서울')).toBeNull();
+  });
+
+  it('returns a category result to the nationwide Hanok home', () => {
+    useMapStore.setState({ infoCategory: 'market', infoRegionCode: '11' });
+    render(<InfoPlaceList />);
+
+    fireEvent.click(screen.getByRole('button', { name: '지도 홈으로 가기' }));
+
+    expect(useMapStore.getState()).toMatchObject({
+      infoCategory: 'hanok',
+      infoRegionCode: null,
+    });
+  });
+
+  it('does not show the map-home action on the nationwide Hanok home', () => {
+    render(<InfoPlaceList />);
+    expect(screen.queryByRole('button', { name: '지도 홈으로 가기' })).toBeNull();
   });
 
   it('keeps existing items visible when a later request fails', () => {

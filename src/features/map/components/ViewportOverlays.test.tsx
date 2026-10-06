@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useMapStore } from '../hooks/useMapStore';
 import ViewportOverlays from './ViewportOverlays';
@@ -49,7 +49,8 @@ describe('ViewportOverlays', () => {
     }
   });
 
-  it('explains that retained markers are updating while the viewport loads', () => {
+  it('shows the viewport update notice only after loading lasts two seconds', () => {
+    vi.useFakeTimers();
     useMapStore.setState({
       ...useMapStore.getInitialState(),
       mode: 'info',
@@ -57,8 +58,30 @@ describe('ViewportOverlays', () => {
       viewportError: null,
     }, true);
 
+    try {
+      render(<ViewportOverlays />);
+      expect(screen.queryByRole('status')).toBeNull();
+
+      act(() => vi.advanceTimersByTime(1_999));
+      expect(screen.queryByRole('status')).toBeNull();
+
+      act(() => vi.advanceTimersByTime(1));
+      expect(screen.getByRole('status').textContent).toContain('지도 장소를 업데이트하고 있어요');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('shows viewport errors immediately without waiting for the loading delay', () => {
+    useMapStore.setState({
+      ...useMapStore.getInitialState(),
+      mode: 'info',
+      isViewportLoading: true,
+      viewportError: '지도 정보를 불러오지 못했어요',
+    }, true);
+
     render(<ViewportOverlays />);
 
-    expect(screen.getByRole('status').textContent).toContain('지도 장소를 업데이트하고 있어요');
+    expect(screen.getByRole('status').textContent).toContain('지도 정보를 불러오지 못했어요');
   });
 });

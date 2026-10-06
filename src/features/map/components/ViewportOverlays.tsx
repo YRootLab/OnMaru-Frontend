@@ -8,6 +8,7 @@
 import { useEffect, useRef } from 'react';
 import { useMapStore } from '../hooks/useMapStore';
 import type { ViewportItem } from '../types';
+import { useDelayedLoadingVisibility } from '../presentation/useDelayedLoadingVisibility';
 
 const MAX_OVERLAYS = 60;
 
@@ -74,6 +75,7 @@ export default function ViewportOverlays() {
   const viewportError = useMapStore((s) => s.viewportError);
   const level = useMapStore((s) => s.committedViewport.level);
   const retryInfoViewport = useMapStore((s) => s.retryInfoViewport);
+  const showLoadingNotice = useDelayedLoadingVisibility(isViewportLoading, 2_000);
 
   const overlaysRef = useRef<Map<string, OverlayRef>>(new Map());
 
@@ -126,7 +128,9 @@ export default function ViewportOverlays() {
         }
 
         if (item.regionCode) {
-          useMapStore.getState().setInfoRegionCode(item.regionCode, item.name ?? null);
+          const store = useMapStore.getState();
+          store.captureInfoHomeSnapshot();
+          store.setInfoRegionCode(item.regionCode, item.name ?? null);
         }
       };
 
@@ -164,7 +168,7 @@ export default function ViewportOverlays() {
     });
   }, [isViewportLoading, viewportItems]);
 
-  if (!viewportError && mode === 'info' && isViewportLoading) {
+  if (!viewportError && mode === 'info' && showLoadingNotice) {
     return (
       <div
         role="status"

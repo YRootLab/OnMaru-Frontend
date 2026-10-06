@@ -15,6 +15,8 @@ import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { MAP_INFO_CATEGORY_LABELS as CATEGORY_LABELS } from '@/features/map/types';
 import type { Item } from '@/features/map/types';
 import InfoMapEditorialFeed from './InfoMapEditorialFeed';
+import { focusMapOnPlace } from '@/features/map/presentation/mapPlaceFocus';
+import { useInfoMapHomeNavigation } from '@/features/map/presentation/useInfoMapHomeNavigation';
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -48,7 +50,7 @@ const Breadcrumb = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0 14px 10px;
+  padding: 16px 14px 12px;
   font-size: ${fontSize.xs};
   color: ${meok[500]};
 `;
@@ -192,6 +194,11 @@ export default function InfoPlaceList() {
   const setInfoCategory = useMapStore((s) => s.setInfoCategory);
   const setInfoRegionCode = useMapStore((s) => s.setInfoRegionCode);
   const retryInfoList = useMapStore((s) => s.retryInfoList);
+  const {
+    isInfoHome,
+    captureBeforeNavigation,
+    returnToInfoHome,
+  } = useInfoMapHomeNavigation();
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingMoreRef = useRef(false);
@@ -283,9 +290,9 @@ export default function InfoPlaceList() {
   const handleSelect = (item: Item) => {
     setSelectedId(item.id);
     setDetailId(item.id);
-    const { map } = useMapStore.getState();
+    const { map, panelOpen } = useMapStore.getState();
     if (map && window.kakao?.maps) {
-      map.panTo(new window.kakao.maps.LatLng(item.lat, item.lng));
+      focusMapOnPlace(map, item.lat, item.lng, panelOpen);
     }
     useMapStore.getState().setSheetSnap('full');
   };
@@ -298,20 +305,30 @@ export default function InfoPlaceList() {
 
   return (
     <div>
-      {infoRegionCode && (
+      {!isInfoHome && (
         <Breadcrumb>
           <BreadcrumbBtn
             type="button"
-            onClick={() => setInfoRegionCode(null)}
-            aria-label="전국 목록으로 돌아가기"
+            onClick={returnToInfoHome}
+            aria-label="지도 홈으로 가기"
           >
             <HugeiconsIcon icon={ChevronLeftIcon} size={13} strokeWidth={2} />
-            전국
+            지도 홈으로 가기
           </BreadcrumbBtn>
-          <span>·</span>
-          <span style={{ color: meok[700] }}>{infoRegionName ?? '이 지역'}</span>
         </Breadcrumb>
       )}
+
+      <InfoMapEditorialFeed
+        category={infoCategory}
+        regionCode={infoRegionCode}
+        items={editorialItems}
+        loading={isListLoading && listItems.length === 0}
+        onShowAllFestivals={() => {
+          captureBeforeNavigation();
+          setInfoCategory('festival');
+        }}
+        onSelectItem={handleSelect}
+      />
 
       <StickyHeader>
         <CountLabel aria-live="polite">
@@ -319,15 +336,6 @@ export default function InfoPlaceList() {
           <span>{headerTitle}</span>
         </CountLabel>
       </StickyHeader>
-
-      <InfoMapEditorialFeed
-        category={infoCategory}
-        regionCode={infoRegionCode}
-        items={editorialItems}
-        loading={isListLoading && listItems.length === 0}
-        onShowAllFestivals={() => setInfoCategory('festival')}
-        onSelectItem={handleSelect}
-      />
 
       {isListLoading && listItems.length === 0 ? (
         <SkeletonWrapper aria-busy="true" aria-label="장소 목록을 불러오는 중이에요">
