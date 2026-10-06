@@ -96,7 +96,7 @@ export function LivePresenceBadge({ connection, snapshot }: LivePresenceBadgePro
     }, totalDelay);
 
     return () => clearTimeout(t);
-  }, [snapshot?.activeCount]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [snapshot?.activeCount]);
 
   const isDegraded = connection === 'degraded';
   const isReconnecting = connection === 'reconnecting';

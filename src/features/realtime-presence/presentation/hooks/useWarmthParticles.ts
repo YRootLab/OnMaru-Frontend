@@ -186,8 +186,7 @@ export function useWarmthParticles(
       spritesRef.current = { mine: buildGlowSprite(true), other: buildGlowSprite(false) };
     }
     queueRef.current.push(event);
-    startLoop(); // startLoop은 내부에서 rafRef(stable)만 사용하므로 stale closure 무해
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    startLoop();
   }, []);
 
   // 캔버스 크기 동기화 + visibilitychange
@@ -234,7 +233,6 @@ export function useWarmthParticles(
       document.removeEventListener('visibilitychange', onVisibility);
       stopLoop();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canvasRef]);
 
   return { enqueueWarmth, frameStats };

@@ -37,7 +37,7 @@ export function createMockPresenceTransport(
   const countChangeIntervalMs = opts.countChangeIntervalMs ?? 3_000;
 
   let activeCount = opts.initialCount ?? Math.floor(Math.random() * 5) + 1;
-  let todayVisitors = Math.floor(Math.random() * 200) + 10;
+  const todayVisitors = Math.floor(Math.random() * 200) + 10;
   let connectedRoom: RoomId | null = null;
   let connectedClient: ClientId | null = null;
   let isConnected = false;
