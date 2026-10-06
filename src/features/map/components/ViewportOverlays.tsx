@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { useMapStore } from '../hooks/useMapStore';
 import type { ViewportItem } from '../types';
 import { useDelayedLoadingVisibility } from '../presentation/useDelayedLoadingVisibility';
@@ -87,6 +88,7 @@ export default function ViewportOverlays() {
   const prevRenderModeRef = useRef<string | null>(null);
   const prevLevelRef = useRef<number | null>(null);
   const activeAnimsRef = useRef<Animation[]>([]);
+  const zoomHintShownRef = useRef(false);
 
   useEffect(() => {
     // Phase 3: detect mode boundary and zoom direction
@@ -100,6 +102,17 @@ export default function ViewportOverlays() {
       : 'none';
     prevRenderModeRef.current = viewportRenderMode ?? prevRenderMode;
     prevLevelRef.current = committedLevel;
+
+    // 1회성 줌 가이드: PLACE에서 광역 모드로 전환 시
+    if (
+      !zoomHintShownRef.current &&
+      modeChanged &&
+      prevRenderMode === 'PLACE' &&
+      (viewportRenderMode === 'DISTRICT' || viewportRenderMode === 'REGION')
+    ) {
+      zoomHintShownRef.current = true;
+      toast('지도를 더 확대하면 개별 장소를 볼 수 있어요 🔍', { duration: 3000 });
+    }
 
     if (!map || mode !== 'info' || !window.kakao?.maps || !viewportRenderMode || viewportRenderMode === 'PLACE' || viewportItems.length === 0) {
       if (modeChanged && overlaysRef.current.size > 0) {
