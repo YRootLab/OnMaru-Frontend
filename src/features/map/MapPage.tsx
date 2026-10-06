@@ -8,7 +8,7 @@ import type { Item, PlaceCategory } from './types';
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ChevronLeftIcon, LocateFixedIcon } from '@hugeicons/core-free-icons'
+import { ChevronLeftIcon } from '@hugeicons/core-free-icons'
 
 import { transientProps } from '@/design-system/styled';
 import { meok, surface , fontSize } from '@/design-system/tokens';
@@ -28,6 +28,7 @@ import CategoryChips from './components/CategoryChips';
 import DetailPanel from './components/DetailPanel';
 import KakaoMap from './components/KakaoMap';
 import ListPanel from './components/ListPanel';
+import HeatmapOverlay from './components/HeatmapOverlay';
 import PlaceMarkers from './components/PlaceMarkers';
 import ViewportOverlays from './components/ViewportOverlays';
 import WarmthLayer from '@/private/core-ui/map-warmth/WarmthLayer';
@@ -230,51 +231,6 @@ const MobileChipsScroller = styled.div`
 
 
 
-const MobileMyLocationButton = styled.button<{ $hidden: boolean; $locating: boolean }>`
-  position: absolute;
-  right: 16px;
-  bottom: 100px;
-  z-index: 20;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(25, 31, 40, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #2F68FF;
-  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
-  opacity: ${({ $hidden }) => ($hidden ? 0 : 1)};
-  pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
-
-  & svg {
-    ${({ $locating }) => $locating ? 'animation: om-spin 1s linear infinite;' : ''}
-  }
-
-  @keyframes om-spin {
-    to { transform: rotate(360deg); }
-  }
-
-  &:active {
-    transform: scale(0.92);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  }
-
-  @media (min-width: 1024px) {
-    display: none;
-  }
-
-  [data-theme='dark'] & {
-    background: rgba(30, 32, 38, 0.92);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #6b9eff;
-  }
-`;
 
 const CHIPS_PANELS_GAP = 16;
 
@@ -286,8 +242,6 @@ export default function MapPage() {
   const popularPanelOpen = useMapStore((s) => s.popularPanelOpen);
   const isWarmthWriteOpen = useMapStore((s) => s.isWarmthWriteOpen);
 
-  const requestMyLocation = useMapStore((s) => s.requestMyLocation);
-  const isLocating = useMapStore((s) => s.isLocating);
   const isDetailOpen = Boolean(detailId) || popularPanelOpen;
   const isChipsHidden = isDetailOpen;
 
@@ -510,6 +464,7 @@ export default function MapPage() {
       {}
       <MapArea>
         <KakaoMap />
+        <HeatmapOverlay />
         <PlaceMarkers />
         <ViewportOverlays />
         <WarmthLayer />
@@ -576,15 +531,6 @@ export default function MapPage() {
         </MobileChipsScroller>
       </MobileTopBar>
 
-      <MobileMyLocationButton
-        type="button"
-        aria-label="내 위치로 이동"
-        onClick={requestMyLocation}
-        $hidden={isDetailOpen || mode === 'warmth'}
-        $locating={isLocating}
-      >
-        <HugeiconsIcon icon={LocateFixedIcon} size={22} strokeWidth={1.8} />
-      </MobileMyLocationButton>
 
       <BottomSheet />
 
