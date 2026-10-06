@@ -158,28 +158,6 @@ const mapGlobalStyles = css`
   }
 
   /* ── 소고 춤 로딩 애니메이션 ─────────────────────────────────────────── */
-  @keyframes sogo-body-sway {
-    0%   { transform: rotate(-6deg) translateX(-2px); }
-    25%  { transform: rotate(0deg)  translateX(0px); }
-    50%  { transform: rotate(6deg)  translateX(2px); }
-    75%  { transform: rotate(0deg)  translateX(0px); }
-    100% { transform: rotate(-6deg) translateX(-2px); }
-  }
-
-  @keyframes sogo-drum-wave {
-    0%   { transform: rotate(-20deg) translateY(0px); }
-    30%  { transform: rotate(15deg)  translateY(-6px); }
-    60%  { transform: rotate(-25deg) translateY(2px); }
-    80%  { transform: rotate(10deg)  translateY(-4px); }
-    100% { transform: rotate(-20deg) translateY(0px); }
-  }
-
-  @keyframes sogo-bounce {
-    0%, 100% { transform: translateY(0px) scaleY(1); }
-    30%       { transform: translateY(-8px) scaleY(1.04); }
-    60%       { transform: translateY(-3px) scaleY(0.98); }
-  }
-
   @keyframes sogo-card-in {
     from { opacity: 0; transform: translateY(12px) scale(0.9); }
     to   { opacity: 1; transform: translateY(0)    scale(1); }
@@ -614,6 +592,7 @@ export default function KakaoMap() {
   const map = useMapStore((s) => s.map);
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
+  const detailId = useMapStore((s) => s.detailId);
   const [isLocating, setIsLocating] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const { sdkAttempt, mapLoadError, handleSdkLoad, handleSdkError, retryMapLoad } =
@@ -749,6 +728,33 @@ export default function KakaoMap() {
       window.kakao?.maps?.event?.removeListener(map, 'zoom_changed', onZoomChanged);
     };
   }, [map]);
+
+  // ── Mobile map padding: pan marker into visible area above BottomSheet ──────
+  useEffect(() => {
+    if (!map || !detailId || !window.kakao?.maps) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 1024) return;
+
+    const { items, listItems } = useMapStore.getState();
+    let lat: number | null = null;
+    let lng: number | null = null;
+    const item = items.find((i) => i.id === detailId);
+    if (item) { lat = item.lat; lng = item.lng; }
+    else {
+      const infoItem = listItems.find((i) => i.placeId === detailId);
+      if (infoItem) { lat = infoItem.coordinates.lat; lng = infoItem.coordinates.lng; }
+    }
+    if (lat === null || lng === null) return;
+
+    // half snap covers ~46dvh → shift marker up by half sheet height
+    // so it sits in center of visible area above the sheet
+    const sheetH = window.innerHeight * 0.46;
+    const markerLatLng = new window.kakao.maps.LatLng(lat, lng);
+    const proj = map.getProjection();
+    const markerPt = proj.pointFromCoords(markerLatLng);
+    const targetPt = new window.kakao.maps.Point(markerPt.x, markerPt.y + sheetH / 2);
+    const targetLatLng = proj.coordsFromPoint(targetPt);
+    map.panTo(targetLatLng);
+  }, [detailId, map]);
 
   useEffect(() => {
     if (!map || !window.kakao?.maps) return;
