@@ -171,6 +171,11 @@ interface MapState {
   requestMyLocation: () => void;
   isLocating: boolean;
   setIsLocating: (v: boolean) => void;
+
+  journeyPlaces: Array<{ id: string; name: string; lat: number; lng: number }>;
+  addToJourney: (place: { id: string; name: string; lat: number; lng: number }) => void;
+  removeFromJourney: (id: string) => void;
+  clearJourney: () => void;
 }
 
 export const useMapStore = create<MapState>((set, get) => ({
@@ -446,4 +451,15 @@ export const useMapStore = create<MapState>((set, get) => ({
   requestMyLocation: () => set((s) => ({ myLocationNonce: s.myLocationNonce + 1 })),
   isLocating: false,
   setIsLocating: (isLocating) => set({ isLocating }),
+
+  journeyPlaces: [],
+  addToJourney: (place) =>
+    set((s) => ({
+      journeyPlaces: s.journeyPlaces.some((p) => p.id === place.id)
+        ? s.journeyPlaces
+        : [...s.journeyPlaces, place],
+    })),
+  removeFromJourney: (id) =>
+    set((s) => ({ journeyPlaces: s.journeyPlaces.filter((p) => p.id !== id) })),
+  clearJourney: () => set({ journeyPlaces: [] }),
 }));

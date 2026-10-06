@@ -29,6 +29,7 @@ import DetailPanel from './components/DetailPanel';
 import KakaoMap from './components/KakaoMap';
 import ListPanel from './components/ListPanel';
 import HeatmapOverlay from './components/HeatmapOverlay';
+import JourneyOverlay from './components/JourneyOverlay';
 import PlaceMarkers from './components/PlaceMarkers';
 import ViewportOverlays from './components/ViewportOverlays';
 import WarmthLayer from '@/private/core-ui/map-warmth/WarmthLayer';
@@ -465,6 +466,7 @@ export default function MapPage() {
       <MapArea>
         <KakaoMap />
         <HeatmapOverlay />
+        <JourneyOverlay />
         <PlaceMarkers />
         <ViewportOverlays />
         <WarmthLayer />
