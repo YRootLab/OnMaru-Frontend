@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+## [v0.1.17] - 2026-10-06
+
 - FE #293: 관리자 세션 검증이 끝난 뒤 인증 사용자가 없으면 관리자 레이아웃과 대시보드 콘텐츠를 렌더링하지 않고 로그인 화면으로 교체 이동한다. 만료되거나 유효하지 않은 세션에서 보호 UI가 잠깐 노출되고 브라우저 기록에 `/admin`이 남던 문제를 수정했다.
 
 ## [v0.1.16] - 2026-10-06
