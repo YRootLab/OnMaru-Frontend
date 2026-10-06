@@ -9,13 +9,13 @@ import { escapeHtml, safeImageUrl } from '@/features/map/utils/formatters';
 import { mapIconSvg, type MapIconName } from '@/features/map/utils/mapIconSvg';
 import { calculateTravelEstimate } from '@/features/map/utils/geo';
 import { isHanok } from '@/features/map/utils/isHanok';
-import { renderHanokMarkHtml } from './HanokMark';
 import {
   advanceMarkerEntranceState,
   type MarkerEntranceState,
 } from './markerEntrancePolicy';
+import { toast } from 'sonner';
 import { useMapStore } from '../hooks/useMapStore';
-import { selectInfoMarkerItems } from '../services/infoMarker.service';
+import { getInfoPlaceMarkerPresentation, selectInfoMarkerItems } from '../services/infoMarker.service';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import type { PlaceCategory } from '../types';
 import { focusMapOnPlace } from '../presentation/mapPlaceFocus';
@@ -24,16 +24,6 @@ import { getSelectedMarkerVisualStyle } from '../presentation/markerSelectionPre
 const log = logger('map');
 const selectedMarkerLight = getSelectedMarkerVisualStyle('light');
 const selectedMarkerDark = getSelectedMarkerVisualStyle('dark');
-
-
-const LABEL_MAX_LEVEL = 5;
-
-
-
-
-
-
-
 
 
 const CATEGORY_ICONS: Record<PlaceCategory, MapIconName> = {
@@ -772,7 +762,6 @@ export default function PlaceMarkers() {
   const viewportItems = useMapStore((s) => s.viewportItems);
   const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
   const infoCategory = useMapStore((s) => s.infoCategory);
-  const level = useMapStore((s) => s.committedViewport.level);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
   const isViewportLoading = useMapStore((s) => s.isViewportLoading);
@@ -789,7 +778,10 @@ export default function PlaceMarkers() {
   });
 
   useEffect(() => {
-    const activeItems = selectInfoMarkerItems(viewportRenderMode, viewportItems);
+    const presentation = getInfoPlaceMarkerPresentation(viewportRenderMode);
+    const activeItems = presentation === 'full'
+      ? selectInfoMarkerItems(viewportRenderMode, viewportItems)
+      : [];
     if (!map || mode !== 'info' || activeItems.length === 0 || !window.kakao?.maps) {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
       overlayMapRef.current.clear();
@@ -805,17 +797,6 @@ export default function PlaceMarkers() {
     });
     markerEntranceStateRef.current = entranceDecision.state;
     const shouldAnimate = entranceDecision.animate;
-    const withLabel = level <= LABEL_MAX_LEVEL;
-
-
-
-
-
-
-
-
-
-
     // Keep loaded coordinates mounted so Kakao moves them with the map during dragging.
     const targetItems = activeItems;
     const targetIds = new Set(targetItems.map((item) => item.id));
@@ -862,7 +843,7 @@ export default function PlaceMarkers() {
                     ? '축제'
                     : '전통 시장';
 
-      const markerKey = `${withLabel}|${item.category}|${item.name}|${item.lat}|${item.lng}|${item.image}|${item.isTraditional}`;
+      const markerKey = `${item.category}|${item.name}|${item.lat}|${item.lng}|${item.image}|${item.isTraditional}`;
       const existing = overlayMapRef.current.get(item.id);
       if (existing?.markerKey === markerKey) {
         existing.el.setAttribute('aria-label', `${item.name}, ${catLabel}${metaText ? `, ${metaText}` : ''}. 상세 정보 열기`);
@@ -899,24 +880,13 @@ export default function PlaceMarkers() {
 
       const imgSrc = safeImageUrl(item.image);
 
-      if (withLabel) {
-        el.className = 'om-pin';
-        el.style.position = 'relative';
-        el.innerHTML = `
-          <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder}; color: ${catStyle.main};">${renderCategoryIconSvg(item.category, 16)}</span>
-          <span class="om-pin-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
-          ${placeIsHanok ? '<span class="om-pin-hanok-tag">한옥</span>' : ''}
-        `;
-      } else {
-        el.className = 'om-badge-pin';
-        el.style.position = 'relative';
-        el.innerHTML = `
-          <span class="om-badge-icon-inner" style="background: #ffffff; color: ${catStyle.main};">
-            ${renderCategoryIconSvg(item.category, 16)}
-          </span>
-          ${placeIsHanok ? renderHanokMarkHtml('om-hanok-mark', '한옥') : ''}
-        `;
-      }
+      el.className = 'om-pin';
+      el.style.position = 'relative';
+      el.innerHTML = `
+        <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder}; color: ${catStyle.main};">${renderCategoryIconSvg(item.category, 16)}</span>
+        <span class="om-pin-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
+        ${placeIsHanok ? '<span class="om-pin-hanok-tag">한옥</span>' : ''}
+      `;
 
       el.dataset.category = item.category;
       el.dataset.pending = String(useMapStore.getState().isViewportLoading);
@@ -950,6 +920,9 @@ export default function PlaceMarkers() {
           focusMapOnPlace(store.map, item.lat, item.lng, store.panelOpen);
         }
         store.setSheetSnap('full');
+        if (!store.isWarmthWriteOpen) {
+          toast('이 장소에서의 기억, 온기로 남겨보세요 🔥', { duration: 2500 });
+        }
       };
 
       el.addEventListener('click', () => {
@@ -1013,7 +986,6 @@ export default function PlaceMarkers() {
     viewportItems,
     viewportRenderMode,
     infoCategory,
-    level,
     userLocation,
     searchCenter,
   ]);

@@ -18,6 +18,7 @@ import { SorimaruRequestErrorState } from '@/features/sorimaru-audio/presentatio
 interface SorimaruEditorialRailProps {
   stories: SorimaruStorySummary[];
   storySets?: Record<string, SorimaruStorySummary[]>;
+  isActive?: boolean;
   isLoading?: boolean;
   error?: Error | null;
   onRetry?: () => void;
@@ -656,7 +657,7 @@ const IndicatorDot = styled.button<{ $active: boolean }>`
 `;
 
 export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
-  function SorimaruEditorialRail({ stories, storySets, isLoading = false, error = null, onRetry, onSelectStory }) {
+  function SorimaruEditorialRail({ stories, storySets, isActive = true, isLoading = false, error = null, onRetry, onSelectStory }) {
     const [selectedKeyword, setSelectedKeyword] = useState(SORIMARU_THEME_CATEGORIES[0].keyword);
     const [cachedImageUrls, setCachedImageUrls] = useState<Record<string, string>>(() => {
       if (typeof window === 'undefined') return {};
@@ -806,10 +807,10 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
     );
 
     useEffect(() => {
-      if (featured.length < 2 || isLoading) return;
+      if (!isActive || featured.length < 2 || isLoading) return;
       const timer = window.setInterval(() => moveBy(1, false), 7000);
       return () => window.clearInterval(timer);
-    }, [autoResetToken, featured.length, isLoading, moveBy]);
+    }, [autoResetToken, featured.length, isActive, isLoading, moveBy]);
 
     useEffect(
       () => () => {
@@ -829,7 +830,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
 
     useLayoutEffect(() => {
       const el = trackRef.current;
-      if (!el) return undefined;
+      if (!el || !isActive) return undefined;
 
       const targetX = -trackMetrics.cardStep * activePosition;
 
@@ -854,7 +855,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       return () => {
         tween.kill();
       };
-    }, [activePosition, trackMetrics.cardStep, trackTransitionEnabled]);
+    }, [activePosition, isActive, trackMetrics.cardStep, trackTransitionEnabled]);
 
     const handleCategoryChange = (keyword: string) => {
       if (keyword === selectedKeyword || inputLockedRef.current) return;

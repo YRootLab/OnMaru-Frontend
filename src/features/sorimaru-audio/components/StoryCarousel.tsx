@@ -513,15 +513,15 @@ const EdgeFadeLeft = styled.div`
   bottom: 0;
   left: 0;
   z-index: 10;
-  width: 2.5rem;
-  background: linear-gradient(to right, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
+  width: 3rem;
+  background: linear-gradient(to right, #ffffff 0%, rgba(255, 255, 255, 0.95) 42%, rgba(255, 255, 255, 0) 100%);
 
   [data-theme='dark'] & {
     background: linear-gradient(to right, ${surface.dark.app} 40%, rgba(11, 18, 32, 0));
   }
 
   @media (min-width: 640px) {
-    width: 3rem;
+    width: 4rem;
   }
 `;
 
@@ -532,15 +532,15 @@ const EdgeFadeRight = styled.div`
   bottom: 0;
   right: 0;
   z-index: 10;
-  width: 2.5rem;
-  background: linear-gradient(to left, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
+  width: 3rem;
+  background: linear-gradient(to left, #ffffff 0%, rgba(255, 255, 255, 0.95) 42%, rgba(255, 255, 255, 0) 100%);
 
   [data-theme='dark'] & {
     background: linear-gradient(to left, ${surface.dark.app} 40%, rgba(11, 18, 32, 0));
   }
 
   @media (min-width: 640px) {
-    width: 3rem;
+    width: 4rem;
   }
 `;
 
@@ -845,10 +845,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
           ))}
         </ScrollTrack>
 
-        {railIndicator.left > 0.5 && <EdgeFadeLeft aria-hidden="true" />}
-        {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
-          <EdgeFadeRight aria-hidden="true" />
-        )}
+        <EdgeFadeLeft data-testid="nearby-rail-leading-fade" aria-hidden="true" />
+        <EdgeFadeRight data-testid="nearby-rail-trailing-fade" aria-hidden="true" />
 
         {railIndicator.left > 0.5 && (
           <FloatingNavBtn

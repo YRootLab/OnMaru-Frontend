@@ -55,3 +55,9 @@ export function selectInfoMarkerItems(
     }];
   });
 }
+
+export function getInfoPlaceMarkerPresentation(
+  renderMode: ViewportRenderMode | null,
+): 'full' | 'hidden' {
+  return renderMode === 'PLACE' ? 'full' : 'hidden';
+}

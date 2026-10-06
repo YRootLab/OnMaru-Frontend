@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, MapIcon, RotateCcwIcon, Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, ChevronDownIcon, RotateCcwIcon, Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons'
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -130,18 +130,22 @@ const ClearButton = styled.button`
   }
 `;
 
-const RegionSelect = styled.select`
+const RegionSelectControl = styled.div`
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  column-gap: 8px;
+  width: max-content;
   height: 42px;
-  padding: 0 12px;
+  padding: 0 16px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 12px;
   background: #ffffff;
-  font-family: inherit;
-  font-size: ${fontSize.sm};
   color: ${meok[900]};
   cursor: pointer;
 
-  &:focus-visible {
+  &:focus-within {
     outline: 2px solid ${palette.juhong[500]};
     outline-offset: 1px;
   }
@@ -151,6 +155,38 @@ const RegionSelect = styled.select`
     background: ${surface.dark.card};
     color: ${meok[100]};
   }
+
+  @media (max-width: 560px) {
+    width: 100%;
+    justify-content: space-between;
+  }
+`;
+
+const RegionSelectValue = styled.span`
+  font-size: ${fontSize.sm};
+  line-height: 1;
+  white-space: nowrap;
+`;
+
+const RegionSelectChevron = styled.span`
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+`;
+
+const RegionSelect = styled.select`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 42px;
+  opacity: 0;
+  font-family: inherit;
+  font-size: ${fontSize.sm};
+  cursor: pointer;
 `;
 
 
@@ -447,18 +483,26 @@ export default function FilterBar({
           )}
         </SearchBox>
 
-        <RegionSelect
-          value={region}
-          onChange={(e) => onRegionChange(e.target.value)}
-          aria-label="지역 선택"
-        >
-          <option value="전체">전국</option>
-          {regions.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </RegionSelect>
+        <RegionSelectControl data-testid="region-select-control">
+          <RegionSelectValue aria-hidden="true">
+            {region === '전체' ? '전국' : region}
+          </RegionSelectValue>
+          <RegionSelectChevron data-testid="region-select-chevron" aria-hidden="true">
+            <HugeiconsIcon icon={ChevronDownIcon} size={16} strokeWidth={2} />
+          </RegionSelectChevron>
+          <RegionSelect
+            value={region}
+            onChange={(e) => onRegionChange(e.target.value)}
+            aria-label="지역 선택"
+          >
+            <option value="전체">전국</option>
+            {regions.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </RegionSelect>
+        </RegionSelectControl>
       </FindRow>
 
       {}
@@ -525,4 +569,3 @@ export default function FilterBar({
     </Wrapper>
   );
 }
-
