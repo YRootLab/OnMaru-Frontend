@@ -899,7 +899,24 @@ export default function KakaoMap() {
           myLocationOverlayRef.current.setPosition(newLatLng);
         }
         if (myLocationCircleRef.current) {
-          myLocationCircleRef.current.setOptions({ center: newLatLng });
+          const oldCircle = myLocationCircleRef.current;
+          const radius = oldCircle.getRadius?.() ?? 60;
+          oldCircle.setMap(null);
+          const m = useMapStore.getState().map;
+          if (m) {
+            myLocationCircleRef.current = new window.kakao.maps.Circle({
+              map: m,
+              center: newLatLng,
+              radius,
+              strokeWeight: 1,
+              strokeColor: '#4A90D9',
+              strokeOpacity: 0.35,
+              fillColor: '#4A90D9',
+              fillOpacity: 0.07,
+            });
+          } else {
+            myLocationCircleRef.current = null;
+          }
         }
         useMapStore.getState().setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
