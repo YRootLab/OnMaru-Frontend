@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- FE #293: 관리자 로그인 성공 직후 refresh token을 불필요하게 다시 회전시키던 호출을 제거했다. 로그인 응답의 access token으로 `/auth/admin/me`를 바로 확인해, 초기 세션 복구와 토큰 회전이 겹칠 때 간헐적으로 관리자 세션이 폐기되던 경쟁 상태를 방지한다.
+
 ## [v0.1.15] - 2026-10-06
 - 소리마루 `소리로 만나는 한국`에 전체 보기와 6개 테마 탭을 연결하고, 각 탭이 BE 고정 category 코드·cursor·totalCount 계약을 사용하도록 변경했다. 해당 탭의 지역 칩과 regionCode 요청은 제거했다.
 - 정보지도 추천 콘텐츠보다 위에 잘못 노출되던 장소 수 헤더를 실제 장소 목록 바로 앞으로 옮겼다. 지도 빈 영역을 클릭하면 선택·hover·상세 포커스를 함께 해제해 마커 강조가 남지 않도록 했다.
