@@ -225,6 +225,15 @@ const styles = css`
     text-overflow: ellipsis;
   }
 
+  .om-pin-dist {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 500;
+    color: #6b7684;
+    white-space: nowrap;
+    opacity: 0.85;
+  }
+
   .om-pin-hanok-tag {
     display: inline-flex;
     align-items: center;
@@ -938,8 +947,10 @@ export default function PlaceMarkers() {
       const existing = overlayMapRef.current.get(item.id);
       if (existing?.markerKey === markerKey) {
         existing.el.setAttribute('aria-label', `${item.name}, ${catLabel}${metaText ? `, ${metaText}` : ''}. 상세 정보 열기`);
-        const distance = existing.el.querySelector('.om-pin-hover-dist');
-        if (distance) distance.textContent = distInfo;
+        const hoverDist = existing.el.querySelector('.om-pin-hover-dist');
+        if (hoverDist) hoverDist.textContent = distInfo;
+        const pinDist = existing.el.querySelector('.om-pin-dist');
+        if (pinDist) pinDist.textContent = distInfo;
         return;
       }
       if (existing) {
@@ -977,6 +988,7 @@ export default function PlaceMarkers() {
         <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder}; color: ${catStyle.main};">${renderCategoryIconSvg(item.category, 16)}</span>
         <span class="om-pin-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</span>
         ${placeIsHanok ? '<span class="om-pin-hanok-tag">한옥</span>' : ''}
+        ${distInfo ? `<span class="om-pin-dist">${escapeHtml(distInfo)}</span>` : ''}
       `;
 
       el.dataset.category = item.category;
