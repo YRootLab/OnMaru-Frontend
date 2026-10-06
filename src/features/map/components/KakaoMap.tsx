@@ -593,6 +593,7 @@ export default function KakaoMap() {
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const detailId = useMapStore((s) => s.detailId);
+  const sheetSnap = useMapStore((s) => s.sheetSnap);
   const [isLocating, setIsLocating] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const { sdkAttempt, mapLoadError, handleSdkLoad, handleSdkError, retryMapLoad } =
@@ -656,7 +657,12 @@ export default function KakaoMap() {
             moveTo(fallbackCoord, level, fallbackPos.coords.accuracy);
             localStorage.setItem(LOC_PERMISSION_KEY, 'granted');
           },
-          () => { useMapStore.getState().setIsLocating(false); },
+          (err) => {
+            useMapStore.getState().setIsLocating(false);
+            if (err.code === err.PERMISSION_DENIED) {
+              toast.error('브라우저 상단 주소창 왼쪽의 위치 권한을 [허용]으로 변경해 주세요.');
+            }
+          },
           { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
         );
       },
@@ -745,16 +751,20 @@ export default function KakaoMap() {
     }
     if (lat === null || lng === null) return;
 
-    // half snap covers ~46dvh → shift marker up by half sheet height
-    // so it sits in center of visible area above the sheet
-    const sheetH = window.innerHeight * 0.46;
+    const vh = window.innerHeight;
+    const sheetH =
+      sheetSnap === 'full' ? vh * 0.86
+      : sheetSnap === 'half' ? vh * 0.46
+      : 110; // peek ≈ 58px tabbar + 12px + 40px
+
+    // Shift target center down by half sheet height → marker appears in center of visible area
     const markerLatLng = new window.kakao.maps.LatLng(lat, lng);
     const proj = map.getProjection();
     const markerPt = proj.pointFromCoords(markerLatLng);
     const targetPt = new window.kakao.maps.Point(markerPt.x, markerPt.y + sheetH / 2);
     const targetLatLng = proj.coordsFromPoint(targetPt);
     map.panTo(targetLatLng);
-  }, [detailId, map]);
+  }, [detailId, sheetSnap, map]);
 
   useEffect(() => {
     if (!map || !window.kakao?.maps) return;
