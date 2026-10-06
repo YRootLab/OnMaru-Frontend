@@ -264,6 +264,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const infoCategory = useMapStore((s) => s.infoCategory);
   const setInfoCategory = useMapStore((s) => s.setInfoCategory);
   const setSearchQuery = useMapStore((s) => s.setSearchQuery);
+  const setSheetSnap = useMapStore((s) => s.setSheetSnap);
 
   const items = CATEGORIES[mode];
   const containerRef = useRef<HTMLDivElement>(null);
@@ -297,6 +298,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       setSearchQuery('');
     } else {
       setCategory(item.id);
+      setSheetSnap('half');
       if (!useMapStore.getState().panelOpen) {
         useMapStore.getState().setPanelOpen(true);
       }

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, MapPinIcon } from '@hugeicons/core-free-icons';
+import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, Search01Icon } from '@hugeicons/core-free-icons';
 import { meok, palette, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
@@ -38,16 +38,6 @@ const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;
 
 
-const PRESET_TAGS = [
-  '#대청마루',
-  '#야경',
-  '#사진맛집',
-  '#전통체험',
-  '#힐링',
-  '#고즈넉함',
-  '#산책코스',
-  '#차한잔',
-];
 
 const PanelContainer = styled(motion.aside)<{ $panelOpen: boolean }>`
   position: fixed;
@@ -344,36 +334,6 @@ const MoodButton = styled.button<{ $active: boolean }>`
 
 
 
-const TagWrap = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-`;
-
-const TagChip = styled.button<{ $selected: boolean }>`
-  padding: 6px 12px;
-  border-radius: 9999px;
-
-  background: ${({ $selected }) => ($selected ? meok[900] : '#f2f4f6')};
-  color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: ${({ $selected }) => ($selected ? meok[800] : '#e5e8eb')};
-  }
-
-  [data-theme='dark'] & {
-    background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
-    color: ${({ $selected }) => ($selected ? '#ffffff' : '#D1D5DB')};
-
-    &:hover {
-      background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
-    }
-  }
-`;
 
 
 const TextArea = styled.textarea`
@@ -440,7 +400,7 @@ const SubmitBtn = styled.button`
   margin-top: 8px;
 
   border-radius: 14px;
-  background: ${meok[900]};
+  background: ${palette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.sm};
@@ -449,7 +409,7 @@ const SubmitBtn = styled.button`
   transition: all 0.18s ease;
 
   &:hover:not(:disabled) {
-    background: ${meok[800]};
+    background: ${palette.juhong[600]};
   }
 
   &:disabled {
@@ -459,10 +419,10 @@ const SubmitBtn = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: ${meok[900]};
+    background: ${palette.juhong[500]};
 
     &:hover:not(:disabled) {
-      background: ${meok[800]};
+      background: ${palette.juhong[600]};
     }
 
     &:disabled {
@@ -496,7 +456,6 @@ export default function WriteWarmthModal({
 
   const [score, setScore] = useState<MoodValue>(1);
   const [mood, setMood] = useState<'한적' | '북적'>('한적');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -579,15 +538,14 @@ export default function WriteWarmthModal({
     setSearchResults([]);
   };
 
-  const handleToggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
-    );
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim() || !selectedPlace) return;
+    if (!text.trim()) return;
+    if (!selectedPlace) {
+      // 입력만 하고 드롭다운에서 선택 안 한 경우
+      setIsDropdownOpen(true);
+      return;
+    }
 
     try {
       const created = await create({
@@ -595,7 +553,6 @@ export default function WriteWarmthModal({
         text: text.trim(),
         mood,
         score,
-        tags: selectedTags,
       });
 
       setWarmths([
@@ -607,7 +564,6 @@ export default function WriteWarmthModal({
       setTimeout(() => {
         setIsSuccess(false);
         setText('');
-        setSelectedTags([]);
         onClose();
       }, 900);
     } catch {}
@@ -644,7 +600,7 @@ export default function WriteWarmthModal({
             <SectionLabel>어디를 다녀오셨나요?</SectionLabel>
             <PlaceInputWrap ref={placeWrapRef}>
               <PlaceInputIcon>
-                <HugeiconsIcon icon={MapPinIcon} size={16} strokeWidth={2} />
+                <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={2} />
               </PlaceInputIcon>
               <PlaceInput
                 type="text"
@@ -692,38 +648,21 @@ export default function WriteWarmthModal({
             <MoodButtonGroup>
               <MoodButton
                 type="button"
-                $active={mood === '한적'}
-                onClick={() => setMood('한적')}
-              >
-                <HugeiconsIcon icon={Leaf01Icon} size={20} strokeWidth={2} aria-hidden="true" />
-                <span>한적해요</span>
-              </MoodButton>
-              <MoodButton
-                type="button"
                 $active={mood === '북적'}
                 onClick={() => setMood('북적')}
               >
                 <HugeiconsIcon icon={UsersIcon} size={20} strokeWidth={2} aria-hidden="true" />
                 <span>북적여요</span>
               </MoodButton>
+              <MoodButton
+                type="button"
+                $active={mood === '한적'}
+                onClick={() => setMood('한적')}
+              >
+                <HugeiconsIcon icon={Leaf01Icon} size={20} strokeWidth={2} aria-hidden="true" />
+                <span>한적해요</span>
+              </MoodButton>
             </MoodButtonGroup>
-          </FormSection>
-
-          {}
-          <FormSection>
-            <SectionLabel>어울리는 분위기를 골라보세요 (선택)</SectionLabel>
-            <TagWrap>
-              {PRESET_TAGS.map((tag) => (
-                <TagChip
-                  key={tag}
-                  type="button"
-                  $selected={selectedTags.includes(tag)}
-                  onClick={() => handleToggleTag(tag)}
-                >
-                  {tag}
-                </TagChip>
-              ))}
-            </TagWrap>
           </FormSection>
 
           {}
@@ -746,7 +685,7 @@ export default function WriteWarmthModal({
             </ErrorText>
           )}
 
-          <SubmitBtn type="submit" disabled={!text.trim() || !selectedPlace || isSuccess || isSubmitting}>
+          <SubmitBtn type="submit" disabled={!text.trim() || !placeQuery.trim() || isSuccess || isSubmitting} style={{ marginTop: 'auto' }}>
             {isSuccess ? (
               <>
                 <HugeiconsIcon icon={CheckIcon} size={18} strokeWidth={2} />
