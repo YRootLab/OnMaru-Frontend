@@ -9,6 +9,11 @@ import { useEffect, useRef } from 'react';
 import { useMapStore } from '../hooks/useMapStore';
 import type { ViewportItem } from '../types';
 import { useDelayedLoadingVisibility } from '../presentation/useDelayedLoadingVisibility';
+import {
+  fadeInEl,
+  retireOverlays,
+  type ZoomDir,
+} from '../presentation/overlayTransitionCoordinator';
 
 const MAX_OVERLAYS = 60;
 
@@ -71,18 +76,42 @@ export default function ViewportOverlays() {
   const viewportItems = useMapStore((s) => s.viewportItems);
   const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
   const infoCategory = useMapStore((s) => s.infoCategory);
+  const committedLevel = useMapStore((s) => s.committedViewport.level);
   const isViewportLoading = useMapStore((s) => s.isViewportLoading);
   const viewportError = useMapStore((s) => s.viewportError);
   const retryInfoViewport = useMapStore((s) => s.retryInfoViewport);
   const showLoadingNotice = useDelayedLoadingVisibility(isViewportLoading, 2_000);
 
   const overlaysRef = useRef<Map<string, OverlayRef>>(new Map());
+  const prevRenderModeRef = useRef<string | null>(null);
+  const prevLevelRef = useRef<number | null>(null);
 
   useEffect(() => {
+    // Phase 3: detect mode boundary and zoom direction
+    const prevRenderMode = prevRenderModeRef.current;
+    const modeChanged = prevRenderMode !== null && prevRenderMode !== viewportRenderMode;
+    const prevLevel = prevLevelRef.current;
+    const zoomDir: ZoomDir =
+      prevLevel === null ? 'none'
+      : committedLevel < prevLevel ? 'in'
+      : committedLevel > prevLevel ? 'out'
+      : 'none';
+    prevRenderModeRef.current = viewportRenderMode ?? prevRenderMode;
+    prevLevelRef.current = committedLevel;
+
     if (!map || mode !== 'info' || !window.kakao?.maps || !viewportRenderMode || viewportRenderMode === 'PLACE' || viewportItems.length === 0) {
-      overlaysRef.current.forEach((record) => record.overlay.setMap(null));
+      if (modeChanged && overlaysRef.current.size > 0) {
+        retireOverlays(Array.from(overlaysRef.current.values()));
+      } else {
+        overlaysRef.current.forEach((record) => record.overlay.setMap(null));
+      }
       overlaysRef.current.clear();
       return;
+    }
+
+    if (modeChanged && overlaysRef.current.size > 0) {
+      retireOverlays(Array.from(overlaysRef.current.values()));
+      overlaysRef.current.clear();
     }
 
     const displayed = viewportItems
@@ -143,7 +172,7 @@ export default function ViewportOverlays() {
         return;
       }
       const el = buildAggregateEl(item, zoom);
-      el.dataset.pending = String(useMapStore.getState().isViewportLoading);
+      if (modeChanged) fadeInEl(el, zoomDir);
 
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(lat, lng),
@@ -154,18 +183,12 @@ export default function ViewportOverlays() {
       overlay.setMap(map);
       overlaysRef.current.set(key, { overlay, el, map, signature });
     });
-  }, [map, mode, viewportItems, viewportRenderMode, infoCategory]);
+  }, [map, mode, viewportItems, viewportRenderMode, infoCategory, committedLevel]);
 
   useEffect(() => () => {
     overlaysRef.current.forEach((record) => record.overlay.setMap(null));
     overlaysRef.current.clear();
   }, []);
-
-  useEffect(() => {
-    overlaysRef.current.forEach(({ el }) => {
-      el.dataset.pending = String(isViewportLoading);
-    });
-  }, [isViewportLoading, viewportItems]);
 
   if (!viewportError && mode === 'info' && showLoadingNotice) {
     return (

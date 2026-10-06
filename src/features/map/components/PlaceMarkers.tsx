@@ -20,6 +20,12 @@ import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import type { PlaceCategory } from '../types';
 import { focusMapOnPlace } from '../presentation/mapPlaceFocus';
 import { getSelectedMarkerVisualStyle } from '../presentation/markerSelectionPresentation';
+import {
+  fadeInEl,
+  retireOverlays,
+  canCrossfade,
+  type ZoomDir,
+} from '../presentation/overlayTransitionCoordinator';
 
 const log = logger('map');
 const selectedMarkerLight = getSelectedMarkerVisualStyle('light');
@@ -811,6 +817,8 @@ export default function PlaceMarkers() {
   const prevHoveredIdRef = useRef<string | null>(null);
   const prevSelectedIdRef = useRef<string | null>(null);
   const prevDetailIdRef = useRef<string | null>(null);
+  const prevRenderModeRef = useRef<string | null>(null);
+  const prevLevelRef = useRef<number | null>(null);
   const markerEntranceStateRef = useRef<MarkerEntranceState>({
     hasRendered: false,
     category: infoCategory,
@@ -818,18 +826,43 @@ export default function PlaceMarkers() {
   });
 
   useEffect(() => {
+    // Phase 3: detect renderMode boundary and zoom direction before touching overlays
+    const prevRenderMode = prevRenderModeRef.current;
+    const modeChanged = prevRenderMode !== null && prevRenderMode !== viewportRenderMode;
+    const prevLevel = prevLevelRef.current;
+    // Kakao: lower level = zoomed in, higher level = zoomed out
+    const zoomDir: ZoomDir =
+      prevLevel === null ? 'none'
+      : committedLevel < prevLevel ? 'in'
+      : committedLevel > prevLevel ? 'out'
+      : 'none';
+    prevRenderModeRef.current = viewportRenderMode ?? prevRenderMode;
+    prevLevelRef.current = committedLevel;
+
     const presentation = getInfoPlaceMarkerPresentation(viewportRenderMode);
     const allActiveItems = presentation === 'full'
       ? selectInfoMarkerItems(viewportRenderMode, viewportItems)
       : [];
     if (!map || mode !== 'info' || allActiveItems.length === 0 || !window.kakao?.maps) {
-      overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
+      // On mode boundary with no new items, retire gracefully
+      if (modeChanged && overlayMapRef.current.size > 0) {
+        retireOverlays(Array.from(overlayMapRef.current.values()));
+      } else {
+        overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
+      }
       overlayMapRef.current.clear();
       return;
     }
 
+    // On renderMode boundary: retire all current overlays with crossfade
+    if (modeChanged && overlayMapRef.current.size > 0) {
+      retireOverlays(Array.from(overlayMapRef.current.values()));
+      overlayMapRef.current.clear();
+    }
+
     // Phase 1: cull to viewport + overscan, then enforce overlay budget
     const culled = cullToViewport(allActiveItems, map);
+    const degradedPath = allActiveItems.length > culled.length;
     const activeItems = applyBudget(culled, map);
 
     const entranceDecision = advanceMarkerEntranceState(markerEntranceStateRef.current, {
@@ -1025,7 +1058,16 @@ export default function PlaceMarkers() {
       overlayMapRef.current.set(item.id, { overlay, el, map, markerKey });
     });
 
-    if (shouldAnimate) burstIn(entranceWrappers);
+    if (modeChanged && canCrossfade()) {
+      // Mode boundary: WAAPI scale+fade-in, no GSAP burst
+      entranceWrappers.forEach((w) => fadeInEl(w, zoomDir, degradedPath));
+    } else if (shouldAnimate) {
+      // First entry or explicit category change: GSAP burst, capped to center 50
+      burstIn(entranceWrappers.slice(0, 50));
+      if (entranceWrappers.length > 50) {
+        gsap.set(entranceWrappers.slice(50), { scale: 1, opacity: 1 });
+      }
+    }
 
   }, [
     map,
