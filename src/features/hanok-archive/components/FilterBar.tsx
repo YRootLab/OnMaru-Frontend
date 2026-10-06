@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, ChevronDownIcon, MapIcon, RotateCcwIcon, Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, ChevronDownIcon, RotateCcwIcon, Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons'
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
