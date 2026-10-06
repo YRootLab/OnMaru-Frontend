@@ -61,18 +61,19 @@ describe('useAdminAuth login', () => {
 
   afterEach(cleanup);
 
-  it('returns success after login, refresh, and current-admin recovery all succeed', async () => {
+  it('uses the login access token for current-admin recovery without rotating refresh again', async () => {
     adminLogin.mockResolvedValue({ accessToken: 'login-access', user: adminUser });
-    adminRefresh.mockResolvedValue('refreshed-access');
     const { result } = renderHook(() => useAdminAuth());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
+    adminRefresh.mockClear();
 
     await act(async () => {
       await expect(result.current.login('admin@onmaru.kr', 'password')).resolves.toEqual({ ok: true });
     });
 
-    expect(adminRefresh).toHaveBeenCalled();
-    expect(adminGetMe).toHaveBeenCalled();
+    expect(setAccessToken).toHaveBeenCalledWith('login-access');
+    expect(adminRefresh).not.toHaveBeenCalled();
+    expect(adminGetMe).toHaveBeenCalledTimes(1);
     expect(result.current.user).toEqual(adminUser);
   });
 
@@ -109,9 +110,9 @@ describe('useAdminAuth login', () => {
     });
   });
 
-  it('classifies a post-login refresh failure as session recovery failure', async () => {
+  it('classifies a post-login current-admin failure as session recovery failure', async () => {
     adminLogin.mockResolvedValue({ accessToken: 'login-access', user: adminUser });
-    adminRefresh.mockRejectedValue(normalizeApiError(403, { code: 'CSRF_INVALID' }));
+    adminGetMe.mockRejectedValue(normalizeApiError(401, { code: 'AUTH_REQUIRED' }));
     const { result } = renderHook(() => useAdminAuth());
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 

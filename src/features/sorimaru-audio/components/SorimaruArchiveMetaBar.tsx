@@ -13,14 +13,9 @@ interface Props {
   totalCount?: number;
 }
 
-const labelFor = (keyword: string) => {
-  if (!keyword || keyword === '전체') return '전체 이야기';
-  const category = SORIMARU_THEME_CATEGORIES.find((item) => item.keyword === keyword);
-  if (keyword === '마을') return '전통마을';
-  if (keyword === '시장') return '전통시장';
-  if (keyword === '궁') return '궁궐/역사';
-  if (keyword === '길') return '자연/둘레길';
-  return category?.label || keyword;
+const labelFor = (apiCategory: string) => {
+  if (!apiCategory || apiCategory === '전체') return '전체 이야기';
+  return SORIMARU_THEME_CATEGORIES.find((item) => item.apiCategory === apiCategory)?.label ?? apiCategory;
 };
 
 const BarWrapper = styled.div`

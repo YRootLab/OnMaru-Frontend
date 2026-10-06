@@ -89,7 +89,6 @@ export function useAdminAuth() {
         setUser(loggedInUser);
         return { ok: true };
       }
-      await adminRefresh();
       const currentAdmin = await adminGetMe();
       setUser(currentAdmin);
       return { ok: true };

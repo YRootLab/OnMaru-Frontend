@@ -54,15 +54,19 @@
 
 ## Work tracking
 
-- GitHub Issues are the Source of Truth for triaged, actionable work.
+- GitHub Issues are the Source of Truth for work that needs independent triage, prioritization, acceptance tracking, cross-PR coordination, or deferred follow-up.
 - Keep `project-roadmap.md` limited to long-term Vision and milestone-level goals.
 - When the user raises an ad hoc request, record it immediately in `handoff.md` if it affects current-session continuity, or in `improvements.md` if it is an untriaged follow-up idea. Issue creation is not required at capture time.
-- During triage, keep a local note, link it to an existing Issue, promote it to a new Issue, or remove it only when completion is verified.
+- During triage, keep a local note, link it to an existing Issue, promote it to a new Issue only when independent tracking is useful, or remove it only when completion is verified.
 - Immediately before creating a Pull Request, invoke `cleaning-work-logs` and reconcile the branch, work logs, related Issues, and PR description.
+- During that pre-PR reconciliation, inspect every related Issue. If its acceptance criteria are already satisfied by previously merged and verified work, leave a completion comment and close it before opening the new PR; link it with `Refs #...` rather than an auto-close keyword. Do not keep an already completed Issue open merely for PR linkage.
+- If the new PR itself is required to satisfy any acceptance criterion, keep the Issue open until that PR is merged and verified. Never report unfinished or unmerged work as complete just to avoid post-merge reconciliation.
 - Immediately before merge, invoke `cleaning-work-logs` again because PR and Issue state may have changed during review.
-- Every PR must reference its related Issue. Use an auto-close keyword only when that PR's merge target should actually close the Issue.
+- When a related Issue already exists, reference it in the PR. Do not create an Issue solely to satisfy PR linkage when the authorized work is fully described and reviewable in the PR.
+- Use an auto-close keyword only when that PR's merge target should actually close an existing Issue.
 - Before closing an Issue, verify its acceptance criteria and merge state.
 - Immediately after a PR is merged, inspect every referenced Issue and reconcile its state. A PR merged into the integration branch (`develop`) may not trigger GitHub auto-close keywords because it is not the default branch.
+- Treat Issue reconciliation as the responsibility of the agent or person coordinating the merge, even when the user performs the GitHub merge action. Before handing a PR to the user for merge, state which Issues must be checked and closed afterward.
 - If the merged PR satisfies an Issue's acceptance criteria, leave a completion comment that links the merged PR and close the Issue manually when GitHub did not close it. Do not leave completed Issues open merely because the PR targeted `develop`; keep an Issue open only when verified acceptance criteria or an explicitly tracked production-release step remains.
 
 ## Git Flow branch policy

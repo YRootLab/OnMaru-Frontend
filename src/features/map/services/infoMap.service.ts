@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api/client';
+import { normalizeInfoCategory } from '@/features/map/domain/infoCategory';
 import type {
   InfoPlacePage,
   ViewportItem,
@@ -51,7 +52,7 @@ function parseMapViewportResponse(value: unknown): MapViewportResponse {
 
 export async function listInfoPlaces(input: ListInfoPlacesInput): Promise<InfoPlacePage> {
   const params: Record<string, string> = {
-    category: input.category.toUpperCase(),
+    category: normalizeInfoCategory(input.category).toUpperCase(),
     limit: String(input.limit ?? 30),
   };
   if (input.regionCode) params.regionCode = input.regionCode;
@@ -79,7 +80,7 @@ export async function loadMapViewport(
   const queryParams: Record<string, string> = {
     bbox,
     zoomLevel: String(zoomLevel),
-    category: category.toUpperCase(),
+    category: normalizeInfoCategory(category).toUpperCase(),
     limit: '60',
   };
   if (regionCode) queryParams.regionCode = regionCode;

@@ -10,6 +10,7 @@ import ModeToggle from './ModeToggle';
 import InfoPlaceList from './InfoPlaceList';
 import SearchBar from './SearchBar';
 import WarmthFeed from '@/private/core-ui/map-warmth/WarmthFeed';
+import { useInfoListScrollRestoration } from '@/features/map/presentation/useInfoListScrollRestoration';
 
 const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;
@@ -159,6 +160,7 @@ export default function ListPanel() {
   const panelOpen = useMapStore((s) => s.panelOpen);
   const togglePanel = useMapStore((s) => s.togglePanel);
   const mode = useMapStore((s) => s.mode);
+  const infoScrollBinding = useInfoListScrollRestoration('desktop');
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -177,7 +179,7 @@ export default function ListPanel() {
         </HeaderArea>
 
         {}
-        <ListArea>
+        <ListArea {...infoScrollBinding}>
           {mode === 'warmth' ? (
             <WarmthFeed />
           ) : (

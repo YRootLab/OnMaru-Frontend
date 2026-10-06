@@ -7,9 +7,9 @@ import { useSearchParams } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
 import { StoryCarousel } from './StoryCarousel';
-import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
 import { SorimaruArchiveMetaBar } from './SorimaruArchiveMetaBar';
+import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruPagination } from './SorimaruPagination';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { SorimaruAutoSliceRail } from '@/private/core-ui/sorimaru/SorimaruAutoSliceRail';
@@ -21,12 +21,11 @@ import type { SorimaruBackgroundVariant } from '@/features/sorimaru-audio/backgr
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import SharedSectionHeading from '@/shared/components/SectionHeading';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { SORIMARU_REGION_CHIPS } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
 import type { SorimaruStoryPage, SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { SorimaruDependencyProvider, useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
 import { findNearbySorimaruStories, loadedEditorialRailStories, type SorimaruSelectionIntent } from './sorimaruInitialLoad';
-import { catalogCategoryForSelection, useSorimaruCatalog } from '@/features/sorimaru-audio/hooks/useSorimaruCatalog';
+import { useSorimaruCatalog } from '@/features/sorimaru-audio/hooks/useSorimaruCatalog';
 import { useSorimaruDetailSelection } from '@/features/sorimaru-audio/hooks/useSorimaruDetailSelection';
 import { useSorimaruRegionStories } from '@/features/sorimaru-audio/presentation/hooks/useSorimaruRegionStories';
 import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
@@ -304,7 +303,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   initialPage,
   initialNearbyStories,
   initialHeroStorySets,
-  regionCode,
   onLocationChange,
   backgroundVariant,
 }) => {
@@ -324,10 +322,8 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
   const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
   const hydrateSavedStories = useSorimaruAudioStore((s) => s.hydrateSavedStories);
-  const regionName = SORIMARU_REGION_CHIPS.find((name) => name === selectedCategory);
-  const categoryScope = catalogCategoryForSelection(selectedCategory);
   const { catalog, initialData, initialError, initialLoading, currentPage, goToPage, retry } = useSorimaruCatalog(
-    activeApiService, categoryScope, regionCode, initialPage, regionName,
+    activeApiService, selectedCategory, undefined, initialPage,
   );
   const selectFromIntent = useSorimaruDetailSelection(activeApiService);
   const [nearbyOverride, setNearbyOverride] = useState<SorimaruStorySummary[] | null>(null);
@@ -370,8 +366,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const apiError = initialError || catalog.error || selectionError
     ? '소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
     : null;
-  const lastPage = catalog.pages.at(-1);
-  const totalArchivePages = catalog.pages.length + (lastPage?.hasMore && lastPage.nextCursor ? 1 : 0);
+  const totalArchivePages = Math.ceil((currentCatalogPage?.totalCount ?? 0) / 20);
   const handleRailStorySelection = useCallback((summary: SorimaruStorySummary, intent: 'play') => {
     pendingRailSelectionRef.current = summary;
     void selectAndLoadStory(summary, intent, activeApiService)
@@ -589,6 +584,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   <div>
                     <CategoryTagFilter />
                   </div>
+
                   <div>
                     <SorimaruArchiveMetaBar
                       resultCount={storyList.length}

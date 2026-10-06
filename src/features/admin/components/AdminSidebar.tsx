@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { palette, meok } from '@/design-system/tokens';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
+import { useAdminNavigationCounts } from '@/features/admin/hooks/useAdminNavigationCounts';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, ArrowLeftRightIcon, DashboardCircleIcon, Database01Icon, FlameIcon, Logout01Icon, MagicWand01Icon, UsersIcon } from '@hugeicons/core-free-icons'
 
@@ -27,6 +28,7 @@ interface NavItem {
 export const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
   const { user, role, isAdmin, logout } = useAdminAuth();
+  const { newReviews, pendingReports } = useAdminNavigationCounts();
 
   const navItems: NavItem[] = [
     {
@@ -38,13 +40,13 @@ export const AdminSidebar: React.FC = () => {
       label: '온기 관리',
       href: '/admin/reviews',
       icon: <HugeiconsIcon icon={FlameIcon} size={18} strokeWidth={1.75} />,
-      badge: { count: 8, label: '신규' },
+      badge: { count: newReviews, label: '신규' },
     },
     {
       label: '신고 처리',
       href: '/admin/reports',
       icon: <HugeiconsIcon icon={AlertCircleIcon} size={18} strokeWidth={1.75} />,
-      badge: { count: 3, urgent: true, label: '대기' },
+      badge: { count: pendingReports, urgent: true, label: '대기' },
     },
     {
       label: '큐레이션',

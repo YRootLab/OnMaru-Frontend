@@ -187,7 +187,7 @@ export function useInfoMapData(enabled = true) {
       loadMapViewport({
         bbox: committedBbox,
         zoomLevel: committedViewport.level,
-        category: infoCategory.toUpperCase(),
+        category: infoCategory,
         ...(infoRegionCode ? { regionCode: infoRegionCode } : {}),
         signal: ctrl.signal,
       })

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
 import type { SorimaruStoryPage, SorimaruStorySummary } from '../domain/sorimaruStory';
-import { SorimaruRegionMappingError, catalogCategoryForSelection, createSorimaruCatalogController } from './useSorimaruCatalog';
+import { SorimaruRegionMappingError, createSorimaruCatalogController } from './useSorimaruCatalog';
 
 const story = (storyId: string): SorimaruStorySummary => ({
   storyId, title: storyId, audioTitle: storyId, category: '한옥',
@@ -24,9 +24,31 @@ const deferred = <T>() => {
 };
 
 describe('Sorimaru catalog controller', () => {
-  it('does not send a region display name as a category', () => {
-    expect(catalogCategoryForSelection('경주')).toBe('전체');
-    expect(catalogCategoryForSelection('한옥')).toBe('한옥');
+  it('omits category and regionCode for the all-view request', async () => {
+    const listStories = vi.fn().mockResolvedValue(page('all'));
+    const catalog = createSorimaruCatalogController(repository(listStories));
+
+    await catalog.loadInitial();
+
+    expect(listStories).toHaveBeenCalledExactlyOnceWith({ language: 'ko-KR', limit: 20 });
+  });
+
+  it('keeps the fixed theme code when requesting the next cursor page', async () => {
+    const listStories = vi.fn()
+      .mockResolvedValueOnce(page('hanok', 'theme-cursor'))
+      .mockResolvedValueOnce(page('hanok-next'));
+    const catalog = createSorimaruCatalogController(repository(listStories), page('initial'));
+    await catalog.loadInitial();
+
+    await catalog.setScope('HANOK_HERITAGE');
+    await catalog.goToPage(2);
+
+    expect(listStories).toHaveBeenNthCalledWith(1, {
+      language: 'ko-KR', limit: 20, category: 'HANOK_HERITAGE',
+    });
+    expect(listStories).toHaveBeenNthCalledWith(2, {
+      language: 'ko-KR', limit: 20, category: 'HANOK_HERITAGE', cursor: 'theme-cursor',
+    });
   });
 
   it('resolves an exact backend region label and requests its canonical code', async () => {
@@ -95,7 +117,7 @@ describe('Sorimaru catalog controller', () => {
     const catalog = createSorimaruCatalogController(repository(listStories));
 
     await catalog.loadInitial();
-    await catalog.setScope('한옥');
+    await catalog.setScope('HANOK_HERITAGE');
     expect(catalog.getSnapshot().catalog.status).toBe('success');
     expect(catalog.getSnapshot().initialError).toBe(initialError);
 
@@ -130,7 +152,7 @@ describe('Sorimaru catalog controller', () => {
     const catalog = createSorimaruCatalogController(repository(listStories));
 
     const loading = catalog.loadInitial();
-    await catalog.setScope('한옥');
+    await catalog.setScope('HANOK_HERITAGE');
     initial.resolve(page('initial'));
     await loading;
 
@@ -147,15 +169,15 @@ describe('Sorimaru catalog controller', () => {
     const catalog = createSorimaruCatalogController(repository(listStories), page('initial'));
 
     await catalog.loadInitial();
-    const first = catalog.setScope('한옥');
-    const second = catalog.setScope('시장');
+    const first = catalog.setScope('HANOK_HERITAGE');
+    const second = catalog.setScope('TRADITIONAL_MARKET');
     newScope.resolve(page('market'));
     await second;
     oldScope.resolve(page('hanok'));
     await first;
 
-    expect(listStories).toHaveBeenNthCalledWith(1, { language: 'ko-KR', limit: 20, category: '한옥' });
-    expect(listStories).toHaveBeenNthCalledWith(2, { language: 'ko-KR', limit: 20, category: '시장' });
+    expect(listStories).toHaveBeenNthCalledWith(1, { language: 'ko-KR', limit: 20, category: 'HANOK_HERITAGE' });
+    expect(listStories).toHaveBeenNthCalledWith(2, { language: 'ko-KR', limit: 20, category: 'TRADITIONAL_MARKET' });
     expect(catalog.getSnapshot().catalog.pages[0].items[0].storyId).toBe('market');
     expect(catalog.getSnapshot().catalog.error).toBeNull();
   });
@@ -167,7 +189,7 @@ describe('Sorimaru catalog controller', () => {
     await catalog.loadInitial();
 
     const cursorLoading = catalog.goToPage(2);
-    await catalog.setScope('시장');
+    await catalog.setScope('TRADITIONAL_MARKET');
     oldCursor.resolve(page('stale'));
     await cursorLoading;
 
@@ -190,7 +212,7 @@ describe('Sorimaru catalog controller', () => {
     expect(catalog.getSnapshot().catalog).toMatchObject({ status: 'success', error: null });
     expect(catalog.getSnapshot().catalog.pages[0].items[0].storyId).toBe('recovered');
 
-    await catalog.setScope('한옥');
+    await catalog.setScope('HANOK_HERITAGE');
     expect(catalog.getSnapshot().catalog.status).toBe('error');
     await catalog.setScope('전체');
     expect(catalog.getSnapshot().catalog).toMatchObject({ status: 'success', error: null });

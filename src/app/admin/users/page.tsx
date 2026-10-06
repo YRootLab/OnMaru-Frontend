@@ -8,6 +8,7 @@ import React, { useState, useMemo } from 'react';
 import { meok, palette } from '@/design-system/tokens';
 import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
 import { StatusBadge } from '@/features/admin/components/StatusBadge';
+import { AdminSelect } from '@/features/admin/components/AdminSelect';
 import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
 import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
@@ -449,71 +450,41 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Role Filter */}
-        <select
+        <AdminSelect
           value={roleFilter}
           onChange={(e) => {
             setRoleFilter(e.target.value as 'ALL' | AdminRole);
-          }}
-          style={{
-            height: '38px',
-            padding: '0 12px',
-            borderRadius: '8px',
-            border: '1px solid rgba(78, 89, 104, 0.18)',
-            fontSize: '13px',
-            color: meok[700],
-            backgroundColor: '#FFFFFF',
-            outline: 'none',
           }}
         >
           <option value="ALL">전체 역할</option>
           <option value="ADMIN">ADMIN (관리자)</option>
           <option value="EDITOR">EDITOR (에디터)</option>
           <option value="USER">USER (일반)</option>
-        </select>
+        </AdminSelect>
 
         {/* Status Filter (Server Filter) */}
-        <select
+        <AdminSelect
           value={statusFilter}
           onChange={(e) => {
             setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'DELETING');
-          }}
-          style={{
-            height: '38px',
-            padding: '0 12px',
-            borderRadius: '8px',
-            border: '1px solid rgba(78, 89, 104, 0.18)',
-            fontSize: '13px',
-            color: meok[700],
-            backgroundColor: '#FFFFFF',
-            outline: 'none',
           }}
         >
           <option value="ALL">전체 상태</option>
           <option value="ACTIVE">정상 (ACTIVE)</option>
           <option value="DELETING">탈퇴 진행 (DELETING)</option>
-        </select>
+        </AdminSelect>
 
         {/* Sort Filter */}
-        <select
+        <AdminSelect
           value={sortBy}
           onChange={(e) => {
             setSortBy(e.target.value as 'latest' | 'reviews' | 'reports');
-          }}
-          style={{
-            height: '38px',
-            padding: '0 12px',
-            borderRadius: '8px',
-            border: '1px solid rgba(78, 89, 104, 0.18)',
-            fontSize: '13px',
-            color: meok[700],
-            backgroundColor: '#FFFFFF',
-            outline: 'none',
           }}
         >
           <option value="latest">최신 가입순</option>
           <option value="reviews">온기 작성순</option>
           <option value="reports">신고 누적순</option>
-        </select>
+        </AdminSelect>
 
         <button
           type="button"

@@ -30,6 +30,18 @@ export const MODE_COLOR: Record<MapMode, string> = {
   warmth: palette.hwanggeum[500],
 };
 
+export type InfoListSurface = 'desktop' | 'mobile';
+
+export interface InfoHomeSnapshot {
+  viewport: ViewportSnapshot;
+  listScrollTops: Record<InfoListSurface, number>;
+}
+
+interface InfoListRestoreRequest {
+  id: number;
+  scrollTops: Record<InfoListSurface, number>;
+}
+
 interface MapState {
 
   map: KakaoMap | null;
@@ -88,6 +100,9 @@ interface MapState {
   isListLoading: boolean;
   listError: string | null;
   infoListReloadNonce: number;
+  infoListScrollTops: Record<InfoListSurface, number>;
+  infoHomeSnapshot: InfoHomeSnapshot | null;
+  infoListRestoreRequest: InfoListRestoreRequest | null;
 
   // ── Info viewport state ──────────────────────────────────────────────────
   viewportItems: ViewportItem[];
@@ -105,6 +120,9 @@ interface MapState {
   setIsListLoading: (loading: boolean) => void;
   setListError: (error: string | null) => void;
   retryInfoList: () => void;
+  setInfoListScrollTop: (surface: InfoListSurface, scrollTop: number) => void;
+  captureInfoHomeSnapshot: () => void;
+  consumeInfoHomeSnapshot: () => InfoHomeSnapshot | null;
   setViewportResponse: (res: MapViewportResponse) => void;
   setIsViewportLoading: (loading: boolean) => void;
   setViewportError: (error: string | null) => void;
@@ -149,7 +167,7 @@ interface MapState {
 
 export const useMapStore = create<MapState>((set, get) => ({
   // ── Info list ──────────────────────────────────────────────────────────────
-  infoCategory: 'all',
+  infoCategory: 'hanok',
   infoRegionCode: null,
   infoRegionName: null,
   listItems: [],
@@ -159,6 +177,9 @@ export const useMapStore = create<MapState>((set, get) => ({
   isListLoading: false,
   listError: null,
   infoListReloadNonce: 0,
+  infoListScrollTops: { desktop: 0, mobile: 0 },
+  infoHomeSnapshot: null,
+  infoListRestoreRequest: null,
 
   // ── Info viewport ──────────────────────────────────────────────────────────
   viewportItems: [],
@@ -179,6 +200,11 @@ export const useMapStore = create<MapState>((set, get) => ({
       listNextCursor: null,
       listSnapshotId: null,
       listError: null,
+      viewportItems: [],
+      viewportRenderMode: null,
+      viewportSnapshotId: null,
+      servedBbox: null,
+      viewportError: null,
     }),
   setInfoRegionCode: (infoRegionCode, infoRegionName = null) =>
     set({
@@ -208,6 +234,47 @@ export const useMapStore = create<MapState>((set, get) => ({
     listError: null,
     infoListReloadNonce: state.infoListReloadNonce + 1,
   })),
+  setInfoListScrollTop: (surface, scrollTop) => set((state) => ({
+    infoListScrollTops: {
+      ...state.infoListScrollTops,
+      [surface]: Math.max(0, scrollTop),
+    },
+  })),
+  captureInfoHomeSnapshot: () => set((state) => {
+    if (
+      state.infoHomeSnapshot
+      || state.infoCategory !== 'hanok'
+      || state.infoRegionCode !== null
+    ) {
+      return state;
+    }
+
+    return {
+      infoHomeSnapshot: {
+        viewport: {
+          ...state.committedViewport,
+          center: { ...state.committedViewport.center },
+        },
+        listScrollTops: { ...state.infoListScrollTops },
+      },
+    };
+  }),
+  consumeInfoHomeSnapshot: () => {
+    let consumed: InfoHomeSnapshot | null = null;
+    set((state) => {
+      consumed = state.infoHomeSnapshot;
+      if (!consumed) return state;
+
+      return {
+        infoHomeSnapshot: null,
+        infoListRestoreRequest: {
+          id: (state.infoListRestoreRequest?.id ?? 0) + 1,
+          scrollTops: { ...consumed.listScrollTops },
+        },
+      };
+    });
+    return consumed;
+  },
   setViewportResponse: (res) =>
     set({
       viewportItems: res.items,
@@ -262,8 +329,23 @@ export const useMapStore = create<MapState>((set, get) => ({
   setMap: (map) => set({ map }),
 
   setMode: (mode) =>
-    set({
+    set((state) => ({
       mode,
+      ...(mode === 'info' && state.mode !== 'info' ? {
+        infoCategory: 'hanok' as const,
+        infoRegionCode: null,
+        infoRegionName: null,
+        listItems: [],
+        listTotalCount: 0,
+        listNextCursor: null,
+        listSnapshotId: null,
+        listError: null,
+        viewportItems: [],
+        viewportRenderMode: null,
+        viewportSnapshotId: null,
+        servedBbox: null,
+        viewportError: null,
+      } : {}),
       category: null,
       selectedId: null,
       hoveredId: null,
@@ -271,7 +353,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       selectedHeatSpot: null,
       popularPanelOpen: false,
       fromPopularRanking: false,
-    }),
+    })),
   setCategory: (category) =>
     set({
       category,
