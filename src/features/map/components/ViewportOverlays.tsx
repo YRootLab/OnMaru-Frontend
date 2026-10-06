@@ -73,7 +73,6 @@ export default function ViewportOverlays() {
   const infoCategory = useMapStore((s) => s.infoCategory);
   const isViewportLoading = useMapStore((s) => s.isViewportLoading);
   const viewportError = useMapStore((s) => s.viewportError);
-  const level = useMapStore((s) => s.committedViewport.level);
   const retryInfoViewport = useMapStore((s) => s.retryInfoViewport);
   const showLoadingNotice = useDelayedLoadingVisibility(isViewportLoading, 2_000);
 
@@ -92,9 +91,9 @@ export default function ViewportOverlays() {
 
     const seenKeys = new Map<string, number>();
     const keyed = displayed.map((item) => {
-      const cellSize = level <= 6 ? 0.05 : level === 7 ? 0.1 : 0.5;
+      const cellSize = viewportRenderMode === 'CLUSTER' ? 0.1 : 0.5;
       const spatialKey = `${Math.floor(item.center.lng / cellSize)}:${Math.floor(item.center.lat / cellSize)}`;
-      const base = `${level}:${item.type}:${item.placeId ?? item.clusterId ?? item.regionCode ?? `${item.name}:${spatialKey}`}`;
+      const base = `${viewportRenderMode}:${item.type}:${item.placeId ?? item.clusterId ?? item.regionCode ?? `${item.name}:${spatialKey}`}`;
       const occurrence = seenKeys.get(base) ?? 0;
       seenKeys.set(base, occurrence + 1);
       return { item, key: `${base}:${occurrence}` };
@@ -155,7 +154,7 @@ export default function ViewportOverlays() {
       overlay.setMap(map);
       overlaysRef.current.set(key, { overlay, el, map, signature });
     });
-  }, [map, mode, viewportItems, viewportRenderMode, infoCategory, level]);
+  }, [map, mode, viewportItems, viewportRenderMode, infoCategory]);
 
   useEffect(() => () => {
     overlaysRef.current.forEach((record) => record.overlay.setMap(null));

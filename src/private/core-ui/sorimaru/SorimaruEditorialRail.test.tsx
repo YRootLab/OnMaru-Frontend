@@ -195,4 +195,21 @@ describe('Sorimaru editorial rail', () => {
     fireEvent.click(screen.getByRole('button', { name: '이전 이야기' }));
     expect(screen.getByRole('button', { name: '한옥 이야기 2 현재 선택됨' })).toBeTruthy();
   });
+
+  it('pauses autoplay outside the viewport and resumes it when visible again', () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('IntersectionObserver', NearbyObserver);
+    const view = render(
+      <SorimaruEditorialRail stories={stories} isActive={false} onSelectStory={vi.fn()} />,
+    );
+
+    act(() => { vi.advanceTimersByTime(14000); });
+    expect(screen.getByRole('button', { name: '한옥 이야기 1 현재 선택됨' })).toBeTruthy();
+
+    view.rerender(
+      <SorimaruEditorialRail stories={stories} isActive onSelectStory={vi.fn()} />,
+    );
+    act(() => { vi.advanceTimersByTime(7000); });
+    expect(screen.getByRole('button', { name: '한옥 이야기 2 현재 선택됨' })).toBeTruthy();
+  });
 });

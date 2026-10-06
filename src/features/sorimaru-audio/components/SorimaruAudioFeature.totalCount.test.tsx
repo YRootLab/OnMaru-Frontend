@@ -8,6 +8,9 @@ import type { SorimaruStoryPage } from '../domain/sorimaruStory';
 import { useSorimaruAudioStore } from '../store/useSorimaruAudioStore';
 import { SorimaruAudioFeature } from './SorimaruAudioFeature';
 
+const archiveBrowseProps = vi.hoisted(() => vi.fn());
+const editorialRailProps = vi.hoisted(() => vi.fn());
+
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
@@ -17,11 +20,21 @@ vi.mock('@/shared/hooks/useViewportActivation', () => ({
 }));
 
 vi.mock('./StoryCarousel', () => ({ StoryCarousel: () => null }));
-vi.mock('./SorimaruArchiveBrowse', () => ({ SorimaruArchiveBrowse: () => null }));
+vi.mock('./SorimaruArchiveBrowse', () => ({
+  SorimaruArchiveBrowse: (props: { isLoading: boolean }) => {
+    archiveBrowseProps(props);
+    return <div data-testid="archive-loading-state">{props.isLoading ? 'loading' : 'loaded'}</div>;
+  },
+}));
 vi.mock('./SavedSoundDrawer', () => ({ SavedSoundDrawer: () => null }));
 vi.mock('./SorimaruAtmosphereBackground', () => ({ SorimaruAtmosphereBackground: () => null }));
 vi.mock('@/private/core-ui/sorimaru/SorimaruAutoSliceRail', () => ({ SorimaruAutoSliceRail: () => null }));
-vi.mock('@/private/core-ui/sorimaru/SorimaruEditorialRail', () => ({ SorimaruEditorialRail: () => null }));
+vi.mock('@/private/core-ui/sorimaru/SorimaruEditorialRail', () => ({
+  SorimaruEditorialRail: (props: { stories: SorimaruStoryPage['items']; isActive?: boolean }) => {
+    editorialRailProps(props);
+    return null;
+  },
+}));
 vi.mock('@/private/core-ui/sorimaru/SoundConstellationSection', () => ({ SoundConstellationSection: () => null }));
 vi.mock('@/private/core-ui/sorimaru/LocalMiniPlayer', () => ({ LocalMiniPlayer: () => null }));
 vi.mock('@/shared/components/animation/VesselReveal', () => ({
@@ -67,6 +80,45 @@ const repository = (pages: SorimaruStoryPage[] = []): SorimaruRepository => ({
 });
 
 describe('SorimaruAudioFeature archive count', () => {
+  it('replaces the current archive cards with skeletons while the next page is loading', async () => {
+    let resolveNextPage!: (page: SorimaruStoryPage) => void;
+    const nextPagePromise = new Promise<SorimaruStoryPage>((resolve) => {
+      resolveNextPage = resolve;
+    });
+    const api = repository();
+    vi.mocked(api.listStories).mockReset().mockReturnValue(nextPagePromise);
+
+    render(<SorimaruAudioFeature apiService={api} initialPage={initialPage} />);
+    expect((await screen.findByTestId('archive-loading-state')).textContent).toBe('loaded');
+
+    fireEvent.click(screen.getByRole('button', { name: '다음 페이지' }));
+    expect(screen.getByTestId('archive-loading-state').textContent).toBe('loading');
+
+    await act(async () => {
+      resolveNextPage({ ...initialPage, items: [{ ...initialPage.items[0], storyId: 'story-2' }], nextCursor: null, hasMore: false });
+      await nextPagePromise;
+    });
+
+    expect(screen.getByTestId('archive-loading-state').textContent).toBe('loaded');
+  });
+
+  it('keeps the editorial rail on its initial recommendations when archive pages are appended', async () => {
+    const nextPage: SorimaruStoryPage = {
+      ...initialPage,
+      items: [{ ...initialPage.items[0], storyId: 'story-2', title: '두 번째 페이지 이야기' }],
+      nextCursor: null,
+      hasMore: false,
+    };
+    const api = repository([nextPage]);
+
+    render(<SorimaruAudioFeature apiService={api} initialPage={initialPage} />);
+    fireEvent.click(screen.getByRole('button', { name: '다음 페이지' }));
+    await screen.findByText('2 / 1184');
+
+    const latestProps = editorialRailProps.mock.calls.at(-1)?.[0];
+    expect(latestProps.stories.map((story: SorimaruStoryPage['items'][number]) => story.storyId)).toEqual(['story-1']);
+  });
+
   it('shows the filtered backend total instead of the current page length', async () => {
     render(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
 

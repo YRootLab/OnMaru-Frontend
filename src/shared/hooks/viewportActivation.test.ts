@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   createViewportActivation,
+  observeViewportPresence,
   observeViewportOnce,
   type ViewportObserverFactory,
 } from './viewportActivation';
@@ -41,5 +42,29 @@ describe('viewport activation', () => {
 
     expect(onActivate).toHaveBeenCalledTimes(1);
     expect(() => cleanup()).not.toThrow();
+  });
+
+  it('reports viewport exit and re-entry without disconnecting early', () => {
+    let callback: IntersectionObserverCallback | undefined;
+    const disconnect = vi.fn();
+    const element = {} as Element;
+    const onChange = vi.fn();
+
+    const cleanup = observeViewportPresence(element, onChange, {
+      observerFactory: (nextCallback) => {
+        callback = nextCallback;
+        return { observe: vi.fn(), disconnect };
+      },
+    });
+
+    callback?.([{ target: element, isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
+    callback?.([{ target: element, isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver);
+    callback?.([{ target: element, isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
+
+    expect(onChange.mock.calls.map(([value]) => value)).toEqual([true, false, true]);
+    expect(disconnect).not.toHaveBeenCalled();
+
+    cleanup();
+    expect(disconnect).toHaveBeenCalledOnce();
   });
 });

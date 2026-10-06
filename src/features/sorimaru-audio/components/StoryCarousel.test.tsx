@@ -50,6 +50,13 @@ beforeAll(() => {
 afterEach(cleanup);
 
 describe('StoryCarousel typography', () => {
+  it('always renders white edge fades independently from initial rail measurement', () => {
+    render(<StoryCarousel stories={[story]} />);
+
+    expect(screen.getByTestId('nearby-rail-leading-fade')).toBeTruthy();
+    expect(screen.getByTestId('nearby-rail-trailing-fade')).toBeTruthy();
+  });
+
   it('reserves a readable two-line title inside the nearby card', () => {
     render(<StoryCarousel stories={[story]} />);
 

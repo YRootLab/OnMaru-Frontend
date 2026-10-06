@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { selectInfoMarkerItems } from './infoMarker.service';
+import { getInfoPlaceMarkerPresentation, selectInfoMarkerItems } from './infoMarker.service';
 import type { ViewportItem } from '../types';
 
 const placeItem: ViewportItem = {
@@ -35,4 +35,17 @@ describe('selectInfoMarkerItems', () => {
       expect.objectContaining({ id: 'canonical-1', name: '한옥 장소', lat: 37.5, lng: 127 }),
     ]);
   });
+});
+
+describe('getInfoPlaceMarkerPresentation', () => {
+  it('keeps PLACE responses as complete markers without a compact icon-only state', () => {
+    expect(getInfoPlaceMarkerPresentation('PLACE')).toBe('full');
+  });
+
+  it.each(['CLUSTER', 'DISTRICT', 'REGION', null] as const)(
+    'hides place markers after the %s response replaces them',
+    (renderMode) => {
+      expect(getInfoPlaceMarkerPresentation(renderMode)).toBe('hidden');
+    },
+  );
 });

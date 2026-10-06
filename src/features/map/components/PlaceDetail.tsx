@@ -157,7 +157,7 @@ export default function PlaceDetail() {
     const list: string[] = [];
     if (data?.images && data.images.length > 0) list.push(...data.images);
     if (selectedItem?.image && !list.includes(selectedItem.image)) {
-      list.unshift(selectedItem.image);
+      list.push(selectedItem.image);
     }
     return list
       .map((src) => (src.startsWith('http://') ? src.replace('http://', 'https://') : src))
@@ -406,9 +406,11 @@ export default function PlaceDetail() {
         ) : (
           <>
             <PlaceDetailCarousel
+              key={`${detailId}:${images.join('|')}`}
               images={images}
               title={title}
               category={selectedItem?.category}
+              loading={loading}
             />
 
             <TitleSection>

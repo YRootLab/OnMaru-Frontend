@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import { OnmaruThemeProvider, useOnmaruTheme } from '@/design-system/ThemeProvider'
 import { EmotionRegistry } from '@/design-system/EmotionRegistry'
 import { useAuthReturn } from '@/features/auth/hooks/useAuthReturn'
+import RouteScrollManager from '@/shared/navigation/RouteScrollManager'
 
 function ThemedToaster() {
   const { mode } = useOnmaruTheme()
@@ -27,6 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <Suspense fallback={null}>
           <AuthReturnHandler />
         </Suspense>
+        <RouteScrollManager />
         {children}
         <ThemedToaster />
       </OnmaruThemeProvider>
