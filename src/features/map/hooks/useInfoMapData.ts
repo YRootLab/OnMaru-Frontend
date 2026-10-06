@@ -8,7 +8,8 @@ import { mergePlaceViewportItems } from '../application/mergePlaceViewportItems'
 import { resolveViewportRenderMode } from '@/features/map/domain/viewportRenderMode';
 import type { KakaoMap, ViewportItem, ViewportItemBounds } from '@/features/map/types';
 
-const VIEWPORT_DEBOUNCE_MS = 100;
+// ponytail: removed second debounce layer; idle settle in useKakaoMap (~150ms) is the single gate
+const VIEWPORT_DEBOUNCE_MS = 0;
 const BBOX_EXPAND_RATIO = 0.25;
 const BBOX_EDGE_THRESHOLD = 0.20;
 

@@ -756,6 +756,42 @@ function burstIn(wrappers: HTMLDivElement[]): void {
 
 type OverlayRecord = { overlay: any; el: HTMLElement; map: any; markerKey: string };
 
+const OVERLAY_BUDGET_DESKTOP = 120;
+const OVERLAY_BUDGET_MOBILE = 80;
+const OVERLAY_HARD_CAP = 200;
+const CULL_OVERSCAN = 0.15;
+
+function cullToViewport(items: ReturnType<typeof selectInfoMarkerItems>, map: any): ReturnType<typeof selectInfoMarkerItems> {
+  const bounds = map.getBounds?.();
+  if (!bounds) return items;
+  const sw = bounds.getSouthWest();
+  const ne = bounds.getNorthEast();
+  const dLat = (ne.getLat() - sw.getLat()) * CULL_OVERSCAN;
+  const dLng = (ne.getLng() - sw.getLng()) * CULL_OVERSCAN;
+  const minLat = sw.getLat() - dLat;
+  const maxLat = ne.getLat() + dLat;
+  const minLng = sw.getLng() - dLng;
+  const maxLng = ne.getLng() + dLng;
+  return items.filter(
+    (item) => item.lat >= minLat && item.lat <= maxLat && item.lng >= minLng && item.lng <= maxLng,
+  );
+}
+
+function applyBudget(items: ReturnType<typeof selectInfoMarkerItems>, map: any): ReturnType<typeof selectInfoMarkerItems> {
+  const isMobile = typeof window !== 'undefined' && window.matchMedia?.('(max-width: 1023px)').matches;
+  const cap = Math.min(isMobile ? OVERLAY_BUDGET_MOBILE : OVERLAY_BUDGET_DESKTOP, OVERLAY_HARD_CAP);
+  if (items.length <= cap) return items;
+  const center = map.getCenter?.();
+  if (!center) return items.slice(0, cap);
+  const cLat = center.getLat();
+  const cLng = center.getLng();
+  return items
+    .map((item) => ({ item, d: (item.lat - cLat) ** 2 + (item.lng - cLng) ** 2 }))
+    .sort((a, b) => a.d - b.d)
+    .slice(0, cap)
+    .map(({ item }) => item);
+}
+
 export default function PlaceMarkers() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
@@ -768,9 +804,14 @@ export default function PlaceMarkers() {
   const detailId = useMapStore((s) => s.detailId);
   const userLocation = useMapStore((s) => s.userLocation);
   const searchCenter = useMapStore((s) => s.searchCenter);
-
+  const committedLat = useMapStore((s) => s.committedViewport.center.lat);
+  const committedLng = useMapStore((s) => s.committedViewport.center.lng);
+  const committedLevel = useMapStore((s) => s.committedViewport.level);
 
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
+  const prevHoveredIdRef = useRef<string | null>(null);
+  const prevSelectedIdRef = useRef<string | null>(null);
+  const prevDetailIdRef = useRef<string | null>(null);
   const markerEntranceStateRef = useRef<MarkerEntranceState>({
     hasRendered: false,
     category: infoCategory,
@@ -779,14 +820,18 @@ export default function PlaceMarkers() {
 
   useEffect(() => {
     const presentation = getInfoPlaceMarkerPresentation(viewportRenderMode);
-    const activeItems = presentation === 'full'
+    const allActiveItems = presentation === 'full'
       ? selectInfoMarkerItems(viewportRenderMode, viewportItems)
       : [];
-    if (!map || mode !== 'info' || activeItems.length === 0 || !window.kakao?.maps) {
+    if (!map || mode !== 'info' || allActiveItems.length === 0 || !window.kakao?.maps) {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
       overlayMapRef.current.clear();
       return;
     }
+
+    // Phase 1: cull to viewport + overscan, then enforce overlay budget
+    const culled = cullToViewport(allActiveItems, map);
+    const activeItems = applyBudget(culled, map);
 
     const entranceDecision = advanceMarkerEntranceState(markerEntranceStateRef.current, {
       category: infoCategory,
@@ -797,7 +842,6 @@ export default function PlaceMarkers() {
     });
     markerEntranceStateRef.current = entranceDecision.state;
     const shouldAnimate = entranceDecision.animate;
-    // Keep loaded coordinates mounted so Kakao moves them with the map during dragging.
     const targetItems = activeItems;
     const targetIds = new Set(targetItems.map((item) => item.id));
     overlayMapRef.current.forEach((record, id) => {
@@ -890,6 +934,10 @@ export default function PlaceMarkers() {
 
       el.dataset.category = item.category;
       el.dataset.pending = String(useMapStore.getState().isViewportLoading);
+      // Set initial selection state so the O(1) patch effect doesn't need to run on creation
+      el.dataset.selected = String(item.id === selectedId || item.id === detailId);
+      el.dataset.detail = String(item.id === detailId);
+      el.dataset.hovered = String(item.id === hoveredId);
 
 
 
@@ -968,11 +1016,12 @@ export default function PlaceMarkers() {
       const wrapper = wrapForEntrance(el, 'center bottom');
       entranceWrappers.push(wrapper);
 
+      const initZIndex = item.id === hoveredId ? 100 : item.id === detailId ? 35 : item.id === selectedId ? 30 : 1;
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(item.lat, item.lng),
         content: wrapper,
         yAnchor: 1.0,
-        zIndex: 1,
+        zIndex: initZIndex,
       });
       overlay.setMap(map);
       overlayMapRef.current.set(item.id, { overlay, el, map, markerKey });
@@ -988,6 +1037,12 @@ export default function PlaceMarkers() {
     infoCategory,
     userLocation,
     searchCenter,
+    committedLat,
+    committedLng,
+    committedLevel,
+    selectedId,
+    hoveredId,
+    detailId,
   ]);
 
   useEffect(() => () => {
@@ -1002,21 +1057,35 @@ export default function PlaceMarkers() {
   }, [isViewportLoading, viewportItems]);
 
 
+  // O(1) patch: only touch the 2-6 overlays whose state actually changed
   useEffect(() => {
-    if (overlayMapRef.current.size === 0) return;
+    const overlayMap = overlayMapRef.current;
+    if (overlayMap.size === 0) return;
 
-    overlayMapRef.current.forEach((val: OverlayRecord, id: string) => {
+    const affected = new Set<string>();
+    if (prevHoveredIdRef.current) affected.add(prevHoveredIdRef.current);
+    if (hoveredId) affected.add(hoveredId);
+    if (prevSelectedIdRef.current) affected.add(prevSelectedIdRef.current);
+    if (selectedId) affected.add(selectedId);
+    if (prevDetailIdRef.current) affected.add(prevDetailIdRef.current);
+    if (detailId) affected.add(detailId);
+
+    affected.forEach((id) => {
+      const rec = overlayMap.get(id);
+      if (!rec) return;
       const isDetail = id === detailId;
       const isSelected = id === selectedId || isDetail;
       const isHovered = id === hoveredId;
-      val.el.dataset.selected = String(isSelected);
-      val.el.dataset.detail = String(isDetail);
-      val.el.dataset.hovered = String(isHovered);
-
-      const zIndex = isHovered ? 100 : isDetail ? 35 : isSelected ? 30 : 1;
-      val.overlay.setZIndex(zIndex);
+      rec.el.dataset.selected = String(isSelected);
+      rec.el.dataset.detail = String(isDetail);
+      rec.el.dataset.hovered = String(isHovered);
+      rec.overlay.setZIndex(isHovered ? 100 : isDetail ? 35 : isSelected ? 30 : 1);
     });
-  }, [selectedId, hoveredId, detailId, viewportItems]);
+
+    prevHoveredIdRef.current = hoveredId;
+    prevSelectedIdRef.current = selectedId;
+    prevDetailIdRef.current = detailId;
+  }, [selectedId, hoveredId, detailId]);
 
   return <Global styles={styles} />;
 }
