@@ -1,24 +1,47 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronLeftIcon, ChevronRightIcon, LandmarkIcon, Home01Icon, UtensilsIcon, Coffee01Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
 import { meok , fontSize } from '@/design-system/tokens';
 import type { PlaceCategory } from '@/features/map/types';
 
-const ImageContainer = styled.div<{ $hasImages: boolean; $src: string | null }>`
+const ImageContainer = styled.div`
   position: relative;
   width: 100%;
-  aspect-ratio: ${({ $hasImages }) => ($hasImages ? '4 / 3' : '16 / 9')};
-  ${({ $src }) =>
-    $src
-      ? `background-image: url("${$src}"); background-size: cover; background-position: center;`
-      : 'background: #f0eae0;'}
+  aspect-ratio: 4 / 3;
+  background: #f5f5f4;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const shimmer = keyframes`
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+`;
+
+const ImageSkeleton = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  background: #e5e5e3;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    animation: ${shimmer} 1.4s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::after { animation: none; }
+  }
 `;
 
 const CarouselTrack = styled.div<{ $index: number }>`
@@ -36,11 +59,13 @@ const CarouselSlide = styled.div`
   height: 100%;
 `;
 
-const SlideImg = styled.img`
+const SlideImg = styled.img<{ $loaded: boolean }>`
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  opacity: ${({ $loaded }) => ($loaded ? 1 : 0)};
+  transition: opacity 0.18s ease;
 `;
 
 const CarouselNavBtn = styled.button<{ $pos: 'left' | 'right' }>`
@@ -146,32 +171,54 @@ interface PlaceDetailCarouselProps {
   images: string[];
   title: string;
   category?: PlaceCategory | string;
+  loading?: boolean;
 }
 
 export default function PlaceDetailCarousel({
   images,
   title,
   category,
+  loading = false,
 }: PlaceDetailCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(() => new Set());
+  const [failedImages, setFailedImages] = useState<Set<string>>(() => new Set());
 
+  const validImages = useMemo(
+    () => images.filter((img) => img && typeof img === 'string' && !failedImages.has(img)),
+    [failedImages, images],
+  );
+  const currentImage = validImages[currentSlide];
+  const currentImageLoaded = Boolean(currentImage && loadedImages.has(currentImage));
 
-  const validImages = images.filter((img) => img && typeof img === 'string');
+  useEffect(() => {
+    if (currentSlide < validImages.length) return;
+    setCurrentSlide(Math.max(0, validImages.length - 1));
+  }, [currentSlide, validImages.length]);
 
   return (
-    <ImageContainer
-      $hasImages={validImages.length > 0}
-      $src={validImages[currentSlide] ?? null}
-    >
-      {validImages.length > 0 ? (
+    <ImageContainer>
+      {loading ? (
+        <ImageSkeleton role="status" aria-label="장소 이미지 불러오는 중" />
+      ) : validImages.length > 0 ? (
         <>
           <CarouselTrack $index={currentSlide}>
             {validImages.map((src, idx) => (
               <CarouselSlide key={idx}>
-                <SlideImg src={src} alt={`${title} 사진 ${idx + 1}`} />
+                <SlideImg
+                  src={src}
+                  alt={`${title} 사진 ${idx + 1}`}
+                  $loaded={loadedImages.has(src)}
+                  onLoad={() => setLoadedImages((current) => new Set(current).add(src))}
+                  onError={() => setFailedImages((current) => new Set(current).add(src))}
+                />
               </CarouselSlide>
             ))}
           </CarouselTrack>
+
+          {!currentImageLoaded && (
+            <ImageSkeleton role="status" aria-label="장소 이미지 불러오는 중" />
+          )}
 
           {validImages.length > 1 && (
             <>

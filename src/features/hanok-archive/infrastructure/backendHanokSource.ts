@@ -1,5 +1,6 @@
 import { apiGet } from '@/lib/api/client';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
+import { STAY_TYPE } from '@/features/hanok-archive/domain/village';
 import { HANOK_ARCHIVE_FALLBACK } from '@/features/hanok-archive/data/hanokArchiveFallback';
 
 export interface BackendHanokItem {
@@ -49,7 +50,7 @@ function toVillage(item: BackendHanokItem): Village {
     addr: snap?.addr || '',
     lat: item.lat ?? snap?.lat ?? null,
     lng: item.lng ?? snap?.lng ?? null,
-    type: item.category,
+    type: item.category === 'HANOK_STAY' ? STAY_TYPE : item.category,
     badges: item.tags,
     image: item.thumbnailUrl,
     hasImage: item.thumbnailUrl !== null,

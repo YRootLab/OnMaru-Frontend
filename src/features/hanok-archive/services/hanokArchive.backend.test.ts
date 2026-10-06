@@ -29,4 +29,27 @@ describe('HanokArchiveService', () => {
     expect(apiGetMock).toHaveBeenCalledWith('/hanoks', { limit: 50 });
     expect(result).toHaveLength(1);
   });
+
+  it('normalizes the backend HANOK_STAY category for stay presentation', async () => {
+    apiGetMock.mockResolvedValue({
+      items: [
+        {
+          placeId: 'stay-1',
+          name: '백엔드 한옥 스테이',
+          category: 'HANOK_STAY',
+          regionName: '강원 강릉시',
+          thumbnailUrl: 'https://example.com/stay.jpg',
+          summary: '백엔드 응답',
+          tags: ['숙박'],
+        },
+      ],
+      nextCursor: null,
+      hasMore: false,
+    });
+
+    const { fetchBackendHanoksAsArchive } = await import('../infrastructure/backendHanokSource');
+    const result = await fetchBackendHanoksAsArchive();
+
+    expect(result.villages[0].type).toBe('한옥스테이');
+  });
 });

@@ -881,38 +881,6 @@ export default function JourneyDiscoveryFeed() {
     setActiveCourseIndex(0);
   }, [selectedCategory]);
 
-  useEffect(() => {
-    const storageKey = 'onmaru:home-scroll-position';
-    const previousScrollRestoration = window.history.scrollRestoration;
-    window.history.scrollRestoration = 'manual';
-
-    const savedPosition = Number(window.sessionStorage.getItem(storageKey));
-    let frame = 0;
-    let attempts = 0;
-    const restoreScrollPosition = () => {
-      if (!Number.isFinite(savedPosition) || savedPosition <= 0) return;
-      attempts += 1;
-      const pageCanReachPosition = document.documentElement.scrollHeight >= savedPosition + window.innerHeight;
-      if (pageCanReachPosition || attempts >= 120) {
-        window.scrollTo({ top: savedPosition, behavior: 'auto' });
-        return;
-      }
-      frame = window.requestAnimationFrame(restoreScrollPosition);
-    };
-
-    const saveScrollPosition = () => {
-      window.sessionStorage.setItem(storageKey, String(window.scrollY));
-    };
-
-    frame = window.requestAnimationFrame(restoreScrollPosition);
-    window.addEventListener('pagehide', saveScrollPosition);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener('pagehide', saveScrollPosition);
-      window.history.scrollRestoration = previousScrollRestoration;
-    };
-  }, []);
-
   const handleSelectCourse = (query: string) => {
     setQuery(query);
     submitSearch(query);

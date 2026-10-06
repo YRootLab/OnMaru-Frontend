@@ -191,6 +191,24 @@ describe('useInfoMapData', () => {
     expect(loadMapViewport).toHaveBeenLastCalledWith(expect.objectContaining({ zoomLevel: 10 }));
   });
 
+  it('requests individual places at Kakao level 6', async () => {
+    loadMapViewport.mockResolvedValue(viewport({ renderMode: 'PLACE' }));
+    useMapStore.setState({
+      committedViewport: {
+        center: { lat: 37, lng: 127 },
+        level: 6,
+        radius: 3_000,
+      },
+    });
+
+    renderHook(() => useInfoMapData());
+    await act(() => vi.advanceTimersByTimeAsync(100));
+    await act(async () => Promise.resolve());
+
+    expect(loadMapViewport).toHaveBeenCalledWith(expect.objectContaining({ zoomLevel: 6 }));
+    expect(useMapStore.getState().viewportRenderMode).toBe('PLACE');
+  });
+
   it('waits for the committed viewport before requesting after a transient pan', async () => {
     const map = useMapStore.getState().map as ReturnType<typeof createMap>;
     renderHook(() => useInfoMapData());

@@ -5,19 +5,12 @@ import { isOnmaruApiError } from '@/lib/api/errors';
 import { useMapStore } from './useMapStore';
 import { listInfoPlaces, loadMapViewport } from '@/features/map/services/infoMap.service';
 import { mergePlaceViewportItems } from '../application/mergePlaceViewportItems';
-import type { KakaoMap, ViewportItem, ViewportItemBounds, ViewportRenderMode } from '@/features/map/types';
+import { resolveViewportRenderMode } from '@/features/map/domain/viewportRenderMode';
+import type { KakaoMap, ViewportItem, ViewportItemBounds } from '@/features/map/types';
 
 const VIEWPORT_DEBOUNCE_MS = 100;
 const BBOX_EXPAND_RATIO = 0.25;
 const BBOX_EDGE_THRESHOLD = 0.20;
-
-// Kakao level → render bucket
-function renderBucket(level: number): ViewportRenderMode {
-  if (level <= 5) return 'PLACE';
-  if (level <= 7) return 'CLUSTER';
-  if (level <= 10) return 'DISTRICT';
-  return 'REGION';
-}
 
 function getBboxFromMap(map: KakaoMap): string {
   const bounds = map.getBounds?.();
@@ -153,7 +146,7 @@ export function useInfoMapData(enabled = true) {
     }
 
     const store = useMapStore.getState();
-    const bucket = renderBucket(committedViewport.level);
+    const bucket = resolveViewportRenderMode(committedViewport.level);
     const currentServedBbox = store.servedBbox;
     const currentSnapshotId = store.viewportSnapshotId;
 

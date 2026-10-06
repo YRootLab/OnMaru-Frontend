@@ -3,6 +3,7 @@ import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 import { decodeHanokArchivePayload } from '@/features/hanok-archive/data/hanokArchiveFallback';
 import { swrFetch } from '@/lib/cache/tabMemoryCache';
 import { CK, TTL_MS } from '@/lib/cache/cacheKeys';
+import { reconcileArchiveCollection } from '@/features/hanok-archive/domain/reconcileArchiveCollection';
 
 type ArchiveData = { villages: Village[]; meta: VillageMeta };
 
@@ -26,11 +27,11 @@ export function useArchiveData(villages: Village[], meta: VillageMeta) {
     swrFetch(CK.hanokArchive(), fetchArchive, TTL_MS.HANOK_ARCHIVE, {
       validate: (v) => Array.isArray(v.villages) && v.villages.length > 0,
       onRevalidate: (fresh) => {
-        if (active) setArchiveData(fresh);
+        if (active) setArchiveData((current) => reconcileArchiveCollection(current, fresh));
       },
     })
       .then((result) => {
-        if (active) setArchiveData(result.value);
+        if (active) setArchiveData((current) => reconcileArchiveCollection(current, result.value));
       })
       .catch(() => {
         // fallback(초기값)으로 유지

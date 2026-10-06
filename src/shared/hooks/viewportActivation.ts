@@ -58,3 +58,26 @@ export function observeViewportOnce(
 
   return () => observer?.disconnect();
 }
+
+export function observeViewportPresence(
+  element: Element,
+  onChange: (isPresent: boolean) => void,
+  options: ViewportActivationOptions = {},
+): () => void {
+  const observerFactory = options.observerFactory === undefined
+    ? getDefaultObserverFactory()
+    : options.observerFactory;
+
+  if (!observerFactory) {
+    onChange(true);
+    return () => undefined;
+  }
+
+  const observer = observerFactory((entries) => {
+    const entry = entries.find((candidate) => candidate.target === element) ?? entries[0];
+    if (entry) onChange(entry.isIntersecting);
+  }, { rootMargin: options.rootMargin ?? '0px' });
+  observer.observe(element);
+
+  return () => observer.disconnect();
+}

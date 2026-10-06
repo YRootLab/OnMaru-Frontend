@@ -24,7 +24,7 @@ import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorima
 import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
 import type { SorimaruStoryPage, SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { SorimaruDependencyProvider, useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
-import { findNearbySorimaruStories, loadedEditorialRailStories, type SorimaruSelectionIntent } from './sorimaruInitialLoad';
+import { findNearbySorimaruStories, type SorimaruSelectionIntent } from './sorimaruInitialLoad';
 import { useSorimaruCatalog } from '@/features/sorimaru-audio/hooks/useSorimaruCatalog';
 import { useSorimaruDetailSelection } from '@/features/sorimaru-audio/hooks/useSorimaruDetailSelection';
 import { useSorimaruRegionStories } from '@/features/sorimaru-audio/presentation/hooks/useSorimaruRegionStories';
@@ -316,6 +316,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const { ref: regionSectionRef, isActive: regionSectionActive } = useViewportActivation<HTMLDivElement>({
     rootMargin: SOUND_CONSTELLATION_API_ROOT_MARGIN,
   });
+  const { ref: editorialSectionRef, isActive: editorialSectionActive } = useViewportActivation<HTMLDivElement>({
+    rootMargin: '0px',
+    once: false,
+  });
   const regionStories = useSorimaruRegionStories(activeApiService, regionSectionActive);
   const selectedCategory = useSorimaruAudioStore((s) => s.selectedCategory);
   const searchQuery = useSorimaruAudioStore((s) => s.searchQuery);
@@ -362,7 +366,14 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
     return [story.title, story.audioTitle, story.region.name, ...story.contentTags]
       .some((value) => value.toLowerCase().includes(keyword));
   });
-  const editorialRailStories = React.useMemo(() => loadedEditorialRailStories(catalog.pages), [catalog.pages]);
+  const editorialRailStories = React.useMemo(
+    () => initialData?.heroStories
+      ?? initialHeroStorySets?.['추천']
+      ?? initialPage?.items
+      ?? catalog.pages[0]?.items
+      ?? [],
+    [catalog.pages, initialData?.heroStories, initialHeroStorySets, initialPage?.items],
+  );
   const apiError = initialError || catalog.error || selectionError
     ? '소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
     : null;
@@ -485,7 +496,11 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
 
             {}
             <VesselReveal style={{ minHeight: '660px', paddingBottom: '2.5rem' }}>
-              <div style={{ marginTop: '1rem', width: '100%' }} data-sorimaru-stage="themes">
+              <div
+                ref={editorialSectionRef}
+                style={{ marginTop: '1rem', width: '100%' }}
+                data-sorimaru-stage="themes"
+              >
                 <CenteredContainer>
                   <div style={{ paddingTop: '1rem' }}>
                     <SectionGradientTitle
@@ -497,6 +512,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     <SorimaruEditorialRail
                       stories={editorialRailStories}
                       storySets={heroStorySets}
+                      isActive={editorialSectionActive}
                       isLoading={initialLoading || catalog.status === 'loading'}
                       error={catalog.error}
                       onRetry={retryApiRequests}
@@ -595,7 +611,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   <div style={{ position: 'relative', overflow: 'visible' }}>
                     <SorimaruArchiveBrowse
                       stories={storyList}
-                      isLoading={catalog.status === 'loading'}
+                      isLoading={catalog.status === 'loading' || catalog.loadingNext}
                       error={catalog.error}
                       onRetry={retryApiRequests}
                     />
