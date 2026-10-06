@@ -103,6 +103,8 @@ export default function ViewportOverlays() {
 
     if (!map || mode !== 'info' || !window.kakao?.maps || !viewportRenderMode || viewportRenderMode === 'PLACE' || viewportItems.length === 0) {
       if (modeChanged && overlaysRef.current.size > 0) {
+        // Lower z-index before fade so retiring aggregates don't float above incoming PLACE markers
+        overlaysRef.current.forEach((r) => { try { r.overlay.setZIndex?.(0); } catch { /* noop */ } });
         retireOverlays(Array.from(overlaysRef.current.values()));
       } else {
         overlaysRef.current.forEach((record) => record.overlay.setMap(null));
@@ -114,6 +116,7 @@ export default function ViewportOverlays() {
     if (modeChanged) {
       cancelActiveAnimations(activeAnimsRef.current);
       if (overlaysRef.current.size > 0) {
+        overlaysRef.current.forEach((r) => { try { r.overlay.setZIndex?.(0); } catch { /* noop */ } });
         const outAnims = retireOverlays(Array.from(overlaysRef.current.values()));
         activeAnimsRef.current.push(...outAnims);
         overlaysRef.current.clear();

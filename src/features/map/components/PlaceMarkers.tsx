@@ -190,6 +190,11 @@ const styles = css`
     z-index: 100 !important;
   }
 
+  .om-pin:active {
+    transform: translateY(-2px) scale(0.94);
+    transition: transform 0.08s ease;
+  }
+
   .om-pin::after {
     content: '';
     position: absolute;
@@ -635,6 +640,10 @@ const styles = css`
     z-index: 100 !important;
   }
 
+  .om-badge-pin:active {
+    transform: scale(0.88);
+    transition: transform 0.08s ease;
+  }
 
   .om-badge-pin--traditional {
     border: 2px solid #EAB308 !important;
@@ -766,7 +775,7 @@ type OverlayRecord = { overlay: any; el: HTMLElement; map: any; markerKey: strin
 const OVERLAY_BUDGET_DESKTOP = 120;
 const OVERLAY_BUDGET_MOBILE = 80;
 const OVERLAY_HARD_CAP = 200;
-const CULL_OVERSCAN = 0.15;
+const CULL_OVERSCAN = 0.30;
 
 function cullToViewport(items: ReturnType<typeof selectInfoMarkerItems>, map: any): ReturnType<typeof selectInfoMarkerItems> {
   const bounds = map.getBounds?.();

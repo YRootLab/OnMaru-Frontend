@@ -715,6 +715,14 @@ export default function KakaoMap() {
     }
   }, [map, hasQueryCoords]);
 
+  const myLocationNonce = useMapStore((s) => s.myLocationNonce);
+  const myLocationNonceInitRef = useRef(myLocationNonce);
+  useEffect(() => {
+    if (myLocationNonce === myLocationNonceInitRef.current) return;
+    if (!map) return;
+    doAutoLocate();
+  }, [myLocationNonce, map]);
+
   // ── Zoom-level based overlay visibility ─────────────────────────────────────
   // Kakao level: 1=최대확대, 14=최대축소. level >= 9 이면 아이콘 숨김
   const MY_LOCATION_HIDE_LEVEL = 9;

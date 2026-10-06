@@ -8,7 +8,7 @@ import type { Item, PlaceCategory } from './types';
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ChevronLeftIcon } from '@hugeicons/core-free-icons'
+import { ChevronLeftIcon, LocateFixedIcon } from '@hugeicons/core-free-icons'
 
 import { transientProps } from '@/design-system/styled';
 import { meok, surface , fontSize } from '@/design-system/tokens';
@@ -230,6 +230,44 @@ const MobileChipsScroller = styled.div`
 
 
 
+const MobileMyLocationButton = styled.button<{ $hidden: boolean }>`
+  position: absolute;
+  right: 16px;
+  bottom: 100px;
+  z-index: 20;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(25, 31, 40, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #2F68FF;
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  opacity: ${({ $hidden }) => ($hidden ? 0 : 1)};
+  pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
+
+  &:active {
+    transform: scale(0.92);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(30, 32, 38, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #6b9eff;
+  }
+`;
+
 const CHIPS_PANELS_GAP = 16;
 
 export default function MapPage() {
@@ -240,6 +278,7 @@ export default function MapPage() {
   const popularPanelOpen = useMapStore((s) => s.popularPanelOpen);
   const isWarmthWriteOpen = useMapStore((s) => s.isWarmthWriteOpen);
 
+  const requestMyLocation = useMapStore((s) => s.requestMyLocation);
   const isDetailOpen = Boolean(detailId) || popularPanelOpen;
   const isChipsHidden = isDetailOpen;
 
@@ -527,6 +566,15 @@ export default function MapPage() {
           <CategoryChips align="start" />
         </MobileChipsScroller>
       </MobileTopBar>
+
+      <MobileMyLocationButton
+        type="button"
+        aria-label="내 위치로 이동"
+        onClick={requestMyLocation}
+        $hidden={isDetailOpen || mode === 'warmth'}
+      >
+        <HugeiconsIcon icon={LocateFixedIcon} size={22} strokeWidth={1.8} />
+      </MobileMyLocationButton>
 
       <BottomSheet />
 
