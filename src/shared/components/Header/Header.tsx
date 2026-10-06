@@ -268,6 +268,31 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   }
 `;
 
+const NavItemContent = styled.span`
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  grid-auto-flow: column;
+  height: 20px;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+  transform: none;
+`;
+
+const NavIconBox = styled.span`
+  display: inline-grid;
+  width: 18px;
+  height: 20px;
+  place-items: center;
+  flex-shrink: 0;
+
+  > svg {
+    display: block;
+    flex-shrink: 0;
+  }
+`;
+
 const RightSection = styled('div', transientProps)<LandingProps>`
   display: flex;
   align-items: center;
@@ -481,9 +506,12 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
 `;
 
 const LoginLabel = styled.span`
-  display: block;
+  display: inline-flex;
+  height: 100%;
   flex-shrink: 0;
-  transform: translateY(2px);
+  align-items: center;
+  line-height: 1;
+  transform: none;
 `;
 
 const LoginChevron = styled.span`
@@ -493,7 +521,7 @@ const LoginChevron = styled.span`
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  transform: translateY(2px);
+  transform: none;
 
   > svg {
     width: 18px;
@@ -717,17 +745,16 @@ export default function Header() {
                 $isActive={isSelected}
                 onClick={item.href === '/' ? resetJourney : undefined}
               >
-                <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', height: 20, alignItems: 'center', gap: 6, lineHeight: 1 }}>
+                <NavItemContent data-testid={`desktop-nav-${item.href === '/' ? 'home' : item.href.slice(1)}-content`}>
+                  <NavIconBox aria-hidden="true">
                   {item.icon === HeadphonesIcon && isSelected ? (
                     <HeadphonesFilledEars
                       size={15}
                       strokeWidth={1.5}
-                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(-2px)' }}
                     />
                   ) : item.href === '/hanok' ? (
                     <HanokIcon
                       size={18}
-                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(-2px)' }}
                     />
                   ) : (
                     <HugeiconsIcon
@@ -736,11 +763,11 @@ export default function Header() {
                       fill={isSelected ? 'currentColor' : 'none'}
                       fillOpacity={isSelected ? 0.6 : undefined}
                       strokeWidth={isSelected ? 1.5 : 2}
-                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(-2px)' }}
                     />
                   )}
+                  </NavIconBox>
                   <span>{item.label}</span>
-                </span>
+                </NavItemContent>
               </NavLink>
             );
           })}
@@ -752,12 +779,12 @@ export default function Header() {
           {isLoggedIn ? (
             <>
               <OniAvatar characterId={user?.characterId} backgroundId={user?.backgroundId} size={24} />
-              <LoginLabel>{user?.displayName ?? '마이페이지'}</LoginLabel>
+              <LoginLabel data-testid="desktop-profile-label">{user?.displayName ?? '마이페이지'}</LoginLabel>
             </>
           ) : (
-            <LoginLabel>로그인</LoginLabel>
+            <LoginLabel data-testid="desktop-profile-label">로그인</LoginLabel>
           )}
-          <LoginChevron aria-hidden="true">
+          <LoginChevron data-testid="desktop-profile-chevron" aria-hidden="true">
             <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2.2} />
           </LoginChevron>
         </LoginButton>

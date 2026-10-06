@@ -14,8 +14,9 @@ export default function Loading() {
       role="status"
       aria-live="polite"
       style={{
-        position: 'fixed',
-        inset: 0,
+        position: 'relative',
+        width: '100%',
+        minHeight: '100dvh',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

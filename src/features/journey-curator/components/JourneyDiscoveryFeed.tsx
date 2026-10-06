@@ -15,6 +15,11 @@ import SharedSectionHeading from '@/shared/components/SectionHeading';
 import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
 import { COURSE_CATEGORY_LABELS } from '../presentation/homeCourseTags';
 import { HomeCourseTagList } from './HomeCourseTagList';
+import {
+  POPULAR_SOUND_CARD_MIN_WIDTH,
+  POPULAR_SOUND_DESKTOP_COLUMNS,
+  POPULAR_SOUND_TABLET_COLUMNS,
+} from './homePresentationContracts';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -383,13 +388,13 @@ const ExploreText = styled.span`
 
 const SoundGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: ${POPULAR_SOUND_DESKTOP_COLUMNS};
   gap: 16px;
   padding: 6px 4px 12px;
   margin: -6px -4px -12px;
 
   @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: ${POPULAR_SOUND_TABLET_COLUMNS};
     gap: 14px;
   }
 
@@ -401,6 +406,8 @@ const SoundGrid = styled.div`
 
 const SoundCard = styled(Link)`
   position: relative;
+  min-width: ${POPULAR_SOUND_CARD_MIN_WIDTH};
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 16px;
