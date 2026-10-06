@@ -7,6 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { SparklesIcon, Search01Icon, ArrowRight01Icon, Compass01Icon, CloudIcon, ShoppingBag01Icon, HeadphonesIcon, CloudRainIcon, Leaf01Icon, SproutIcon, LoaderCircleIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { palette, lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
+import { HOME_HERO_PLACEHOLDER, HOME_HERO_TITLE } from './homePresentationContracts';
 import { useAuth } from '@/features/auth';
 import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import type { MoodId } from '../types/journey.types';
@@ -806,7 +807,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const isApple = useIsAppleDevice();
   const [isCancelling, setIsCancelling] = useState(false);
   const [oniVideoError, setOniVideoError] = useState(false);
-  const { user, isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const oniVideoRef = useRef<HTMLVideoElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -923,11 +924,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     <Container $compact={hasSearched}>
       {!hasSearched && (
         <>
-          <Title>
-            {isLoggedIn && user?.displayName
-              ? `${user.displayName}님, 어떤 장소로 떠나고 싶으세요?`
-              : '어떤 장소로 떠나고 싶으세요?'}
-          </Title>
+          <Title>{HOME_HERO_TITLE}</Title>
 
           <Subtitle>
             원하는 분위기나 지역을 적어주시면,
@@ -997,7 +994,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
             type="text"
             value={currentQuery}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="어디로 떠나고 싶으세요?"
+            placeholder={HOME_HERO_PLACEHOLDER}
             aria-label="여행하고 싶은 한옥이나 지역 입력"
           />
           {isGenerating ? (
@@ -1054,4 +1051,3 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     </Container>
   );
 }
-
