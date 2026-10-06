@@ -3,6 +3,8 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+
+## [v0.1.15] - 2026-10-06
 - 소리마루 `소리로 만나는 한국`에 전체 보기와 6개 테마 탭을 연결하고, 각 탭이 BE 고정 category 코드·cursor·totalCount 계약을 사용하도록 변경했다. 해당 탭의 지역 칩과 regionCode 요청은 제거했다.
 - 정보지도 추천 콘텐츠보다 위에 잘못 노출되던 장소 수 헤더를 실제 장소 목록 바로 앞으로 옮겼다. 지도 빈 영역을 클릭하면 선택·hover·상세 포커스를 함께 해제해 마커 강조가 남지 않도록 했다.
 - FE #334: 정보지도의 `전체` 카테고리를 제거하고 첫 진입·온기모드 복귀·잘못된 URL category를 `한옥`으로 정규화했다. 장소 목록과 viewport 요청은 같은 유효 category를 항상 명시하며, 이동 중 background refresh가 기존 마커와 집계를 흐리게 만들던 pending opacity를 제거했다. `전체 온기`, viewport limit 60, 클러스터 및 줌 단계는 유지한다.
