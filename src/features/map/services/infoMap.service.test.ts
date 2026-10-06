@@ -46,12 +46,27 @@ describe('infoMap.service category contract', () => {
     }));
   });
 
-  it('falls back old ALL requests to the required HANOK category', async () => {
-    vi.stubEnv('NODE_ENV', 'development');
-    vi.stubGlobal('window', { location: { search: '?mapPreview=500' } });
+  it.each(['all', '', 'unknown'])(
+    'never sends the invalid %s category to either information endpoint',
+    async (category) => {
+      await listInfoPlaces({ category });
+      await loadMapViewport({ bbox: '126,36,128,38', zoomLevel: 9, category });
 
-    await listInfoPlaces({ category: 'all' });
-    await loadMapViewport({ bbox: '124,32,131,39', zoomLevel: 5, category: 'all' });
+      expect(apiRequest).toHaveBeenNthCalledWith(1, '/map/info/places', expect.objectContaining({
+        params: expect.objectContaining({ category: 'HANOK' }),
+      }));
+      expect(apiRequest).toHaveBeenNthCalledWith(2, '/map/info/viewport', expect.objectContaining({
+        params: expect.objectContaining({ category: 'HANOK' }),
+      }));
+    },
+  );
+
+  it('uses the Spring API even when an old preview URL is opened', async () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    vi.stubGlobal('window', { location: { search: '?mockMap=50' } });
+
+    await listInfoPlaces({ category: 'hanok' });
+    await loadMapViewport({ bbox: '124,32,131,39', zoomLevel: 5, category: 'hanok' });
 
     expect(apiRequest).toHaveBeenCalledWith('/map/info/places', expect.objectContaining({
       params: expect.objectContaining({ category: 'HANOK' }),

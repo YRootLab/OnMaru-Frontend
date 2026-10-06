@@ -12,6 +12,7 @@ import { meok, palette, fontFamily, fontSize, ringShadow } from '@/design-system
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { MapInfoCategory, MapMode } from '@/features/map/types';
 import { HanokIcon } from './HanokIcon';
+import { useInfoMapHomeNavigation } from '@/features/map/presentation/useInfoMapHomeNavigation';
 
 interface CategoryItem {
   id: string;
@@ -263,6 +264,11 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const infoCategory = useMapStore((s) => s.infoCategory);
   const setInfoCategory = useMapStore((s) => s.setInfoCategory);
   const setSearchQuery = useMapStore((s) => s.setSearchQuery);
+  const {
+    isInfoHome,
+    captureBeforeNavigation,
+    returnToInfoHome,
+  } = useInfoMapHomeNavigation();
 
   const items = CATEGORIES[mode];
   const containerRef = useRef<HTMLDivElement>(null);
@@ -279,6 +285,14 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const handleChipClick = (item: CategoryItem) => {
     if (mode === 'info') {
       const nextCategory = item.id as MapInfoCategory;
+      if (nextCategory === infoCategory) return;
+      if (nextCategory === 'hanok' && !isInfoHome) {
+        returnToInfoHome();
+        return;
+      }
+      if (infoCategory === 'hanok') {
+        captureBeforeNavigation();
+      }
       setInfoCategory(nextCategory);
       setSearchQuery(item.keyword);
       if (!useMapStore.getState().panelOpen) {
