@@ -1240,7 +1240,7 @@ export default function WarmthLayer() {
   return (
     <>
       <Global styles={styles} />
-      {warmthViewType === 'heatmap' && <HeatCanvas spots={baseList} />}
+      {mode === 'warmth' && <HeatCanvas spots={baseList} />}
     </>
   );
 }
