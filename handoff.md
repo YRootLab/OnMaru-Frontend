@@ -1,5 +1,11 @@
 # handoff.md
 
+## 지도 온기 시·군 행정별 색상 누락 (2026-10-08)
+
+- 운영 `/map?mode=warmth`에서 온기 API는 시군구 229건을 반환하지만 기본 `시·군 행정별` 모드에는 광역 핀 4개만 보이고 행정구역 색상 채우기가 없다. 10월 6일 `ec8cee9`에서 `WarmthLayer`가 `HeatCanvas`를 원형 히트맵 모드에서만 렌더링하게 바꾼 것이 원인이다. `HeatCanvas` 자체는 이미 행정구역/원형 모드 분기를 갖고 있다.
+- `fix/map-sigungu-warmth-visibility` 브랜치에서 온기 모드라면 항상 `HeatCanvas`를 렌더링하도록 복구했다. 회귀 테스트와 `tsc --noEmit` 통과. 로컬 브라우저의 Kakao 지도 SDK 초기화 오류 때문에 수정 후 실화면 비교는 아직 완료하지 못했다. PR 또는 병합 전에 실제 지도에서 색상 채우기를 확인해야 한다.
+
+
 ## 지도 운영 화면 확인
 
 - v0.1.18은 PR #364로 master에 병합됐고, 태그·GitHub Release 게시와 Vercel 프로덕션 배포가 완료됐다. 전체 단위 테스트와 master E2E가 통과했다.
