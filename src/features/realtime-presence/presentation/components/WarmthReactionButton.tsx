@@ -19,11 +19,11 @@ const STYLES = `
   transform: scale(0.94);
 }
 @keyframes omrp-btn-glow {
-  0%   { box-shadow: 0 0 0 0   rgba(245,200,66,0.85); }
-  100% { box-shadow: 0 0 0 14px rgba(245,200,66,0);   }
+  0%   { box-shadow: 0 0 0 0   rgba(245,200,66,0.6), 0 2px 12px rgba(0,0,0,0.2); }
+  100% { box-shadow: 0 0 0 10px rgba(245,200,66,0),  0 2px 12px rgba(0,0,0,0.2); }
 }
 [data-omrp-react-btn].omrp-btn-glow {
-  animation: omrp-btn-glow 0.4s ease-out forwards;
+  animation: omrp-btn-glow 0.45s ease-out forwards;
 }
 `;
 
@@ -133,8 +133,8 @@ export function WarmthReactionButton({
         gap: 6,
         padding: '7px 15px',
         borderRadius: 20,
-        border: '1px solid rgba(212, 175, 55, 0.35)',
-        background: 'rgba(28, 26, 23, 0.82)',
+        border: 'none',
+        background: 'rgba(22, 20, 17, 0.78)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         color: '#f5c842',
@@ -143,8 +143,8 @@ export function WarmthReactionButton({
         cursor: 'pointer',
         outline: 'none',
         fontFamily: 'inherit',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)',
-        transition: 'background 0.2s, border-color 0.2s, transform 0.12s ease',
+        boxShadow: '0 0 0 1px rgba(245,200,66,0.15), 0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05)',
+        transition: 'background 0.2s, transform 0.12s ease',
         ...style,
       }}
     >

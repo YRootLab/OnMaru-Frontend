@@ -119,10 +119,12 @@ export async function fetchWarmthData(
 
   const promise = executeWarmthFetchFlow(params, options)
     .then((res) => {
-      clientMemoryCache.set(cacheKey, {
-        expiresAt: Date.now() + CLIENT_CACHE_TTL,
-        result: res,
-      });
+      if (res.spots.length > 0 || res.coverageStatus === 'COMPLETE') {
+        clientMemoryCache.set(cacheKey, {
+          expiresAt: Date.now() + CLIENT_CACHE_TTL,
+          result: res,
+        });
+      }
       return res;
     })
     .finally(() => {

@@ -74,6 +74,55 @@ export async function listInfoPlaces(input: ListInfoPlacesInput): Promise<InfoPl
 }
 
 export async function loadMapViewport(
+  params: ViewportRequestParams & { signal?: AbortSignal; preferPlaces?: boolean },
+): Promise<MapViewportResponse> {
+  const { signal, bbox, zoomLevel, category, regionCode, preferPlaces } = params;
+  const requestLevel = preferPlaces && zoomLevel <= 6 ? Math.min(4, zoomLevel) : zoomLevel;
+  const response = await requestViewport({ bbox, zoomLevel: requestLevel, category, regionCode, signal });
+  if (!preferPlaces || zoomLevel > 6 || response.renderMode === 'PLACE') return response;
+
+  const bounds = bbox.split(',').map(Number);
+  if (bounds.length !== 4 || bounds.some((value) => !Number.isFinite(value))) return response;
+
+  const expand = async (tile: MapViewportResponse, tileBounds: number[], depth: number): Promise<ViewportItem[] | null> => {
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    if (tile.snapshotId !== response.snapshotId) return null;
+    if (tile.renderMode === 'PLACE') return tile.items;
+    if (depth >= 2) return null;
+
+    const [west, south, east, north] = tileBounds;
+    const middleLng = (west + east) / 2;
+    const middleLat = (south + north) / 2;
+    const quarters = [
+      [west, south, middleLng, middleLat],
+      [middleLng, south, east, middleLat],
+      [west, middleLat, middleLng, north],
+      [middleLng, middleLat, east, north],
+    ];
+    const pieces = await Promise.all(quarters.map(async (quarter) => {
+      const part = await requestViewport({
+        bbox: quarter.join(','), zoomLevel: requestLevel, category, regionCode, signal,
+      });
+      return expand(part, quarter, depth + 1);
+    }));
+    if (pieces.some((piece) => piece === null)) return null;
+    return pieces.flatMap((piece) => piece ?? []);
+  };
+
+  const places = await expand(response, bounds, 0);
+  if (!places) return response;
+  const unique = new Map(places.filter((item) => item.type === 'PLACE' && item.placeId)
+    .map((item) => [item.placeId, item]));
+  return {
+    ...response,
+    renderMode: 'PLACE',
+    servedBbox: { west: bounds[0], south: bounds[1], east: bounds[2], north: bounds[3] },
+    items: [...unique.values()],
+    totalCountInViewport: unique.size,
+  };
+}
+
+async function requestViewport(
   params: ViewportRequestParams & { signal?: AbortSignal },
 ): Promise<MapViewportResponse> {
   const { signal, bbox, zoomLevel, category, regionCode } = params;

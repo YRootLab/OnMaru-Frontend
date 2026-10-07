@@ -187,6 +187,7 @@ export function useInfoMapData(enabled = true) {
         bbox: committedBbox,
         zoomLevel: committedViewport.level,
         category: infoCategory,
+        preferPlaces: bucket === 'PLACE',
         ...(infoRegionCode ? { regionCode: infoRegionCode } : {}),
         signal: ctrl.signal,
       })

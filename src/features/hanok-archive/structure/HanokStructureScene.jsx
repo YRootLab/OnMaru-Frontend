@@ -307,9 +307,17 @@ const SHADOW_COLOR_DARK = '#000000';
 
 
 
-export default function HanokStructureScene({ progress, dark = false, onSelectMesh, highlightStage = -1 }) {
+export default function HanokStructureScene({ progress, dark = false, onSelectMesh, highlightStage = -1, onReady }) {
   const { scene } = useGLTF(MODEL_URL);
   const size = useThree((s) => s.size);
+  const readyFrame = useRef(false);
+
+  useFrame(() => {
+    if (!onReady || readyFrame.current) return;
+    readyFrame.current = true;
+    // Let the first WebGL frame finish before revealing the canvas.
+    requestAnimationFrame(onReady);
+  });
 
   const assembling = useSceneStore((s) => s.assembling);
 

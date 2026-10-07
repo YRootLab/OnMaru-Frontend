@@ -240,19 +240,26 @@ export function createSsePresenceTransport(
         x: payload.x,
       });
 
-      // Fire-and-forget: fetcher를 즉시 동기 호출하고 반환된 Promise의 오류/429는 조용히 무시
+      // Fire-and-forget: credentials 없음, 204=성공, 429=조용히 무시, 400=console.warn만
       try {
         const promise = fetcher(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'omit',
           body,
         });
-        if (promise && typeof promise.catch === 'function') {
-          promise.catch(() => {
-            // 429, 네트워크 오류 등 조용히 무시
-          });
+        if (promise && typeof promise.then === 'function') {
+          promise
+            .then((res) => {
+              if (res.status === 400) {
+                console.warn('[presence] warmth 400 Bad Request — payload rejected by server');
+              }
+            })
+            .catch(() => {
+              // 429, 네트워크 오류 등 조용히 무시
+            });
         }
       } catch {
         // 즉시 예외 무시

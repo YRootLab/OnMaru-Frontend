@@ -212,7 +212,7 @@ const CenterNav = styled('nav', transientProps)<LandingProps>`
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.sm};
+  font-size: 0.8125rem;
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   line-height: 1;
   color: ${({ $isLanding, $isActive }) => {
@@ -431,7 +431,7 @@ const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
   border-radius: 10px;
   color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.9)' : meok[900])};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.sm};
+  font-size: 0.8125rem;
   text-decoration: none;
 
   &:active {
@@ -459,7 +459,7 @@ const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.sm};
+  font-size: 0.8125rem;
   font-weight: 700;
 
   color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
@@ -479,24 +479,25 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  box-shadow: ${({ $isLanding }) =>
-    $isLanding ? ringShadow.dark.button : ringShadow.light.button};
+  box-shadow: none;
   transition: all 180ms ease;
 
   &:hover {
     background: ${({ $isLanding }) =>
       $isLanding ? 'rgba(35, 32, 28, 0.95)' : 'rgba(0, 0, 0, 0.08)'};
     transform: translateY(-1px);
+    box-shadow: none;
   }
 
   [data-theme='dark'] & {
     color: #ffffff;
     background: rgba(23, 30, 43, 0.96);
     border-color: rgba(100, 150, 255, 0.20);
-    box-shadow: ${ringShadow.dark.button};
+    box-shadow: none;
 
     &:hover {
       background: rgba(33, 40, 56, 0.98);
+      box-shadow: none;
     }
   }
 

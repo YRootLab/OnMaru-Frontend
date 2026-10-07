@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Global, css } from '@emotion/react';
 import gsap from 'gsap';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -19,6 +19,7 @@ import type { HeatSpot, CongestionLevel } from '@/features/map/types';
 import HeatCanvas from './HeatCanvas';
 import { levelOf } from '@/features/map/warmth/congestion';
 import { selectHeatSpotsForDay } from '@/features/map/warmth/heatPresentation';
+import { heatSpotClusterKey, warmthRevealTarget } from '@/features/map/domain/warmthVisibility';
 import {
   compareText,
   medianOf,
@@ -770,6 +771,7 @@ interface ClusteredHeatSpot {
 export default function WarmthLayer() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
+  const panelOpen = useMapStore((s) => s.panelOpen);
   const heatSpots = useMapStore((s) => s.heatSpots);
   const warmthCongestionFilter = useMapStore((s) => s.warmthCongestionFilter);
   const level = useMapStore((s) => s.level);
@@ -779,6 +781,11 @@ export default function WarmthLayer() {
   const { mode: colorMode } = useOnmaruTheme();
   const isDark = colorMode === 'dark';
   const reducedMotion = usePrefersReducedMotion();
+  const initialRevealDoneRef = useRef(false);
+
+  useEffect(() => {
+    if (mode !== 'warmth') initialRevealDoneRef.current = false;
+  }, [mode]);
 
 
 
@@ -858,7 +865,7 @@ export default function WarmthLayer() {
 
       baseList.forEach((spot) => {
         const cityDist = getCityDistrict(spot.district, spot.name);
-        const key = `city-${cityDist}`;
+        const key = `city-${heatSpotClusterKey(spot)}`;
         const zone = zoneMap.get(key);
 
         if (!zone) {
@@ -908,6 +915,28 @@ export default function WarmthLayer() {
 
     const displayClusters = [...zoneMap.values()];
     const projection = map.getProjection?.();
+
+    if (!initialRevealDoneRef.current && projection) {
+      const node = map.getNode?.();
+      if (node?.clientWidth && node?.clientHeight) {
+        const pins = displayClusters.flatMap((cluster) => {
+          const point = projection.pointFromCoords(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
+          return point ? [{ x: point.x, y: point.y, lat: cluster.lat, lng: cluster.lng }] : [];
+        });
+        if (pins.length > 0) {
+          initialRevealDoneRef.current = true;
+          const visibleLeft = panelOpen && node.clientWidth >= 1024 ? Math.min(500, node.clientWidth * 0.42) : 24;
+          const target = warmthRevealTarget(level, {
+            left: visibleLeft,
+            top: 70,
+            right: node.clientWidth - 24,
+            bottom: node.clientHeight - 90,
+          }, pins);
+          if (target && 'level' in target) map.setLevel(target.level, { animate: true });
+          else if (target) map.panTo(new window.kakao.maps.LatLng(target.center.lat, target.center.lng));
+        }
+      }
+    }
 
 
     let visibleClusters = displayClusters;
@@ -1206,7 +1235,7 @@ export default function WarmthLayer() {
       closeAllPopovers();
       if (cleanup) cleanup();
     };
-  }, [map, mode, baseList, level, isDark, heatDays, heatDayIndex, warmthViewType, reducedMotion]);
+  }, [map, mode, panelOpen, baseList, level, isDark, heatDays, heatDayIndex, warmthViewType, reducedMotion]);
 
   return (
     <>

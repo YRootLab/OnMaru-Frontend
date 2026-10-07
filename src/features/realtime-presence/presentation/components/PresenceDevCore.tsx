@@ -9,17 +9,26 @@ import { LivePresenceBadge } from './LivePresenceBadge';
 import { WarmthReactionButton } from './WarmthReactionButton';
 import {
   WarmthParticleCanvas,
+  type FxMode,
   type WarmthParticleEvent,
 } from './WarmthParticleCanvas';
+import type { MotionParams } from '../../domain/presence.motion';
 
 interface PresenceDevCoreProps {
   roomId: string;
   transport?: IPresenceTransport;
+  fx?: FxMode;
+  motionParams?: Partial<MotionParams>;
+  /** 배지 옆에 32px 벌 아이콘 표시 (기본 off) */
+  showBeeIcon?: boolean;
 }
 
 export default function PresenceDevCore({
   roomId,
   transport: externalTransport,
+  fx = 'light',
+  motionParams,
+  showBeeIcon = false,
 }: PresenceDevCoreProps) {
   const transport = useMemo(
     () =>
@@ -31,15 +40,21 @@ export default function PresenceDevCore({
 
   const { connection, snapshot, sendWarmth } = usePresenceRoom(roomId, transport);
   const enqueueRef = useRef<((e: WarmthParticleEvent) => void) | null>(null);
+  const [open, setOpen] = useState(false);
+  const [batchMsg, setBatchMsg] = useState('');
 
-  // 타인 warmth 이벤트 → 은은한 파티클만 수신
   useEffect(() => {
     return transport.onWarmth((e) => {
       enqueueRef.current?.({ x: e.x, isMine: false });
     });
   }, [transport]);
 
-  // 내 반응 클릭 → 내 위치에서 은은한 골드 파티클
+  const handleOtherBatch = useCallback((count: number) => {
+    setBatchMsg(`${count}명이 반딧불을 보냈어요`);
+    const t = setTimeout(() => setBatchMsg(''), 3_000);
+    return () => clearTimeout(t);
+  }, []);
+
   const handleParticle = useCallback((x: number) => {
     enqueueRef.current?.({ x, isMine: true });
   }, []);
@@ -51,14 +66,19 @@ export default function PresenceDevCore({
        * pointer-events:none 으로 기존 카드·지도 조작 방해 없음.
        * z-index 90: 콘텐츠 위, 헤더(z99) 아래.
        */}
+      {/* aria-live: other batch 알림 (스크린 리더용) */}
+      <div aria-live="polite" aria-atomic="true" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
+        {batchMsg}
+      </div>
+
       <WarmthParticleCanvas
         onMount={(enqueue) => { enqueueRef.current = enqueue; }}
+        fx={fx}
+        motionParams={motionParams}
+        onOtherBatch={handleOtherBatch}
         style={{ position: 'fixed', inset: 0, zIndex: 90 }}
       />
 
-      {/*
-       * 토스/피그마 스타일 실시간 Presence 배지 & 리액션 칩: 우상단 고정
-       */}
       <div
         style={{
           position: 'fixed',
@@ -71,12 +91,98 @@ export default function PresenceDevCore({
           gap: 8,
         }}
       >
-        <LivePresenceBadge connection={connection} snapshot={snapshot} />
-        <WarmthReactionButton
-          onParticle={handleParticle}
-          sendWarmth={sendWarmth}
-          connection={connection}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <LivePresenceBadge connection={connection} snapshot={snapshot} />
+          {showBeeIcon && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src="/images/me.png" alt="" aria-hidden="true" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />
+          )}
+        </div>
+
+        {/* 반응 버튼 + 닫기: open 시 fade-in, closed 시 fade-out (항상 DOM에 있어 exit 애니메이션 작동) */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            opacity: open ? 1 : 0,
+            transform: open ? 'scale(1) translateX(0)' : 'scale(0.88) translateX(6px)',
+            transition: 'opacity 0.18s ease, transform 0.18s ease',
+            pointerEvents: open ? 'auto' : 'none',
+          }}
+        >
+          <WarmthReactionButton
+            onParticle={handleParticle}
+            sendWarmth={sendWarmth}
+            connection={connection}
+          />
+          <button
+            type="button"
+            aria-label="닫기"
+            onClick={() => setOpen(false)}
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: '50%',
+              border: 'none',
+              background: 'rgba(22, 20, 17, 0.65)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.08)',
+              cursor: 'pointer',
+              fontSize: 10,
+              color: 'rgba(255,255,255,0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.75)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.4)'; }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* 트리거: 반딧불 원형 버튼 */}
+        <button
+          type="button"
+          aria-label="반딧불 띄우기"
+          onClick={() => setOpen((prev) => !prev)}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            border: 'none',
+            background: 'rgba(22, 20, 17, 0.72)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            boxShadow: open
+              ? '0 0 0 1.5px rgba(245,200,66,0.35), 0 2px 14px rgba(0,0,0,0.28)'
+              : '0 0 0 1px rgba(245,200,66,0.18), 0 2px 12px rgba(0,0,0,0.22)',
+            cursor: 'pointer',
+            padding: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'box-shadow 0.2s ease, transform 0.15s ease',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.08)'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+          onMouseDown={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.93)'; }}
+          onMouseUp={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.08)'; }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/me.png"
+            alt=""
+            aria-hidden="true"
+            style={{ width: 28, height: 28, objectFit: 'contain' }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).replaceWith(Object.assign(document.createElement('span'), { textContent: '✨', style: { fontSize: '18px' } })); }}
+          />
+        </button>
       </div>
     </>
   );

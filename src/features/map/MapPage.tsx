@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styled from '@emotion/styled';
 import { isInfoUrlReconciliationPending, normalizeInfoCategory } from './domain/infoCategory';
+import { mapModeSearch } from './domain/mapModeUrl';
 import type { Item, PlaceCategory } from './types';
 
 import { motion, useReducedMotion } from 'framer-motion';
@@ -364,21 +365,28 @@ export default function MapPage() {
   const [infoUrlHydrated, setInfoUrlHydrated] = useState(false);
   const inboundInfoUrlPendingRef = useRef(false);
 
-  // Sync URL info-mode params to store on mount and client-side history navigation.
+  // Apply inbound map mode and information filters on mount and history navigation.
   useEffect(() => {
     if (queryMode === 'info') {
       const store = useMapStore.getState();
       const normalizedCategory = normalizeInfoCategory(queryCategory);
-      inboundInfoUrlPendingRef.current = normalizedCategory !== store.infoCategory
+      inboundInfoUrlPendingRef.current = store.mode !== 'info'
+        || normalizedCategory !== store.infoCategory
         || queryRegionCode !== store.infoRegionCode;
-      if (normalizedCategory !== store.infoCategory) {
-        store.setInfoCategory(normalizedCategory);
+      if (store.mode !== 'info') store.setMode('info');
+      const current = useMapStore.getState();
+      if (normalizedCategory !== current.infoCategory) {
+        current.setInfoCategory(normalizedCategory);
       }
-      if (queryRegionCode !== store.infoRegionCode) {
-        store.setInfoRegionCode(queryRegionCode);
+      if (queryRegionCode !== useMapStore.getState().infoRegionCode) {
+        useMapStore.getState().setInfoRegionCode(queryRegionCode);
       }
     } else {
-      inboundInfoUrlPendingRef.current = false;
+      inboundInfoUrlPendingRef.current = queryMode === 'warmth'
+        && useMapStore.getState().mode !== 'warmth';
+      if (queryMode === 'warmth' && useMapStore.getState().mode !== 'warmth') {
+        useMapStore.getState().setMode('warmth');
+      }
     }
     setInfoUrlHydrated(true);
   }, [queryCategory, queryMode, queryRegionCode]);
@@ -470,24 +478,18 @@ export default function MapPage() {
   const infoCategory = useMapStore((s) => s.infoCategory);
   const infoRegionCode = useMapStore((s) => s.infoRegionCode);
   useEffect(() => {
-    if (!infoUrlHydrated || mode !== 'info') return;
-    const inboundReconciliationPending = isInfoUrlReconciliationPending({
+    if (!infoUrlHydrated) return;
+    if (inboundInfoUrlPendingRef.current && queryMode !== mode) return;
+    if (mode === 'info' && isInfoUrlReconciliationPending({
       inboundNavigationPending: inboundInfoUrlPendingRef.current,
       queryMode,
       queryCategory,
       queryRegionCode,
       selectedCategory: infoCategory,
       selectedRegionCode: infoRegionCode,
-    });
-    if (inboundReconciliationPending) return;
+    })) return;
     inboundInfoUrlPendingRef.current = false;
-    const params = new URLSearchParams(window.location.search);
-    params.set('mode', 'info');
-    params.set('category', infoCategory);
-    if (infoRegionCode) params.set('regionCode', infoRegionCode);
-    else params.delete('regionCode');
-
-    const nextSearch = params.toString();
+    const nextSearch = mapModeSearch(window.location.search, mode, infoCategory, infoRegionCode);
     if (nextSearch !== window.location.search.slice(1)) {
       router.replace(`${window.location.pathname}?${nextSearch}`, { scroll: false });
     }
