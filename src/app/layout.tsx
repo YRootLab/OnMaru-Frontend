@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import { headers } from 'next/headers'
-import dynamic from 'next/dynamic'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
@@ -9,11 +8,8 @@ import { Providers } from './providers'
 import Header from '@/shared/components/Header'
 import Footer from '@/shared/components/Footer'
 import PageContainer from '@/shared/components/Layout/PageContainer'
-
-const PresenceOverlay = dynamic(
-  () => import('@/features/realtime-presence/presentation/components/PresenceDevCore'),
-  { ssr: false },
-)
+import { HanokPresenceOverlay } from '@/features/realtime-presence/presentation/components/HanokPresenceOverlay'
+import { ROOM_ID_HANOK_ARCHIVE } from '@/features/realtime-presence/domain/presence.rooms'
 
 export const viewport: Viewport = {
   viewportFit: 'cover',
@@ -86,7 +82,7 @@ j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefo
             {children}
           </PageContainer>
           <Footer />
-          <PresenceOverlay roomId="hanok-global" />
+          <HanokPresenceOverlay roomId={ROOM_ID_HANOK_ARCHIVE} />
           <Analytics />
           <SpeedInsights />
         </Providers>
