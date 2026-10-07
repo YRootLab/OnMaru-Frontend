@@ -7,6 +7,8 @@ export interface Particle {
   life: number;    // 남은 수명 ms
   maxLife: number;
   isMine: boolean;
+  /** Draw size in CSS px; 0 = use renderer default (SPRITE_SIZE) */
+  drawSize: number;
 }
 
 export interface ParticleInit {
@@ -16,6 +18,8 @@ export interface ParticleInit {
   vy: number;
   maxLife: number;
   isMine: boolean;
+  /** Draw size override in CSS px; omit to use renderer default */
+  drawSize?: number;
 }
 
 export const POOL_SIZE = 64;
@@ -26,6 +30,7 @@ export function createPool(): Particle[] {
     x: 0, y: 0, vx: 0, vy: 0,
     life: 0, maxLife: 1,
     isMine: false,
+    drawSize: 0,
   }));
 }
 
@@ -43,6 +48,7 @@ export function spawnParticle(pool: Particle[], init: ParticleInit): number {
       p.maxLife = init.maxLife;
       p.life = init.maxLife;
       p.isMine = init.isMine;
+      p.drawSize = init.drawSize ?? 0;
       return i;
     }
   }

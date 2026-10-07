@@ -9,17 +9,26 @@ import { LivePresenceBadge } from './LivePresenceBadge';
 import { WarmthReactionButton } from './WarmthReactionButton';
 import {
   WarmthParticleCanvas,
+  type FxMode,
   type WarmthParticleEvent,
 } from './WarmthParticleCanvas';
+import type { MotionParams } from '../../domain/presence.motion';
 
 interface PresenceDevCoreProps {
   roomId: string;
   transport?: IPresenceTransport;
+  fx?: FxMode;
+  motionParams?: Partial<MotionParams>;
+  /** 배지 옆에 32px 벌 아이콘 표시 (기본 off) */
+  showBeeIcon?: boolean;
 }
 
 export default function PresenceDevCore({
   roomId,
   transport: externalTransport,
+  fx = 'light',
+  motionParams,
+  showBeeIcon = false,
 }: PresenceDevCoreProps) {
   const transport = useMemo(
     () =>
@@ -32,12 +41,19 @@ export default function PresenceDevCore({
   const { connection, snapshot, sendWarmth } = usePresenceRoom(roomId, transport);
   const enqueueRef = useRef<((e: WarmthParticleEvent) => void) | null>(null);
   const [open, setOpen] = useState(false);
+  const [batchMsg, setBatchMsg] = useState('');
 
   useEffect(() => {
     return transport.onWarmth((e) => {
       enqueueRef.current?.({ x: e.x, isMine: false });
     });
   }, [transport]);
+
+  const handleOtherBatch = useCallback((count: number) => {
+    setBatchMsg(`${count}명이 반딧불을 보냈어요`);
+    const t = setTimeout(() => setBatchMsg(''), 3_000);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleParticle = useCallback((x: number) => {
     enqueueRef.current?.({ x, isMine: true });
@@ -50,8 +66,16 @@ export default function PresenceDevCore({
        * pointer-events:none 으로 기존 카드·지도 조작 방해 없음.
        * z-index 90: 콘텐츠 위, 헤더(z99) 아래.
        */}
+      {/* aria-live: other batch 알림 (스크린 리더용) */}
+      <div aria-live="polite" aria-atomic="true" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
+        {batchMsg}
+      </div>
+
       <WarmthParticleCanvas
         onMount={(enqueue) => { enqueueRef.current = enqueue; }}
+        fx={fx}
+        motionParams={motionParams}
+        onOtherBatch={handleOtherBatch}
         style={{ position: 'fixed', inset: 0, zIndex: 90 }}
       />
 
@@ -67,7 +91,13 @@ export default function PresenceDevCore({
           gap: 8,
         }}
       >
-        <LivePresenceBadge connection={connection} snapshot={snapshot} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <LivePresenceBadge connection={connection} snapshot={snapshot} />
+          {showBeeIcon && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src="/images/me.png" alt="" aria-hidden="true" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />
+          )}
+        </div>
 
         {/* 반응 버튼 + 닫기: open 시 fade-in, closed 시 fade-out (항상 DOM에 있어 exit 애니메이션 작동) */}
         <div
