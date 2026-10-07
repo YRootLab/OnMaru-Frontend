@@ -290,6 +290,7 @@ describe('createSsePresenceTransport', () => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'omit',
       body: JSON.stringify({
         roomId: 'hanok_room',
         clientId: 'client_1',

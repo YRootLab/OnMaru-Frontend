@@ -9,9 +9,11 @@ import type { IPresenceTransport } from '@/features/realtime-presence/applicatio
 import { LivePresenceBadge } from '@/features/realtime-presence/presentation/components/LivePresenceBadge';
 import { WarmthReactionButton } from '@/features/realtime-presence/presentation/components/WarmthReactionButton';
 import {
+  type FrameStats,
   type WarmthParticleEvent,
   WarmthParticleCanvas,
 } from '@/features/realtime-presence/presentation/components/WarmthParticleCanvas';
+import type { RefObject } from 'react';
 
 if (process.env.NODE_ENV === 'production') notFound();
 
@@ -23,9 +25,12 @@ const LOG_MAX = 6;
 export default function ParticleBenchPage() {
   const [rate, setRate] = useState<Rate>(30);
   const [pooling, setPooling] = useState(true);
+  const [beeMode, setBeeMode] = useState(true);
   const [log, setLog] = useState<string[]>(['[시작] 데모 초기화']);
+  const [fpsDisplay, setFpsDisplay] = useState<string>('–');
 
   const enqueueRef = useRef<((e: WarmthParticleEvent) => void) | null>(null);
+  const frameStatsRef = useRef<RefObject<FrameStats | undefined> | null>(null);
   const rateRef = useRef(rate);
   rateRef.current = rate;
 
@@ -84,9 +89,21 @@ export default function ParticleBenchPage() {
   }, []);
 
   const handleMount = useCallback(
-    (enqueue: (e: WarmthParticleEvent) => void) => { enqueueRef.current = enqueue; },
+    (enqueue: (e: WarmthParticleEvent) => void, stats: RefObject<FrameStats | undefined>) => {
+      enqueueRef.current = enqueue;
+      frameStatsRef.current = stats;
+    },
     [],
   );
+
+  // FPS 폴링: 500ms마다 갱신
+  useEffect(() => {
+    const id = setInterval(() => {
+      const stats = frameStatsRef.current?.current;
+      setFpsDisplay(stats ? `${stats.fps} fps · ${stats.avgFrameMs}ms` : '–');
+    }, 500);
+    return () => clearInterval(id);
+  }, []);
 
   const handleParticle = useCallback((x: number) => {
     enqueueRef.current?.({ x, isMine: true });
@@ -116,6 +133,11 @@ export default function ParticleBenchPage() {
           풀링 <span style={{ color: pooling ? '#4caf50' : '#f44336' }}>{pooling ? 'ON' : 'OFF'}</span>
         </label>
 
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, cursor: 'pointer' }}>
+          <input type="checkbox" checked={beeMode} onChange={(e) => setBeeMode(e.target.checked)} />
+          벌 비행 <span style={{ color: beeMode ? '#f5c842' : '#888' }}>{beeMode ? 'ON' : 'OFF'}</span>
+        </label>
+
         <div style={{ marginLeft: 'auto', fontSize: 11, color: '#aaa', textAlign: 'right' }}>
           <span style={{ color: connection === 'open' ? '#4caf50' : connection === 'degraded' ? '#f44336' : '#f5c842' }}>
             {connection}
@@ -125,6 +147,9 @@ export default function ParticleBenchPage() {
               타인 ~{(Math.max(0, (snapshot?.activeCount ?? 1) - 1) * 6).toFixed(0)}/s
             </span>
           )}
+          <span style={{ color: '#4fc3f7', marginLeft: 12, fontVariantNumeric: 'tabular-nums' }}>
+            {fpsDisplay}
+          </span>
         </div>
       </div>
 
@@ -181,6 +206,7 @@ export default function ParticleBenchPage() {
           key={String(pooling)}
           onMount={handleMount}
           poolingEnabled={pooling}
+          beeMode={beeMode}
           style={{ position: 'absolute', inset: 0 }}
         />
         <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.25)', fontSize: 12, pointerEvents: 'none' }}>
