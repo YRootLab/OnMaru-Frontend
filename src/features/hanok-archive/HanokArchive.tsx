@@ -22,8 +22,6 @@ import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 import { HanokAtmosphereBackground } from '@/shared/components/HanokBackground';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
-import { HanokPresenceOverlay } from '@/features/realtime-presence/presentation/components/HanokPresenceOverlay';
-import { ROOM_ID_HANOK_ARCHIVE } from '@/features/realtime-presence/domain/presence.rooms';
 import HanokArchiveIntroHeading from '@/features/hanok-archive/components/HanokArchiveIntroHeading';
 
 const loadDogamDetailModal = () => import('@/features/hanok-archive/components/HanokDogamDetailModal');
@@ -365,9 +363,6 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           <HanokManifestoCta />
         </StyledVesselReveal>
       </PageInner>
-
-      {/* Presence 오버레이: 플래그 꺼짐 시 null, 운영 환경 시 null */}
-      <HanokPresenceOverlay roomId={ROOM_ID_HANOK_ARCHIVE} />
 
       {}
       {selectedDogamVillage && (
