@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://spoqa.github.io https://cdn.jsdelivr.net",
     "connect-src 'self' blob: https: wss:",
-    "media-src 'self' blob:",
+    "media-src 'self' blob: https://sfj608538-sfj608538.ktcdn.co.kr",
     "worker-src 'self' blob: https:",
     "frame-src https://www.googletagmanager.com",
     "frame-ancestors 'self'",
