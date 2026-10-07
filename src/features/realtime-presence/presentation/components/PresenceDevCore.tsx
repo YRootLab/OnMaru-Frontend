@@ -146,7 +146,7 @@ export default function PresenceDevCore({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/presence/me.png"
+            src="/images/me.png"
             alt=""
             aria-hidden="true"
             style={{ width: 28, height: 28, objectFit: 'contain' }}

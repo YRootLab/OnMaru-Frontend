@@ -177,8 +177,8 @@ export function useWarmthParticles(
   useEffect(() => {
     const dpr = Math.min(window.devicePixelRatio ?? 1, MAX_DPR);
     Promise.all([
-      loadBeeSprite('/presence/me.png', dpr),
-      loadBeeSprite('/presence/other.png', dpr),
+      loadBeeSprite('/images/me.png', dpr),
+      loadBeeSprite('/images/other.png', dpr),
     ]).then(([me, other]) => {
       beeSpriteRef.current = { me, other };
     });
