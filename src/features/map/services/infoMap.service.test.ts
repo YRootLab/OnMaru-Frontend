@@ -103,6 +103,50 @@ describe('infoMap.service category contract', () => {
     expect(response.items[1]).toMatchObject({ category: 'HANOK_STAY', name: '한옥' });
   });
 
+  it('expands dense close-range clusters into individual places from smaller viewports', async () => {
+    apiRequest.mockImplementation(async (_path, options) => {
+      const bbox = options.params.bbox;
+      const isFull = bbox === '126,36,128,38';
+      return {
+        renderMode: isFull ? 'CLUSTER' : 'PLACE',
+        servedBbox: { west: 126, south: 36, east: 128, north: 38 },
+        snapshotId: 'snap-1',
+        items: isFull
+          ? [{ type: 'CLUSTER', id: 'cluster-1', center: { lat: 37, lng: 127 }, count: 4 }]
+          : [{ type: 'PLACE', id: bbox, placeId: bbox, name: bbox, center: { lat: 37, lng: 127 } }],
+        totalCountInViewport: 4,
+      };
+    });
+
+    const response = await loadMapViewport({
+      bbox: '126,36,128,38', zoomLevel: 6, category: 'hanok', preferPlaces: true,
+    });
+
+    expect(response.renderMode).toBe('PLACE');
+    expect(response.items).toHaveLength(4);
+    expect(apiRequest).toHaveBeenCalledTimes(5);
+    expect(apiRequest).toHaveBeenCalledWith('/map/info/viewport', expect.objectContaining({
+      params: expect.objectContaining({ zoomLevel: '4' }),
+    }));
+  });
+
+  it('retains server clusters if a bounded subdivision cannot return every place', async () => {
+    apiRequest.mockResolvedValue({
+      renderMode: 'CLUSTER',
+      servedBbox: { west: 126, south: 36, east: 128, north: 38 },
+      snapshotId: 'snap-1',
+      items: [{ type: 'CLUSTER', id: 'cluster-1', center: { lat: 37, lng: 127 }, count: 100 }],
+      totalCountInViewport: 100,
+    });
+
+    const response = await loadMapViewport({
+      bbox: '126,36,128,38', zoomLevel: 6, category: 'hanok', preferPlaces: true,
+    });
+
+    expect(response.renderMode).toBe('CLUSTER');
+    expect(response.items[0].type).toBe('CLUSTER');
+  });
+
   it('accepts the backend object bbox and nullable compatibility snapshot id', async () => {
     apiRequest.mockResolvedValue({
       renderMode: 'DISTRICT',

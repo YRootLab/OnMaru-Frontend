@@ -25,7 +25,9 @@ const Overlay = styled.div`
   justify-content: center;
   padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
     max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
-  background: rgba(24, 24, 23, 0.42);
+  background: rgba(24, 27, 32, 0.58);
+  backdrop-filter: blur(8px) saturate(0.8);
+  -webkit-backdrop-filter: blur(8px) saturate(0.8);
 `;
 
 const Shell = styled.div`
@@ -97,19 +99,23 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     };
 
     const previousOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     window.addEventListener('keydown', onKeyDown);
 
     shellRef.current?.focus();
 
     return () => {
       document.body.style.overflow = previousOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [onClose]);
 
   return createPortal(
     <Overlay
+      data-lenis-prevent
       role="presentation"
       onPointerDown={(event) => {
 
@@ -128,4 +134,3 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     document.body,
   );
 }
-

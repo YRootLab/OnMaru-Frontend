@@ -32,6 +32,7 @@ const Layer = styled.div<{ $interactive: boolean }>`
 
 interface StructureCanvasProps {
   progress: number;
+  onReady?: () => void;
 
   onSelectMesh?: (meshName: string) => void;
   highlightStage?: number;
@@ -39,6 +40,7 @@ interface StructureCanvasProps {
 
 export default function StructureCanvas({
   progress,
+  onReady,
   onSelectMesh,
   highlightStage = -1,
 }: StructureCanvasProps) {
@@ -63,6 +65,7 @@ export default function StructureCanvas({
         <Suspense fallback={null}>
           <HanokStructureScene
             progress={progress}
+            onReady={onReady}
             dark={mode === 'dark'}
             onSelectMesh={onSelectMesh}
             highlightStage={highlightStage}

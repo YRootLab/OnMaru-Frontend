@@ -9,7 +9,7 @@ import { ArrowLeft01Icon, ArrowRight01Icon, MapPinIcon } from '@hugeicons/core-f
 import { useSceneStore } from './sceneStore';
 import useUserLocation from '@/hooks/useUserLocation';
 import SHADOW from '@/data/solarShadow.json';
-import { altitudeToSeasonValue, getDayOfYear, getNoonSolarAltitude } from '@/utils/solar';
+import { altitudeToSeasonValue, getDayOfYear, getNoonSolarAltitude, shadowLengthRatio } from '@/utils/solar';
 
 import { clamp01, easeOut, usePrefersReducedMotion } from './motion';
 
@@ -157,6 +157,15 @@ function stopIndexForDay(day) {
   return best;
 }
 
+function stopPositionForDay(day) {
+  if (day <= STOPS[0].dayOfYear) return 0;
+  if (day >= STOPS[LAST].dayOfYear) return LAST;
+
+  const before = STOPS.findIndex((stop) => stop.dayOfYear > day) - 1;
+  const span = STOPS[before + 1].dayOfYear - STOPS[before].dayOfYear;
+  return before + (day - STOPS[before].dayOfYear) / span;
+}
+
 
 
 
@@ -164,6 +173,13 @@ function stopIndexForDay(day) {
 const riseIn = keyframes`
   from { opacity: 0; transform: translate(-50%, 6px); }
   to   { opacity: 1; transform: translate(-50%, 0); }
+`;
+
+const guideNudge = keyframes`
+  0%, 100% { transform: translate(-50%, -50%); opacity: 0; }
+  20% { opacity: 0.7; }
+  50% { transform: translate(calc(-50% + 16px), -50%); opacity: 0.8; }
+  80% { opacity: 0.7; }
 `;
 
 
@@ -257,7 +273,7 @@ const TermTag = styled.p`
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin: 0 0 10px;
+  margin: 12px 0 0;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -519,6 +535,68 @@ const Hint = styled.p`
   }
 `;
 
+const HelpButton = styled.button`
+  position: absolute;
+  left: 0;
+  bottom: calc(100% - 14px);
+  z-index: 12;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--sim-pill-border);
+  border-radius: 50%;
+  background: var(--sim-pill-strong);
+  color: ${INK_SUB};
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover { color: var(--sim-accent); }
+  &:focus-visible { outline: 2px solid var(--sim-accent); outline-offset: 3px; }
+
+`;
+
+const HelpCard = styled.div`
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 27px);
+  z-index: 12;
+  width: min(240px, 82vw);
+  padding: 15px 16px;
+  border: 1px solid var(--sim-pill-border);
+  border-radius: 16px;
+  background: var(--sim-pill-strong);
+  box-shadow: 0 12px 32px rgba(23, 30, 43, 0.13);
+  color: ${INK_SUB};
+  font-size: 12px;
+  line-height: 1.55;
+
+  strong {
+    display: block;
+    margin-bottom: 4px;
+    color: ${INK};
+    font-size: 13px;
+  }
+
+  p { margin: 0; }
+
+  button {
+    display: block;
+    margin: 10px 0 0 auto;
+    padding: 3px 0;
+    border: 0;
+    background: none;
+    color: var(--sim-accent);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+`;
+
 
 const Track = styled.div`
   position: relative;
@@ -648,6 +726,23 @@ const Knob = styled.span`
   box-sizing: border-box;
   background: var(--sim-accent);
   transition: left ${SLIDE}, bottom ${SLIDE}, background-color ${TINT};
+
+  &[data-guide='true']::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 31px;
+    height: 31px;
+    border: 2px solid var(--sim-accent);
+    border-radius: 50%;
+    animation: ${guideNudge} 2.4s ease-in-out 2;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &[data-guide='true']::after { animation: none; opacity: 0.5; }
+  }
 `;
 
 const Labels = styled.div`
@@ -726,16 +821,34 @@ const BackToToday = styled.button`
 
 
 
-export default function SolarShadowPanel() {
+export default function SolarShadowPanel({ onSeasonChange }) {
   const reduced = usePrefersReducedMotion();
+  const [showGuide, setShowGuide] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      const firstVisit = localStorage.getItem('onmaru:solar-shadow-guide-v2') !== 'true';
+      setShowGuide(firstVisit);
+      setHelpOpen(firstVisit);
+    } catch {
+      setShowGuide(true);
+      setHelpOpen(true);
+    }
+  }, []);
 
   const revealId = useId().replace(/:/g, '');
+  const helpId = `${revealId}-help`;
   const { latitude, cityName, locationState, isSecure, requestLocation } = useUserLocation();
   const setSun = useSceneStore((s) => s.setSun);
   const setAssembling = useSceneStore((s) => s.setAssembling);
 
 
-  const baseIndex = useMemo(() => stopIndexForDay(getDayOfYear(new Date())), []);
+  const today = useMemo(() => new Date(), []);
+  const dayOfYear = getDayOfYear(today);
+  const baseIndex = useMemo(() => stopIndexForDay(dayOfYear), [dayOfYear]);
+  const todayPosition = stopPositionForDay(dayOfYear);
+  const todaySeoulAltitude = getNoonSolarAltitude(SHADOW.latitude, today);
 
 
 
@@ -757,8 +870,18 @@ export default function SolarShadowPanel() {
   const drag = useRef(null);
   const tween = useRef(0);
 
-  const view = STOPS[index];
-  const pair = view.pairId ? STOPS.find((stop) => stop.id === view.pairId) : null;
+  const view = touched
+    ? STOPS[index]
+    : {
+        ...STOPS[baseIndex],
+        altitude: todaySeoulAltitude,
+        shadow: shadowLengthRatio(todaySeoulAltitude) * 100,
+        seasonValue: altitudeToSeasonValue(todaySeoulAltitude, SHADOW.latitude),
+      };
+
+  useEffect(() => {
+    onSeasonChange?.(view.season);
+  }, [onSeasonChange, view.season]);
 
 
 
@@ -786,11 +909,21 @@ export default function SolarShadowPanel() {
     [],
   );
 
-  const today = new Date();
   const todayAltitude = getNoonSolarAltitude(latitude, today);
+
+  const dismissGuide = () => {
+    setShowGuide(false);
+    setHelpOpen(false);
+    try {
+      localStorage.setItem('onmaru:solar-shadow-guide-v2', 'true');
+    } catch {
+      // The guide still dismisses when storage is unavailable.
+    }
+  };
 
   const moveTo = (next) => {
     cancelAnimationFrame(tween.current);
+    if (showGuide || helpOpen) dismissGuide();
     setUserIndex(Math.min(LAST, Math.max(0, Math.round(next))));
   };
 
@@ -864,8 +997,14 @@ export default function SolarShadowPanel() {
     tween.current = requestAnimationFrame(step);
   };
 
-  const showReturn = touched && index !== baseIndex;
-  const percent = (index / LAST) * 100;
+  const showReturn = touched;
+  const trackPosition = touched ? index : todayPosition;
+  const percent = (trackPosition / LAST) * 100;
+  const knobY = touched
+    ? POINTS[index].y
+    : POINTS[Math.floor(todayPosition)].y +
+      (POINTS[Math.min(LAST, Math.ceil(todayPosition))].y - POINTS[Math.floor(todayPosition)].y) *
+        (todayPosition % 1);
 
   const animKey = interacting ? 'live' : view.id;
 
@@ -874,24 +1013,45 @@ export default function SolarShadowPanel() {
   return (
     <Stage aria-label="절기에 따른 처마 그림자" style={tint}>
       <Copy>
-        <TermTag>
-          {`${view.name} · ${view.month}월 ${view.day}일`}
-          {pair && <em>{`${pair.name}과 같은 고도`}</em>}
-        </TermTag>
-
         <Headline key={animKey}>{view.headline}</Headline>
 
         <Note key={`${animKey}-reach`}>{view.sunlightReach}</Note>
+
+        <TermTag>
+          {touched
+            ? `${view.name} · ${view.month}월 ${view.day}일 기준`
+            : `오늘 ${today.getMonth() + 1}월 ${today.getDate()}일 · ${view.name} 무렵`}
+        </TermTag>
       </Copy>
 
       <Controller>
-        {}
+        <HelpButton
+          type="button"
+          aria-label="절기 그래프 사용 방법"
+          aria-expanded={helpOpen}
+          aria-controls={helpOpen ? helpId : undefined}
+          onClick={() => {
+            if (helpOpen) dismissGuide();
+            else setHelpOpen(true);
+          }}
+        >
+          ?
+        </HelpButton>
+        {helpOpen && (
+          <HelpCard id={helpId} role="note">
+            <strong>절기를 움직여 보세요</strong>
+            <p>그래프를 좌우로 끌거나 절기 이름을 누르면 한옥에 드는 볕과 그림자가 달라져요.</p>
+            <button type="button" onClick={dismissGuide}>알겠어요</button>
+          </HelpCard>
+        )}
         {showReturn ? (
           <BackToToday type="button" onClick={returnToBase}>
             오늘로 돌아가기
           </BackToToday>
         ) : (
-          !touched && <Hint>절기를 옮겨 그림자를 보세요</Hint>
+          !touched && (
+            <Hint>{showGuide ? '↔ 손잡이를 좌우로 움직여 보세요' : '절기를 옮겨 그림자를 보세요'}</Hint>
+          )
         )}
 
         <Card>
@@ -907,7 +1067,7 @@ export default function SolarShadowPanel() {
             <Stat>
               <StatLabel>남중고도</StatLabel>
               <StatValue key={`${animKey}-altitude`}>
-                {view.altitude}
+                {view.altitude.toFixed(2)}
                 <small>°</small>
               </StatValue>
             </Stat>
@@ -919,8 +1079,8 @@ export default function SolarShadowPanel() {
             aria-label="절기"
             aria-valuemin={0}
             aria-valuemax={LAST}
-            aria-valuenow={index}
-            aria-valuetext={`${view.name}, 남중고도 ${view.altitude}도, 1미터당 그림자 ${Math.round(view.shadow)}센티미터`}
+            aria-valuenow={trackPosition}
+            aria-valuetext={`${touched ? view.name : '오늘'}, 남중고도 ${view.altitude.toFixed(2)}도, 1미터당 그림자 ${Math.round(view.shadow)}센티미터`}
             onPointerDown={start}
             onPointerMove={move}
             onPointerUp={end}
@@ -964,14 +1124,15 @@ export default function SolarShadowPanel() {
             {POINTS.map((point, i) => (
               <Tick
                 key={STOPS[i].id}
-                data-passed={i <= index}
+                data-passed={i <= trackPosition}
                 style={{ left: `${point.x}%`, bottom: `${point.y}px` }}
               />
             ))}
 
             <Knob
               data-knob
-              style={{ left: `${percent}%`, bottom: `${POINTS[index].y}px` }}
+              data-guide={showGuide && !touched}
+              style={{ left: `${percent}%`, bottom: `${knobY}px` }}
             />
           </Track>
 
@@ -980,7 +1141,7 @@ export default function SolarShadowPanel() {
               <Label
                 key={stop.id}
                 type="button"
-                data-active={i === index}
+                data-active={touched && i === index}
                 style={{
                   left: `${(i / LAST) * 100}%`,
 

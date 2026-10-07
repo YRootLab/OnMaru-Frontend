@@ -34,30 +34,29 @@ function searchRadius(map: KakaoMap, centerLat: number, centerLng: number): numb
 
 export function useMapData() {
   const mode = useMapStore((state) => state.mode);
+  const map = useMapStore((state) => state.map);
   const searchCenter = useMapStore((state) => state.searchCenter);
-  const committedRadius = useMapStore((state) => state.committedViewport.radius);
 
   useEffect(() => {
     if (mode !== 'warmth') return;
+    if (!map) return;
 
     const controller = new AbortController();
     const initialState = useMapStore.getState();
     const level = initialState.committedViewport.level;
-    const currentMap = initialState.map;
-    const radius = currentMap
-      ? searchRadius(currentMap, searchCenter.lat, searchCenter.lng)
-      : Math.max(1_000, committedRadius || 3_000);
+    const radius = searchRadius(map, searchCenter.lat, searchCenter.lng);
 
     fetchWarmthData({
       lat: searchCenter.lat,
       lng: searchCenter.lng,
       level,
       radius: Math.max(radius, level <= 5 ? 5_000 : 15_000),
-      signal: controller.signal,
     })
       .then((response) => {
         const store = useMapStore.getState();
-        store.setHeatSpots(response.spots ?? []);
+        if (store.mode !== 'warmth' || controller.signal.aborted) return;
+        const spots = response.spots ?? [];
+        store.setHeatSpots(spots);
         store.setHeatDays(response.days ?? []);
         if (response.noticeMessage) {
           store.setError(response.noticeMessage);
@@ -69,5 +68,5 @@ export function useMapData() {
       });
 
     return () => controller.abort();
-  }, [mode, searchCenter.lat, searchCenter.lng, committedRadius]);
+  }, [mode, map, searchCenter.lat, searchCenter.lng]);
 }

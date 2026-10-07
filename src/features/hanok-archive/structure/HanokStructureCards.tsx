@@ -15,7 +15,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowUpRight01Icon, Layers01Icon, SparklesIcon, SunMediumIcon } from '@hugeicons/core-free-icons'
+import { ArrowUpRight01Icon, Layers01Icon, SunMediumIcon } from '@hugeicons/core-free-icons'
 
 import { meok, palette, lightPalette, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
@@ -90,7 +90,7 @@ const SectionLabel = styled.div<{ $color: string }>`
   font-weight: 700;
   letter-spacing: 0.04em;
   color: ${({ $color }) => $color};
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 `;
 
 const CardTitle = styled.h3`
@@ -100,7 +100,7 @@ const CardTitle = styled.h3`
   letter-spacing: -0.025em;
   line-height: 1.35;
   color: ${meok[900]};
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   word-break: keep-all;
 
   [data-theme='dark'] & {
@@ -113,7 +113,7 @@ const CardDesc = styled.p`
   font-weight: 400;
   line-height: 1.65;
   color: ${meok[700]};
-  margin: 0 0 20px;
+  margin: 0;
   word-break: keep-all;
 
   [data-theme='dark'] & {
@@ -139,6 +139,22 @@ const PreviewCanvas = styled.div<{ $bg: string }>`
   [data-theme='dark'] & {
     border-color: rgba(255, 255, 255, 0.06);
   }
+`;
+
+const PreviewBadge = styled.div`
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 `;
 
 
@@ -286,7 +302,7 @@ const AssemblyPreviewGraphic = styled.div`
 
 
 const MoreLink = styled.div<{ $color: string }>`
-  margin-top: 18px;
+  margin-top: 12px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -352,37 +368,18 @@ export default function HanokStructureCards() {
             >
               <source src="/videos/Oni_standing.mp4" type="video/mp4" />
             </video>
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 10,
-                right: 14,
-                fontSize: 11,
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '4px 9px',
-                borderRadius: 9999,
-                background: 'rgba(0, 0, 0, 0.55)',
-                color: '#ffffff',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-                letterSpacing: '-0.01em',
-              }}
-            >
-              <HugeiconsIcon icon={SparklesIcon} size={12} /> 하지 77° ➔ 동지 29°
-            </div>
+            <PreviewBadge>하지 77° ➔ 동지 29°</PreviewBadge>
           </PreviewCanvas>
 
           <CardBody>
+            <CardTitle>처마는 왜 여름엔 그늘을, 겨울엔 볕을 줄까</CardTitle>
             <SectionLabel $color={lightPalette.hwanggeum[700]}>
               <HugeiconsIcon icon={SunMediumIcon} size={14} /> 자연의 빛과 일조 과학
             </SectionLabel>
-
-            <CardTitle>처마는 왜 여름엔 그늘을, 겨울엔 볕을 줄까</CardTitle>
             <CardDesc>
-              봄·여름·가을·겨울 24절기를 슬라이더로 옮겨 보세요. 남중고도(29°~77°) 변화에 따라 처마 밑으로 드리우는 그림자가 실제 건축 비율로 시시각각 변화합니다.
+              봄·여름·가을·겨울 24절기를 슬라이더로 옮겨 보세요.
+              <br />
+              남중고도(29°~77°) 변화에 따라 처마 밑으로 드리우는 그림자가 실제 건축 비율로 시시각각 변화합니다.
             </CardDesc>
 
             <MoreLink $color={lightPalette.hwanggeum[700]}>
@@ -429,37 +426,18 @@ export default function HanokStructureCards() {
             >
               <source src="/videos/Oni_touch.mp4" type="video/mp4" />
             </video>
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 10,
-                right: 14,
-                fontSize: 11,
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '4px 9px',
-                borderRadius: 9999,
-                background: 'rgba(0, 0, 0, 0.55)',
-                color: '#ffffff',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-                letterSpacing: '-0.01em',
-              }}
-            >
-              <HugeiconsIcon icon={SparklesIcon} size={12} /> 기단에서 기와까지 7단계
-            </div>
+            <PreviewBadge>기단에서 기와까지 7단계</PreviewBadge>
           </PreviewCanvas>
 
           <CardBody>
+            <CardTitle>쇠못 하나 없이, 한옥은 어떻게 일곱 켜로 설까</CardTitle>
             <SectionLabel $color={lightPalette.juhong[700]}>
               <HugeiconsIcon icon={Layers01Icon} size={14} /> 못 없는 맞춤과 결구의 미학
             </SectionLabel>
-
-            <CardTitle>쇠못 하나 없이, 한옥은 어떻게 일곱 켜로 설까</CardTitle>
             <CardDesc>
-              기단부터 지붕까지 한 켜씩 세워 보세요. 사개맞춤과 장부맞춤으로 서로를 꽉 물어주어 지진과 비바람에도 흔들리지 않는 전통 목조 결구의 정수를 경험합니다.
+              기단부터 지붕까지 한 켜씩 세워 보세요.
+              <br />
+              사개맞춤과 장부맞춤으로 서로를 꽉 물어주어 지진과 비바람에도 흔들리지 않는 전통 목조 결구의 정수를 경험합니다.
             </CardDesc>
 
             <MoreLink $color={lightPalette.juhong[700]}>
