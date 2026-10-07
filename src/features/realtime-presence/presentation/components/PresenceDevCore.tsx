@@ -95,7 +95,7 @@ export default function PresenceDevCore({
           <LivePresenceBadge connection={connection} snapshot={snapshot} />
           {showBeeIcon && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src="/images/me.png" alt="" aria-hidden="true" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />
+            <img src="/images/firefly.svg" alt="" aria-hidden="true" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />
           )}
         </div>
 
@@ -176,17 +176,11 @@ export default function PresenceDevCore({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/me.png"
+            src="/images/firefly.svg"
             alt=""
             aria-hidden="true"
             style={{ width: 28, height: 28, objectFit: 'contain' }}
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.display = 'none';
-              const span = document.createElement('span');
-              span.textContent = '✨';
-              span.style.fontSize = '18px';
-              e.currentTarget.parentElement?.appendChild(span);
-            }}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).replaceWith(Object.assign(document.createElement('span'), { textContent: '✨', style: { fontSize: '18px' } })); }}
           />
         </button>
       </div>
