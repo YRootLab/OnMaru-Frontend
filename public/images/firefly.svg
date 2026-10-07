@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <defs>
+    <radialGradient id="outerGlow" cx="50%" cy="70%" r="50%">
+      <stop offset="0%"   stop-color="#fff176" stop-opacity="0.85"/>
+      <stop offset="55%"  stop-color="#ffcc00" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ff9500" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="40%"  stop-color="#ffff88" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#ffe000" stop-opacity="0.8"/>
+    </radialGradient>
+  </defs>
+
+  <!-- 외부 후광 -->
+  <ellipse cx="20" cy="28" rx="10" ry="7.5" fill="url(#outerGlow)"/>
+
+  <!-- 더듬이 -->
+  <path d="M18.5 12 Q16 8 13.5 6" stroke="#2c1810" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
+  <path d="M21.5 12 Q24 8 26.5 6" stroke="#2c1810" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
+  <!-- 더듬이 끝 점 -->
+  <circle cx="13.5" cy="6"  r="1" fill="#2c1810" opacity="0.6"/>
+  <circle cx="26.5" cy="6"  r="1" fill="#2c1810" opacity="0.6"/>
+
+  <!-- 머리 -->
+  <circle cx="20" cy="12.5" r="3.2" fill="#2c1810" opacity="0.88"/>
+
+  <!-- 몸통 -->
+  <ellipse cx="20" cy="20.5" rx="3.8" ry="7" fill="#2c1810" opacity="0.88"/>
+
+  <!-- 발광 꼬리 — 후광 -->
+  <ellipse cx="20" cy="27.5" rx="5.5" ry="3.5" fill="#ffe566" opacity="0.55"/>
+  <!-- 발광 꼬리 — 코어 -->
+  <ellipse cx="20" cy="27.5" rx="3.2" ry="2.2" fill="url(#coreGlow)"/>
+</svg>
