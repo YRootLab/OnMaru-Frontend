@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+## [v0.1.19] - 2026-10-08
+
 - 지도 온기 모드의 기본 `시·군 행정별` 화면에서 행정구역 색상 캔버스가 빠진 회귀를 수정했다. 원형 히트맵과 행정구역 채우기는 기존 `HeatCanvas`의 모드별 그리기를 그대로 사용한다.
 - 소리마루 음원 CDN을 CSP `media-src`에 허용해 브라우저의 오디오 재생 차단을 수정했다.
 
