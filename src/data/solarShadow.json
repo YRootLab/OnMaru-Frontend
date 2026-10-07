@@ -13,9 +13,9 @@
       "shadowRatio": 1.37,
       "season": "spring",
       "pairId": "ipdong",
-      "headline": "그림자가 공간의 경계를 넘어 축소됩니다",
+      "headline": "낮은 볕이 마루 안쪽까지 들어옵니다",
       "note": "태양 고도가 36.1°로 오르며 그림자 길이가 축소하기 시작합니다.",
-      "sunlightReach": "낮아진 궤적의 빛이 마루를 넘어 방 문턱까지 진입합니다."
+      "sunlightReach": "봄이 시작될 무렵, 볕은 마루를 지나 방 문턱에 닿습니다."
     },
     {
       "id": "chunbun",
@@ -27,9 +27,9 @@
       "shadowRatio": 0.77,
       "season": "spring",
       "pairId": "chubun",
-      "headline": "빛과 그림자가 완벽한 대칭을 이룹니다",
+      "headline": "처마 끝에 봄볕이 닿습니다",
       "note": "고도 52.42°. 낮과 밤의 길이가 같아지는 태양의 균형점입니다.",
-      "sunlightReach": "툇마루 끝선에 맞춰 빛이 정확하게 도달합니다."
+      "sunlightReach": "볕이 툇마루 끝에 닿고, 낮과 밤의 길이가 비슷해집니다."
     },
     {
       "id": "ipha",
@@ -41,9 +41,9 @@
       "shadowRatio": 0.39,
       "season": "summer",
       "pairId": "ipchu",
-      "headline": "그림자가 처마 아래로 바짝 물러납니다",
+      "headline": "햇볕이 마루 밖으로 물러납니다",
       "note": "고도 68.75°. 태양이 높아지며 그림자 면적이 급격히 축소됩니다.",
-      "sunlightReach": "빛이 안채 내부로 진입하지 못하고 툇마루에 차단됩니다."
+      "sunlightReach": "태양이 높아지며 처마가 안쪽으로 드는 볕을 막아 줍니다."
     },
     {
       "id": "haji",
@@ -55,9 +55,9 @@
       "shadowRatio": 0.25,
       "season": "summer",
       "pairId": null,
-      "headline": "직사광선이 자취를 감추는 태양의 정점입니다",
+      "headline": "처마가 한낮의 볕을 가립니다",
       "note": "최고 고도 75.82°. 가장 짧아진 그림자가 뜰 안으로 갇힙니다.",
-      "sunlightReach": "처마가 뜨거운 빛을 차단하여 내부 공간을 서늘하게 통제합니다."
+      "sunlightReach": "태양이 가장 높은 때, 마루 안쪽에는 그늘이 남습니다."
     },
     {
       "id": "ipchu",
@@ -69,9 +69,9 @@
       "shadowRatio": 0.39,
       "season": "autumn",
       "pairId": "ipha",
-      "headline": "그림자가 다시 공간을 향해 길어집니다",
+      "headline": "볕이 다시 마루에 닿기 시작합니다",
       "note": "고도 68.75°. 태양 고도가 낮아지며 그림자가 확장을 시작합니다.",
-      "sunlightReach": "낮아진 빛의 궤적이 툇마루 바닥을 다시 점유합니다."
+      "sunlightReach": "태양이 조금씩 낮아지며 볕이 툇마루로 돌아옵니다."
     },
     {
       "id": "chubun",
@@ -83,9 +83,9 @@
       "shadowRatio": 0.77,
       "season": "autumn",
       "pairId": "chunbun",
-      "headline": "빛과 그림자가 다시 균형을 맞춥니다",
+      "headline": "가을 볕이 툇마루 안쪽으로 듭니다",
       "note": "고도 52.42°. 춘분과 동일한 궤적으로 빛이 유입됩니다.",
-      "sunlightReach": "빛이 툇마루를 넘어 공간 내부를 향해 깊이를 더합니다."
+      "sunlightReach": "낮아진 볕이 처마를 지나 마루 안쪽까지 들어옵니다."
     },
     {
       "id": "ipdong",
@@ -97,9 +97,9 @@
       "shadowRatio": 1.37,
       "season": "winter",
       "pairId": "ipchun",
-      "headline": "그림자가 구조물의 한계를 넘어 확장됩니다",
+      "headline": "낮은 볕이 방 안까지 들어옵니다",
       "note": "고도 36.1°. 그림자 길이가 물체 높이의 1.37배까지 팽창합니다.",
-      "sunlightReach": "낮아진 빛의 궤적이 안채 방바닥을 깊게 비춥니다."
+      "sunlightReach": "겨울이 시작되면 처마 아래로 볕이 길게 들어옵니다."
     },
     {
       "id": "dongji",
@@ -111,9 +111,9 @@
       "shadowRatio": 1.80,
       "season": "winter",
       "pairId": null,
-      "headline": "빛이 공간의 가장 깊은 곳까지 침투합니다",
+      "headline": "겨울 볕이 방 깊숙이 들어옵니다",
       "note": "최저 고도 29.02°. 1년 중 가장 긴 그림자가 1.8배까지 늘어납니다.",
-      "sunlightReach": "낮은 볕이 방 안쪽 끝까지 침투하여 복사열을 축적합니다."
+      "sunlightReach": "태양이 가장 낮은 때, 볕이 방 안쪽까지 닿습니다."
     }
   ]
 }

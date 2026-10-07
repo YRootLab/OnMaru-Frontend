@@ -332,6 +332,28 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
     expect(result.spots).toEqual([]);
   });
 
+  it('빈 온기 결과는 캐시하지 않아 다음 진입 때 다시 조회한다', async () => {
+    const repository: MapInsightsRepository = {
+      getHeatmap: vi.fn().mockResolvedValue({
+        schemaVersion: '1.2',
+        coverageStatus: 'MISSING',
+        metric: 'VISIT_COUNT',
+        observedDate: '2026-09-28',
+        generatedAt: '2026-09-28T00:00:00Z',
+        spots: [],
+      }),
+      getObservations: vi.fn(),
+    };
+    const fallbackFetcher = vi.fn().mockResolvedValue({
+      source: 'TOUR_API_FALLBACK', coverageStatus: 'PARTIAL', spots: [], days: [],
+    });
+
+    await fetchWarmthData({}, { repository, fallbackFetcher, delayFn: mockDelayImmediate });
+    await fetchWarmthData({}, { repository, fallbackFetcher, delayFn: mockDelayImmediate });
+
+    expect(repository.getHeatmap).toHaveBeenCalledTimes(2);
+  });
+
   it('8. 동일 파라미터 중복 호출: 캐시 또는 in-flight deduplication으로 1회만 요청', async () => {
     const repository: MapInsightsRepository = {
       getHeatmap: vi.fn().mockImplementation(async () => {
