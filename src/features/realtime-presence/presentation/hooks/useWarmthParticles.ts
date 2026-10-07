@@ -231,8 +231,8 @@ export function useWarmthParticles(
     const dpr = Math.min(window.devicePixelRatio ?? 1, MAX_DPR);
     beeSpriteRef.current = null;
     Promise.all([
-      loadBeeSprite('/images/firefly.svg', dpr, motionRef.current.beeH),
-      loadBeeSprite('/images/firefly.svg', dpr, motionRef.current.beeH),
+      loadBeeSprite('/images/me.png', dpr, motionRef.current.beeH),
+      loadBeeSprite('/images/other.png', dpr, motionRef.current.beeH),
     ]).then(([me, other]) => {
       beeSpriteRef.current = { me, other };
     });
