@@ -6,7 +6,7 @@ import Image from 'next/image';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Bookmark01Icon, HeadphonesIcon, Home01Icon, MapPinIcon, UserIcon } from '@hugeicons/core-free-icons'
+import { Bookmark01Icon, HeadphonesIcon, Home01Icon, MapPinIcon, SearchAreaIcon, UserIcon } from '@hugeicons/core-free-icons'
 import { HanokIcon } from './HanokIcon'
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
@@ -297,6 +297,20 @@ export default function MapNavRail() {
             <HugeiconsIcon icon={HeadphonesIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>소리마루</NavItemLabel>
+        </NavItemBtn>
+
+        {}
+        <NavItemBtn
+          type="button"
+          $active={false}
+          onClick={() => router.push('/discover')}
+          aria-label="K-마루"
+          title="K-마루"
+        >
+          <NavItemIcon>
+            <HugeiconsIcon icon={SearchAreaIcon} size={19} strokeWidth={2} />
+          </NavItemIcon>
+          <NavItemLabel>K-마루</NavItemLabel>
         </NavItemBtn>
 
         {}
