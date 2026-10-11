@@ -11,7 +11,7 @@ import {
   Film01Icon,
   Music02Icon,
 } from '@hugeicons/core-free-icons';
-import { lightPalette, meok, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, ringShadow, fontSize } from '@/design-system/tokens';
 import type { DiscoveryTopic, TopicCode } from '../../domain/types';
 
 const TOPIC_ICONS: Record<TopicCode, React.ComponentType<any>> = {
@@ -40,25 +40,37 @@ const Tab = styled.button<{ $active: boolean }>`
   gap: 6px;
   padding: 8px 16px;
   border-radius: 9999px;
-  border: 1.5px solid
-    ${({ $active }) =>
-      $active ? lightPalette.juhong[500] : 'rgba(78, 89, 104, 0.18)'};
+  border: none;
   background: ${({ $active }) =>
-    $active ? lightPalette.juhong[500] : 'transparent'};
+    $active ? lightPalette.juhong[500] : meok[200]};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  box-shadow: ${({ $active }) =>
+    $active ? ringShadow.light.chipActive : 'none'};
   font-size: ${fontSize.sm};
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  transition: background 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
   font-family: inherit;
   white-space: nowrap;
 
   &:hover {
-    border-color: ${lightPalette.juhong[400]};
+    background: ${({ $active }) =>
+      $active ? lightPalette.juhong[400] : meok[300]};
+    box-shadow: ${({ $active }) =>
+      $active ? ringShadow.light.chipActive : ringShadow.light.chipHover};
   }
 
   [data-theme='dark'] & {
+    background: ${({ $active }) =>
+      $active ? lightPalette.juhong[500] : meok[700]};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[300])};
+    box-shadow: ${({ $active }) =>
+      $active ? ringShadow.dark.chipActive : 'none'};
+
+    &:hover {
+      background: ${({ $active }) =>
+        $active ? lightPalette.juhong[400] : meok[600]};
+    }
   }
 `;
 

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import EvidenceList from './EvidenceList';
 import type { KContentRelation } from '../../domain/types';
@@ -12,15 +12,16 @@ import type { KContentRelation } from '../../domain/types';
 const Card = styled.div`
   padding: 16px;
   border-radius: 14px;
-  border: 1px solid rgba(78, 89, 104, 0.1);
+  border: none;
   background: #ffffff;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-shadow: ${ringShadow.light.cardElevated};
 
   [data-theme='dark'] & {
     background: ${meok[800]};
-    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.cardElevated};
   }
 `;
 
@@ -93,7 +94,7 @@ const EvidenceToggle = styled.button`
   gap: 4px;
   font-size: ${fontSize.xs};
   font-weight: 600;
-  color: ${lightPalette.kobalt[600]};
+  color: ${lightPalette.cheongrok[600]};
   background: none;
   border: none;
   cursor: pointer;
@@ -102,11 +103,11 @@ const EvidenceToggle = styled.button`
   transition: color 0.15s ease;
 
   &:hover {
-    color: ${lightPalette.kobalt[800]};
+    color: ${lightPalette.cheongrok[800]};
   }
 
   [data-theme='dark'] & {
-    color: ${lightPalette.kobalt[400]};
+    color: ${lightPalette.cheongrok[400]};
   }
 `;
 

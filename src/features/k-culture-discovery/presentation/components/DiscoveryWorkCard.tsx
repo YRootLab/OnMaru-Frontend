@@ -5,8 +5,8 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { MapPin01Icon } from '@hugeicons/core-free-icons';
-import { meok, fontSize } from '@/design-system/tokens';
+import { MapPin01Icon, ClapperboardIcon } from '@hugeicons/core-free-icons';
+import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import type { WorkSummary } from '../../domain/types';
 
@@ -22,21 +22,25 @@ const Card = styled(motion.button)`
   gap: 14px;
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(78, 89, 104, 0.1);
+  border: none;
   background: #ffffff;
   cursor: pointer;
   text-align: left;
   width: 100%;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: ${ringShadow.light.cardElevated};
+  transition: box-shadow 0.22s ease;
 
   [data-theme='dark'] & {
     background: ${meok[800]};
-    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.cardElevated};
   }
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    border-color: rgba(78, 89, 104, 0.2);
+    box-shadow: ${ringShadow.light.cardLift};
+
+    [data-theme='dark'] & {
+      box-shadow: ${ringShadow.dark.cardLift};
+    }
   }
 `;
 
@@ -51,10 +55,10 @@ const ArtworkWrap = styled.div`
   align-items: center;
   justify-content: center;
   color: ${meok[400]};
-  font-size: 24px;
 
   [data-theme='dark'] & {
     background: ${meok[700]};
+    color: ${meok[500]};
   }
 `;
 
@@ -114,9 +118,14 @@ const PlaceCount = styled.span`
   align-items: center;
   gap: 3px;
   font-size: 11px;
-  color: ${meok[500]};
+  color: ${lightPalette.cheongrok[600]};
+  font-weight: 600;
   margin-left: auto;
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    color: ${lightPalette.cheongrok[400]};
+  }
 `;
 
 const SkeletonCard = styled.div`
@@ -125,12 +134,13 @@ const SkeletonCard = styled.div`
   gap: 14px;
   padding: 14px 16px;
   border-radius: 14px;
-  border: 1px solid rgba(78, 89, 104, 0.1);
+  border: none;
   background: #ffffff;
+  box-shadow: ${ringShadow.light.cardElevated};
 
   [data-theme='dark'] & {
     background: ${meok[800]};
-    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.cardElevated};
   }
 `;
 
@@ -203,7 +213,7 @@ export default function DiscoveryWorkCard({ work, index = 0, onClick }: Discover
         {work.workArtwork ? (
           <ArtworkImg src={work.workArtwork} alt={work.canonicalTitle} loading="lazy" />
         ) : (
-          <span aria-hidden="true">🎬</span>
+          <HugeiconsIcon icon={ClapperboardIcon} size={24} strokeWidth={1.5} aria-hidden="true" />
         )}
       </ArtworkWrap>
 

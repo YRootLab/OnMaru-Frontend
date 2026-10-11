@@ -6,7 +6,7 @@ import Link from 'next/link';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft01Icon, Film01Icon } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import DiscoveryWorksSection from './presentation/components/DiscoveryWorksSection';
 import { useDiscoveryWorks } from './presentation/hooks/useDiscoveryWorks';
 import type { WorkSummary, WorkType } from './domain/types';
@@ -67,24 +67,29 @@ const FilterRow = styled.div`
 const FilterChip = styled.button<{ $active: boolean }>`
   padding: 6px 14px;
   border-radius: 9999px;
-  border: 1.5px solid ${({ $active }) =>
-    $active ? lightPalette.juhong[400] : 'rgba(78, 89, 104, 0.18)'};
-  background: ${({ $active }) => ($active ? lightPalette.juhong[50] : 'transparent')};
-  color: ${({ $active }) => ($active ? lightPalette.juhong[600] : meok[600])};
+  border: none;
+  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[200])};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  box-shadow: ${({ $active }) => ($active ? ringShadow.light.chipActive : 'none')};
   font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
 
   &:hover {
-    border-color: ${lightPalette.juhong[400]};
-    color: ${lightPalette.juhong[600]};
+    background: ${({ $active }) => ($active ? lightPalette.juhong[400] : meok[300])};
+    box-shadow: ${({ $active }) => ($active ? ringShadow.light.chipActive : ringShadow.light.chipHover)};
   }
 
   [data-theme='dark'] & {
-    color: ${({ $active }) => ($active ? lightPalette.juhong[400] : meok[300])};
-    background: ${({ $active }) => ($active ? 'rgba(220, 80, 80, 0.12)' : 'transparent')};
+    background: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[700])};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[300])};
+    box-shadow: ${({ $active }) => ($active ? ringShadow.dark.chipActive : 'none')};
+
+    &:hover {
+      background: ${({ $active }) => ($active ? lightPalette.juhong[400] : meok[600])};
+    }
   }
 `;
 

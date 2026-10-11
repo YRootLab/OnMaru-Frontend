@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import DiscoveryPlaceCard, { DiscoveryPlaceCardSkeleton } from './DiscoveryPlaceCard';
 import type { DiscoveryPlaceSummary } from '../../domain/types';
 
@@ -53,22 +53,28 @@ const LoadMoreBtn = styled.button`
   margin-top: 4px;
   padding: 14px;
   border-radius: 12px;
-  border: 1.5px solid rgba(78, 89, 104, 0.16);
-  background: transparent;
+  border: none;
+  background: ${meok[100]};
   color: ${meok[600]};
   font-size: ${fontSize.sm};
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
-  transition: border-color 0.18s ease, color 0.18s ease;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
-    border-color: ${lightPalette.juhong[400]};
+    background: ${meok[200]};
     color: ${lightPalette.juhong[500]};
+    box-shadow: ${ringShadow.light.chipHover};
   }
 
   [data-theme='dark'] & {
+    background: ${meok[800]};
     color: ${meok[300]};
+
+    &:hover {
+      background: ${meok[700]};
+    }
   }
 `;
 

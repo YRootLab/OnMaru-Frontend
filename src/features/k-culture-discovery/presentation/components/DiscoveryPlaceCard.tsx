@@ -8,8 +8,9 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
   MapPinIcon,
   PlayListAdd01Icon,
+  Building04Icon,
 } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import type { DiscoveryPlaceSummary } from '../../domain/types';
 
@@ -24,15 +25,26 @@ const Card = styled(motion.button)`
   flex-direction: column;
   border-radius: 18px;
   overflow: hidden;
-  background: ${meok[200]};
+  background: #ffffff;
   border: none;
   padding: 0;
   cursor: pointer;
   text-align: left;
   width: 100%;
+  box-shadow: ${ringShadow.light.cardElevated};
+  transition: box-shadow 0.22s ease;
 
   [data-theme='dark'] & {
     background: ${meok[800]};
+    box-shadow: ${ringShadow.dark.cardElevated};
+  }
+
+  &:hover {
+    box-shadow: ${ringShadow.light.cardLift};
+
+    [data-theme='dark'] & {
+      box-shadow: ${ringShadow.dark.cardLift};
+    }
   }
 
   &:hover img {
@@ -56,7 +68,22 @@ const PlaceImage = styled.img`
 const ImageScrim = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 55%);
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.08) 55%);
+`;
+
+const FallbackImage = styled.div`
+  width: 100%;
+  height: 100%;
+  background: ${meok[200]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${meok[400]};
+
+  [data-theme='dark'] & {
+    background: ${meok[700]};
+    color: ${meok[500]};
+  }
 `;
 
 const BadgeRow = styled.div`
@@ -75,9 +102,8 @@ const WorkCountBadge = styled.span`
   gap: 4px;
   padding: 4px 10px;
   border-radius: 9999px;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(8px);
-  color: rgba(255,255,255,0.85);
+  background: ${lightPalette.juhong[500]};
+  color: #ffffff;
   font-size: 11px;
   font-weight: 600;
 `;
@@ -90,7 +116,7 @@ const PlaceRolePill = styled.span`
   border-radius: 9999px;
   background: rgba(255,255,255,0.18);
   backdrop-filter: blur(6px);
-  color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.92);
   font-size: 11px;
   font-weight: 500;
 `;
@@ -127,29 +153,15 @@ const RegionRow = styled.div`
 
 const WorkTitle = styled.p`
   font-size: ${fontSize.xs};
-  color: ${meok[600]};
+  color: ${lightPalette.juhong[600]};
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 500;
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
-  }
-`;
-
-const FallbackImage = styled.div`
-  width: 100%;
-  height: 100%;
-  background: ${meok[200]};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${meok[400]};
-  font-size: 32px;
-
-  [data-theme='dark'] & {
-    background: ${meok[700]};
+    color: ${lightPalette.juhong[400]};
   }
 `;
 
@@ -157,9 +169,11 @@ export const SkeletonCard = styled.div`
   border-radius: 18px;
   overflow: hidden;
   background: ${meok[200]};
+  box-shadow: ${ringShadow.light.cardElevated};
 
   [data-theme='dark'] & {
     background: #252422;
+    box-shadow: ${ringShadow.dark.cardElevated};
   }
 `;
 
@@ -231,7 +245,9 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
         {place.placeImage ? (
           <PlaceImage src={place.placeImage} alt={place.name} loading="lazy" />
         ) : (
-          <FallbackImage aria-hidden="true">🏛</FallbackImage>
+          <FallbackImage>
+            <HugeiconsIcon icon={Building04Icon} size={36} strokeWidth={1.5} aria-hidden="true" />
+          </FallbackImage>
         )}
         <ImageScrim />
 

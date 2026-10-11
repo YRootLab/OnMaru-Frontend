@@ -10,8 +10,9 @@ import {
   ExternalLinkIcon,
   MapPinIcon,
   CheckmarkCircle02Icon,
+  ClapperboardIcon,
 } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import { useDiscoveryWorkDetail } from '../hooks/useDiscoveryWorkDetail';
 
@@ -155,15 +156,29 @@ const OfficialLink = styled.a`
   gap: 5px;
   padding: 10px 18px;
   border-radius: 10px;
-  border: 1.5px solid ${lightPalette.kobalt[300]};
-  color: ${lightPalette.kobalt[600]};
+  border: none;
+  background: ${meok[100]};
+  color: ${meok[700]};
   font-size: ${fontSize.sm};
   font-weight: 600;
   text-decoration: none;
-  transition: background 0.18s ease;
+  box-shadow: ${ringShadow.light.cardElevated};
+  transition: background 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
-    background: ${lightPalette.kobalt[50]};
+    background: ${meok[200]};
+    box-shadow: ${ringShadow.light.cardLift};
+  }
+
+  [data-theme='dark'] & {
+    background: ${meok[700]};
+    color: ${meok[200]};
+    box-shadow: ${ringShadow.dark.cardElevated};
+
+    &:hover {
+      background: ${meok[600]};
+      box-shadow: ${ringShadow.dark.cardLift};
+    }
   }
 `;
 
@@ -290,7 +305,7 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
           {work.workArtwork ? (
             <ArtworkImg src={work.workArtwork} alt={work.canonicalTitle} />
           ) : (
-            <span aria-hidden="true">🎬</span>
+            <HugeiconsIcon icon={ClapperboardIcon} size={28} strokeWidth={1.5} aria-hidden="true" />
           )}
         </ArtworkBox>
 

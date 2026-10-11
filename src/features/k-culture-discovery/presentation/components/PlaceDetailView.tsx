@@ -69,7 +69,13 @@ const HeroFallback = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
+  color: ${meok[400]};
+  background: ${meok[200]};
+
+  [data-theme='dark'] & {
+    color: ${meok[600]};
+    background: ${meok[700]};
+  }
 `;
 
 const Name = styled.h1`
@@ -122,15 +128,25 @@ const OdiiLink = styled(Link)`
   gap: 5px;
   padding: 6px 14px;
   border-radius: 9999px;
-  border: 1.5px solid ${lightPalette.kobalt[300]};
-  color: ${lightPalette.kobalt[600]};
+  border: none;
+  background: ${lightPalette.cheongrok[50]};
+  color: ${lightPalette.cheongrok[700]};
   font-size: ${fontSize.xs};
   font-weight: 600;
   text-decoration: none;
   transition: background 0.18s ease;
 
   &:hover {
-    background: ${lightPalette.kobalt[50]};
+    background: ${lightPalette.cheongrok[100]};
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(0, 196, 113, 0.12);
+    color: ${lightPalette.cheongrok[300]};
+
+    &:hover {
+      background: rgba(0, 196, 113, 0.20);
+    }
   }
 `;
 
@@ -278,7 +294,9 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
         {primaryImage ? (
           <HeroImage src={primaryImage} alt={place.name} />
         ) : (
-          <HeroFallback aria-hidden="true">🏛</HeroFallback>
+          <HeroFallback>
+            <HugeiconsIcon icon={Building04Icon} size={56} strokeWidth={1.2} aria-hidden="true" />
+          </HeroFallback>
         )}
       </Hero>
 
