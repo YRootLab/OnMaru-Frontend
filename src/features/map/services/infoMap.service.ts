@@ -14,6 +14,7 @@ export interface ListInfoPlacesInput {
   cursor?: string | null;
   limit?: number;
   signal?: AbortSignal;
+  timeoutMs?: number;
 }
 
 function isViewportBounds(value: unknown): value is ViewportItemBounds {
@@ -62,7 +63,8 @@ export async function listInfoPlaces(input: ListInfoPlacesInput): Promise<InfoPl
     method: 'GET',
     params,
     signal: input.signal,
-    retry: false,
+    timeoutMs: input.timeoutMs,
+    retry: true,
   });
   return {
     ...page,

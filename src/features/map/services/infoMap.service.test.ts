@@ -31,6 +31,15 @@ describe('infoMap.service category contract', () => {
 
     expect(apiRequest).toHaveBeenCalledWith('/map/info/places', expect.objectContaining({
       params: expect.objectContaining({ category: 'HANOK', limit: '30' }),
+      retry: true,
+    }));
+  });
+
+  it('forwards the initial list timeout to the API client', async () => {
+    await listInfoPlaces({ category: 'hanok', timeoutMs: 15_000 });
+
+    expect(apiRequest).toHaveBeenCalledWith('/map/info/places', expect.objectContaining({
+      timeoutMs: 15_000,
     }));
   });
 
