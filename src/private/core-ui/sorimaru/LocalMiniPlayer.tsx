@@ -193,10 +193,12 @@ const FloatingOniBubble = styled.div<{ $show?: boolean }>`
 
 const ExpandedSliderOni = styled.div<{ $progress: number }>`
   position: absolute;
-  bottom: calc(100% - 2px);
-  left: ${({ $progress }) => `calc(${Math.min(94, Math.max(6, $progress))}% - 20px)`};
-  width: 40px;
-  height: 40px;
+  bottom: calc(100% - 3px);
+  left: ${({ $progress }) => `calc(7.5px + (100% - 15px) * ${$progress / 100})`};
+  width: 54px;
+  height: 54px;
+  transform: translateX(-50%);
+  overflow: hidden;
   pointer-events: none;
   z-index: 10;
   display: flex;
@@ -204,10 +206,16 @@ const ExpandedSliderOni = styled.div<{ $progress: number }>`
   justify-content: center;
   transition: left 0.15s ease-out;
 
+  img, video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
   @media (max-width: 640px) {
-    width: 32px;
-    height: 32px;
-    left: ${({ $progress }) => `calc(${Math.min(92, Math.max(8, $progress))}% - 16px)`};
+    width: 48px;
+    height: 48px;
   }
 `;
 
@@ -632,8 +640,8 @@ const RoadviewSplitModeContainer = styled(motion.div)`
 
 const TopMediaWrap = styled.div`
   width: 100%;
-  flex: 1 1 auto;
-  min-height: 180px;
+  flex: 0 0 auto;
+  aspect-ratio: 16 / 9;
   border-radius: 1.25rem;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -650,7 +658,8 @@ const TopMediaWrap = styled.div`
 
 const CompactTranscriptWrap = styled.div`
   width: 100%;
-  height: 6.5rem;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   position: relative;
   padding: 0 0.2rem;
@@ -669,30 +678,6 @@ const CompactTranscriptWrap = styled.div`
     transparent 100%
   );
 `;
-
-const fullStoryMetaVariants = {
-  initial: { opacity: 0 },
-  animate: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.02,
-    },
-  },
-};
-
-const metaItemFadeUp = {
-  initial: { opacity: 0, y: 14 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.35,
-      ease: [0.16, 1, 0.3, 1] as const,
-    },
-  },
-};
-
 
 const FullTranscriptModeContainer = styled(motion.div)`
   display: flex;
@@ -768,19 +753,6 @@ const HashtagChip = styled.span`
     border: none;
   }
 `;
-
-const contentFadeUpVariants = {
-  initial: { opacity: 0, y: 18 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.38,
-      delay: 0.1,
-      ease: [0.16, 1, 0.3, 1] as const,
-    },
-  },
-};
 
 const FullTranscriptPanelWrap = styled(motion.div)`
   width: 100%;
@@ -1059,38 +1031,18 @@ export const LocalMiniPlayer: React.FC = () => {
 
   useEffect(() => {
     if (!isExpanded) return;
-    const prevOverflow = document.body.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevRootOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     document.body.dataset.sorimaruPlayerOpen = 'true';
 
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevRootOverflow;
+      delete document.body.dataset.sorimaruPlayerOpen;
     };
   }, [isExpanded]);
-
-
-  const [hasAnimatedTranscript, setHasAnimatedTranscript] = useState(false);
-
-  useEffect(() => {
-    if (!isExpanded) {
-      setHasAnimatedTranscript(false);
-    }
-  }, [isExpanded]);
-
-
-  const shouldAnimateTranscript = isExpanded && activeViewMode === 'transcript' && !hasAnimatedTranscript;
-
-  useEffect(() => {
-    if (isExpanded && activeViewMode === 'transcript' && !hasAnimatedTranscript) {
-      setHasAnimatedTranscript(true);
-    }
-  }, [isExpanded, activeViewMode, hasAnimatedTranscript]);
-
-
-  const handleExitComplete = () => {
-    document.body.style.overflow = '';
-    delete document.body.dataset.sorimaruPlayerOpen;
-  };
 
   if (!story) return null;
 
@@ -1195,7 +1147,7 @@ export const LocalMiniPlayer: React.FC = () => {
       </AnimatePresence>
 
       {}
-      <AnimatePresence onExitComplete={handleExitComplete}>
+      <AnimatePresence>
         {isExpanded && (
           <DrawerBackdrop
             initial={{ opacity: 0 }}
@@ -1317,27 +1269,14 @@ export const LocalMiniPlayer: React.FC = () => {
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                     >
                       {}
-                      <FullStoryMeta
-                        variants={shouldAnimateTranscript ? fullStoryMetaVariants : undefined}
-                        initial={shouldAnimateTranscript ? "initial" : false}
-                        animate={shouldAnimateTranscript ? "animate" : undefined}
-                      >
-                        <motion.h3
-                          className="main-title"
-                          variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
-                        >
+                      <FullStoryMeta>
+                        <motion.h3 className="main-title">
                           {story.title || '한옥 소리 이야기'}
                         </motion.h3>
-                        <motion.p
-                          className="sub-info"
-                          variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
-                        >
+                        <motion.p className="sub-info">
                           <span>{story.audioTitle || '조선시대의 생활상을 엿볼 수 있는 한옥마을'}</span>
                         </motion.p>
-                        <HashtagsScrollWrap
-                          variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
-                          aria-label="이야기 관련 해시태그"
-                        >
+                        <HashtagsScrollWrap aria-label="이야기 관련 해시태그">
                           {(() => {
                             const customTags = story.contentTags.filter(
                               (t) => !t.includes('대한민국') && !t.includes('소리')
@@ -1364,11 +1303,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       </FullStoryMeta>
 
                       {}
-                      <FullTranscriptPanelWrap
-                        variants={shouldAnimateTranscript ? contentFadeUpVariants : undefined}
-                        initial={shouldAnimateTranscript ? "initial" : false}
-                        animate={shouldAnimateTranscript ? "animate" : undefined}
-                      >
+                      <FullTranscriptPanelWrap>
                         <PlayerTranscriptPanel
                           lines={lines}
                           activeLineId={lines[activeIndex]?.id}
@@ -1391,7 +1326,7 @@ export const LocalMiniPlayer: React.FC = () => {
                   <CustomSliderContainer $progress={audioProgress}>
                     <ExpandedSliderOni $progress={audioProgress} aria-hidden="true">
                       {isApple || oniVideoError ? (
-                        <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3))', transform: 'scaleX(-1)' }} />
+                        <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ filter: 'drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3))', transform: 'scaleX(-1)' }} />
                       ) : (
                         <FloatingOniVideo autoPlay loop muted playsInline preload="auto" onError={() => setOniVideoError(true)}>
                           <source src={ONI_LISTEN_SRC} type="video/webm" onError={() => setOniVideoError(true)} />

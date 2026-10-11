@@ -276,7 +276,7 @@ export function PlayerTranscriptPanel({
   isPlaying = false,
   seamless = false,
 }: PlayerTranscriptPanelProps) {
-  const { activeLineRef, onTranscriptScroll, requestSeek } = useTranscriptFollow({ activeLineId, onSeek });
+  const { scrollerRef, activeLineRef, onTranscriptScroll, requestSeek } = useTranscriptFollow({ activeLineId, onSeek });
   const [imgError, setImgError] = useState(false);
 
   const activeIndex = useMemo(() => {
@@ -292,7 +292,7 @@ export function PlayerTranscriptPanel({
     <Panel aria-label="실시간 해설 대본" $seamless={seamless}>
       <TopGradientFade />
 
-      <Scroller onScroll={onTranscriptScroll} data-playing={isPlaying} $seamless={seamless}>
+      <Scroller ref={scrollerRef} onScroll={onTranscriptScroll} data-playing={isPlaying} $seamless={seamless}>
         <LineList>
           {lines.map((line, index) => {
             const isActive = line.id === activeLineId;
