@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:prod-api": "NEXT_PUBLIC_API_URL=https://api.onmaru.site NEXT_PUBLIC_API_URL_INTERNAL=https://api.onmaru.site next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
