@@ -59,7 +59,7 @@
 
 ### 로컬에서 운영 API로 점검
 
-`npm run dev:prod-api`는 로컬 Next.js 개발 서버의 백엔드 요청을 `https://api.onmaru.site`로 보냅니다. 이 명령은 로컬 `.env.local`에 다른 API URL이 있어도 현재 실행에 한해 운영 URL을 우선합니다. 일반 `npm run dev`는 `.env.local`의 `NEXT_PUBLIC_API_URL`을 사용합니다. Vercel의 Preview·Production 환경변수는 이 명령으로 바뀌지 않습니다.
+`npm run dev:prod-api`는 3000번 포트에서 로컬 Next.js 프록시(`/api/proxy`)를 열고 요청을 운영 스프링 서버(`https://api.onmaru.site`)로 전달합니다. 브라우저가 운영 서버를 직접 호출할 때 발생하는 로컬 CORS 오류를 피하기 위한 경로입니다. 이 명령은 `.env.local`에 다른 API URL이 있어도 현재 실행에 한해 프록시 URL을 우선합니다. 일반 `npm run dev`는 `.env.local`의 `NEXT_PUBLIC_API_URL`을 사용합니다. Vercel의 Preview·Production 환경변수는 이 명령으로 바뀌지 않습니다.
 
 탐색마루는 개발 환경에서도 API 응답만 사용하며, API 오류가 나면 fixture 장소·작품으로 대체하지 않습니다. 운영 백엔드에 새 탐색 API가 아직 배포되지 않은 동안에는 해당 화면에 서비스 준비 안내가 표시됩니다.
 
