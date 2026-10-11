@@ -663,20 +663,6 @@ const CompactTranscriptWrap = styled.div`
   overflow: hidden;
   position: relative;
   padding: 0 0.2rem;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
 `;
 
 const FullTranscriptModeContainer = styled(motion.div)`
@@ -791,36 +777,50 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
   width: 100%;
   padding: 0.2rem 0;
 
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 5px;
+    border-radius: 9999px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  &::before {
+    width: 100%;
+    background: #e5e5e3;
+
+    [data-theme='dark'] & {
+      background: rgba(255, 255, 255, 0.24);
+    }
+  }
+
+  &::after {
+    width: ${({ $progress = 0 }) => `calc(7.5px + (100% - 15px) * ${$progress / 100})`};
+    background: linear-gradient(90deg, ${palette.cheongrok[400]}, ${palette.cheongrok[500]});
+    transition: width 0.25s linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::after { transition: none; }
+  }
+
   input[type='range'] {
     -webkit-appearance: none;
     appearance: none;
+    position: relative;
+    z-index: 1;
+    display: block;
+    margin: 0;
     width: 100%;
     height: 5px;
     border-radius: 9999px;
-    background: linear-gradient(
-      to right,
-      ${palette.cheongrok[400]} 0%,
-      ${palette.cheongrok[500]} ${({ $progress = 0 }) => $progress}%,
-      #e5e5e3 ${({ $progress = 0 }) => $progress}%,
-      #e5e5e3 100%
-    );
+    background: transparent;
     outline: none;
     cursor: pointer;
-    transition: height 0.15s ease;
-
-    [data-theme='dark'] & {
-      background: linear-gradient(
-        to right,
-        ${palette.cheongrok[400]} 0%,
-        ${palette.cheongrok[500]} ${({ $progress = 0 }) => $progress}%,
-        rgba(255, 255, 255, 0.24) ${({ $progress = 0 }) => $progress}%,
-        rgba(255, 255, 255, 0.24) 100%
-      );
-    }
-
-    &:hover {
-      height: 7px;
-    }
 
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
@@ -1324,9 +1324,11 @@ export const LocalMiniPlayer: React.FC = () => {
                 <SliderWrap>
                   {}
                   <CustomSliderContainer $progress={audioProgress}>
-                    <ExpandedSliderOni $progress={audioProgress} aria-hidden="true">
-                      <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ transform: 'scaleX(-1)' }} />
-                    </ExpandedSliderOni>
+                    {activeViewMode === 'roadview' && (
+                      <ExpandedSliderOni $progress={audioProgress} aria-hidden="true">
+                        <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ transform: 'scaleX(-1)' }} />
+                      </ExpandedSliderOni>
+                    )}
                     <input
                       type="range"
                       min={0}

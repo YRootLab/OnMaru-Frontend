@@ -43,21 +43,6 @@ const Panel = styled.section<{ $seamless?: boolean }>`
   }
 `;
 
-const TopGradientFade = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2.25rem;
-  background: linear-gradient(to bottom, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
-  pointer-events: none;
-  z-index: 5;
-
-  [data-theme='dark'] & {
-    background: linear-gradient(to bottom, ${surface.dark.app} 0%, rgba(11, 18, 32, 0) 100%);
-  }
-`;
-
 const BottomGradientFade = styled.div`
   position: absolute;
   bottom: 0;
@@ -88,15 +73,13 @@ const Scroller = styled.div<{ $seamless?: boolean }>`
 
   mask-image: linear-gradient(
     to bottom,
-    transparent 0%,
-    black 14%,
+    black 0%,
     black 86%,
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
-    transparent 0%,
-    black 14%,
+    black 0%,
     black 86%,
     transparent 100%
   );
@@ -288,8 +271,6 @@ export function PlayerTranscriptPanel({
 
   return (
     <Panel aria-label="실시간 해설 대본" $seamless={seamless}>
-      <TopGradientFade />
-
       <Scroller ref={scrollerRef} onScroll={onTranscriptScroll} data-playing={isPlaying} $seamless={seamless}>
         <LineList>
           {lines.map((line, index) => {
