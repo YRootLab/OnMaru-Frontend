@@ -27,5 +27,6 @@ describe('PlayerTranscriptPanel', () => {
     );
 
     expect(markup).toContain('data-testid="transcript-skeleton"');
+    expect(markup.match(/data-testid="transcript-skeleton-line"/g)).toHaveLength(12);
   });
 });

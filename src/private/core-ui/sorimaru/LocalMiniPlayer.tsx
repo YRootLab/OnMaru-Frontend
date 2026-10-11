@@ -191,26 +191,6 @@ const FloatingOniBubble = styled.div<{ $show?: boolean }>`
   }
 `;
 
-const ExpandedSliderOni = styled.div<{ $progress: number }>`
-  position: absolute;
-  bottom: calc(100% - 2px);
-  left: ${({ $progress }) => `calc(${Math.min(94, Math.max(6, $progress))}% - 20px)`};
-  width: 40px;
-  height: 40px;
-  pointer-events: none;
-  z-index: 10;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  transition: left 0.15s ease-out;
-
-  @media (max-width: 640px) {
-    width: 32px;
-    height: 32px;
-    left: ${({ $progress }) => `calc(${Math.min(92, Math.max(8, $progress))}% - 16px)`};
-  }
-`;
-
 const MiniPlayerContent = styled.div`
   display: flex;
   align-items: center;
@@ -632,8 +612,8 @@ const RoadviewSplitModeContainer = styled(motion.div)`
 
 const TopMediaWrap = styled.div`
   width: 100%;
-  flex: 1 1 auto;
-  min-height: 180px;
+  flex: 0 0 auto;
+  aspect-ratio: 16 / 9;
   border-radius: 1.25rem;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -650,49 +630,12 @@ const TopMediaWrap = styled.div`
 
 const CompactTranscriptWrap = styled.div`
   width: 100%;
-  height: 6.5rem;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   position: relative;
   padding: 0 0.2rem;
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 12%,
-    black 88%,
-    transparent 100%
-  );
 `;
-
-const fullStoryMetaVariants = {
-  initial: { opacity: 0 },
-  animate: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.02,
-    },
-  },
-};
-
-const metaItemFadeUp = {
-  initial: { opacity: 0, y: 14 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.35,
-      ease: [0.16, 1, 0.3, 1] as const,
-    },
-  },
-};
-
 
 const FullTranscriptModeContainer = styled(motion.div)`
   display: flex;
@@ -769,19 +712,6 @@ const HashtagChip = styled.span`
   }
 `;
 
-const contentFadeUpVariants = {
-  initial: { opacity: 0, y: 18 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.38,
-      delay: 0.1,
-      ease: [0.16, 1, 0.3, 1] as const,
-    },
-  },
-};
-
 const FullTranscriptPanelWrap = styled(motion.div)`
   width: 100%;
   flex: 1;
@@ -819,35 +749,54 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
   width: 100%;
   padding: 0.2rem 0;
 
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 5px;
+    border-radius: 9999px;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  &::before {
+    width: 100%;
+    background: #e5e5e3;
+
+    [data-theme='dark'] & {
+      background: rgba(255, 255, 255, 0.24);
+    }
+  }
+
+  &::after {
+    width: ${({ $progress = 0 }) => `calc(7.5px + (100% - 15px) * ${$progress / 100})`};
+    background: linear-gradient(90deg, ${palette.cheongrok[400]}, ${palette.cheongrok[500]});
+    transition: width 0.25s linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::after { transition: none; }
+  }
+
   input[type='range'] {
     -webkit-appearance: none;
     appearance: none;
+    position: relative;
+    z-index: 1;
+    display: block;
+    margin: 0;
     width: 100%;
     height: 5px;
     border-radius: 9999px;
-    background: linear-gradient(
-      to right,
-      ${palette.cheongrok[400]} 0%,
-      ${palette.cheongrok[500]} ${({ $progress = 0 }) => $progress}%,
-      #e5e5e3 ${({ $progress = 0 }) => $progress}%,
-      #e5e5e3 100%
-    );
+    background: transparent;
     outline: none;
     cursor: pointer;
-    transition: height 0.15s ease;
 
-    [data-theme='dark'] & {
-      background: linear-gradient(
-        to right,
-        ${palette.cheongrok[400]} 0%,
-        ${palette.cheongrok[500]} ${({ $progress = 0 }) => $progress}%,
-        rgba(255, 255, 255, 0.24) ${({ $progress = 0 }) => $progress}%,
-        rgba(255, 255, 255, 0.24) 100%
-      );
-    }
-
-    &:hover {
-      height: 7px;
+    &:focus-visible {
+      outline: 2px solid ${palette.cheongrok[500]};
+      outline-offset: 6px;
     }
 
     &::-webkit-slider-thumb {
@@ -855,39 +804,47 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
       appearance: none;
       width: 15px;
       height: 15px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 2.5px solid ${palette.cheongrok[500]};
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(11, 155, 142, 0.4);
+      opacity: 0;
       cursor: grab;
-      transition: transform 0.15s ease;
-
-      [data-theme='dark'] & {
-        background: ${surface.dark.app};
-        border: 2.5px solid ${palette.cheongrok[400]};
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(11, 155, 142, 0.5);
-      }
 
       &:active {
         cursor: grabbing;
-        transform: scale(1.35);
       }
     }
 
     &::-moz-range-thumb {
       width: 15px;
       height: 15px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 2.5px solid ${palette.juhong[500]};
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      border: 0;
       cursor: grab;
-
-      [data-theme='dark'] & {
-        background: ${surface.dark.app};
-        border: 2.5px solid ${palette.juhong[400]};
-      }
     }
+  }
+`;
+
+const SliderVisualThumb = styled.span<{ $progress: number }>`
+  position: absolute;
+  top: 50%;
+  left: ${({ $progress }) => `calc(7.5px + (100% - 15px) * ${$progress / 100})`};
+  z-index: 2;
+  width: 15px;
+  height: 15px;
+  border: 2.5px solid ${palette.cheongrok[500]};
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(11, 155, 142, 0.4);
+  transform: translate(-50%, -50%);
+  transition: left 0.25s linear;
+  pointer-events: none;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.app};
+    border-color: ${palette.cheongrok[400]};
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(11, 155, 142, 0.5);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `;
 
@@ -1059,38 +1016,18 @@ export const LocalMiniPlayer: React.FC = () => {
 
   useEffect(() => {
     if (!isExpanded) return;
-    const prevOverflow = document.body.style.overflow;
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevRootOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     document.body.dataset.sorimaruPlayerOpen = 'true';
 
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevRootOverflow;
+      delete document.body.dataset.sorimaruPlayerOpen;
     };
   }, [isExpanded]);
-
-
-  const [hasAnimatedTranscript, setHasAnimatedTranscript] = useState(false);
-
-  useEffect(() => {
-    if (!isExpanded) {
-      setHasAnimatedTranscript(false);
-    }
-  }, [isExpanded]);
-
-
-  const shouldAnimateTranscript = isExpanded && activeViewMode === 'transcript' && !hasAnimatedTranscript;
-
-  useEffect(() => {
-    if (isExpanded && activeViewMode === 'transcript' && !hasAnimatedTranscript) {
-      setHasAnimatedTranscript(true);
-    }
-  }, [isExpanded, activeViewMode, hasAnimatedTranscript]);
-
-
-  const handleExitComplete = () => {
-    document.body.style.overflow = '';
-    delete document.body.dataset.sorimaruPlayerOpen;
-  };
 
   if (!story) return null;
 
@@ -1195,7 +1132,7 @@ export const LocalMiniPlayer: React.FC = () => {
       </AnimatePresence>
 
       {}
-      <AnimatePresence onExitComplete={handleExitComplete}>
+      <AnimatePresence>
         {isExpanded && (
           <DrawerBackdrop
             initial={{ opacity: 0 }}
@@ -1317,27 +1254,14 @@ export const LocalMiniPlayer: React.FC = () => {
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                     >
                       {}
-                      <FullStoryMeta
-                        variants={shouldAnimateTranscript ? fullStoryMetaVariants : undefined}
-                        initial={shouldAnimateTranscript ? "initial" : false}
-                        animate={shouldAnimateTranscript ? "animate" : undefined}
-                      >
-                        <motion.h3
-                          className="main-title"
-                          variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
-                        >
+                      <FullStoryMeta>
+                        <motion.h3 className="main-title">
                           {story.title || '한옥 소리 이야기'}
                         </motion.h3>
-                        <motion.p
-                          className="sub-info"
-                          variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
-                        >
+                        <motion.p className="sub-info">
                           <span>{story.audioTitle || '조선시대의 생활상을 엿볼 수 있는 한옥마을'}</span>
                         </motion.p>
-                        <HashtagsScrollWrap
-                          variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
-                          aria-label="이야기 관련 해시태그"
-                        >
+                        <HashtagsScrollWrap aria-label="이야기 관련 해시태그">
                           {(() => {
                             const customTags = story.contentTags.filter(
                               (t) => !t.includes('대한민국') && !t.includes('소리')
@@ -1364,11 +1288,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       </FullStoryMeta>
 
                       {}
-                      <FullTranscriptPanelWrap
-                        variants={shouldAnimateTranscript ? contentFadeUpVariants : undefined}
-                        initial={shouldAnimateTranscript ? "initial" : false}
-                        animate={shouldAnimateTranscript ? "animate" : undefined}
-                      >
+                      <FullTranscriptPanelWrap>
                         <PlayerTranscriptPanel
                           lines={lines}
                           activeLineId={lines[activeIndex]?.id}
@@ -1389,23 +1309,16 @@ export const LocalMiniPlayer: React.FC = () => {
                 <SliderWrap>
                   {}
                   <CustomSliderContainer $progress={audioProgress}>
-                    <ExpandedSliderOni $progress={audioProgress} aria-hidden="true">
-                      {isApple || oniVideoError ? (
-                        <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3))', transform: 'scaleX(-1)' }} />
-                      ) : (
-                        <FloatingOniVideo autoPlay loop muted playsInline preload="auto" onError={() => setOniVideoError(true)}>
-                          <source src={ONI_LISTEN_SRC} type="video/webm" onError={() => setOniVideoError(true)} />
-                        </FloatingOniVideo>
-                      )}
-                    </ExpandedSliderOni>
                     <input
                       type="range"
                       min={0}
                       max={duration || 100}
+                      step="any"
                       value={currentTime}
                       onChange={(event) => seekTo(Number(event.target.value))}
                       aria-label="오디오 재생 위치 조절"
                     />
+                    <SliderVisualThumb $progress={audioProgress} aria-hidden="true" />
                   </CustomSliderContainer>
 
                   {}

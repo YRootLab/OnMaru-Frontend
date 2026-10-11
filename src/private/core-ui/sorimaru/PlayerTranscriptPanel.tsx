@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { palette, surface } from '@/design-system/tokens';
 import type { ScriptLine } from '@/features/sorimaru-audio/types/sorimaru.types';
@@ -43,33 +43,22 @@ const Panel = styled.section<{ $seamless?: boolean }>`
   }
 `;
 
-const TopGradientFade = styled.div`
+const EdgeGradientFade = styled.div<{ $top?: boolean }>`
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2.25rem;
-  background: linear-gradient(to bottom, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
-  pointer-events: none;
-  z-index: 5;
-
-  [data-theme='dark'] & {
-    background: linear-gradient(to bottom, ${surface.dark.app} 0%, rgba(11, 18, 32, 0) 100%);
-  }
-`;
-
-const BottomGradientFade = styled.div`
-  position: absolute;
-  bottom: 0;
+  ${({ $top }) => ($top ? 'top: 0;' : 'bottom: 0;')}
   left: 0;
   right: 0;
   height: 2.5rem;
-  background: linear-gradient(to top, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+  background: ${({ $top }) => $top
+    ? 'linear-gradient(to bottom, #ffffff 0%, rgba(255, 255, 255, 0) 100%)'
+    : 'linear-gradient(to top, #ffffff 0%, rgba(255, 255, 255, 0) 100%)'};
   pointer-events: none;
   z-index: 5;
 
   [data-theme='dark'] & {
-    background: linear-gradient(to top, ${surface.dark.app} 0%, rgba(11, 18, 32, 0) 100%);
+    background: ${({ $top }) => $top
+      ? `linear-gradient(to bottom, ${surface.dark.app} 0%, rgba(11, 18, 32, 0) 100%)`
+      : `linear-gradient(to top, ${surface.dark.app} 0%, rgba(11, 18, 32, 0) 100%)`};
   }
 `;
 
@@ -81,25 +70,10 @@ const Scroller = styled.div<{ $seamless?: boolean }>`
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
-  padding: ${({ $seamless }) => ($seamless ? '0.35rem 0.4rem 0.6rem' : '1.25rem 1rem 1.5rem')};
+  padding: ${({ $seamless }) => ($seamless ? '0.35rem 0 0.6rem' : '1.25rem 1rem 1.5rem')};
   scrollbar-width: thin;
   scrollbar-color: rgba(205, 205, 202, 0.4) transparent;
 
-
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 14%,
-    black 86%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    black 14%,
-    black 86%,
-    transparent 100%
-  );
 
   &::-webkit-scrollbar {
     width: 3px;
@@ -134,7 +108,7 @@ const Line = styled.button<{
   border: 0;
   background: transparent;
   border-radius: 0.5rem;
-  padding: 0.35rem 0.5rem;
+  padding: 0.35rem;
   text-align: left;
   font-family: var(--font-hanok);
   cursor: pointer;
@@ -230,7 +204,7 @@ const Line = styled.button<{
 `;
 
 const SkeletonLine = styled.div<{ $wide?: boolean }>`
-  height: 1.3rem;
+  height: 2.3rem;
   width: ${({ $wide }) => ($wide ? '92%' : '68%')};
   border-radius: 0.375rem;
   background: linear-gradient(90deg, #d9d9d7 25%, #e5e5e3 50%, #d9d9d7 75%);
@@ -240,10 +214,6 @@ const SkeletonLine = styled.div<{ $wide?: boolean }>`
   [data-theme='dark'] & {
     background: linear-gradient(90deg, #24221f 25%, #2e2b27 50%, #24221f 75%);
     background-size: 200% 100%;
-  }
-
-  & + & {
-    margin-top: 1.25rem;
   }
 
   @keyframes transcriptShimmer {
@@ -259,9 +229,11 @@ export function TranscriptSkeleton({ seamless = false }: { seamless?: boolean })
   return (
     <Panel data-testid="transcript-skeleton" aria-label="대본 불러오는 중" $seamless={seamless}>
       <Scroller aria-hidden="true" $seamless={seamless}>
-        <SkeletonLine $wide />
-        <SkeletonLine />
-        <SkeletonLine $wide />
+        <LineList>
+          {Array.from({ length: 12 }, (_, index) => (
+            <SkeletonLine key={index} data-testid="transcript-skeleton-line" $wide={index % 3 !== 1} />
+          ))}
+        </LineList>
       </Scroller>
     </Panel>
   );
@@ -276,8 +248,29 @@ export function PlayerTranscriptPanel({
   isPlaying = false,
   seamless = false,
 }: PlayerTranscriptPanelProps) {
-  const { activeLineRef, onTranscriptScroll, requestSeek } = useTranscriptFollow({ activeLineId, onSeek });
+  const { scrollerRef, activeLineRef, onTranscriptScroll, requestSeek } = useTranscriptFollow({ activeLineId, onSeek });
   const [imgError, setImgError] = useState(false);
+  const [scrollEdges, setScrollEdges] = useState({ top: false, bottom: false });
+
+  const updateScrollEdges = useCallback(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const top = scroller.scrollTop > 1;
+    const bottom = scroller.scrollTop + scroller.clientHeight < scroller.scrollHeight - 1;
+    setScrollEdges((current) => current.top === top && current.bottom === bottom
+      ? current
+      : { top, bottom });
+  }, [scrollerRef]);
+
+  useEffect(() => {
+    updateScrollEdges();
+    const scroller = scrollerRef.current;
+    if (!scroller || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(updateScrollEdges);
+    observer.observe(scroller);
+    if (scroller.firstElementChild) observer.observe(scroller.firstElementChild);
+    return () => observer.disconnect();
+  }, [lines, scrollerRef, updateScrollEdges]);
 
   const activeIndex = useMemo(() => {
     if (activeLineId === undefined) return -1;
@@ -290,9 +283,7 @@ export function PlayerTranscriptPanel({
 
   return (
     <Panel aria-label="실시간 해설 대본" $seamless={seamless}>
-      <TopGradientFade />
-
-      <Scroller onScroll={onTranscriptScroll} data-playing={isPlaying} $seamless={seamless}>
+      <Scroller ref={scrollerRef} onScroll={() => { onTranscriptScroll(); updateScrollEdges(); }} data-playing={isPlaying} $seamless={seamless}>
         <LineList>
           {lines.map((line, index) => {
             const isActive = line.id === activeLineId;
@@ -314,7 +305,8 @@ export function PlayerTranscriptPanel({
         </LineList>
       </Scroller>
 
-      <BottomGradientFade />
+      {scrollEdges.top && <EdgeGradientFade $top data-testid="transcript-top-fade" />}
+      {scrollEdges.bottom && <EdgeGradientFade data-testid="transcript-bottom-fade" />}
     </Panel>
   );
 }
