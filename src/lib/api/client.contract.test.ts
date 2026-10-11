@@ -90,6 +90,32 @@ describe('api contract foundation', () => {
     );
   });
 
+  it('times out a request even when the caller provides a cancellation signal', async () => {
+    const fetcher = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+    }));
+    resetApiClientForTests({ baseUrl: 'https://api.onmaru.test', fetcher: fetcher as unknown as typeof fetch });
+
+    await expect(apiRequest('/map/info/places', {
+      signal: new AbortController().signal,
+      timeoutMs: 10,
+      retry: false,
+    })).rejects.toMatchObject({ status: 408, code: 'REQUEST_TIMEOUT' });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it('caps the full retry window at the configured timeout', async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({ code: 'SERVICE_UNAVAILABLE' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    resetApiClientForTests({ baseUrl: 'https://api.onmaru.test', fetcher: fetcher as unknown as typeof fetch });
+
+    await expect(apiRequest('/map/info/places', { timeoutMs: 20, retry: true }))
+      .rejects.toMatchObject({ status: 408, code: 'REQUEST_TIMEOUT' });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
 
 
 

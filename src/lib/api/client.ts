@@ -236,13 +236,21 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   let attempt = 0;
   let csrfRecoveryAttempted = false;
   const startedAt = Date.now();
+  const timeoutError = () => normalizeApiError(408, {
+    code: 'REQUEST_TIMEOUT', message: '요청 시간이 초과되었습니다.', details: {},
+  });
 
   while (true) {
+    const remainingMs = options.timeoutMs === undefined
+      ? DEFAULT_TIMEOUT_MS
+      : options.timeoutMs - (Date.now() - startedAt);
+    if (remainingMs <= 0) throw timeoutError();
     attempt++;
     const controller = new AbortController();
-    const requestTimeout = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-    const timeoutId = setTimeout(() => controller.abort(), requestTimeout);
-    const signal = options.signal ?? controller.signal;
+    const timeoutId = setTimeout(() => controller.abort(), remainingMs);
+    const signal = options.signal
+      ? AbortSignal.any([options.signal, controller.signal])
+      : controller.signal;
 
     const headers: Record<string, string> = {
       Accept: 'application/json',
@@ -317,7 +325,9 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
           if (error.classification === 'SERVER_WAKING' && options.onWaking) {
             options.onWaking(attempt, delayMs);
           }
-          await delay(delayMs, options.signal);
+          await delay(options.timeoutMs === undefined
+            ? delayMs
+            : Math.min(delayMs, Math.max(0, options.timeoutMs - (Date.now() - startedAt))), options.signal);
           continue;
         }
 
@@ -334,7 +344,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       if (isOnmaruApiError(error)) throw error;
 
       if (error.name === 'AbortError') {
-        throw normalizeApiError(408, { code: 'REQUEST_TIMEOUT', message: '요청 시간이 초과되었습니다.', details: {} });
+        throw timeoutError();
       }
 
       const netError = normalizeApiError(500, { code: 'NETWORK_ERROR', message: error.message || '네트워크 오류가 발생했습니다.' });
@@ -342,7 +352,10 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       const canRetry = allowRetry && attempt <= policy.maxRetries;
 
       if (canRetry) {
-        await delay(policy.getDelayMs(attempt, netError), options.signal);
+        const delayMs = policy.getDelayMs(attempt, netError);
+        await delay(options.timeoutMs === undefined
+          ? delayMs
+          : Math.min(delayMs, Math.max(0, options.timeoutMs - (Date.now() - startedAt))), options.signal);
         continue;
       }
 

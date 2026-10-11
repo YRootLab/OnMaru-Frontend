@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import type { ComponentProps } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -14,7 +14,7 @@ import {
 import { lightPalette, meok, ringShadow, fontSize } from '@/design-system/tokens';
 import type { DiscoveryTopic, TopicCode } from '../../domain/types';
 
-const TOPIC_ICONS: Record<TopicCode, React.ComponentType<any>> = {
+const TOPIC_ICONS: Record<TopicCode, ComponentProps<typeof HugeiconsIcon>['icon']> = {
   TRADITIONAL_SPACE_HERITAGE: Building04Icon,
   TRADITIONAL_EXPERIENCE: HandsClappingIcon,
   TRADITIONAL_FOOD_TEA: Restaurant01Icon,
