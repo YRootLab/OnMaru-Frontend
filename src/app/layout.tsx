@@ -8,8 +8,9 @@ import { Providers } from './providers'
 import Header from '@/shared/components/Header'
 import Footer from '@/shared/components/Footer'
 import PageContainer from '@/shared/components/Layout/PageContainer'
-import { HanokPresenceOverlay } from '@/features/realtime-presence/presentation/components/HanokPresenceOverlay'
-import { ROOM_ID_HANOK_ARCHIVE } from '@/features/realtime-presence/domain/presence.rooms'
+// [TEMP] 온이 & 반딧불 기능 임시 비활성화
+// import { HanokPresenceOverlay } from '@/features/realtime-presence/presentation/components/HanokPresenceOverlay'
+// import { ROOM_ID_HANOK_ARCHIVE } from '@/features/realtime-presence/domain/presence.rooms'
 
 export const viewport: Viewport = {
   viewportFit: 'cover',
@@ -82,7 +83,7 @@ j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefo
             {children}
           </PageContainer>
           <Footer />
-          <HanokPresenceOverlay roomId={ROOM_ID_HANOK_ARCHIVE} />
+          {/* [TEMP] <HanokPresenceOverlay roomId={ROOM_ID_HANOK_ARCHIVE} /> */}
           <Analytics />
           <SpeedInsights />
         </Providers>
