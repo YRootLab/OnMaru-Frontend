@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- 스테이징 API를 사용하는 프런트에서 합성 샘플 오디오 호스트를 CSP `media-src`에 한정 허용해 소리마루 재생을 확인할 수 있게 했다.
 - 소리마루 플레이어의 전체 대본을 안정적으로 표시하고 자동 따라가기가 대본 영역만 스크롤하도록 수정했다. 플레이어가 열리면 배경 스크롤을 잠그고, 현장 사진 아래 빈 공간을 없애 대본 노출 영역을 넓혔다. 재생 위치의 온이 캐릭터를 키워 손잡이 중앙에 맞췄다.
 
 ## [v0.1.19] - 2026-10-08
