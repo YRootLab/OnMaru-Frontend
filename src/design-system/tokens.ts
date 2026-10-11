@@ -151,6 +151,14 @@ export const ringShadow = {
     buttonHover: HOVER_LIGHT,
     buttonHoverGlow: HOVER_LIGHT,
 
+    // cards with natural depth (no border needed)
+    cardElevated: '0 1px 4px rgba(25, 31, 40, 0.07), 0 2px 10px rgba(25, 31, 40, 0.05)',
+    cardLift:     '0 4px 18px rgba(25, 31, 40, 0.11), 0 1px 4px rgba(25, 31, 40, 0.07)',
+
+    // ring outlines for pill/chip active state (replaces visible border)
+    chipActive:   `0 0 0 1.5px rgba(255, 85, 0, 0.90)`,
+    chipHover:    `0 0 0 1px rgba(255, 85, 0, 0.45)`,
+
     focusJuhong: '0 0 0 1px rgba(255, 85, 0, 0.35), 0 0 0 4px rgba(255, 85, 0, 0.08), 0 4px 12px rgba(255, 85, 0, 0.08)',
 
     mapPanel: '0 8px 28px -4px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.07)',
@@ -163,6 +171,13 @@ export const ringShadow = {
     cardHoverGlow: HOVER_DARK,
     buttonHover: HOVER_DARK,
     buttonHoverGlow: HOVER_DARK,
+
+    cardElevated: '0 1px 4px rgba(0, 0, 0, 0.36), 0 2px 10px rgba(0, 0, 0, 0.28)',
+    cardLift:     '0 4px 18px rgba(0, 0, 0, 0.52), 0 1px 4px rgba(0, 0, 0, 0.36)',
+
+    chipActive:   `0 0 0 1.5px rgba(255, 106, 16, 0.90)`,
+    chipHover:    `0 0 0 1px rgba(255, 106, 16, 0.45)`,
+
     focusJuhong: '0 0 0 1px rgba(255, 110, 30, 0.45), 0 0 0 4px rgba(255, 110, 30, 0.15), 0 4px 16px rgba(255, 110, 30, 0.15)',
 
     mapPanel: '0 12px 32px -8px rgba(0, 0, 0, 0.72), 0 4px 12px -4px rgba(0, 0, 0, 0.55)',

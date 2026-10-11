@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { BookOpen01Icon, HeadphonesIcon, Home01Icon, MapIcon, UserIcon } from '@hugeicons/core-free-icons'
+import { BookOpen01Icon, HeadphonesIcon, Home01Icon, MapIcon, SearchAreaIcon, UserIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, fontSize } from '@/design-system/tokens';
 import { HanokIcon } from '@/features/map/components/HanokIcon';
@@ -61,7 +61,7 @@ const Nav = styled.nav`
   height: 100%;
   display: grid;
 
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   align-items: stretch;
 `;
 
@@ -121,6 +121,7 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
     { href: '/', label: '홈', icon: Home01Icon, active: pathname === '/' },
     { href: '/hanok', label: '한옥마루', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
     { href: '/sorimaru', label: '소리마루', icon: HeadphonesIcon, active: isSoriMaruPage },
+    { href: '/discover', label: '탐색마루', icon: SearchAreaIcon, active: pathname.startsWith('/discover') },
     { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
     {
       href: isLoggedIn ? '/mypage' : '/auth/login',
