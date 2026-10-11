@@ -204,7 +204,7 @@ const ExpandedSliderOni = styled.div<{ $progress: number }>`
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  transition: left 0.15s ease-out;
+  transition: left 0.25s linear;
 
   img, video {
     width: 100%;
@@ -822,44 +822,57 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
     outline: none;
     cursor: pointer;
 
+    &:focus-visible {
+      outline: 2px solid ${palette.cheongrok[500]};
+      outline-offset: 6px;
+    }
+
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
       width: 15px;
       height: 15px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 2.5px solid ${palette.cheongrok[500]};
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(11, 155, 142, 0.4);
+      opacity: 0;
       cursor: grab;
-      transition: transform 0.15s ease;
-
-      [data-theme='dark'] & {
-        background: ${surface.dark.app};
-        border: 2.5px solid ${palette.cheongrok[400]};
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(11, 155, 142, 0.5);
-      }
 
       &:active {
         cursor: grabbing;
-        transform: scale(1.35);
       }
     }
 
     &::-moz-range-thumb {
       width: 15px;
       height: 15px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 2.5px solid ${palette.juhong[500]};
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      border: 0;
       cursor: grab;
-
-      [data-theme='dark'] & {
-        background: ${surface.dark.app};
-        border: 2.5px solid ${palette.juhong[400]};
-      }
     }
+  }
+`;
+
+const SliderVisualThumb = styled.span<{ $progress: number }>`
+  position: absolute;
+  top: 50%;
+  left: ${({ $progress }) => `calc(7.5px + (100% - 15px) * ${$progress / 100})`};
+  z-index: 2;
+  width: 15px;
+  height: 15px;
+  border: 2.5px solid ${palette.cheongrok[500]};
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(11, 155, 142, 0.4);
+  transform: translate(-50%, -50%);
+  transition: left 0.25s linear;
+  pointer-events: none;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.app};
+    border-color: ${palette.cheongrok[400]};
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(11, 155, 142, 0.5);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `;
 
@@ -1333,10 +1346,12 @@ export const LocalMiniPlayer: React.FC = () => {
                       type="range"
                       min={0}
                       max={duration || 100}
+                      step="any"
                       value={currentTime}
                       onChange={(event) => seekTo(Number(event.target.value))}
                       aria-label="오디오 재생 위치 조절"
                     />
+                    <SliderVisualThumb $progress={audioProgress} aria-hidden="true" />
                   </CustomSliderContainer>
 
                   {}
