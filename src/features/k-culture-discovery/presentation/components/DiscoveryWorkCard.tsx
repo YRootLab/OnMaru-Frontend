@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { MapPin01Icon, ClapperboardIcon } from '@hugeicons/core-free-icons';
+import { MapPinIcon, ClapperboardIcon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import type { WorkSummary } from '../../domain/types';
@@ -228,7 +228,7 @@ export default function DiscoveryWorkCard({ work, index = 0, onClick }: Discover
 
       {work.publicPlaceCount > 0 && (
         <PlaceCount>
-          <HugeiconsIcon icon={MapPin01Icon} size={11} strokeWidth={2} aria-hidden="true" />
+          <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} aria-hidden="true" />
           {work.publicPlaceCount}
         </PlaceCount>
       )}

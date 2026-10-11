@@ -9,7 +9,7 @@ import {
   ArrowLeft01Icon,
   MapPinIcon,
   Building04Icon,
-  Headphones01Icon,
+  HeadphonesIcon,
 } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, fontSize } from '@/design-system/tokens';
 import KContentRelationCard from './KContentRelationCard';
@@ -328,7 +328,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
 
       {place.odii.linked && (
         <OdiiLink href="/sorimaru" style={{ display: 'inline-flex', marginBottom: 24 }}>
-          <HugeiconsIcon icon={Headphones01Icon} size={13} strokeWidth={2} aria-hidden="true" />
+          <HugeiconsIcon icon={HeadphonesIcon} size={13} strokeWidth={2} aria-hidden="true" />
           소리마루 오디오 가이드 {place.odii.storyCount > 0 ? `${place.odii.storyCount}편` : ''}
         </OdiiLink>
       )}
