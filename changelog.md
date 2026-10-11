@@ -6,6 +6,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 - 정보지도 장소 목록의 일시적인 503 응답에 공통 API 재시도 정책을 적용했다. 첫 진입 목록 요청에는 15초 타임아웃을 적용하고, 외부 취소 신호가 공통 API 타임아웃을 무력화하지 않도록 수정했다.
 - 기존 K-마루 아이콘 메타데이터 타입을 Hugeicons 입력 형식과 맞춰 PR 타입 검사가 통과하도록 했다.
+- K-마루 메뉴 추가 후 갱신되지 않은 데스크톱 헤더 정렬 테스트의 메뉴 수를 실제 화면과 맞췄다.
 
 ## [v0.1.19] - 2026-10-08
 
