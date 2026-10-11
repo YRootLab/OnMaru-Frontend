@@ -191,34 +191,6 @@ const FloatingOniBubble = styled.div<{ $show?: boolean }>`
   }
 `;
 
-const ExpandedSliderOni = styled.div<{ $progress: number }>`
-  position: absolute;
-  bottom: calc(100% - 3px);
-  left: ${({ $progress }) => `calc(7.5px + (100% - 15px) * ${$progress / 100})`};
-  width: 54px;
-  height: 54px;
-  transform: translateX(-50%);
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 10;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  transition: left 0.25s linear;
-
-  img, video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-  }
-
-  @media (max-width: 640px) {
-    width: 48px;
-    height: 48px;
-  }
-`;
-
 const MiniPlayerContent = styled.div`
   display: flex;
   align-items: center;
@@ -1337,11 +1309,6 @@ export const LocalMiniPlayer: React.FC = () => {
                 <SliderWrap>
                   {}
                   <CustomSliderContainer $progress={audioProgress}>
-                    {activeViewMode === 'roadview' && (
-                      <ExpandedSliderOni $progress={audioProgress} aria-hidden="true">
-                        <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ transform: 'scaleX(-1)' }} />
-                      </ExpandedSliderOni>
-                    )}
                     <input
                       type="range"
                       min={0}
