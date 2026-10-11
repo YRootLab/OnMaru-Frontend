@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Home01Icon, UsersIcon, MapPinIcon, HeadphonesIcon, Bookmark01Icon } from '@hugeicons/core-free-icons'
+import { Home01Icon, UsersIcon, MapPinIcon, HeadphonesIcon, Bookmark01Icon, SearchAreaIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -12,7 +12,7 @@ const Nav = styled.nav`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   align-items: stretch;
 `;
 
@@ -142,6 +142,13 @@ export default function MapMobileTabs() {
           <HugeiconsIcon icon={HeadphonesIcon} size={19} />
         </IconSlot>
         <span>소리마루</span>
+      </TabButton>
+
+      <TabButton type="button" onClick={() => router.push('/discover')} aria-label="K-마루">
+        <IconSlot>
+          <HugeiconsIcon icon={SearchAreaIcon} size={19} />
+        </IconSlot>
+        <span>K-마루</span>
       </TabButton>
 
       <TabButton
