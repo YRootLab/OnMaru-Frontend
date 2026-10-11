@@ -80,6 +80,7 @@ describe('useInfoMapData', () => {
     await act(async () => Promise.resolve());
     expect(listInfoPlaces).toHaveBeenCalledTimes(1);
     expect(listInfoPlaces).toHaveBeenCalledWith(expect.objectContaining({ category: 'hanok' }));
+    expect(listInfoPlaces).toHaveBeenCalledWith(expect.objectContaining({ timeoutMs: 15_000 }));
 
     await act(() => vi.advanceTimersByTimeAsync(100));
     expect(loadMapViewport).toHaveBeenCalledTimes(1);

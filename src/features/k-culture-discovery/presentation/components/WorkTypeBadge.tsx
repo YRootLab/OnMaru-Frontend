@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import type { ComponentProps } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -12,7 +12,7 @@ import {
 import { fontSize } from '@/design-system/tokens';
 import type { WorkType } from '../../domain/types';
 
-const WORK_TYPE_META: Record<WorkType, { label: string; icon: React.ComponentType<any> }> = {
+const WORK_TYPE_META: Record<WorkType, { label: string; icon: ComponentProps<typeof HugeiconsIcon>['icon'] }> = {
   DRAMA: { label: '드라마', icon: ClapperboardIcon },
   MOVIE: { label: '영화', icon: Film01Icon },
   VARIETY: { label: '예능', icon: Tv01Icon },
