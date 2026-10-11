@@ -100,6 +100,36 @@ const MatchCount = styled.span`
   font-weight: 500;
 `;
 
+const UnavailableBox = styled.div`
+  padding: 48px 16px;
+  text-align: center;
+  border-radius: 16px;
+  background: ${meok[100]};
+
+  [data-theme='dark'] & {
+    background: ${meok[800]};
+  }
+`;
+
+const UnavailableTitle = styled.p`
+  font-family: var(--font-hanok);
+  font-size: ${fontSize.base};
+  font-weight: 700;
+  color: ${meok[600]};
+  margin: 0 0 6px;
+
+  [data-theme='dark'] & {
+    color: ${meok[300]};
+  }
+`;
+
+const UnavailableDesc = styled.p`
+  font-size: ${fontSize.sm};
+  color: ${meok[500]};
+  margin: 0;
+  line-height: 1.6;
+`;
+
 const WORK_TYPE_LABELS: Record<WorkType | 'all', string> = {
   all: '전체',
   DRAMA: 'K-드라마',
@@ -122,6 +152,8 @@ export default function DiscoveryWorksPage() {
     router.push(`/discover/works/${encodeURIComponent(work.workId)}`);
   };
 
+  const serviceDown = isError && items.length === 0 && !isLoading;
+
   return (
     <PageWrap>
       <BackLink href="/discover">
@@ -137,35 +169,46 @@ export default function DiscoveryWorksPage() {
         <PageSubtitle>촬영지가 확인된 K-Culture 작품을 탐색하세요.</PageSubtitle>
       </PageHeader>
 
-      <FilterRow>
-        {TYPE_FILTERS.map((type) => (
-          <FilterChip
-            key={type}
-            type="button"
-            $active={activeType === type}
-            onClick={() => setActiveType(type)}
-          >
-            {WORK_TYPE_LABELS[type]}
-          </FilterChip>
-        ))}
-      </FilterRow>
+      {serviceDown ? (
+        <UnavailableBox role="status">
+          <UnavailableTitle>작품 목록 서비스 준비 중입니다</UnavailableTitle>
+          <UnavailableDesc>
+            콘텐츠 검수 및 서비스 준비가 완료되는 대로 공개될 예정입니다.
+          </UnavailableDesc>
+        </UnavailableBox>
+      ) : (
+        <>
+          <FilterRow>
+            {TYPE_FILTERS.map((type) => (
+              <FilterChip
+                key={type}
+                type="button"
+                $active={activeType === type}
+                onClick={() => setActiveType(type)}
+              >
+                {WORK_TYPE_LABELS[type]}
+              </FilterChip>
+            ))}
+          </FilterRow>
 
-      <CountRow>
-        <MatchCount>
-          {isLoading && items.length === 0
-            ? '검색 중…'
-            : `작품 ${matchingCount.toLocaleString()}편`}
-        </MatchCount>
-      </CountRow>
+          <CountRow>
+            <MatchCount>
+              {isLoading && items.length === 0
+                ? '검색 중…'
+                : `작품 ${matchingCount.toLocaleString()}편`}
+            </MatchCount>
+          </CountRow>
 
-      <DiscoveryWorksSection
-        items={items}
-        isLoading={isLoading}
-        isError={isError}
-        hasMore={hasMore}
-        onLoadMore={loadMore}
-        onWorkClick={handleWorkClick}
-      />
+          <DiscoveryWorksSection
+            items={items}
+            isLoading={isLoading}
+            isError={isError}
+            hasMore={hasMore}
+            onLoadMore={loadMore}
+            onWorkClick={handleWorkClick}
+          />
+        </>
+      )}
     </PageWrap>
   );
 }

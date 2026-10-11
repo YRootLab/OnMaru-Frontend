@@ -68,6 +68,38 @@ const WorksLink = styled(Link)`
   }
 `;
 
+const UnavailableBox = styled.div`
+  padding: 48px 16px;
+  text-align: center;
+  border-radius: 16px;
+  background: ${meok[100]};
+  color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    background: ${meok[800]};
+    color: ${meok[400]};
+  }
+`;
+
+const UnavailableTitle = styled.p`
+  font-family: var(--font-hanok);
+  font-size: ${fontSize.base};
+  font-weight: 700;
+  color: ${meok[600]};
+  margin: 0 0 6px;
+
+  [data-theme='dark'] & {
+    color: ${meok[300]};
+  }
+`;
+
+const UnavailableDesc = styled.p`
+  font-size: ${fontSize.sm};
+  color: ${meok[500]};
+  margin: 0;
+  line-height: 1.6;
+`;
+
 export interface KCultureDiscoveryProps {
   initialTopic?: TopicCode | 'all';
   workId?: string;
@@ -98,6 +130,10 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
     router.push(`/discover/places/${encodeURIComponent(place.placeId)}`);
   };
 
+  // When the service is unavailable (flag off, 404/503), show a single friendly state
+  // instead of a broken partial UI or unreviewed fixture cards.
+  const serviceDown = isError && items.length === 0 && !isLoading;
+
   return (
     <PageWrap>
       <PageHeader>
@@ -110,33 +146,44 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
         </PageSubtitle>
       </PageHeader>
 
-      <TopicTabBar
-        topics={topics}
-        activeCode={activeTopic}
-        isLoading={topicsLoading}
-        onChange={handleTopicChange}
-      />
+      {serviceDown ? (
+        <UnavailableBox role="status">
+          <UnavailableTitle>탐색 서비스 준비 중입니다</UnavailableTitle>
+          <UnavailableDesc>
+            콘텐츠 검수 및 서비스 준비가 완료되는 대로 공개될 예정입니다.
+          </UnavailableDesc>
+        </UnavailableBox>
+      ) : (
+        <>
+          <TopicTabBar
+            topics={topics}
+            activeCode={activeTopic}
+            isLoading={topicsLoading}
+            onChange={handleTopicChange}
+          />
 
-      <CountRow>
-        <MatchCount>
-          {isLoading && items.length === 0
-            ? '검색 중…'
-            : `장소 ${matchingCount.toLocaleString()}개`}
-        </MatchCount>
-        <WorksLink href="/discover/works">
-          <HugeiconsIcon icon={Film01Icon} size={13} strokeWidth={2} aria-hidden="true" />
-          작품 목록 보기
-        </WorksLink>
-      </CountRow>
+          <CountRow>
+            <MatchCount>
+              {isLoading && items.length === 0
+                ? '검색 중…'
+                : `장소 ${matchingCount.toLocaleString()}개`}
+            </MatchCount>
+            <WorksLink href="/discover/works">
+              <HugeiconsIcon icon={Film01Icon} size={13} strokeWidth={2} aria-hidden="true" />
+              작품 목록 보기
+            </WorksLink>
+          </CountRow>
 
-      <DiscoveryPlacesSection
-        items={items}
-        isLoading={isLoading}
-        isError={isError}
-        hasMore={hasMore}
-        onLoadMore={loadMore}
-        onPlaceClick={handlePlaceClick}
-      />
+          <DiscoveryPlacesSection
+            items={items}
+            isLoading={isLoading}
+            isError={isError}
+            hasMore={hasMore}
+            onLoadMore={loadMore}
+            onPlaceClick={handlePlaceClick}
+          />
+        </>
+      )}
     </PageWrap>
   );
 }
