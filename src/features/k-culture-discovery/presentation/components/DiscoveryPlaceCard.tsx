@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   MapPinIcon,
-  PlayListAdd01Icon,
+  AddToListIcon,
   Building04Icon,
 } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
@@ -257,7 +257,7 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
           )}
           {place.matchingWorkCount > 1 && (
             <WorkCountBadge>
-              <HugeiconsIcon icon={PlayListAdd01Icon} size={11} strokeWidth={2} aria-hidden="true" />
+              <HugeiconsIcon icon={AddToListIcon} size={11} strokeWidth={2} aria-hidden="true" />
               작품 {place.matchingWorkCount}개
             </WorkCountBadge>
           )}
