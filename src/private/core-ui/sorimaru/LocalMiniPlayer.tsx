@@ -1325,13 +1325,7 @@ export const LocalMiniPlayer: React.FC = () => {
                   {}
                   <CustomSliderContainer $progress={audioProgress}>
                     <ExpandedSliderOni $progress={audioProgress} aria-hidden="true">
-                      {isApple || oniVideoError ? (
-                        <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ filter: 'drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3))', transform: 'scaleX(-1)' }} />
-                      ) : (
-                        <FloatingOniVideo autoPlay loop muted playsInline preload="auto" onError={() => setOniVideoError(true)}>
-                          <source src={ONI_LISTEN_SRC} type="video/webm" onError={() => setOniVideoError(true)} />
-                        </FloatingOniVideo>
-                      )}
+                      <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ transform: 'scaleX(-1)' }} />
                     </ExpandedSliderOni>
                     <input
                       type="range"

@@ -230,7 +230,7 @@ const Line = styled.button<{
 `;
 
 const SkeletonLine = styled.div<{ $wide?: boolean }>`
-  height: 1.3rem;
+  height: 2.3rem;
   width: ${({ $wide }) => ($wide ? '92%' : '68%')};
   border-radius: 0.375rem;
   background: linear-gradient(90deg, #d9d9d7 25%, #e5e5e3 50%, #d9d9d7 75%);
@@ -240,10 +240,6 @@ const SkeletonLine = styled.div<{ $wide?: boolean }>`
   [data-theme='dark'] & {
     background: linear-gradient(90deg, #24221f 25%, #2e2b27 50%, #24221f 75%);
     background-size: 200% 100%;
-  }
-
-  & + & {
-    margin-top: 1.25rem;
   }
 
   @keyframes transcriptShimmer {
@@ -259,9 +255,11 @@ export function TranscriptSkeleton({ seamless = false }: { seamless?: boolean })
   return (
     <Panel data-testid="transcript-skeleton" aria-label="대본 불러오는 중" $seamless={seamless}>
       <Scroller aria-hidden="true" $seamless={seamless}>
-        <SkeletonLine $wide />
-        <SkeletonLine />
-        <SkeletonLine $wide />
+        <LineList>
+          {Array.from({ length: 12 }, (_, index) => (
+            <SkeletonLine key={index} data-testid="transcript-skeleton-line" $wide={index % 3 !== 1} />
+          ))}
+        </LineList>
       </Scroller>
     </Panel>
   );
