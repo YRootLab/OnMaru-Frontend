@@ -39,8 +39,8 @@ const CountLabel = styled.span`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: ${fontSize.sm};
-  font-weight: 500;
+  font-size: 0.9375rem;
+  font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.02em;
   [data-theme='dark'] & { color: ${meok[100]}; }
@@ -191,12 +191,10 @@ export default function InfoPlaceList() {
   const setSelectedId = useMapStore((s) => s.setSelectedId);
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const infoRegionName = useMapStore((s) => s.infoRegionName);
-  const setInfoCategory = useMapStore((s) => s.setInfoCategory);
   const setInfoRegionCode = useMapStore((s) => s.setInfoRegionCode);
   const retryInfoList = useMapStore((s) => s.retryInfoList);
   const {
     isInfoHome,
-    captureBeforeNavigation,
     returnToInfoHome,
   } = useInfoMapHomeNavigation();
 
@@ -324,12 +322,6 @@ export default function InfoPlaceList() {
         category={infoCategory}
         regionCode={infoRegionCode}
         items={editorialItems}
-        loading={isListLoading && listItems.length === 0}
-        onShowAllFestivals={() => {
-          captureBeforeNavigation();
-          setInfoCategory('festival');
-        }}
-        onSelectItem={handleSelect}
       />
 
       <StickyHeader>

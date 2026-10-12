@@ -100,7 +100,7 @@ const TitleBox = styled.div`
 
 const Title = styled.h3`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: 0.9375rem;
   font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.02em;

@@ -186,7 +186,6 @@ export const MAP_INFO_CATEGORY_LABELS: Record<MapInfoCategory, string> = {
   spot: '고택',
   experience: '전통 체험',
   culture: '문화유산',
-  festival: '축제',
   stay: '한옥 숙소',
   food: '전통 맛집',
   cafe: '전통 카페',

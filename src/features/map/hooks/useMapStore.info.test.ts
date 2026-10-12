@@ -26,7 +26,7 @@ describe('useMapStore info list state', () => {
   it('resets information mode to HANOK when returning from warmth mode', () => {
     useMapStore.setState({
       mode: 'warmth',
-      infoCategory: 'festival',
+      infoCategory: 'stay',
       listItems: [place('festival-1')],
       viewportItems: [{
         type: 'DISTRICT',
@@ -43,12 +43,12 @@ describe('useMapStore info list state', () => {
   });
 
   it('preserves a valid information selection when the active mode is selected again', () => {
-    useMapStore.setState({ mode: 'info', infoCategory: 'festival', infoRegionCode: '11' });
+    useMapStore.setState({ mode: 'info', infoCategory: 'stay', infoRegionCode: '11' });
 
     useMapStore.getState().setMode('info');
 
     expect(useMapStore.getState()).toMatchObject({
-      infoCategory: 'festival',
+      infoCategory: 'stay',
       infoRegionCode: '11',
     });
   });

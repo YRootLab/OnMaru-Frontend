@@ -8,6 +8,7 @@ import { ArrowLeft01Icon, ArrowRight01Icon, HeartIcon, RotateCcwIcon, VolumeHigh
 
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
+import { selectHomeFeaturedCourses } from '../services/homeCourseSelection';
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
@@ -819,7 +820,7 @@ const RegionSub = styled.span`
   }
 `;
 
-const COURSE_CATEGORY_LIST = ['HANOK_STAY', 'CULTURE_ART', 'TRADITIONAL_FOOD', 'GARDEN_ECOLOGY', 'LOCAL_SCENE'] as const;
+const COURSE_CATEGORY_LIST = ['HANOK_STAY', 'CULTURE_ART', 'TRADITIONAL_FOOD', 'HANOK_EXPERIENCE', 'LOCAL_SCENE'] as const;
 
 const CategoryFilterRow = styled.div`
   display: flex;
@@ -870,7 +871,7 @@ export default function JourneyDiscoveryFeed() {
     const api = currentlySaved ? unsaveOdiiStory : saveOdiiStory;
     api(storyId).catch(() => setSavedOverrides((prev) => ({ ...prev, [storyId]: currentlySaved })));
   };
-  const featuredCourses = courses.slice(0, 7);
+  const featuredCourses = selectHomeFeaturedCourses(courses);
   const courseViewportRef = useRef<HTMLDivElement>(null);
   const [visibleCourseCount, setVisibleCourseCount] = useState(3);
   const [activeCourseIndex, setActiveCourseIndex] = useState(0);

@@ -16,7 +16,7 @@ export function useInfoMapHomeNavigation() {
     const snapshot = store.consumeInfoHomeSnapshot();
 
     store.setInfoCategory('hanok');
-    store.setSearchQuery('한옥');
+    store.setSearchQuery('');
     store.setSelectedId(null);
     store.setHoveredId(null);
     store.setDetailId(null);

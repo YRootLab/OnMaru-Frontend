@@ -33,8 +33,7 @@ const CardContainer = styled.div`
   margin: 0 14px;
   padding: 16px 18px;
   border-radius: 18px;
-  background: #f8f8f7;
-  border: 1px solid #e5e5e3;
+  background: linear-gradient(135deg, ${lightPalette.jangmi[50]} 0%, ${surface.light.card} 100%);
   overflow: hidden;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 
@@ -48,23 +47,21 @@ const CardContainer = styled.div`
   }
 `;
 
+const SectionHeading = styled.h3`
+  margin: 0 14px 12px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & { color: ${meok[100]}; }
+`;
+
 const TopRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-`;
-
-const SectionTitle = styled.h3`
-  margin: 0;
-  font-size: ${fontSize.sm};
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: ${meok[900]};
-
-  [data-theme='dark'] & {
-    color: ${meok[100]};
-  }
 `;
 
 const DurationText = styled.span`
@@ -74,9 +71,9 @@ const DurationText = styled.span`
 `;
 
 const StoryTitle = styled.h4`
-  margin: 0 0 4px;
+  margin: 0;
   font-size: ${fontSize.sm};
-  font-weight: 650;
+  font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -190,15 +187,14 @@ export default function SorimaruSpotlightBanner() {
 
   if (!spotlightStory) {
     return (
-      <CardContainer aria-busy="true" aria-label="공간 오디오 투어 불러오는 중">
-        <TopRow>
-          <SectionTitle>공간 오디오 투어</SectionTitle>
-          <SkeletonBar $w="44px" $h="13px" $radius="9999px" />
-        </TopRow>
+      <section aria-busy="true" aria-label="공간 오디오 투어 불러오는 중">
+        <SectionHeading>공간 오디오 투어</SectionHeading>
+        <CardContainer>
+          <TopRow>
+            <SkeletonBar $w="64%" $h="16.5px" />
+            <SkeletonBar $w="44px" $h="13px" $radius="9999px" />
+          </TopRow>
 
-        <div style={{ margin: '0 0 4px', height: '21px', display: 'flex', alignItems: 'center' }}>
-          <SkeletonBar $w="64%" $h="16.5px" />
-        </div>
         <div style={{ margin: '0 0 12px', height: '17px', display: 'flex', alignItems: 'center' }}>
           <SkeletonBar $w="42%" $h="12px" />
         </div>
@@ -210,7 +206,8 @@ export default function SorimaruSpotlightBanner() {
             <span>투어 시작</span>
           </StartBtn>
         </ActionRow>
-      </CardContainer>
+        </CardContainer>
+      </section>
     );
   }
 
@@ -219,25 +216,22 @@ export default function SorimaruSpotlightBanner() {
   };
 
   return (
-    <CardContainer>
-      <TopRow>
-        <SectionTitle>공간 오디오 투어</SectionTitle>
-        <DurationText>{spotlightStory.durationSeconds ? `약 ${Math.ceil(spotlightStory.durationSeconds / 60)}분` : '약 10분'}</DurationText>
-      </TopRow>
-
-      <StoryTitle>{spotlightStory.audioTitle || spotlightStory.title}</StoryTitle>
-      <StoryExcerpt>{spotlightStory.region.name}</StoryExcerpt>
-
-      <ActionRow>
-        <DocentTag>
-          <span>오디오 가이드</span>
-        </DocentTag>
-
-        <StartBtn type="button" onClick={handleStart}>
-          <HugeiconsIcon icon={PlayIcon} size={13} fill="currentColor" className="ml-0.5" />
-          <span>투어 시작</span>
-        </StartBtn>
-      </ActionRow>
-    </CardContainer>
+    <section>
+      <SectionHeading>공간 오디오 투어</SectionHeading>
+      <CardContainer>
+        <TopRow>
+          <StoryTitle>{spotlightStory.audioTitle || spotlightStory.title}</StoryTitle>
+          <DurationText>{spotlightStory.durationSeconds ? `약 ${Math.ceil(spotlightStory.durationSeconds / 60)}분` : '약 10분'}</DurationText>
+        </TopRow>
+        <StoryExcerpt>{spotlightStory.region.name}</StoryExcerpt>
+        <ActionRow>
+          <DocentTag><span>오디오 가이드</span></DocentTag>
+          <StartBtn type="button" onClick={handleStart}>
+            <HugeiconsIcon icon={PlayIcon} size={13} fill="currentColor" className="ml-0.5" />
+            <span>투어 시작</span>
+          </StartBtn>
+        </ActionRow>
+      </CardContainer>
+    </section>
   );
 }

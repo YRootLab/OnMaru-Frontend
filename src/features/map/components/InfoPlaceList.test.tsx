@@ -72,7 +72,7 @@ describe('InfoPlaceList', () => {
     render(<InfoPlaceList />);
 
     expect(screen.getByText('실시간 한옥 소식')).toBeTruthy();
-    expect(screen.getByText('축제·기획전')).toBeTruthy();
+    expect(screen.queryByText('축제·기획전')).toBeNull();
     expect(screen.getByText('이번 주 소리마루')).toBeTruthy();
     expect(screen.getByText('추천 한옥 명소')).toBeTruthy();
     expect(screen.getByText('한옥 공간·체험 23,675곳')).toBeTruthy();
@@ -144,7 +144,7 @@ describe('InfoPlaceList', () => {
     });
 
     act(() => {
-      useMapStore.getState().setInfoCategory('festival');
+      useMapStore.getState().setInfoCategory('stay');
       useMapStore.getState().setInfoCategory('hanok');
       useMapStore.getState().setListItems(
         [{ ...item, placeId: 'current-2', name: '현재 snapshot 장소' }],
