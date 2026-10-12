@@ -231,12 +231,14 @@ export default function HanokArchive({
   const [selectedStay, setSelectedStay] = useState<Village | null>(null);
   const archiveData = useArchiveData(villages, meta);
   const section1 = useHanokSection1();
-  // loading: show SSR data; error: show error (not hidden); success: show fresh data
-  const section1Villages = section1.error
+  const rawSection1Villages = section1.error
     ? null
     : section1.villages.length > 0
       ? section1.villages
       : archiveData.villages;
+  const section1Villages = rawSection1Villages
+    ? rawSection1Villages.filter((v) => Boolean(v.image && v.hasImage !== false))
+    : null;
 
   useEffect(
     () =>

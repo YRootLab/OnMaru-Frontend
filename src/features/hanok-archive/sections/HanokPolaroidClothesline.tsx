@@ -220,7 +220,7 @@ interface HanokPolaroidClotheslineProps {
 }
 
 export default function HanokPolaroidClothesline({ villages, onSelectVillage }: HanokPolaroidClotheslineProps) {
-  const picks = villages;
+  const picks = useMemo(() => villages.filter((v) => Boolean(v.image && v.hasImage !== false)), [villages]);
 
   const { unitWidth, cardLayouts, svgPath, durationSec } = useMemo(() => {
     const count = picks.length;
