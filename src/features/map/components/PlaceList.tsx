@@ -13,7 +13,6 @@ import { PlaceListItem } from './PlaceListItem';
 import { HanokIcon } from './HanokIcon';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import LiveNoticeBanner from './feed/LiveNoticeBanner';
-import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
 import SorimaruSpotlightBanner from './feed/SorimaruSpotlightBanner';
 import SmartAroundFeed from './feed/SmartAroundFeed';
 import type { Item, PlaceCategory } from '@/features/map/types';
@@ -84,8 +83,8 @@ const CountLabel = styled.span`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: ${fontSize.sm};
-  font-weight: 500;
+  font-size: 0.9375rem;
+  font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.02em;
 
@@ -515,9 +514,6 @@ export default function PlaceList() {
   };
 
 
-  const festivalItems = useMemo(() => {
-    return items.filter((item) => item.category === 'festival');
-  }, [items]);
 
 
   const headerTitle = useMemo(() => {
@@ -566,7 +562,6 @@ export default function PlaceList() {
       {isAllCategory && (
         <FeedWrapper>
           {}
-          <FestivalExhibitionCarousel festivals={festivalItems} />
 
           {}
           <SorimaruSpotlightBanner />

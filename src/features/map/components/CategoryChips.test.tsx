@@ -34,7 +34,7 @@ describe('CategoryChips information mode', () => {
 
     expect(useMapStore.getState().infoCategory).toBe('hanok');
     expect(useMapStore.getState().category).toBeNull();
-    expect(useMapStore.getState().searchQuery).toBe('한옥');
+    expect(useMapStore.getState().searchQuery).toBe('');
   });
 
   it('does not render the information-wide 전체 chip', () => {

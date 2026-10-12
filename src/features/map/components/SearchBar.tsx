@@ -28,16 +28,9 @@ const Field = styled.form`
   background: rgba(25, 31, 40, 0.05);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
-  &:focus-within {
-    background: #ffffff;
-  }
-
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.08);
 
-    &:focus-within {
-      background: rgba(255, 255, 255, 0.12);
-    }
   }
 `;
 
@@ -291,7 +284,6 @@ export default function SearchBar({ className }: SearchBarProps) {
       const q = useMapStore.getState().searchQuery;
       if (q) performSearch(q);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTrigger]);
 
 

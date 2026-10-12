@@ -74,6 +74,7 @@ export function useInfoMapData(enabled = true) {
   const lastViewportScopeRef = useRef<string>('');
   const lastSuccessfulViewportScopeRef = useRef<string>('');
   const listSnapshotRecoveryScopeRef = useRef<string>('');
+  const initialListRequestRef = useRef(true);
   const viewportSnapshotRecoveryScopeRef = useRef<string>('');
   const lastViewportReloadNonceRef = useRef(infoViewportReloadNonce);
   const viewportControllerRef = useRef<AbortController | null>(null);
@@ -92,14 +93,17 @@ export function useInfoMapData(enabled = true) {
     const store = useMapStore.getState();
     store.setIsListLoading(true);
     store.setListError(null);
+    const timeoutMs = initialListRequestRef.current ? 15_000 : undefined;
 
     listInfoPlaces({
       category: infoCategory,
       regionCode: infoRegionCode,
       signal: ctrl.signal,
+      timeoutMs,
     })
       .then((page) => {
         if (ctrl.signal.aborted) return;
+        initialListRequestRef.current = false;
         listSnapshotRecoveryScopeRef.current = '';
         const regionName = page.items[0]?.region?.name;
         if (infoRegionCode && regionName && !useMapStore.getState().infoRegionName) {

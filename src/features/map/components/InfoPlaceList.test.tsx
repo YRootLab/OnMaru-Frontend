@@ -64,7 +64,7 @@ describe('InfoPlaceList', () => {
   it('shows the server totalCount instead of the loaded item count', () => {
     render(<InfoPlaceList />);
 
-    expect(screen.getByText('한옥 23,675곳')).toBeTruthy();
+    expect(screen.getByText('한옥 공간·체험 23,675곳')).toBeTruthy();
     expect(screen.getByText('유지되는 한옥')).toBeTruthy();
   });
 
@@ -72,10 +72,10 @@ describe('InfoPlaceList', () => {
     render(<InfoPlaceList />);
 
     expect(screen.getByText('실시간 한옥 소식')).toBeTruthy();
-    expect(screen.getByText('축제·기획전')).toBeTruthy();
+    expect(screen.queryByText('축제·기획전')).toBeNull();
     expect(screen.getByText('이번 주 소리마루')).toBeTruthy();
     expect(screen.getByText('추천 한옥 명소')).toBeTruthy();
-    expect(screen.getByText('한옥 23,675곳')).toBeTruthy();
+    expect(screen.getByText('한옥 공간·체험 23,675곳')).toBeTruthy();
     expect(screen.getByText('유지되는 한옥')).toBeTruthy();
   });
 
@@ -83,7 +83,7 @@ describe('InfoPlaceList', () => {
     render(<InfoPlaceList />);
 
     const editorial = screen.getByText('추천 한옥 명소');
-    const countHeading = screen.getByText('한옥 23,675곳');
+    const countHeading = screen.getByText('한옥 공간·체험 23,675곳');
     const firstPlace = screen.getByText('유지되는 한옥');
 
     expect(editorial.compareDocumentPosition(countHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -144,7 +144,7 @@ describe('InfoPlaceList', () => {
     });
 
     act(() => {
-      useMapStore.getState().setInfoCategory('festival');
+      useMapStore.getState().setInfoCategory('stay');
       useMapStore.getState().setInfoCategory('hanok');
       useMapStore.getState().setListItems(
         [{ ...item, placeId: 'current-2', name: '현재 snapshot 장소' }],

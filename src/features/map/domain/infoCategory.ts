@@ -3,7 +3,6 @@ export const MAP_INFO_CATEGORIES = [
   'spot',
   'experience',
   'culture',
-  'festival',
   'stay',
   'food',
   'cafe',

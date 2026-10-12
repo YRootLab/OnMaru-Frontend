@@ -72,7 +72,7 @@ export function createHomeRepository(request: RequestFn = apiRequest): HomeRepos
     listCuratedCourses(category?: string) {
       return request<HomeCursorPage<CuratedCourse>>('/home/curated-courses', {
         method: 'GET',
-        params: { limit: 20, ...(category ? { category } : {}) },
+        params: { limit: 40, ...(category ? { category } : {}) },
         cache: 'no-store',
       });
     },

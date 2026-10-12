@@ -10,6 +10,7 @@ interface UseTranscriptFollowOptions {
 }
 
 export function useTranscriptFollow({ activeLineId, onSeek }: UseTranscriptFollowOptions) {
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
   const activeLineRef = useRef<HTMLButtonElement | null>(null);
   const isUserScrollingRef = useRef(false);
   const scrollPauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -23,10 +24,17 @@ export function useTranscriptFollow({ activeLineId, onSeek }: UseTranscriptFollo
       activeLineChanged,
       requestedSeek,
     })) {
-      activeLineRef.current?.scrollIntoView({
-        behavior: reducedMotion ? 'auto' : 'smooth',
-        block: 'center',
-      });
+      const scroller = scrollerRef.current;
+      const line = activeLineRef.current;
+      if (scroller && line) {
+        const scrollerBounds = scroller.getBoundingClientRect();
+        const lineBounds = line.getBoundingClientRect();
+        scroller.scrollTo({
+          top: scroller.scrollTop + lineBounds.top - scrollerBounds.top
+            - (scroller.clientHeight - lineBounds.height) / 2,
+          behavior: reducedMotion ? 'instant' : 'smooth',
+        });
+      }
     }
     previousLineIdRef.current = activeLineId;
   }, [activeLineId, reducedMotion]);
@@ -52,5 +60,5 @@ export function useTranscriptFollow({ activeLineId, onSeek }: UseTranscriptFollo
     centerActiveLine(true);
   }, [centerActiveLine, onSeek]);
 
-  return { activeLineRef, onTranscriptScroll, requestSeek };
+  return { scrollerRef, activeLineRef, onTranscriptScroll, requestSeek };
 }

@@ -121,7 +121,6 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
     { href: '/', label: '홈', icon: Home01Icon, active: pathname === '/' },
     { href: '/hanok', label: '한옥마루', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
     { href: '/sorimaru', label: '소리마루', icon: HeadphonesIcon, active: isSoriMaruPage },
-    { href: '/discover', label: 'K-마루', icon: SearchAreaIcon, active: pathname.startsWith('/discover') },
     { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
     {
       href: isLoggedIn ? '/mypage' : '/auth/login',

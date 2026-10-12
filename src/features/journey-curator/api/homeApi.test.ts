@@ -17,7 +17,7 @@ describe('home repository', () => {
 
     expect(calls[0]).toEqual({ path: '/home/curated-courses', options: {
       method: 'GET',
-      params: { limit: 20 },
+      params: { limit: 40 },
       cache: 'no-store',
     } });
     expect(calls[1]).toEqual({ path: '/home/trending-sounds', options: {
@@ -43,7 +43,7 @@ describe('home repository', () => {
 
     expect(calls[0]).toEqual({ path: '/home/curated-courses', options: {
       method: 'GET',
-      params: { limit: 20, category: 'HANOK_STAY' },
+      params: { limit: 40, category: 'HANOK_STAY' },
       cache: 'no-store',
     } });
   });

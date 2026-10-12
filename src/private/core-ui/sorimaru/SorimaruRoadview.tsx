@@ -133,10 +133,6 @@ const SkeletonOverlay = styled(motion.div)`
   position: absolute;
   inset: 0;
   z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   background: linear-gradient(90deg, #d9d9d7 25%, #e5e5e3 50%, #d9d9d7 75%);
   background-size: 200% 100%;
   animation: roadviewSkeletonShimmer 1.8s ease-in-out infinite;
@@ -153,41 +149,6 @@ const SkeletonOverlay = styled(motion.div)`
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
-  }
-`;
-
-const SkeletonBadge = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  color: #57534e;
-  font-size: 0.75rem;
-  font-weight: 600;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
-
-  [data-theme='dark'] & {
-    background: rgba(20, 18, 16, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #a8a29e;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  }
-
-  .spin-icon {
-    animation: roadviewSpin 2s linear infinite;
-    color: ${palette.juhong[500]};
-
-    [data-theme='dark'] & {
-      color: ${palette.juhong[400]};
-    }
-  }
-
-  @keyframes roadviewSpin {
-    to { transform: rotate(360deg); }
   }
 `;
 
@@ -415,15 +376,12 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
       <AnimatePresence>
         {!isVisualReady && (
           <SkeletonOverlay
+            role="status"
+            aria-label="현장 사진 불러오는 중"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
-            <SkeletonBadge>
-              <HugeiconsIcon icon={Compass01Icon} size={14} className="spin-icon" />
-              <span>{isTargetingRoadview ? '360° 현장 뷰 로딩 중...' : '현장 사진 불러오는 중...'}</span>
-            </SkeletonBadge>
-          </SkeletonOverlay>
+          />
         )}
       </AnimatePresence>
 
@@ -431,7 +389,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
       <VignetteOverlay />
 
       {}
-      <TopBadgeBar>
+      {isVisualReady && <TopBadgeBar>
         <StatusChip $status={statusType}>
           <span className="dot" />
           <span>
@@ -463,7 +421,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
             {isFullscreen ? <HugeiconsIcon icon={ArrowShrink01Icon} size={13} strokeWidth={2} /> : <HugeiconsIcon icon={ArrowExpand01Icon} size={13} strokeWidth={2} />}
           </IconButton>
         </ButtonGroup>
-      </TopBadgeBar>
+      </TopBadgeBar>}
 
       {}
       <AnimatePresence>

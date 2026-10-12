@@ -302,20 +302,6 @@ export default function MapNavRail() {
         {}
         <NavItemBtn
           type="button"
-          $active={false}
-          onClick={() => router.push('/discover')}
-          aria-label="K-마루"
-          title="K-마루"
-        >
-          <NavItemIcon>
-            <HugeiconsIcon icon={SearchAreaIcon} size={19} strokeWidth={2} />
-          </NavItemIcon>
-          <NavItemLabel>K-마루</NavItemLabel>
-        </NavItemBtn>
-
-        {}
-        <NavItemBtn
-          type="button"
           $active={isMapActive}
           onClick={handleSelectInfoMap}
           aria-label="지도마루"

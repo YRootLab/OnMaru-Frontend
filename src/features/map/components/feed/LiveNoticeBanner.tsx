@@ -7,9 +7,9 @@ import { Megaphone01Icon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 
 const NOTICES = [
-  '전국 한옥마을 문화재 야행 및 달빛음악회 일정 안내',
+  '지도에서 전국 한옥 공간과 전통 체험을 찾아보세요',
   '음성 도슨트와 함께 지도를 따라 걷는 한옥 산책',
-  '고택·종택 특별 야간 개방 및 전통 다도 체험 진행',
+  '고택과 종택의 역사, 공간 이야기를 살펴보세요',
   '전국 한옥스테이 품질인증 숙소 안내',
 ];
 

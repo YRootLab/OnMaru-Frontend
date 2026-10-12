@@ -98,6 +98,10 @@ const HeroSlot = styled.div`
   @media (min-width: 640px) {
     aspect-ratio: 3 / 4;
   }
+
+  @media (min-width: 900px) {
+    aspect-ratio: 11 / 12;
+  }
 `;
 
 const HeroCard = styled(motion.div)`
@@ -364,6 +368,10 @@ const SkeletonHero = styled.div`
 
   [data-theme='dark'] & {
     background: #252422;
+  }
+
+  @media (min-width: 900px) {
+    aspect-ratio: 11 / 12;
   }
 
   @media (max-width: 640px) {

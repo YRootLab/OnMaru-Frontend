@@ -80,6 +80,7 @@ describe('useInfoMapData', () => {
     await act(async () => Promise.resolve());
     expect(listInfoPlaces).toHaveBeenCalledTimes(1);
     expect(listInfoPlaces).toHaveBeenCalledWith(expect.objectContaining({ category: 'hanok' }));
+    expect(listInfoPlaces).toHaveBeenCalledWith(expect.objectContaining({ timeoutMs: 15_000 }));
 
     await act(() => vi.advanceTimersByTimeAsync(100));
     expect(loadMapViewport).toHaveBeenCalledTimes(1);
@@ -301,7 +302,7 @@ describe('useInfoMapData', () => {
     await act(async () => Promise.resolve());
     expect(useMapStore.getState().viewportItems).toEqual([districtItem]);
 
-    act(() => useMapStore.getState().setInfoCategory('festival'));
+    act(() => useMapStore.getState().setInfoCategory('stay'));
     await act(() => vi.advanceTimersByTimeAsync(700));
     await act(async () => Promise.resolve());
 

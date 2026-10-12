@@ -3,9 +3,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { HugeiconsIcon } from '@hugeicons/react'
-import { PlayIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { PlayIcon } from '@hugeicons/core-free-icons';
+import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 
 const bannerShimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -34,7 +34,6 @@ const CardContainer = styled.div`
   padding: 16px 18px;
   border-radius: 18px;
   background: linear-gradient(135deg, ${lightPalette.jangmi[50]} 0%, ${surface.light.card} 100%);
-
   overflow: hidden;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 
@@ -43,41 +42,26 @@ const CardContainer = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: linear-gradient(135deg, rgba(212, 32, 88, 0.15) 0%, ${surface.dark.card} 100%);
+    background: ${surface.dark.card};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 `;
 
-const BackgroundAura = styled.div`
-  position: absolute;
-  top: -24px;
-  right: -24px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: ${lightPalette.jangmi[100]};
-  opacity: 0.5;
-  filter: blur(30px);
-  pointer-events: none;
+const SectionHeading = styled.h3`
+  margin: 0 14px 12px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & { color: ${meok[100]}; }
 `;
 
 const TopRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-`;
-
-const Badge = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2.5px 8px;
-  border-radius: 9999px;
-  font-size: ${fontSize.micro};
-  font-weight: 700;
-  color: ${lightPalette.jangmi[500]};
-  background: ${lightPalette.jangmi[50]};
+  margin-bottom: 12px;
 `;
 
 const DurationText = styled.span`
@@ -87,9 +71,9 @@ const DurationText = styled.span`
 `;
 
 const StoryTitle = styled.h4`
-  margin: 0 0 4px;
+  margin: 0;
   font-size: ${fontSize.sm};
-  font-weight: 500;
+  font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -105,7 +89,7 @@ const StoryExcerpt = styled.p`
   margin: 0 0 12px;
   font-size: ${fontSize.xs};
   line-height: 1.4;
-  color: ${meok[700]};
+  color: ${meok[500]};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -203,20 +187,16 @@ export default function SorimaruSpotlightBanner() {
 
   if (!spotlightStory) {
     return (
-      <CardContainer aria-busy="true" aria-label="공간 오디오 투어 불러오는 중">
-        <BackgroundAura />
-        <TopRow>
-          <Badge>
-            <span>공간 오디오 투어</span>
-          </Badge>
-          <SkeletonBar $w="44px" $h="13px" $radius="9999px" />
-        </TopRow>
+      <section aria-busy="true" aria-label="공간 오디오 투어 불러오는 중">
+        <SectionHeading>공간 오디오 투어</SectionHeading>
+        <CardContainer>
+          <TopRow>
+            <SkeletonBar $w="64%" $h="16.5px" />
+            <SkeletonBar $w="44px" $h="13px" $radius="9999px" />
+          </TopRow>
 
-        <div style={{ margin: '0 0 4px', height: '21px', display: 'flex', alignItems: 'center' }}>
-          <SkeletonBar $w="64%" $h="16.5px" />
-        </div>
         <div style={{ margin: '0 0 12px', height: '17px', display: 'flex', alignItems: 'center' }}>
-          <SkeletonBar $w="86%" $h="12px" />
+          <SkeletonBar $w="42%" $h="12px" />
         </div>
 
         <ActionRow>
@@ -226,7 +206,8 @@ export default function SorimaruSpotlightBanner() {
             <span>투어 시작</span>
           </StartBtn>
         </ActionRow>
-      </CardContainer>
+        </CardContainer>
+      </section>
     );
   }
 
@@ -235,30 +216,22 @@ export default function SorimaruSpotlightBanner() {
   };
 
   return (
-    <CardContainer>
-      <BackgroundAura />
-      <TopRow>
-        <Badge>
-          <span>공간 오디오 투어</span>
-        </Badge>
-        <DurationText>{spotlightStory.durationSeconds ? `약 ${Math.ceil(spotlightStory.durationSeconds / 60)}분` : '약 10분'}</DurationText>
-      </TopRow>
-
-      <StoryTitle>{spotlightStory.audioTitle || spotlightStory.title}</StoryTitle>
-      <StoryExcerpt title={spotlightStory.audioTitle}>
-        {spotlightStory.audioTitle || '문화해설사의 음성 해설과 함께 지도를 따라 걷는 고택 산책'}
-      </StoryExcerpt>
-
-      <ActionRow>
-        <DocentTag>
-          <span>문화해설사 도슨트</span>
-        </DocentTag>
-
-        <StartBtn type="button" onClick={handleStart}>
-          <HugeiconsIcon icon={PlayIcon} size={13} fill="currentColor" className="ml-0.5" />
-          <span>투어 시작</span>
-        </StartBtn>
-      </ActionRow>
-    </CardContainer>
+    <section>
+      <SectionHeading>공간 오디오 투어</SectionHeading>
+      <CardContainer>
+        <TopRow>
+          <StoryTitle>{spotlightStory.audioTitle || spotlightStory.title}</StoryTitle>
+          <DurationText>{spotlightStory.durationSeconds ? `약 ${Math.ceil(spotlightStory.durationSeconds / 60)}분` : '약 10분'}</DurationText>
+        </TopRow>
+        <StoryExcerpt>{spotlightStory.region.name}</StoryExcerpt>
+        <ActionRow>
+          <DocentTag><span>오디오 가이드</span></DocentTag>
+          <StartBtn type="button" onClick={handleStart}>
+            <HugeiconsIcon icon={PlayIcon} size={13} fill="currentColor" className="ml-0.5" />
+            <span>투어 시작</span>
+          </StartBtn>
+        </ActionRow>
+      </CardContainer>
+    </section>
   );
 }
