@@ -1,0 +1,49 @@
+.gateway{position:relative;z-index:6;display:grid;grid-template-columns:38% 62%;width:100%;min-height:min(820px,86svh);overflow:hidden;background:#282627;color:#f8f8f7;isolation:isolate}
+.copy{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:clamp(56px,7vw,112px) 28px clamp(56px,7vw,112px) clamp(32px,4vw,64px)}
+.fourSeasonsOniRow{display:inline-flex;align-items:flex-end;gap:16px;margin-bottom:20px;pointer-events:auto}
+.seasonOniItem{display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .25s ease;opacity:.82}
+.seasonOniItem[data-current=true]{opacity:1;transform:scale(1.08)}
+.seasonOniItem:hover{transform:translateY(-4px);opacity:1}
+.fourSeasonsOniImage{width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45));transition:transform .2s ease}
+.seasonOniLabel{font-size:.74rem;font-weight:700;color:rgba(255,255,255,.88);letter-spacing:.02em;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.copy h2{margin:0;color:#fff;font-size:clamp(3.4rem,5.6vw,7rem);font-weight:650;line-height:1.05;letter-spacing:-.085em;word-break:keep-all}
+.heroTitle{}
+.lead{max-width:510px;margin:clamp(26px,3.6vw,50px) 0 0;font-size:clamp(1.15rem,1.65vw,1.8rem);font-weight:650;line-height:1.5;word-break:keep-all}
+.description{max-width:440px;margin:18px 0 0;color:#d9d9d7;font-size:clamp(.9rem,1.05vw,1.05rem);line-height:1.7;word-break:keep-all}
+.copy a{display:inline-flex;align-items:center;gap:22px;margin-top:clamp(28px,3vw,46px);padding:17px 20px;background:#f8f8f7;color:#222d2b;font-size:.86rem;font-weight:750;text-decoration:none;transition:background-color .2s ease,transform .2s ease}
+.copy a:hover{background:#e5e5e3;transform:translateY(-2px)}
+.copy a:focus-visible{outline:3px solid #fff;outline-offset:4px}
+.visualLink{display:block;position:relative;width:100%;height:100%;cursor:pointer;text-decoration:none}
+.visual{position:relative;width:100%;height:100%;min-width:0;overflow:hidden;background:#303736}
+.photo{position:absolute;inset:0;overflow:hidden}
+.photo img{object-fit:cover;object-position:center}
+.heroImage{}
+.shadeOverlay{position:absolute;inset:0;background:linear-gradient(90deg,rgba(15,18,18,.24),transparent 24%),linear-gradient(0deg,rgba(10,14,14,.35),transparent 45%);pointer-events:none}
+.mark{position:absolute;right:5%;bottom:3%;z-index:1;color:rgba(255,255,255,.24);font-size:clamp(8rem,20vw,22rem);font-weight:650;line-height:.8;letter-spacing:-.14em;white-space:nowrap;pointer-events:none}
+@media(max-width:900px){.gateway{grid-template-columns:42% 58%}.copy{padding:48px 32px}.copy h2{font-size:clamp(2.7rem,5.4vw,5rem)}.lead{font-size:1.18rem}}
+@media(max-width:760px){
+  .gateway{display:flex;flex-direction:column;min-height:0;border-radius:20px;margin:16px auto;width:calc(100% - 28px);box-shadow:0 12px 36px rgba(0,0,0,.35)}
+  .visualLink{order:1;height:240px}
+  .visual{height:100%;min-height:240px}
+  .copy{order:2;min-height:0;padding:28px 22px 36px}
+  .fourSeasonsOniRow{gap:12px;margin-bottom:14px}
+  .fourSeasonsOniImage{width:40px;height:40px}
+  .seasonOniLabel{font-size:.68rem}
+  .copy h2{font-size:clamp(2.4rem,8vw,3.6rem);line-height:1.1}
+  .lead{margin-top:16px;font-size:1.12rem;line-height:1.45}
+  .description{margin-top:8px;font-size:.88rem;line-height:1.55}
+  .copy a{margin-top:24px;padding:14px 18px;font-size:.82rem;width:100%;justify-content:center}
+  .mark{font-size:clamp(5rem,24vw,9rem);right:16px;bottom:8px}
+}
+@media(prefers-reduced-motion:reduce){.copy a{transition:none}.copy a:hover{transform:none}}
+
+
+
+.atmosphere{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.atmosphere i{position:absolute;left:var(--left);top:var(--top);width:var(--size);height:calc(var(--size) * .72);opacity:var(--opacity);background:#bc8a65;border-radius:8% 70% 12% 70%;animation:drift var(--duration) linear var(--delay) infinite;will-change:transform}
+.gateway[data-season=spring] .atmosphere i{background:#efc8d7;border-radius:80% 20% 70% 25%}
+.gateway[data-season=summer] .atmosphere i{width:calc(var(--size) * .45);height:calc(var(--size) * .45);border-radius:50%;background:#e3f2cd;box-shadow:0 0 15px rgba(226,245,202,.7);animation-name:rise}
+.gateway[data-season=winter] .atmosphere i{width:calc(var(--size) * .48);height:calc(var(--size) * .48);border-radius:50%;background:#f5faff;box-shadow:0 0 8px rgba(255,255,255,.7)}
+@keyframes drift{from{transform:translate3d(0,-20vh,0) rotate(-35deg)}to{transform:translate3d(var(--drift),112vh,0) rotate(310deg)}}
+@keyframes rise{from{transform:translate3d(0,28vh,0)}to{transform:translate3d(var(--drift),-105vh,0)}}
+@media(prefers-reduced-motion:reduce){.atmosphere i{animation:none}}

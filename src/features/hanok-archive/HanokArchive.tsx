@@ -23,6 +23,7 @@ import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 import { HanokAtmosphereBackground } from '@/shared/components/HanokBackground';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import HanokArchiveIntroHeading from '@/features/hanok-archive/components/HanokArchiveIntroHeading';
+import SeasonGateway, { type SeasonGatewayData } from '@/features/seasons/presentation/SeasonGateway';
 
 const loadDogamDetailModal = () => import('@/features/hanok-archive/components/HanokDogamDetailModal');
 const HanokDogamDetailModal = dynamic(loadDogamDetailModal, { ssr: false });
@@ -217,19 +218,27 @@ interface HanokArchiveProps {
   meta: VillageMeta;
 
   initialFilters: HanokFilterState;
+  seasonGateway: SeasonGatewayData | null;
 }
 
-export default function HanokArchive({ villages, meta, initialFilters }: HanokArchiveProps) {
+export default function HanokArchive({
+  villages,
+  meta,
+  initialFilters,
+  seasonGateway,
+}: HanokArchiveProps) {
   const [selectedDogamVillage, setSelectedDogamVillage] = useState<Village | null>(null);
   const [selectedStay, setSelectedStay] = useState<Village | null>(null);
   const archiveData = useArchiveData(villages, meta);
   const section1 = useHanokSection1();
-  // loading: show SSR data; error: show error (not hidden); success: show fresh data
-  const section1Villages = section1.error
+  const rawSection1Villages = section1.error
     ? null
     : section1.villages.length > 0
       ? section1.villages
       : archiveData.villages;
+  const section1Villages = rawSection1Villages
+    ? rawSection1Villages.filter((v) => Boolean(v.image && v.hasImage !== false))
+    : null;
 
   useEffect(
     () =>
@@ -322,6 +331,12 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
               />
             </SectionContainer>
           </StyledVesselReveal>
+
+          {seasonGateway && (
+            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.seasons}>
+              <SeasonGateway season={seasonGateway} />
+            </StyledVesselReveal>
+          )}
 
           <ArchiveSection>
             <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.stay}>

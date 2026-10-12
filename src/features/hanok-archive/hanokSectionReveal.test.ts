@@ -8,6 +8,7 @@ describe('HANOK_REVEAL_SECTION_IDS', () => {
       'hanok-kculture-themes',
       'hanok-structure',
       'hanok-grid',
+      'hanok-seasons',
       'hanok-stay',
       'hanok-map',
       'hanok-manifesto',

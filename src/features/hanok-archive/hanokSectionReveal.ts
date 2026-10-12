@@ -7,6 +7,7 @@ export const HANOK_REVEAL_SECTIONS = {
   kculture: 'hanok-kculture-themes',
   structure: 'hanok-structure',
   grid: 'hanok-grid',
+  seasons: 'hanok-seasons',
   stay: 'hanok-stay',
   map: 'hanok-map',
   manifesto: 'hanok-manifesto',
