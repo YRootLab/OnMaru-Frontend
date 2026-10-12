@@ -163,8 +163,7 @@
 .nearbyContext span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 .nearbyThumbnail{display:none!important}
 .nearbyBodyInner ol{padding:2px 18px 14px}
-.nearbyPlaces[data-open=true] .nearbyContext{animation:nearbyReveal .34s ease .55s both}
-.nearbyPlaces[data-open=true] li{animation:nearbyReveal .4s cubic-bezier(.22,1,.36,1) calc(.62s + var(--nearby-index) * .055s) both}
+.nearbyPlaces[data-open=true] li{animation:nearbyReveal .4s cubic-bezier(.22,1,.36,1) calc(.18s + var(--nearby-index) * .04s) both}
 .nearbyPreviewButton{display:grid;gap:3px;width:100%;min-width:0;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
 .nearbyPreviewButton strong,.nearbyPreviewButton small{min-width:0}
 .nearbyPreviewButton:hover strong,.nearbyPreviewButton:focus-visible strong,.nearbyPlaces li[data-active=true] .nearbyPreviewButton strong{text-decoration:underline;text-underline-offset:3px}
@@ -306,7 +305,7 @@
 .photoNote{margin-left:0}
 @media(max-width:760px){.placeList{gap:0}.placeCard,.companionCard{min-height:0}.companionCard{border-left:0;border-top:1px solid rgba(255,255,255,.2)}.nearbyToggle{padding-left:0;padding-right:0}.nearbyToggle::after{left:0;right:0}.photoNote{margin-left:0}.nearbyPlaces li:nth-last-child(-n+2){border-bottom-color:transparent}}
 
-/* Hover swaps the right-hand scene photograph while the readable glass list stays still. */
+/* Tapping a place swaps the right-hand scene photograph while the readable glass list stays still. */
 .hoverPhoto{position:absolute;top:0;right:0;bottom:0;z-index:1;width:calc(100% - var(--story-rail));overflow:hidden;opacity:0;pointer-events:none;transition:opacity .45s ease}
 .hoverPhoto[data-visible=true]{opacity:1;animation:nearbyPhotoIn .48s ease both}
 .hoverPhoto[data-visible=false]{animation:nearbyPhotoOut .58s ease both}
@@ -330,8 +329,9 @@
 .nearbyPanelHead{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:16px 20px 0}
 .nearbyPanelHead h3{margin:0;color:#fff;font-size:1.18rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .nearbyPanelTitle{display:flex;align-items:baseline;gap:15px;min-width:0;overflow:hidden}
-.desktopPreviewHint,.mobilePreviewHint{color:rgba(255,255,255,.74);font-size:.72rem;line-height:1.35;white-space:nowrap}
-.mobilePreviewHint{display:none}
+.nearbyHint{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 20px 0;padding:8px 12px;border:1px solid rgba(255,255,255,.22);border-radius:10px;background:rgba(255,255,255,.06);color:#f5f5f4;font-size:.78rem;line-height:1.4}
+.nearbyHint p{margin:0}
+.nearbyHint button{flex:none;padding:4px 0;border:0;background:transparent;color:#e5e5e3;font:inherit;font-size:.74rem;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .nearbyActions{display:flex;align-items:center;gap:12px;flex:none}
 .nearbyActions>span{color:#e5e5e3;font-size:.72rem;font-variant-numeric:tabular-nums;letter-spacing:.08em}
 .nearbyActions button{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;padding:4px;border:1px solid rgba(255,255,255,.36);border-radius:50%;background:rgba(255,255,255,.06);color:#fff;cursor:pointer;transition:background-color .2s ease,opacity .2s ease}
@@ -344,7 +344,7 @@
 .nearbyTrack ol{box-sizing:border-box;flex:0 0 100%;width:100%;grid-template-columns:repeat(4,minmax(0,1fr));padding:12px 20px 16px}
 .nearbyTrack li{min-height:152px;border-bottom:0}
 .nearbyTrack li[data-active=true]{border-bottom:0}
-@media(max-width:768px){.nearbyPlaces[data-open=true] .nearbyToggle{display:none}.nearbyPanelHead{margin:15px 14px 0}.nearbyTrack ol{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px 14px 14px}.nearbyActions{gap:7px}.desktopPreviewHint{display:none}.mobilePreviewHint{display:inline}}
-@media(min-width:769px) and (max-width:900px){.nearbyTrack ol{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px 16px 14px}.desktopPreviewHint{display:none}}
-@media(max-width:600px){.nearbyPanelHead h3{font-size:1rem}.nearbyPanelTitle{align-items:flex-start;flex-direction:column;gap:3px}.mobilePreviewHint{font-size:.65rem}.nearbyActions>span{font-size:.65rem}.nearbyActions button{min-width:28px;min-height:28px}.nearbyActions button:last-child{font-size:0}.nearbyActions button:last-child span{font-size:1.35rem}}
+@media(max-width:768px){.nearbyPlaces[data-open=true] .nearbyToggle{display:none}.nearbyPanelHead{margin:15px 14px 0}.nearbyHint{margin:12px 14px 0}.nearbyTrack ol{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px 14px 14px}.nearbyActions{gap:7px}}
+@media(min-width:769px) and (max-width:900px){.nearbyTrack ol{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px 16px 14px}}
+@media(max-width:600px){.nearbyPanelHead h3{font-size:1rem}.nearbyActions>span{font-size:.65rem}.nearbyActions button{min-width:28px;min-height:28px}.nearbyActions button:last-child{font-size:0}.nearbyActions button:last-child span{font-size:1.35rem}}
 @media(prefers-reduced-motion:reduce){.nearbyTrack{transition:none}.hoverPhotoOutgoing{animation:none;opacity:0}}
