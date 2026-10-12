@@ -24,7 +24,7 @@ interface CategoryItem {
 
 const CATEGORIES: Record<MapMode, CategoryItem[]> = {
   info: [
-    { id: 'hanok', label: '한옥', keyword: '한옥', icon: LandmarkIcon, isEmphasis: true },
+    { id: 'hanok', label: '한옥', keyword: '', icon: LandmarkIcon, isEmphasis: true },
     { id: 'stay', label: '숙소', keyword: '한옥스테이', icon: Moon01Icon },
     { id: 'food', label: '전통 맛집', keyword: '향토음식', icon: UtensilsIcon },
     { id: 'cafe', label: '전통 카페', keyword: '전통카페', icon: Coffee01Icon },
@@ -32,7 +32,6 @@ const CATEGORIES: Record<MapMode, CategoryItem[]> = {
     { id: 'spot', label: '고택', keyword: '고택', icon: LandmarkIcon },
     { id: 'culture', label: '문화유산', keyword: '서원', icon: LandmarkIcon },
     { id: 'experience', label: '전통 체험', keyword: '체험', icon: SparklesIcon },
-    { id: 'festival', label: '축제', keyword: '축제', icon: Calendar01Icon },
   ],
   warmth: [
     { id: 'all', label: '전체 온기', keyword: '', icon: FlameIcon },
@@ -61,8 +60,6 @@ function getCategoryActiveColor(categoryId: string): string {
       return palette.kobalt[700];
     case 'experience':
       return palette.jaha[500];
-    case 'festival':
-      return palette.jaha[600];
     default:
       return meok[900];
   }

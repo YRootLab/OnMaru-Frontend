@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { isInfoUrlReconciliationPending, normalizeInfoCategory } from './infoCategory';
 
 describe('normalizeInfoCategory', () => {
-  it.each([null, '', 'all', 'ALL', 'unknown'])(
+  it.each([null, '', 'all', 'ALL', 'unknown', 'festival'])(
     'normalizes %s to the HANOK default',
     (value) => {
       expect(normalizeInfoCategory(value)).toBe('hanok');
     },
   );
 
-  it.each(['hanok', 'stay', 'food', 'cafe', 'market', 'spot', 'culture', 'experience', 'festival'] as const)(
+  it.each(['hanok', 'stay', 'food', 'cafe', 'market', 'spot', 'culture', 'experience'] as const)(
     'preserves the valid %s category',
     (value) => {
       expect(normalizeInfoCategory(value)).toBe(value);

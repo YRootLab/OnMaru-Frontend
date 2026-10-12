@@ -144,13 +144,6 @@ export default function MapMobileTabs() {
         <span>소리마루</span>
       </TabButton>
 
-      <TabButton type="button" onClick={() => router.push('/discover')} aria-label="K-마루">
-        <IconSlot>
-          <HugeiconsIcon icon={SearchAreaIcon} size={19} />
-        </IconSlot>
-        <span>K-마루</span>
-      </TabButton>
-
       <TabButton
         type="button"
         $active={isBookmarkActive}

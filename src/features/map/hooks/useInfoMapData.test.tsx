@@ -302,7 +302,7 @@ describe('useInfoMapData', () => {
     await act(async () => Promise.resolve());
     expect(useMapStore.getState().viewportItems).toEqual([districtItem]);
 
-    act(() => useMapStore.getState().setInfoCategory('festival'));
+    act(() => useMapStore.getState().setInfoCategory('stay'));
     await act(() => vi.advanceTimersByTimeAsync(700));
     await act(async () => Promise.resolve());
 

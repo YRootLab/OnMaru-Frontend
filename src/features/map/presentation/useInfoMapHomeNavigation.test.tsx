@@ -43,6 +43,7 @@ describe('useInfoMapHomeNavigation', () => {
     expect(useMapStore.getState()).toMatchObject({
       infoCategory: 'hanok',
       infoRegionCode: null,
+      searchQuery: '',
       selectedId: null,
       hoveredId: null,
       detailId: null,
