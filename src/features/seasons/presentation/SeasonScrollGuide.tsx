@@ -17,6 +17,7 @@ const SEASON_ONI: Record<SeasonId, { src: string; alt: string }> = {
   spring: { src: '/images/character/Oni_sogo.png', alt: '봄의 온이' },
   summer: { src: '/images/character/Oni_today.png', alt: '여름의 온이' },
 };
+const NEARBY_HINT_STORAGE_KEY = 'onmaru-season-nearby-hint';
 const SHORT_REGIONS: Record<string, string> = {
   서울특별시: '서울', 부산광역시: '부산', 대구광역시: '대구', 인천광역시: '인천',
   광주광역시: '광주', 대전광역시: '대전', 울산광역시: '울산', 세종특별자치시: '세종',
@@ -43,13 +44,8 @@ function mapHref(place: SeasonPlace): string {
 }
 
 function PlaceCard({ place, focus, onPreview }: { place: SeasonPlace; focus?: string; onPreview?: (place: SeasonPlace | null) => void }) {
-  const canHover = () => window.matchMedia('(min-width: 1101px)').matches;
   return <div className={`${styles.placeCard} ${focus ? styles.featuredCard : styles.companionCard}`}
-    onClick={() => onPreview?.(focus ? null : place)}
-    onPointerEnter={() => { if (canHover()) onPreview?.(focus ? null : place); }}
-    onPointerLeave={() => { if (canHover()) onPreview?.(null); }}
-    onFocus={() => { if (canHover()) onPreview?.(focus ? null : place); }}
-    onBlur={(event) => { if (canHover() && !event.currentTarget.contains(event.relatedTarget)) onPreview?.(null); }}>
+    onClick={() => onPreview?.(focus ? null : place)}>
     <div className={styles.cardTop}><h3>{place.name}</h3></div>
     {focus && <p className={styles.focus}>{focus}</p>}
     <p className={styles.cardMeta}>{place.region} · {place.address}</p>
@@ -57,42 +53,31 @@ function PlaceCard({ place, focus, onPreview }: { place: SeasonPlace; focus?: st
   </div>;
 }
 
-function NearbyPlaces({ scene, onPreview }: { scene: SeasonScene; onPreview: (place: SeasonPlace | null) => void }) {
+function NearbyPlaces({ scene, showHint, onDismissHint, onPreview }: { scene: SeasonScene; showHint: boolean; onDismissHint: () => void; onPreview: (place: SeasonPlace | null) => void }) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [highlighted, setHighlighted] = useState<SeasonPlace | null>(null);
-  const pinned = useRef<SeasonPlace | null>(null);
-  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pages = [scene.nearbyPlaces.slice(0, 4), scene.nearbyPlaces.slice(4, 8)].filter((items) => items.length > 0);
   const panelId = `nearby-places-${scene.id}`;
   const showPreview = (place: SeasonPlace | null) => { setHighlighted(place); onPreview(place); };
-  const cancelReset = () => { if (resetTimer.current) clearTimeout(resetTimer.current); resetTimer.current = null; };
-  const scheduleReset = () => { cancelReset(); resetTimer.current = setTimeout(() => { showPreview(pinned.current); resetTimer.current = null; }, 300); };
-  const close = () => { cancelReset(); setOpen(false); setPage(0); pinned.current = null; showPreview(null); };
-  const changePage = (next: number) => { cancelReset(); setPage(next); pinned.current = null; showPreview(null); };
-
-  useEffect(() => () => { if (resetTimer.current) clearTimeout(resetTimer.current); }, []);
+  const close = () => { setOpen(false); setPage(0); showPreview(null); };
+  const changePage = (next: number) => { setPage(next); showPreview(null); };
 
   return <div className={styles.nearbyPlaces} data-open={open}>
-    <button type="button" className={styles.nearbyToggle} aria-expanded={open} aria-controls={panelId} onClick={() => { cancelReset(); setOpen((current) => !current); setPage(0); pinned.current = null; showPreview(null); }}>
+    <button type="button" className={styles.nearbyToggle} aria-expanded={open} aria-controls={panelId} onClick={() => { setOpen((current) => !current); setPage(0); showPreview(null); }}>
       주변 한옥 {scene.nearbyPlaces.length}곳 더 <span aria-hidden="true">↗</span>
     </button>
     <div className={styles.nearbyBody} id={panelId} aria-hidden={!open} inert={!open}>
       <div className={styles.nearbyBodyInner}>
-        <div className={styles.nearbyPanelHead}><div className={styles.nearbyPanelTitle}><h3>주변 한옥 {scene.nearbyPlaces.length}곳</h3><span className={styles.desktopPreviewHint}>마우스를 올려 사진 미리보기</span><span className={styles.mobilePreviewHint}>장소를 탭해 사진 미리보기</span></div><div className={styles.nearbyActions}><span aria-live="polite">{String(page + 1).padStart(2, '0')} / {String(pages.length).padStart(2, '0')}</span><button type="button" onClick={() => changePage(page - 1)} disabled={page === 0} aria-label="이전 한옥 4곳"><ArrowLeft size={18} aria-hidden="true" /></button><button type="button" onClick={() => changePage(page + 1)} disabled={page === pages.length - 1} aria-label="다음 한옥 4곳"><ArrowRight size={18} aria-hidden="true" /></button><button type="button" onClick={close} aria-label="주변 한옥 목록 닫기">닫기 <span aria-hidden="true">×</span></button></div></div>
+        <div className={styles.nearbyPanelHead}><div className={styles.nearbyPanelTitle}><h3>주변 한옥 {scene.nearbyPlaces.length}곳</h3></div><div className={styles.nearbyActions}><span aria-live="polite">{String(page + 1).padStart(2, '0')} / {String(pages.length).padStart(2, '0')}</span><button type="button" onClick={() => changePage(page - 1)} disabled={page === 0} aria-label="이전 한옥 4곳"><ArrowLeft size={18} aria-hidden="true" /></button><button type="button" onClick={() => changePage(page + 1)} disabled={page === pages.length - 1} aria-label="다음 한옥 4곳"><ArrowRight size={18} aria-hidden="true" /></button><button type="button" onClick={close} aria-label="주변 한옥 목록 닫기">닫기 <span aria-hidden="true">×</span></button></div></div>
+        {showHint && <div className={styles.nearbyHint}><p>카드를 눌러 사진 보기</p><button type="button" onClick={onDismissHint} aria-label="안내 문구 닫기">닫기</button></div>}
         <div className={styles.nearbyViewport}><div className={styles.nearbyTrack} style={{ transform: `translateX(-${page * 100}%)` }}>{pages.map((places, pageIndex) => <ol key={pageIndex} aria-hidden={page !== pageIndex} inert={page !== pageIndex}>{places.map((place, index) => <li key={place.id} data-active={highlighted?.id === place.id} style={{ '--nearby-index': index } as CSSProperties}
           onClick={(e) => {
             // 지도에서 보기 링크 클릭이 아니면 배경 사진 미리보기 선택
             if ((e.target as HTMLElement).closest('a')) return;
-            cancelReset();
-            pinned.current = place;
             showPreview(place);
-          }}
-          onPointerEnter={() => { if (window.matchMedia('(min-width: 1101px)').matches) { cancelReset(); showPreview(place); } }}
-          onPointerLeave={(event) => { if (window.matchMedia('(min-width: 1101px)').matches && event.pointerType !== 'touch') scheduleReset(); }}
-          onFocus={() => { if (window.matchMedia('(min-width: 1101px)').matches) { cancelReset(); showPreview(place); } }}
-          onBlur={(event) => { if (window.matchMedia('(min-width: 1101px)').matches && !event.currentTarget.contains(event.relatedTarget)) scheduleReset(); }}>
-          <button type="button" className={styles.nearbyPreviewButton} onClick={() => { cancelReset(); pinned.current = place; showPreview(place); }} aria-label={`${place.name} 소개 미리보기`}><strong>{place.name}</strong></button>
+          }}>
+          <button type="button" className={styles.nearbyPreviewButton} aria-label={`${place.name} 소개 미리보기`}><strong>{place.name}</strong></button>
           <small className={styles.nearbyArea}>{shortLocation(place)}</small>
           <p className={styles.nearbyDescription}>{place.description}</p>
           <Link href={mapHref(place)}>지도에서 보기 <ArrowUpRight size={14} aria-hidden="true" /></Link>
@@ -108,6 +93,7 @@ export default function SeasonScrollGuide({ scenes }: { scenes: SeasonScene[] })
   const [previousPreview, setPreviousPreview] = useState<{ sceneId: SeasonId; place: SeasonPlace } | null>(null);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(false);
+  const [showNearbyHint, setShowNearbyHint] = useState(false);
   const entryTime = useRef<number | null>(null);
   const rootRef = useRef<HTMLElement>(null);
   const active = scenes.find((scene) => scene.id === activeId) ?? scenes[0];
@@ -120,6 +106,26 @@ export default function SeasonScrollGuide({ scenes }: { scenes: SeasonScene[] })
     } else {
       setPreviousPreview(null);
       setPreviewVisible(false);
+    }
+  };
+
+  // 저장소를 읽을 수 없으면 힌트를 보여 줍니다. 마운트 후에 읽어 서버 렌더링과 어긋나지 않게 합니다.
+  useEffect(() => {
+    let dismissed = false;
+    try {
+      dismissed = localStorage.getItem(NEARBY_HINT_STORAGE_KEY) === 'dismissed';
+    } catch {
+      dismissed = false;
+    }
+    setShowNearbyHint(!dismissed);
+  }, []);
+
+  const dismissNearbyHint = () => {
+    setShowNearbyHint(false);
+    try {
+      localStorage.setItem(NEARBY_HINT_STORAGE_KEY, 'dismissed');
+    } catch {
+      // 저장에 실패해도 이번 방문에서는 힌트가 사라집니다.
     }
   };
 
@@ -295,7 +301,7 @@ export default function SeasonScrollGuide({ scenes }: { scenes: SeasonScene[] })
             <p className={styles.detail}>{scene.detail}</p>
           </div>
           <div className={styles.placeList}>{scene.places.map((place, placeIndex) => <PlaceCard key={place.id} place={place} focus={placeIndex === 0 ? scene.focus : undefined} onPreview={(selected) => showScenePreview(scene.id, selected)} />)}</div>
-          {scene.nearbyPlaces.length > 0 && <NearbyPlaces scene={scene} onPreview={(place) => showScenePreview(scene.id, place)} />}
+          {scene.nearbyPlaces.length > 0 && <NearbyPlaces scene={scene} showHint={showNearbyHint} onDismissHint={dismissNearbyHint} onPreview={(place) => showScenePreview(scene.id, place)} />}
           <p className={styles.photoNote}>대표 사진은 첫 장소의 자료입니다. 촬영 계절과 방문 가능 여부는 현장 공식 안내를 확인해 주세요.</p>
         </article>
       );
