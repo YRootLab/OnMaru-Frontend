@@ -521,9 +521,9 @@ const SearchForm = styled.form<{ $compact?: boolean }>`
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
-    background: rgba(23, 30, 43, 0.90);
-    border: none;
-    box-shadow: ${ringShadow.dark.input};
+    background: rgba(22, 28, 40, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
   &:focus-within {
@@ -671,10 +671,10 @@ const MoodChip = styled.button<{ $active: boolean }>`
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
-    border: none;
-    box-shadow: ${({ $active }) => ($active ? ringShadow.dark.focusJuhong : ringShadow.dark.button)};
-    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.08)')};
-    color: ${({ $active }) => ($active ? '#18181b' : '#e4e4e7')};
+    border: 1px solid ${({ $active }) => ($active ? 'transparent' : 'rgba(255, 255, 255, 0.12)')};
+    box-shadow: ${({ $active }) => ($active ? '0 4px 16px rgba(255, 255, 255, 0.25)' : '0 2px 8px rgba(0, 0, 0, 0.2)')};
+    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.09)')};
+    color: ${({ $active }) => ($active ? '#18181b' : '#f1f5f9')};
   }
 
   svg {

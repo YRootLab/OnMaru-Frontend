@@ -49,7 +49,12 @@ const PrimaryLayer = styled(AuroraLayer)`
   }
 
   [data-theme='dark'] & {
-    opacity: 0.28;
+    opacity: 0.72;
+    background:
+      radial-gradient(ellipse 65% 60% at 14% 18%, rgba(0, 217, 127, 0.28) 0%, transparent 72%),
+      radial-gradient(ellipse 62% 64% at 84% 12%, rgba(153, 51, 255, 0.26) 0%, transparent 72%),
+      radial-gradient(ellipse 58% 52% at 50% 38%, rgba(61, 143, 255, 0.25) 0%, transparent 74%);
+    filter: blur(24px);
   }
 
   @media (max-width: 640px) {
@@ -58,6 +63,13 @@ const PrimaryLayer = styled(AuroraLayer)`
       radial-gradient(ellipse 76% 48% at 8% 18%, ${palette.cheongrok[50]} 0%, transparent 72%),
       radial-gradient(ellipse 76% 52% at 92% 12%, ${palette.jaha[50]} 0%, transparent 72%),
       radial-gradient(ellipse 68% 46% at 50% 46%, ${palette.kobalt[50]} 0%, transparent 74%);
+
+    [data-theme='dark'] & {
+      background:
+        radial-gradient(ellipse 80% 50% at 10% 18%, rgba(0, 217, 127, 0.32) 0%, transparent 72%),
+        radial-gradient(ellipse 80% 54% at 90% 14%, rgba(153, 51, 255, 0.30) 0%, transparent 72%),
+        radial-gradient(ellipse 72% 48% at 50% 42%, rgba(61, 143, 255, 0.28) 0%, transparent 74%);
+    }
   }
 `;
 
@@ -77,7 +89,11 @@ const WarmthLayer = styled(AuroraLayer)`
   }
 
   [data-theme='dark'] & {
-    opacity: 0.22;
+    opacity: 0.65;
+    background:
+      radial-gradient(ellipse 52% 46% at 34% 48%, rgba(254, 220, 0, 0.20) 0%, transparent 74%),
+      radial-gradient(ellipse 50% 48% at 68% 46%, rgba(255, 85, 0, 0.22) 0%, transparent 74%);
+    filter: blur(28px);
   }
 
   @media (max-width: 640px) {
@@ -85,6 +101,12 @@ const WarmthLayer = styled(AuroraLayer)`
     background:
       radial-gradient(ellipse 62% 40% at 28% 48%, ${palette.hwanggeum[50]} 0%, transparent 74%),
       radial-gradient(ellipse 62% 42% at 74% 50%, ${palette.juhong[50]} 0%, transparent 74%);
+
+    [data-theme='dark'] & {
+      background:
+        radial-gradient(ellipse 66% 44% at 26% 48%, rgba(254, 220, 0, 0.24) 0%, transparent 74%),
+        radial-gradient(ellipse 66% 46% at 74% 48%, rgba(255, 85, 0, 0.25) 0%, transparent 74%);
+    }
   }
 `;
 
