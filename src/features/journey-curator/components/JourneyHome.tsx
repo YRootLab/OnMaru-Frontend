@@ -53,11 +53,6 @@ const Landing = styled.div<{ $centered: boolean }>`
 const ContentLayer = styled.div`
   position: relative;
   z-index: 1;
-  background-color: ${surface.light.card};
-
-  [data-theme='dark'] & {
-    background-color: ${surface.dark.app};
-  }
 `;
 
 export default function JourneyHome() {
