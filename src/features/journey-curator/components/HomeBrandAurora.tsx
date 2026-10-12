@@ -6,17 +6,18 @@ const AuroraField = styled.div`
   position: absolute;
   inset: 0 0 auto;
   z-index: 0;
-  height: min(900px, 92dvh);
+  height: 1200px;
+  max-height: 140vh;
   overflow: hidden;
   pointer-events: none;
   contain: paint;
-  mask-image: linear-gradient(to bottom, #000 0%, #000 62%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 45%, rgba(0, 0, 0, 0.6) 65%, rgba(0, 0, 0, 0.2) 82%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, rgba(0, 0, 0, 0.6) 65%, rgba(0, 0, 0, 0.2) 82%, transparent 100%);
 
   @media (max-width: 640px) {
-    height: 650px;
-    mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
+    height: 850px;
+    mask-image: linear-gradient(to bottom, #000 0%, #000 48%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 48%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
   }
 `;
 
