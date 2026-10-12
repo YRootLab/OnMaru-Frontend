@@ -10,6 +10,7 @@ export function getPageContainerPresentation(pathname: string): PageContainerPre
   const isFullBleed =
     pathname === '/' ||
     pathname.startsWith('/hanok') ||
+    pathname.startsWith('/seasons') ||
     pathname.startsWith('/sorimaru') ||
     pathname.startsWith('/map') ||
     pathname.startsWith('/mypage') ||
