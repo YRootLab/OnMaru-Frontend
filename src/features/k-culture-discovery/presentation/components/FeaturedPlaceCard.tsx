@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { MapPinIcon, Film01Icon, MusicNote01Icon, Mic01Icon, Camera01Icon } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, fontSize } from '@/design-system/tokens';
+import { meok, fontSize } from '@/design-system/tokens';
 import { useTourApiImage } from '../hooks/useTourApiImage';
 import type { DiscoveryPlaceSummary, WorkType } from '../../domain/types';
 
