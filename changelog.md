@@ -5,6 +5,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 ## Unreleased
 
 - K-마루(`KCultureDiscovery`) 장소 카드 및 페이지 디자인을 전면 개편했다:
+  - 온마루 디자인 시스템 원칙에 맞추어 장소 카드, 스켈레톤, 필터 칩, 네비게이션 탭의 불필요한 외곽선(`border`)을 일체 배제하고, 자연스러운 입체감을 위해 온마루 표준 `ringShadow` 토큰(`card`, `cardHoverGlow`, `button`, `chipActive` 등)으로 통일했다.
   - 장소 카드에 K-콘텐츠 전용 인라인 뱃지(`WorkRelationBadge`)를 도입해 작품명과 촬영지/방문지 역할을 세련된 미니 블록으로 시각화했다.
   - 지역명이 비어 있거나 없는 경우 빈 핀 아이콘만 노출되던 문제를 해결하고, 한국관광공사 지역 코드 매핑을 통해 정규화된 2글자 지역명을 렌더링하도록 개선했다.
   - 이미지 미제공 장소의 폴백을 은은한 수묵·한지 질감과 단정한 엠블럼의 고품격 비주얼로 업그레이드했다.

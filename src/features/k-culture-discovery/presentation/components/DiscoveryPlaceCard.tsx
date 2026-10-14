@@ -6,7 +6,7 @@ import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { MapPinIcon, Building04Icon, Layers01Icon, Film01Icon } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import { useTourApiImage } from '../hooks/useTourApiImage';
 import type { DiscoveryPlaceSummary } from '../../domain/types';
@@ -38,19 +38,19 @@ const Card = styled(motion.button)`
   cursor: pointer;
   text-align: left;
   width: 100%;
-  transition: box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
+  transition: box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s ease;
+  box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
     background: #161c28;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    box-shadow: ${ringShadow.dark.card};
   }
 
   &:hover {
-    box-shadow: 0 8px 28px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.07);
+    box-shadow: ${ringShadow.light.cardHoverGlow};
 
     [data-theme='dark'] & {
-      box-shadow: 0 8px 28px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+      box-shadow: ${ringShadow.dark.cardHoverGlow};
     }
   }
 
@@ -202,12 +202,11 @@ const WorkRelationBadge = styled.div`
   padding: 5px 9px;
   border-radius: 7px;
   background: rgba(240,100,20,0.06);
-  border-left: 2px solid ${lightPalette.juhong[400]};
+  border: none;
   min-width: 0;
 
   [data-theme='dark'] & {
     background: rgba(255,120,40,0.09);
-    border-color: ${lightPalette.juhong[500]};
   }
 `;
 
@@ -227,6 +226,7 @@ const WorkTitleText = styled.span`
   color: ${meok[800]};
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.01em;
 
   [data-theme='dark'] & {
     color: rgba(255,255,255,0.85);
@@ -255,12 +255,14 @@ const WorkRoleLabel = styled.span`
 /* ─── skeleton ─── */
 export const SkeletonCard = styled.div`
   border-radius: 14px;
+  border: none;
   overflow: hidden;
   background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
     background: #161c28;
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 

@@ -12,7 +12,7 @@ import {
   Music02Icon,
   HeadphonesIcon,
 } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import type { DiscoveryTopic, TopicCode } from '../../domain/types';
 
 const TOPIC_ICONS: Record<TopicCode, ComponentProps<typeof HugeiconsIcon>['icon']> = {
@@ -56,13 +56,16 @@ const Tab = styled.button<{ $active: boolean }>`
     : 'rgba(0,0,0,0.04)'};
   color: ${({ $active }) => $active ? '#ffffff' : meok[500]};
   box-shadow: ${({ $active }) => $active
-    ? '0 2px 10px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.12)'
+    ? ringShadow.light.button
     : 'none'};
 
   &:hover {
     background: ${({ $active }) => $active ? meok[800] : 'rgba(0,0,0,0.07)'};
     color: ${({ $active }) => $active ? '#ffffff' : meok[800]};
     transform: ${({ $active }) => $active ? 'none' : 'translateY(-1px)'};
+    box-shadow: ${({ $active }) => $active
+      ? ringShadow.light.buttonHover
+      : 'none'};
   }
 
   &:active { transform: scale(0.96); }
@@ -73,17 +76,21 @@ const Tab = styled.button<{ $active: boolean }>`
       : 'rgba(255,255,255,0.07)'};
     color: ${({ $active }) => $active ? meok[900] : 'rgba(255,255,255,0.5)'};
     box-shadow: ${({ $active }) => $active
-      ? '0 2px 12px rgba(0,0,0,0.45)'
+      ? ringShadow.dark.button
       : 'none'};
 
     &:hover {
       background: ${({ $active }) => $active ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.11)'};
       color: ${({ $active }) => $active ? meok[900] : 'rgba(255,255,255,0.8)'};
+      box-shadow: ${({ $active }) => $active
+        ? ringShadow.dark.buttonHover
+        : 'none'};
     }
   }
 `;
 
-const TabIcon = styled(HugeiconsIcon)<{ $active: boolean }>`
+const TabIconWrap = styled.span<{ $active: boolean }>`
+  display: inline-flex;
   opacity: ${({ $active }) => $active ? 1 : 0.6};
   transition: opacity 0.15s ease;
 `;
@@ -148,7 +155,7 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
             aria-selected={isActive}
             onClick={() => onChange(topic.code)}
           >
-            {Icon && <TabIcon icon={Icon} size={13} strokeWidth={2.2} aria-hidden="true" $active={isActive} />}
+            {Icon && <TabIconWrap $active={isActive}><HugeiconsIcon icon={Icon} size={13} strokeWidth={2.2} aria-hidden="true" /></TabIconWrap>}
             {topic.labelKo}
             <Count $active={isActive}>{topic.placeCount}</Count>
           </Tab>
