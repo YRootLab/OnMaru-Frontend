@@ -7,7 +7,7 @@ import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Search01Icon } from '@hugeicons/core-free-icons';
-import { meok, fontSize } from '@/design-system/tokens';
+import { meok, fontSize, ringShadow } from '@/design-system/tokens';
 import TopicTabBar from './presentation/components/TopicTabBar';
 import DiscoveryPlacesSection from './presentation/components/DiscoveryPlacesSection';
 import { useDiscoveryTopics } from './presentation/hooks/useDiscoveryTopics';
@@ -229,6 +229,19 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
         </UnavailableBox>
       ) : (
         <>
+          <SearchRow>
+            <SearchIconWrap aria-hidden="true">
+              <HugeiconsIcon icon={Search01Icon} size={17} strokeWidth={1.8} />
+            </SearchIconWrap>
+            <SearchInput
+              type="text"
+              placeholder="장소 이름으로 검색"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              aria-label="장소 검색"
+            />
+          </SearchRow>
+
           <TopicTabBar
             topics={topics}
             activeCode={activeTopic}
@@ -242,18 +255,18 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
 
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeTopic}
+              key={`${activeTopic}|${q}`}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
             >
               <DiscoveryPlacesSection
-                items={items}
+                items={filteredItems}
                 isLoading={isLoading}
                 isError={isError}
-                hasMore={hasMore}
-                filterKey={activeTopic}
+                hasMore={hasMore && !q}
+                filterKey={`${activeTopic}|${q}`}
                 onLoadMore={loadMore}
                 onPlaceClick={handlePlaceClick}
               />
