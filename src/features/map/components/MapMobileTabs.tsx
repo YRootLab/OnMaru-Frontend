@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Home01Icon, UsersIcon, MapPinIcon, HeadphonesIcon, Bookmark01Icon, SearchAreaIcon } from '@hugeicons/core-free-icons'
+import { BookOpen01Icon, Bookmark01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon } from '@hugeicons/core-free-icons';
 import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -84,7 +84,6 @@ const CountBadge = styled.span`
   line-height: 1;
 `;
 
-
 export default function MapMobileTabs() {
   const router = useRouter();
   const mode = useMapStore((s) => s.mode);
@@ -94,7 +93,6 @@ export default function MapMobileTabs() {
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
   const bookmarkCount = useBookmarkStore((s) => s.bookmarks.length);
 
-  const isCommunityActive = mode === 'warmth';
   const isMapActive = mode === 'info' && category !== 'bookmark';
   const isBookmarkActive = category === 'bookmark';
 
@@ -107,19 +105,25 @@ export default function MapMobileTabs() {
         <span>홈</span>
       </TabButton>
 
-      <TabButton
-        type="button"
-        $active={isCommunityActive}
-        onClick={() => {
-          setMode('warmth');
-          setSheetSnap('half');
-        }}
-        aria-label="온기 피드"
-      >
+      <TabButton type="button" onClick={() => router.push('/hanok')} aria-label="한옥마루">
         <IconSlot>
-          <HugeiconsIcon icon={UsersIcon} size={19} />
+          <HugeiconsIcon icon={BookOpen01Icon} size={19} />
         </IconSlot>
-        <span>온기 피드</span>
+        <span>한옥마루</span>
+      </TabButton>
+
+      <TabButton type="button" onClick={() => router.push('/discover')} aria-label="K-마루">
+        <IconSlot>
+          <HugeiconsIcon icon={Film01Icon} size={19} />
+        </IconSlot>
+        <span>K-마루</span>
+      </TabButton>
+
+      <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루">
+        <IconSlot>
+          <HugeiconsIcon icon={HeadphonesIcon} size={19} />
+        </IconSlot>
+        <span>소리마루</span>
       </TabButton>
 
       <TabButton
@@ -132,16 +136,9 @@ export default function MapMobileTabs() {
         aria-label="지도마루"
       >
         <IconSlot>
-          <HugeiconsIcon icon={MapPinIcon} size={19} />
+          <HugeiconsIcon icon={MapIcon} size={19} />
         </IconSlot>
         <span>지도마루</span>
-      </TabButton>
-
-      <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루">
-        <IconSlot>
-          <HugeiconsIcon icon={HeadphonesIcon} size={19} />
-        </IconSlot>
-        <span>소리마루</span>
       </TabButton>
 
       <TabButton
