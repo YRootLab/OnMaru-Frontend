@@ -28,22 +28,27 @@ const shimmerAnim = keyframes`
 const Page = styled.article`
   max-width: 680px;
   margin: 0 auto;
-  padding: 0 0 60px;
+  padding: 0 16px 64px;
 `;
 
 const BackLink = styled(Link)`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: ${fontSize.sm};
+  gap: 5px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
-  color: ${meok[600]};
+  color: ${meok[400]};
   text-decoration: none;
-  margin: 16px 0 0;
-  transition: color 0.15s ease;
+  margin: 20px 0 0;
+  transition: color 0.14s ease;
 
   &:hover {
-    color: ${lightPalette.juhong[500]};
+    color: ${meok[700]};
+  }
+
+  [data-theme='dark'] & {
+    color: rgba(255,255,255,0.28);
+    &:hover { color: rgba(255,255,255,0.60); }
   }
 `;
 
@@ -199,6 +204,20 @@ const SaveBtn = styled.button<{ $saved: boolean; $disabled: boolean }>`
       background: ${({ $saved }) =>
         $saved ? lightPalette.juhong[400] : 'rgba(255,255,255,0.14)'};
     }
+  }
+`;
+
+const AddressRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  font-size: ${fontSize.xs};
+  color: ${meok[500]};
+  margin-bottom: 12px;
+  line-height: 1.5;
+
+  [data-theme='dark'] & {
+    color: rgba(255,255,255,0.35);
   }
 `;
 
@@ -397,6 +416,13 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
         ))}
         <SourceLabel>{place.sourceTaxonomy.labelKo}</SourceLabel>
       </MetaRow>
+
+      {place.address && (
+        <AddressRow>
+          <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} aria-hidden="true" />
+          {place.address}
+        </AddressRow>
+      )}
 
       {place.topics.length > 0 && (
         <TopicChips>

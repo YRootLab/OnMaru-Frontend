@@ -733,8 +733,8 @@ export default function Header() {
           {[
             { href: '/', label: '홈', icon: Home01Icon, active: pathname === '/' },
             { href: '/hanok', label: '한옥마루', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
-            { href: '/sorimaru', label: '소리마루', icon: HeadphonesIcon, active: isSoriMaruPage },
             { href: '/discover', label: 'K-마루', icon: Film01Icon, active: pathname.startsWith('/discover') },
+            { href: '/sorimaru', label: '소리마루', icon: HeadphonesIcon, active: isSoriMaruPage },
             { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
           ].map((item) => {
             const isSelected = item.active;
@@ -866,14 +866,14 @@ export default function Header() {
                   <HugeiconsIcon icon={BookOpen01Icon} size={15} /> 한옥마루
                 </span>
               </MobileMenuLink>
-              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <HugeiconsIcon icon={HeadphonesIcon} size={15} /> 소리마루
-                </span>
-              </MobileMenuLink>
               <MobileMenuLink href="/discover" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <HugeiconsIcon icon={Film01Icon} size={15} /> K-마루
+                </span>
+              </MobileMenuLink>
+              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <HugeiconsIcon icon={HeadphonesIcon} size={15} /> 소리마루
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>

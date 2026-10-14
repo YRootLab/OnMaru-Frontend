@@ -9,7 +9,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { meok } from '@/design-system/tokens';
 
-const INTRO_VIDEO_SRC = '/videos/Oni_sit_listen.mp4';
+const INTRO_VIDEO_SRC = '/videos/room.mp4';
 
 gsap.registerPlugin(ScrollTrigger);
 

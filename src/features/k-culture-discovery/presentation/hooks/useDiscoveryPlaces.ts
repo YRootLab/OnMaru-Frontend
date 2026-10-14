@@ -6,12 +6,14 @@ import type {
   DiscoveryFacets,
   DiscoveryPlacesParams,
   TopicCode,
+  WorkType,
 } from '../../domain/types';
 
 export interface UseDiscoveryPlacesOptions {
   topic?: TopicCode;
   regionCode?: string;
   placeRole?: string;
+  type?: WorkType;
   workId?: string;
   limit?: number;
 }
@@ -36,7 +38,7 @@ function isCursorError(err: unknown): boolean {
 }
 
 export function useDiscoveryPlaces(options: UseDiscoveryPlacesOptions = {}): UseDiscoveryPlacesResult {
-  const { topic, regionCode, placeRole, workId, limit = 20 } = options;
+  const { topic, regionCode, placeRole, type, workId, limit = 20 } = options;
 
   const [items, setItems] = useState<DiscoveryPlaceSummary[]>([]);
   const [facets, setFacets] = useState<DiscoveryFacets | null>(null);
@@ -46,7 +48,7 @@ export function useDiscoveryPlaces(options: UseDiscoveryPlacesOptions = {}): Use
   const [hasMore, setHasMore] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
 
-  const params: DiscoveryPlacesParams = { topic, regionCode, placeRole, workId, limit };
+  const params: DiscoveryPlacesParams = { topic, regionCode, placeRole, type, workId, limit };
   const paramsKey = JSON.stringify(params);
 
   useEffect(() => {
@@ -56,7 +58,7 @@ export function useDiscoveryPlaces(options: UseDiscoveryPlacesOptions = {}): Use
     setItems([]);
     setNextCursor(null);
 
-    getDiscoveryPlaces({ topic, regionCode, placeRole, workId, limit })
+    getDiscoveryPlaces({ topic, regionCode, placeRole, type, workId, limit })
       .then((page) => {
         if (!ignore) {
           setItems(page.items);
@@ -81,7 +83,7 @@ export function useDiscoveryPlaces(options: UseDiscoveryPlacesOptions = {}): Use
     if (!hasMore || !nextCursor || isLoading) return;
 
     setIsLoading(true);
-    getDiscoveryPlaces({ topic, regionCode, placeRole, workId, limit, cursor: nextCursor })
+    getDiscoveryPlaces({ topic, regionCode, placeRole, type, workId, limit, cursor: nextCursor })
       .then((page) => {
         setItems((prev) => [...prev, ...page.items]);
         setFacets(page.facets);
@@ -93,7 +95,7 @@ export function useDiscoveryPlaces(options: UseDiscoveryPlacesOptions = {}): Use
           // CURSOR_INVALID / CURSOR_EXPIRED: 커서 버리고 처음부터 재조회
           setNextCursor(null);
           setItems([]);
-          getDiscoveryPlaces({ topic, regionCode, placeRole, workId, limit })
+          getDiscoveryPlaces({ topic, regionCode, placeRole, type, workId, limit })
             .then((page) => {
               setItems(page.items);
               setFacets(page.facets);

@@ -13,7 +13,7 @@ import TopicTabBar from './presentation/components/TopicTabBar';
 import DiscoveryPlacesSection from './presentation/components/DiscoveryPlacesSection';
 import { useDiscoveryTopics } from './presentation/hooks/useDiscoveryTopics';
 import { useDiscoveryPlaces } from './presentation/hooks/useDiscoveryPlaces';
-import type { DiscoveryPlaceSummary, TopicCode, FacetEntry } from './domain/types';
+import type { DiscoveryPlaceSummary, TopicCode, FacetEntry, WorkType } from './domain/types';
 
 const shimmer = keyframes`
   0%   { background-position: 200% 0; }
@@ -294,6 +294,14 @@ const UnavailableSub = styled.p`
   }
 `;
 
+const TYPE_KO: Record<string, string> = {
+  DRAMA: '드라마',
+  ARTIST: '아티스트',
+  MOVIE: '영화',
+  VARIETY: '예능',
+  MUSIC_VIDEO: 'MV',
+};
+
 /* ─── component ─── */
 export interface KCultureDiscoveryProps {
   initialTopic?: TopicCode | 'all';
@@ -305,6 +313,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
   const [activeTopic, setActiveTopic] = useState<TopicCode | 'all'>(initialTopic);
   const [activeRegion, setActiveRegion] = useState<string | null>(null);
   const [activePlaceRole, setActivePlaceRole] = useState<string | null>(null);
+  const [activeWorkType, setActiveWorkType] = useState<WorkType | null>(null);
 
   const { topics, isLoading: topicsLoading } = useDiscoveryTopics();
   const { items, facets, matchingCount, isLoading, isError, hasMore, loadMore } =
@@ -312,6 +321,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
       topic: activeTopic === 'all' ? undefined : activeTopic,
       regionCode: activeRegion ?? undefined,
       placeRole: activePlaceRole ?? undefined,
+      type: activeWorkType ?? undefined,
       workId,
     });
 
@@ -319,13 +329,15 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
     setActiveTopic(code);
     setActiveRegion(null);
     setActivePlaceRole(null);
+    setActiveWorkType(null);
   };
   const handlePlaceClick = (place: DiscoveryPlaceSummary) =>
     router.push(`/discover/places/${encodeURIComponent(place.placeId)}`);
 
   const regionFacets: FacetEntry[] = facets?.regionCode?.filter((f) => f.count > 0) ?? [];
   const roleFacets: FacetEntry[] = facets?.placeRole?.filter((f) => f.count > 0) ?? [];
-  const hasFacets = regionFacets.length > 0 || roleFacets.length > 0;
+  const typeFacets: FacetEntry[] = facets?.type?.filter((f) => f.count > 0) ?? [];
+  const hasFacets = regionFacets.length > 0 || roleFacets.length > 0 || typeFacets.length > 0;
 
   const serviceDown = isError && items.length === 0 && !isLoading;
 
@@ -356,6 +368,17 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
 
           {hasFacets && (
             <FacetRow aria-label="세부 필터">
+              {typeFacets.map((f) => (
+                <FacetChip
+                  key={`t-${f.code}`}
+                  type="button"
+                  $active={activeWorkType === (f.code as WorkType)}
+                  onClick={() => setActiveWorkType(activeWorkType === f.code ? null : (f.code as WorkType))}
+                >
+                  {TYPE_KO[f.code as WorkType] ?? f.code}
+                  <FacetCount>{f.count}</FacetCount>
+                </FacetChip>
+              ))}
               {regionFacets.map((f) => (
                 <FacetChip
                   key={`r-${f.code}`}
@@ -402,7 +425,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
 
           <AnimatePresence mode="wait">
             <motion.div
-              key={`${activeTopic}|${activeRegion ?? ''}|${activePlaceRole ?? ''}`}
+              key={`${activeTopic}|${activeRegion ?? ''}|${activePlaceRole ?? ''}|${activeWorkType ?? ''}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

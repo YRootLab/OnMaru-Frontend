@@ -289,20 +289,6 @@ export default function MapNavRail() {
         <NavItemBtn
           type="button"
           $active={false}
-          onClick={() => router.push('/sorimaru')}
-          aria-label="소리마루"
-          title="소리마루"
-        >
-          <NavItemIcon>
-            <HugeiconsIcon icon={HeadphonesIcon} size={19} strokeWidth={2} />
-          </NavItemIcon>
-          <NavItemLabel>소리마루</NavItemLabel>
-        </NavItemBtn>
-
-        {}
-        <NavItemBtn
-          type="button"
-          $active={false}
           onClick={() => router.push('/discover')}
           aria-label="K-마루"
           title="K-마루"
@@ -311,6 +297,20 @@ export default function MapNavRail() {
             <HugeiconsIcon icon={Film01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>K-마루</NavItemLabel>
+        </NavItemBtn>
+
+        {}
+        <NavItemBtn
+          type="button"
+          $active={false}
+          onClick={() => router.push('/sorimaru')}
+          aria-label="소리마루"
+          title="소리마루"
+        >
+          <NavItemIcon>
+            <HugeiconsIcon icon={HeadphonesIcon} size={19} strokeWidth={2} />
+          </NavItemIcon>
+          <NavItemLabel>소리마루</NavItemLabel>
         </NavItemBtn>
 
         {}

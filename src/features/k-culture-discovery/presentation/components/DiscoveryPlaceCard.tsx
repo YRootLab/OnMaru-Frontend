@@ -311,7 +311,14 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
           <HugeiconsIcon icon={MapPinIcon} size={10} strokeWidth={2} aria-hidden="true" />
           {place.region.nameKo}
         </Region>
-        {relation && <WorkRow>{relation.workTitle}</WorkRow>}
+        {relation && (
+          <WorkRow>
+            {relation.workTitle}
+            <span style={{ opacity: 0.6, fontWeight: 500, marginLeft: 4 }}>
+              · {relation.relationType === 'VISIT_SPOT' ? '방문장소' : '촬영지'}
+            </span>
+          </WorkRow>
+        )}
       </Body>
     </Card>
   );
