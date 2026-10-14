@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { MapPinIcon, ClapperboardIcon, HeadphonesIcon, Camera01Icon, MusicNote01Icon, Mic01Icon } from '@hugeicons/core-free-icons';
+import { MapPinIcon, ClapperboardIcon, HeadphonesIcon, Camera01Icon, Mic01Icon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import type { WorkSummary } from '../../domain/types';
