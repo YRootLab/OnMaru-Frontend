@@ -17,7 +17,7 @@ const FALLBACK_GRADIENT: Partial<Record<WorkType, string>> = {
   VARIETY:     'linear-gradient(135deg, #2a1a00 0%, #4a2e00 50%, #2a1a00 100%)',
 };
 
-const FALLBACK_ICON: Partial<Record<WorkType, object>> = {
+const FALLBACK_ICON: Partial<Record<WorkType, React.ComponentProps<typeof HugeiconsIcon>['icon']>> = {
   DRAMA:       Film01Icon,
   MOVIE:       Camera01Icon,
   MUSIC_VIDEO: MusicNote01Icon,
@@ -227,7 +227,7 @@ export default function FeaturedPlaceCard({ place, onClick }: Props) {
         <FeaturedLabel>추천</FeaturedLabel>
         {workType && TYPE_KO[workType] && (
           <TypeBadge>
-            <HugeiconsIcon icon={(FALLBACK_ICON[workType] ?? Film01Icon) as object} size={10} strokeWidth={2} aria-hidden="true" />
+            <HugeiconsIcon icon={FALLBACK_ICON[workType] ?? Film01Icon} size={10} strokeWidth={2} aria-hidden="true" />
             {TYPE_KO[workType]}
           </TypeBadge>
         )}
