@@ -10,7 +10,6 @@ import HanokStayAccordion from '@/features/hanok-archive/sections/HanokStayAccor
 import HanokMap from '@/features/hanok-archive/sections/HanokMap';
 import HanokPolaroidClothesline from '@/features/hanok-archive/sections/HanokPolaroidClothesline';
 import HanokSideIndex from '@/features/hanok-archive/components/HanokSideIndex';
-import KCultureThemeFeed from '@/features/hanok-archive/components/KCultureThemeFeed';
 import HanokManifestoCta from '@/features/hanok-archive/sections/HanokManifestoCta';
 import HanokStructureCards from '@/features/hanok-archive/structure/HanokStructureCards';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
@@ -85,21 +84,6 @@ const SectionContainer = styled.div`
   }
 `;
 
-const KCultureSectionContainer = styled(SectionContainer)`
-  padding-top: clamp(14px, 2vw, 24px);
-  padding-bottom: clamp(14px, 2vw, 24px);
-
-  @media (max-width: 1024px) {
-    padding-top: clamp(12px, 2vw, 20px);
-    padding-bottom: clamp(12px, 2vw, 20px);
-  }
-
-  @media (max-width: 640px) {
-    padding-top: clamp(10px, 2vw, 16px);
-    padding-bottom: clamp(10px, 2vw, 16px);
-  }
-`;
-
 const StyledVesselReveal = styled(VesselReveal)`
   width: 100%;
 `;
@@ -119,10 +103,6 @@ const paperGround = css`
 
 
 
-
-const EditorialSection = styled.div`
-  padding-top: clamp(32px, 3.5vh, 46px);
-`;
 
 
 const ChapterBreak = styled.div`
@@ -297,15 +277,6 @@ export default function HanokArchive({
             </IntroContent>
           </IntroStage>
         </StyledVesselReveal>
-
-        {}
-        <EditorialSection>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.kculture}>
-            <KCultureSectionContainer>
-              <KCultureThemeFeed />
-            </KCultureSectionContainer>
-          </StyledVesselReveal>
-        </EditorialSection>
 
         {
 

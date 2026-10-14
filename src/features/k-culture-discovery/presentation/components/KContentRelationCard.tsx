@@ -7,7 +7,30 @@ import { ChevronDownIcon, ChevronUpIcon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import EvidenceList from './EvidenceList';
-import type { KContentRelation } from '../../domain/types';
+import type { KContentRelation, RelationType } from '../../domain/types';
+
+const RELATION_LABELS: Record<RelationType, string> = {
+  FILMING_LOCATION: '촬영지',
+  VISIT_SPOT: '방문 장소',
+};
+
+const RelationBadge = styled.span<{ $type: RelationType }>`
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  background: ${({ $type }) =>
+    $type === 'VISIT_SPOT' ? lightPalette.cheongrok[50] : lightPalette.juhong[50]};
+  color: ${({ $type }) =>
+    $type === 'VISIT_SPOT' ? lightPalette.cheongrok[700] : lightPalette.juhong[600]};
+
+  [data-theme='dark'] & {
+    background: ${({ $type }) =>
+      $type === 'VISIT_SPOT' ? 'rgba(0,196,113,0.12)' : 'rgba(255,85,0,0.14)'};
+    color: ${({ $type }) =>
+      $type === 'VISIT_SPOT' ? lightPalette.cheongrok[300] : lightPalette.juhong[300]};
+  }
+`;
 
 const Card = styled.div`
   padding: 16px;
@@ -124,9 +147,12 @@ export default function KContentRelationCard({ relation }: KContentRelationCardP
       <Header>
         <WorkInfo>
           <WorkTitle>{work.canonicalTitle}</WorkTitle>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <WorkTypeBadge type={work.type} variant="dark" />
             {work.releaseYear && <YearText>{work.releaseYear}</YearText>}
+            <RelationBadge $type={relation.relationType}>
+              {RELATION_LABELS[relation.relationType]}
+            </RelationBadge>
           </div>
         </WorkInfo>
       </Header>

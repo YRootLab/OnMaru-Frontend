@@ -30,7 +30,7 @@ describe('Header desktop vertical alignment', () => {
     render(<Header />);
 
     const items = screen.getAllByTestId(/^desktop-nav-.*-content$/);
-    expect(items).toHaveLength(4);
+    expect(items).toHaveLength(5);
     items.forEach((item) => {
       expect(getComputedStyle(item).alignItems).toBe('center');
       expect(getComputedStyle(item).transform).toBe('none');

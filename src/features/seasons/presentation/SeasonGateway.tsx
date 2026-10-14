@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import { type CSSProperties, type MouseEvent, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { getSeasonParticles } from '@/features/hanok-year/presentation/seasonParticles';
 import type { SeasonId } from '../domain/seasons';
 import styles from './SeasonGateway.module.css';
@@ -87,7 +88,7 @@ export default function SeasonGateway({ season }: { season: SeasonGatewayData })
           onClick={handleNavigate}
           className={styles.enterButton}
         >
-          이번 계절의 한옥 만나기 <ArrowRight size={19} aria-hidden="true" />
+          이번 계절의 한옥 만나기 <HugeiconsIcon icon={ArrowRight01Icon} size={19} strokeWidth={2} aria-hidden="true" />
         </Link>
       </div>
 

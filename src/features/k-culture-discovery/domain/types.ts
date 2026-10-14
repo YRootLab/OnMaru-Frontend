@@ -4,11 +4,12 @@ export type TopicCode =
   | 'TRADITIONAL_FOOD_TEA'
   | 'K_DRAMA'
   | 'K_MOVIE'
-  | 'K_POP_MV';
+  | 'K_POP_MV'
+  | 'K_ARTIST';
 
-export type WorkType = 'DRAMA' | 'MOVIE' | 'VARIETY' | 'MUSIC_VIDEO';
+export type WorkType = 'DRAMA' | 'MOVIE' | 'VARIETY' | 'MUSIC_VIDEO' | 'ARTIST';
 
-export type RelationType = 'FILMING_LOCATION';
+export type RelationType = 'FILMING_LOCATION' | 'VISIT_SPOT';
 
 export interface Region {
   code: string;
@@ -84,6 +85,7 @@ export interface DiscoveryPlaceDetail {
   topics: TopicCode[];
   images: string[];
   odii: OdiiInfo;
+  placeSummaryPoints: string[];
   kContents: KContentsInfo;
   saveAvailable: boolean;
   savedByMe: boolean | null;

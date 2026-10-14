@@ -22,7 +22,7 @@ export function useKContentRelations(placeId: string): UseKContentRelationsResul
 
     getKContents(placeId)
       .then((page) => {
-        if (!ignore) setRelations(page.items.filter((r) => r.relationType === 'FILMING_LOCATION'));
+        if (!ignore) setRelations(page.items);
       })
       .catch(() => {
         if (!ignore) setIsError(true);

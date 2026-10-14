@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getDiscoveryWorkDetail } from '../../application/useCases';
+import { isOnmaruApiError } from '@/lib/api/errors';
 import type { WorkDetail } from '../../domain/types';
 
 export interface UseDiscoveryWorkDetailResult {
@@ -33,8 +34,14 @@ export function useDiscoveryWorkDetail(workId: string): UseDiscoveryWorkDetailRe
           }
         }
       })
-      .catch(() => {
-        if (!ignore) setIsError(true);
+      .catch((err) => {
+        if (!ignore) {
+          if (isOnmaruApiError(err) && err.status === 404) {
+            setIsNotFound(true);
+          } else {
+            setIsError(true);
+          }
+        }
       })
       .finally(() => {
         if (!ignore) setIsLoading(false);

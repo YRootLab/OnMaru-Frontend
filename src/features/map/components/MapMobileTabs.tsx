@@ -1,9 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Home01Icon, UsersIcon, MapPinIcon, HeadphonesIcon, Bookmark01Icon, SearchAreaIcon } from '@hugeicons/core-free-icons'
+import { BookOpen01Icon, Bookmark01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon } from '@hugeicons/core-free-icons';
 import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -49,6 +49,31 @@ const TabButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
+const TabLink = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 0;
+  color: rgba(33, 30, 25, 0.68);
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
+  font-size: ${fontSize.micro};
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  transition: color 180ms ease, transform 180ms ease;
+
+  &:active { transform: scale(0.94); }
+
+  [data-theme='dark'] & { color: ${meok[400]}; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & { color: ${meok[400]}; }
+  }
+`;
+
 const IconSlot = styled.span`
   position: relative;
   display: inline-flex;
@@ -84,9 +109,7 @@ const CountBadge = styled.span`
   line-height: 1;
 `;
 
-
 export default function MapMobileTabs() {
-  const router = useRouter();
   const mode = useMapStore((s) => s.mode);
   const setMode = useMapStore((s) => s.setMode);
   const category = useMapStore((s) => s.category);
@@ -94,33 +117,38 @@ export default function MapMobileTabs() {
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
   const bookmarkCount = useBookmarkStore((s) => s.bookmarks.length);
 
-  const isCommunityActive = mode === 'warmth';
   const isMapActive = mode === 'info' && category !== 'bookmark';
   const isBookmarkActive = category === 'bookmark';
 
   return (
     <Nav aria-label="지도 탐색">
-      <TabButton type="button" onClick={() => router.push('/')} aria-label="홈으로 이동">
+      <TabLink href="/" aria-label="홈으로 이동">
         <IconSlot>
           <HugeiconsIcon icon={Home01Icon} size={19} />
         </IconSlot>
         <span>홈</span>
-      </TabButton>
+      </TabLink>
 
-      <TabButton
-        type="button"
-        $active={isCommunityActive}
-        onClick={() => {
-          setMode('warmth');
-          setSheetSnap('half');
-        }}
-        aria-label="온기 피드"
-      >
+      <TabLink href="/hanok" aria-label="한옥마루">
         <IconSlot>
-          <HugeiconsIcon icon={UsersIcon} size={19} />
+          <HugeiconsIcon icon={BookOpen01Icon} size={19} />
         </IconSlot>
-        <span>온기 피드</span>
-      </TabButton>
+        <span>한옥마루</span>
+      </TabLink>
+
+      <TabLink href="/discover" aria-label="K-마루">
+        <IconSlot>
+          <HugeiconsIcon icon={Film01Icon} size={19} />
+        </IconSlot>
+        <span>K-마루</span>
+      </TabLink>
+
+      <TabLink href="/sorimaru" aria-label="소리마루">
+        <IconSlot>
+          <HugeiconsIcon icon={HeadphonesIcon} size={19} />
+        </IconSlot>
+        <span>소리마루</span>
+      </TabLink>
 
       <TabButton
         type="button"
@@ -132,16 +160,9 @@ export default function MapMobileTabs() {
         aria-label="지도마루"
       >
         <IconSlot>
-          <HugeiconsIcon icon={MapPinIcon} size={19} />
+          <HugeiconsIcon icon={MapIcon} size={19} />
         </IconSlot>
         <span>지도마루</span>
-      </TabButton>
-
-      <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루">
-        <IconSlot>
-          <HugeiconsIcon icon={HeadphonesIcon} size={19} />
-        </IconSlot>
-        <span>소리마루</span>
       </TabButton>
 
       <TabButton

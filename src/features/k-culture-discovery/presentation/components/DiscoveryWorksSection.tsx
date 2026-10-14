@@ -15,22 +15,27 @@ const List = styled.div`
 `;
 
 const EmptyBox = styled.div`
-  padding: 48px 0;
+  padding: 56px 0;
   text-align: center;
-  color: ${meok[500]};
+  color: ${meok[400]};
   font-size: ${fontSize.sm};
+
+  [data-theme='dark'] & {
+    color: rgba(255,255,255,0.24);
+  }
 `;
 
 const ErrorBox = styled.div`
-  padding: 32px 16px;
+  padding: 40px 20px;
   text-align: center;
+  border-radius: 14px;
+  background: ${meok[100]};
   color: ${meok[500]};
   font-size: ${fontSize.sm};
-  border-radius: 12px;
-  background: ${meok[100]};
 
   [data-theme='dark'] & {
-    background: ${meok[800]};
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.30);
   }
 `;
 
@@ -40,30 +45,34 @@ const LoadMoreBtn = styled.button`
   justify-content: center;
   gap: 6px;
   width: 100%;
-  margin-top: 4px;
+  margin-top: 10px;
   padding: 14px;
   border-radius: 12px;
   border: none;
   background: ${meok[100]};
   color: ${meok[600]};
-  font-size: ${fontSize.sm};
+  font-size: ${fontSize.xs};
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  transition: background 0.14s ease, color 0.14s ease, transform 0.10s ease;
 
   &:hover {
     background: ${meok[200]};
-    color: ${lightPalette.juhong[500]};
-    box-shadow: ${ringShadow.light.chipHover};
+    color: ${meok[800]};
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 
   [data-theme='dark'] & {
-    background: ${meok[800]};
-    color: ${meok[300]};
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.45);
 
     &:hover {
-      background: ${meok[700]};
+      background: rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.70);
     }
   }
 `;

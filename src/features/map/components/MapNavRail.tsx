@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
-import { HugeiconsIcon } from '@hugeicons/react'
-import { Bookmark01Icon, HeadphonesIcon, Home01Icon, MapPinIcon, SearchAreaIcon, UserIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Bookmark01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon, UserIcon } from '@hugeicons/core-free-icons';
 import { HanokIcon } from './HanokIcon'
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
@@ -289,6 +289,20 @@ export default function MapNavRail() {
         <NavItemBtn
           type="button"
           $active={false}
+          onClick={() => router.push('/discover')}
+          aria-label="K-마루"
+          title="K-마루"
+        >
+          <NavItemIcon>
+            <HugeiconsIcon icon={Film01Icon} size={19} strokeWidth={2} />
+          </NavItemIcon>
+          <NavItemLabel>K-마루</NavItemLabel>
+        </NavItemBtn>
+
+        {}
+        <NavItemBtn
+          type="button"
+          $active={false}
           onClick={() => router.push('/sorimaru')}
           aria-label="소리마루"
           title="소리마루"
@@ -299,7 +313,7 @@ export default function MapNavRail() {
           <NavItemLabel>소리마루</NavItemLabel>
         </NavItemBtn>
 
-        {}
+        {/* 지도마루 */}
         <NavItemBtn
           type="button"
           $active={isMapActive}
@@ -308,28 +322,15 @@ export default function MapNavRail() {
           title="지도마루"
         >
           <NavItemIcon>
-            <HugeiconsIcon icon={MapPinIcon} size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={MapIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>지도마루</NavItemLabel>
         </NavItemBtn>
+      </NavList>
 
-        {/* [TEMP] 도장첩 — 준비 중, 복원 시 주석 해제
-        <NavItemBtn
-          type="button"
-          $active={false}
-          onClick={() => router.push('/stamps')}
-          aria-label="한옥 도장첩"
-          title="한옥 도장첩"
-        >
-          <NavItemIcon>
-            <HugeiconsIcon icon={Award01Icon} size={19} strokeWidth={2} />
-          </NavItemIcon>
-          <NavItemLabel>도장첩</NavItemLabel>
-        </NavItemBtn>
-        */}
-
-
-        {}
+      {/* 하단 개인화 영역 */}
+      <BottomArea>
+        <Divider />
         <NavItemBtn
           type="button"
           $active={mode === 'info' && category === 'bookmark'}
@@ -346,11 +347,7 @@ export default function MapNavRail() {
           </NavItemIcon>
           <NavItemLabel>모음마루</NavItemLabel>
         </NavItemBtn>
-      </NavList>
 
-      {}
-      <BottomArea>
-        <Divider />
         <NavItemBtn
           type="button"
           $active={false}

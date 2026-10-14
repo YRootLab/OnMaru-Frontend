@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { BookOpen01Icon, Cancel01Icon, ChevronRightIcon, HeadphonesIcon, Home01Icon, MapIcon, Menu01Icon, SearchAreaIcon } from '@hugeicons/core-free-icons'
+import { BookOpen01Icon, Cancel01Icon, ChevronRightIcon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon, Menu01Icon, SearchAreaIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
@@ -733,6 +733,7 @@ export default function Header() {
           {[
             { href: '/', label: '홈', icon: Home01Icon, active: pathname === '/' },
             { href: '/hanok', label: '한옥마루', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
+            { href: '/discover', label: 'K-마루', icon: Film01Icon, active: pathname.startsWith('/discover') },
             { href: '/sorimaru', label: '소리마루', icon: HeadphonesIcon, active: isSoriMaruPage },
             { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
           ].map((item) => {
@@ -863,6 +864,11 @@ export default function Header() {
               <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <HugeiconsIcon icon={BookOpen01Icon} size={15} /> 한옥마루
+                </span>
+              </MobileMenuLink>
+              <MobileMenuLink href="/discover" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <HugeiconsIcon icon={Film01Icon} size={15} /> K-마루
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
