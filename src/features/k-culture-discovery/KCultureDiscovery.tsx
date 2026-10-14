@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styled from '@emotion/styled';
@@ -10,9 +10,30 @@ import { Search01Icon } from '@hugeicons/core-free-icons';
 import { meok, fontSize, ringShadow } from '@/design-system/tokens';
 import TopicTabBar from './presentation/components/TopicTabBar';
 import DiscoveryPlacesSection from './presentation/components/DiscoveryPlacesSection';
+import FeaturedPlaceCard from './presentation/components/FeaturedPlaceCard';
+import HorizontalSection from './presentation/components/HorizontalSection';
 import { useDiscoveryTopics } from './presentation/hooks/useDiscoveryTopics';
 import { useDiscoveryPlaces } from './presentation/hooks/useDiscoveryPlaces';
-import type { DiscoveryPlaceSummary, TopicCode } from './domain/types';
+import type { DiscoveryPlaceSummary, TopicCode, WorkType } from './domain/types';
+
+const REGION_MAP: Record<string, string> = {
+  '1': '서울', '11': '서울', '2': '인천', '28': '인천',
+  '3': '대전', '30': '대전', '4': '대구', '27': '대구',
+  '5': '광주', '29': '광주', '6': '부산', '26': '부산',
+  '7': '울산', '8': '세종', '31': '경기', '41': '경기',
+  '32': '강원', '42': '강원', '33': '충북', '43': '충북',
+  '34': '충남', '44': '충남', '35': '전북', '45': '전북',
+  '36': '전남', '46': '전남', '37': '경북', '47': '경북',
+  '38': '경남', '48': '경남', '39': '제주', '50': '제주',
+};
+
+const TYPE_LABEL: Partial<Record<WorkType, string>> = {
+  DRAMA: '드라마 촬영지',
+  MOVIE: '영화 속 공간',
+  MUSIC_VIDEO: 'MV 배경',
+  ARTIST: '아티스트 공간',
+  VARIETY: '예능 명소',
+};
 
 const PageWrap = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -128,6 +149,30 @@ const SearchInput = styled.input`
   }
 `;
 
+/* ─── section divider ─── */
+const SectionDivider = styled.div`
+  height: 1px;
+  background: linear-gradient(to right, ${meok[200]}, transparent);
+  margin: 40px 0 0;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.08), transparent);
+  }
+`;
+
+const SectionGroupLabel = styled.h3`
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  color: ${meok[400]};
+  margin: 20px 0 0;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.25);
+  }
+`;
+
 /* ─── actions ─── */
 const ActionsBar = styled.div`
   display: flex;
@@ -219,6 +264,50 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
   const q = searchQuery.trim();
   const filteredItems = q ? items.filter(p => p.name.includes(q)) : items;
 
+  const isAllNoFilter = activeTopic === 'all' && !q;
+
+  // 전체 탭 + 필터 없을 때만 섹션 분리 (featured[0] 제외하고 나머지 분류)
+  const grouped = useMemo(() => {
+    if (!isAllNoFilter || items.length < 2) return null;
+    const rest = items.slice(1);
+
+    const byType = new Map<WorkType, DiscoveryPlaceSummary[]>();
+    const byRegion = new Map<string, DiscoveryPlaceSummary[]>();
+
+    rest.forEach((place) => {
+      const type = place.featuredRelation?.type;
+      if (type) {
+        if (!byType.has(type)) byType.set(type, []);
+        byType.get(type)!.push(place);
+      }
+      const rawRegion = place.region?.nameKo?.trim();
+      const regionName = rawRegion?.replace(/(특별시|광역시|특별자치시|특별자치도|도)$/, '')
+        || (place.region?.code ? REGION_MAP[place.region.code] : null);
+      if (regionName) {
+        if (!byRegion.has(regionName)) byRegion.set(regionName, []);
+        byRegion.get(regionName)!.push(place);
+      }
+    });
+
+    return { byType, byRegion };
+  }, [isAllNoFilter, items]);
+
+  const typeSections = grouped
+    ? (Object.keys(TYPE_LABEL) as WorkType[])
+        .filter(t => (grouped.byType.get(t)?.length ?? 0) >= 2)
+        .map(t => ({ label: TYPE_LABEL[t]!, items: grouped.byType.get(t)! }))
+    : [];
+
+  const regionSections = grouped
+    ? [...grouped.byRegion.entries()]
+        .filter(([, v]) => v.length >= 2)
+        .sort((a, b) => b[1].length - a[1].length)
+        .slice(0, 5)
+        .map(([region, regionItems]) => ({ label: `${region}`, items: regionItems }))
+    : [];
+
+  const hasSections = typeSections.length > 0 || regionSections.length > 0;
+
   const serviceDown = isError && items.length === 0 && !isLoading;
 
   return (
@@ -267,15 +356,47 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
             >
-              <DiscoveryPlacesSection
-                items={filteredItems}
-                isLoading={isLoading}
-                isError={isError}
-                hasMore={hasMore && !q}
-                filterKey={`${activeTopic}|${q}`}
-                onLoadMore={loadMore}
-                onPlaceClick={handlePlaceClick}
-              />
+              {/* 전체 탭 + 검색 없을 때: 히어로 + 섹션 */}
+              {isAllNoFilter && !isLoading && filteredItems.length > 0 && hasSections ? (
+                <>
+                  <FeaturedPlaceCard place={filteredItems[0]} onClick={handlePlaceClick} />
+
+                  {typeSections.map(s => (
+                    <HorizontalSection
+                      key={s.label}
+                      label={s.label}
+                      items={s.items}
+                      onPlaceClick={handlePlaceClick}
+                    />
+                  ))}
+
+                  {regionSections.length > 0 && (
+                    <>
+                      <SectionDivider />
+                      <SectionGroupLabel>지역별</SectionGroupLabel>
+                      {regionSections.map(s => (
+                        <HorizontalSection
+                          key={s.label}
+                          label={s.label}
+                          items={s.items}
+                          onPlaceClick={handlePlaceClick}
+                        />
+                      ))}
+                    </>
+                  )}
+                </>
+              ) : (
+                /* 특정 탭 or 검색: 그리드 */
+                <DiscoveryPlacesSection
+                  items={filteredItems}
+                  isLoading={isLoading}
+                  isError={isError}
+                  hasMore={hasMore && !q}
+                  filterKey={`${activeTopic}|${q}`}
+                  onLoadMore={loadMore}
+                  onPlaceClick={handlePlaceClick}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </>
