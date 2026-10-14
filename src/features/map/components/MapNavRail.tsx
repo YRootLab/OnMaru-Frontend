@@ -6,7 +6,7 @@ import Image from 'next/image';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Bookmark01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon, MapPinIcon, SearchAreaIcon, UserIcon } from '@hugeicons/core-free-icons';
+import { Bookmark01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon, UserIcon } from '@hugeicons/core-free-icons';
 import { HanokIcon } from './HanokIcon'
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
