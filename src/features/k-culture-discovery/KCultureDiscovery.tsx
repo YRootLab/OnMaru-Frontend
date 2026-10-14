@@ -206,65 +206,12 @@ const FacetCount = styled.span`
   opacity: 0.6;
 `;
 
-/* ─── stats + works link ─── */
-const StatsBar = styled.div`
+/* ─── actions ─── */
+const ActionsBar = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 0 12px;
-`;
-
-const StatsLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`;
-
-const StatsCount = styled.span`
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: ${meok[500]};
-  letter-spacing: -0.01em;
-
-  strong {
-    font-weight: 700;
-    color: ${meok[800]};
-
-    [data-theme='dark'] & {
-      color: rgba(255,255,255,0.85);
-    }
-  }
-
-  [data-theme='dark'] & {
-    color: rgba(255,255,255,0.4);
-  }
-`;
-
-const LiveDot = styled.span`
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: ${lightPalette.cheongrok[500]};
-  flex-shrink: 0;
-
-  [data-theme='dark'] & {
-    background: ${lightPalette.cheongrok[400]};
-  }
-`;
-
-const SkeletonCount = styled.div`
-  width: 72px;
-  height: 12px;
-  border-radius: 6px;
-  background: linear-gradient(90deg, rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.05) 75%);
-  background-size: 200% 100%;
-  animation: ${shimmer} 1.6s infinite ease-in-out;
-
-  [data-theme='dark'] & {
-    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.05) 75%);
-    background-size: 200% 100%;
-  }
+  justify-content: flex-end;
+  padding: 4px 0 12px;
 `;
 
 const WorksLink = styled(Link)`
@@ -395,7 +342,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
   const [activeWorkType, setActiveWorkType] = useState<WorkType | null>(null);
 
   const { topics, isLoading: topicsLoading } = useDiscoveryTopics();
-  const { items, facets, matchingCount, isLoading, isError, hasMore, loadMore } =
+  const { items, facets, isLoading, isError, hasMore, loadMore } =
     useDiscoveryPlaces({
       topic: activeTopic === 'all' ? undefined : activeTopic,
       regionCode: activeRegion ?? undefined,
@@ -516,24 +463,13 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
             </FilterArea>
           )}
 
-          <StatsBar>
-            <StatsLeft>
-              <LiveDot />
-              <StatsCount>
-                {isLoading && items.length === 0 ? (
-                  <SkeletonCount />
-                ) : (
-                  <>장소 <strong>{matchingCount.toLocaleString()}</strong>곳</>
-                )}
-              </StatsCount>
-            </StatsLeft>
-
+          <ActionsBar>
             <WorksLink href="/discover/works">
               <HugeiconsIcon icon={Film01Icon} size={12} strokeWidth={2} aria-hidden="true" />
               작품 목록
               <HugeiconsIcon icon={ArrowRight01Icon} size={11} strokeWidth={2.5} aria-hidden="true" />
             </WorksLink>
-          </StatsBar>
+          </ActionsBar>
 
           <AnimatePresence mode="wait">
             <motion.div
