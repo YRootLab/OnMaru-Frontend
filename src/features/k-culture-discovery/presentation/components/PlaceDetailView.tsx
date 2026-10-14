@@ -10,11 +10,14 @@ import {
   MapPinIcon,
   Building04Icon,
   HeadphonesIcon,
+  BookmarkAdd01Icon,
+  BookmarkRemove01Icon,
 } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, fontSize } from '@/design-system/tokens';
 import KContentRelationCard from './KContentRelationCard';
 import { useDiscoveryPlaceDetail } from '../hooks/useDiscoveryPlaceDetail';
 import { useKContentRelations } from '../hooks/useKContentRelations';
+import { usePlaceSave } from '../hooks/usePlaceSave';
 import type { TopicCode } from '../../domain/types';
 
 const shimmerAnim = keyframes`
@@ -161,6 +164,79 @@ const Description = styled.p`
   }
 `;
 
+const SaveBtn = styled.button<{ $saved: boolean; $disabled: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: none;
+  background: ${({ $saved }) => ($saved ? lightPalette.juhong[500] : meok[100])};
+  color: ${({ $saved }) => ($saved ? '#ffffff' : meok[600])};
+  font-size: ${fontSize.xs};
+  font-weight: 600;
+  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
+  opacity: ${({ $disabled }) => ($disabled ? 0.45 : 1)};
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.10s ease;
+  margin-bottom: 20px;
+
+  &:not(:disabled):hover {
+    background: ${({ $saved }) =>
+      $saved ? lightPalette.juhong[400] : meok[200]};
+  }
+
+  &:not(:disabled):active {
+    transform: scale(0.96);
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $saved }) =>
+      $saved ? lightPalette.juhong[500] : 'rgba(255,255,255,0.08)'};
+    color: ${({ $saved }) => ($saved ? '#ffffff' : 'rgba(255,255,255,0.55)')};
+
+    &:not(:disabled):hover {
+      background: ${({ $saved }) =>
+        $saved ? lightPalette.juhong[400] : 'rgba(255,255,255,0.14)'};
+    }
+  }
+`;
+
+const SummaryPoints = styled.ul`
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`;
+
+const SummaryPoint = styled.li`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: ${meok[100]};
+  color: ${meok[700]};
+  font-size: ${fontSize.xs};
+  font-weight: 500;
+
+  &::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    background: ${lightPalette.juhong[400]};
+    flex-shrink: 0;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.65);
+  }
+`;
+
 const SectionTitle = styled.h2`
   font-family: var(--font-hanok);
   font-size: ${fontSize.lg};
@@ -215,6 +291,7 @@ const TOPIC_LABELS: Record<TopicCode, string> = {
   K_DRAMA: 'K-드라마',
   K_MOVIE: 'K-영화',
   K_POP_MV: 'K-POP MV',
+  K_ARTIST: 'K-아티스트',
 };
 
 const SkeletonBlock = styled.div<{ $h?: string; $w?: string; $mb?: string }>`
@@ -247,6 +324,11 @@ export interface PlaceDetailViewProps {
 export default function PlaceDetailView({ placeId, backHref = '/discover' }: PlaceDetailViewProps) {
   const { place, isLoading, isNotFound, isError } = useDiscoveryPlaceDetail(placeId);
   const { relations, isLoading: relLoading } = useKContentRelations(placeId);
+  const { savedByMe, isSaving, toggle } = usePlaceSave({
+    placeId,
+    saveAvailable: place?.saveAvailable ?? false,
+    initialSavedByMe: place?.savedByMe ?? null,
+  });
 
   if (isLoading) {
     return (
@@ -324,6 +406,14 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
         </TopicChips>
       )}
 
+      {place.placeSummaryPoints.length > 0 && (
+        <SummaryPoints>
+          {place.placeSummaryPoints.map((point) => (
+            <SummaryPoint key={point}>{point}</SummaryPoint>
+          ))}
+        </SummaryPoints>
+      )}
+
       {place.description && <Description>{place.description}</Description>}
 
       {place.odii.linked && (
@@ -333,7 +423,26 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
         </OdiiLink>
       )}
 
-      <SectionTitle>촬영 작품 및 근거</SectionTitle>
+      {place.saveAvailable && (
+        <SaveBtn
+          type="button"
+          $saved={!!savedByMe}
+          $disabled={isSaving}
+          disabled={isSaving}
+          onClick={toggle}
+          aria-label={savedByMe ? '저장 취소' : '장소 저장'}
+        >
+          <HugeiconsIcon
+            icon={savedByMe ? BookmarkRemove01Icon : BookmarkAdd01Icon}
+            size={14}
+            strokeWidth={2}
+            aria-hidden="true"
+          />
+          {savedByMe ? '저장됨' : '장소 저장'}
+        </SaveBtn>
+      )}
+
+      <SectionTitle>K-Contents 관계</SectionTitle>
 
       {relLoading ? (
         <RelationList>

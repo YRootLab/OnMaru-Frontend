@@ -8,6 +8,7 @@ import {
   Film01Icon,
   Tv01Icon,
   Music02Icon,
+  HeadphonesIcon,
 } from '@hugeicons/core-free-icons';
 import { fontSize } from '@/design-system/tokens';
 import type { WorkType } from '../../domain/types';
@@ -17,6 +18,7 @@ const WORK_TYPE_META: Record<WorkType, { label: string; icon: ComponentProps<typ
   MOVIE: { label: '영화', icon: Film01Icon },
   VARIETY: { label: '예능', icon: Tv01Icon },
   MUSIC_VIDEO: { label: 'MV', icon: Music02Icon },
+  ARTIST: { label: '아티스트', icon: HeadphonesIcon },
 };
 
 const Badge = styled.span<{ $variant: 'dark' | 'light' }>`

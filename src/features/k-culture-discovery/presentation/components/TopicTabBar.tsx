@@ -10,8 +10,9 @@ import {
   ClapperboardIcon,
   Film01Icon,
   Music02Icon,
+  HeadphonesIcon,
 } from '@hugeicons/core-free-icons';
-import { lightPalette, meok, ringShadow, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import type { DiscoveryTopic, TopicCode } from '../../domain/types';
 
 const TOPIC_ICONS: Record<TopicCode, ComponentProps<typeof HugeiconsIcon>['icon']> = {
@@ -21,13 +22,14 @@ const TOPIC_ICONS: Record<TopicCode, ComponentProps<typeof HugeiconsIcon>['icon'
   K_DRAMA: ClapperboardIcon,
   K_MOVIE: Film01Icon,
   K_POP_MV: Music02Icon,
+  K_ARTIST: HeadphonesIcon,
 };
 
 const ScrollRow = styled.div`
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
-  padding: 4px 0 12px;
+  padding: 2px 0 14px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
@@ -37,58 +39,57 @@ const Tab = styled.button<{ $active: boolean }>`
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 5px;
+  padding: 7px 14px;
   border-radius: 9999px;
   border: none;
   background: ${({ $active }) =>
-    $active ? lightPalette.juhong[500] : meok[200]};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  box-shadow: ${({ $active }) =>
-    $active ? ringShadow.light.chipActive : 'none'};
-  font-size: ${fontSize.sm};
-  font-weight: 600;
+    $active ? lightPalette.juhong[500] : meok[100]};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[600])};
+  font-size: ${fontSize.xs};
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
-  transition: background 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
   font-family: inherit;
   white-space: nowrap;
+  transition: background 0.14s ease, color 0.14s ease, transform 0.10s ease;
 
   &:hover {
     background: ${({ $active }) =>
-      $active ? lightPalette.juhong[400] : meok[300]};
-    box-shadow: ${({ $active }) =>
-      $active ? ringShadow.light.chipActive : ringShadow.light.chipHover};
+      $active ? lightPalette.juhong[400] : meok[200]};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[800])};
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 
   [data-theme='dark'] & {
     background: ${({ $active }) =>
-      $active ? lightPalette.juhong[500] : meok[700]};
-    color: ${({ $active }) => ($active ? '#ffffff' : meok[300])};
-    box-shadow: ${({ $active }) =>
-      $active ? ringShadow.dark.chipActive : 'none'};
+      $active ? lightPalette.juhong[500] : 'rgba(255,255,255,0.07)'};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
 
     &:hover {
       background: ${({ $active }) =>
-        $active ? lightPalette.juhong[400] : meok[600]};
+        $active ? lightPalette.juhong[400] : 'rgba(255,255,255,0.12)'};
+      color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255,255,255,0.72)')};
     }
   }
 `;
 
-const Count = styled.span`
-  font-size: 11px;
-  font-weight: 500;
-  opacity: 0.72;
+const Count = styled.span<{ $active: boolean }>`
+  font-size: 10px;
+  font-weight: 600;
+  opacity: ${({ $active }) => ($active ? 0.72 : 0.55)};
 `;
 
 const SkeletonTab = styled.div`
   flex-shrink: 0;
-  width: 88px;
-  height: 36px;
+  height: 34px;
   border-radius: 9999px;
-  background: ${meok[200]};
+  background: ${meok[100]};
 
   [data-theme='dark'] & {
-    background: #2d2b28;
+    background: rgba(255,255,255,0.06);
   }
 `;
 
@@ -99,16 +100,11 @@ export interface TopicTabBarProps {
   onChange: (code: TopicCode | 'all') => void;
 }
 
-export default function TopicTabBar({
-  topics,
-  activeCode,
-  isLoading,
-  onChange,
-}: TopicTabBarProps) {
+export default function TopicTabBar({ topics, activeCode, isLoading, onChange }: TopicTabBarProps) {
   if (isLoading) {
     return (
       <ScrollRow aria-busy="true">
-        {[80, 96, 80, 72, 80, 72, 96].map((w, i) => (
+        {[48, 76, 100, 72, 88, 68, 84, 100].map((w, i) => (
           <SkeletonTab key={i} style={{ width: w }} />
         ))}
       </ScrollRow>
@@ -129,21 +125,23 @@ export default function TopicTabBar({
 
       {topics.map((topic) => {
         const Icon = TOPIC_ICONS[topic.code];
+        const isActive = activeCode === topic.code;
         return (
           <Tab
             key={topic.code}
             type="button"
             role="tab"
-            $active={activeCode === topic.code}
-            aria-selected={activeCode === topic.code}
+            $active={isActive}
+            aria-selected={isActive}
             onClick={() => onChange(topic.code)}
           >
-            <HugeiconsIcon icon={Icon} size={13} strokeWidth={2} aria-hidden="true" />
+            {Icon && <HugeiconsIcon icon={Icon} size={12} strokeWidth={2} aria-hidden="true" />}
             {topic.labelKo}
-            <Count>{topic.placeCount}</Count>
+            <Count $active={isActive}>{topic.placeCount}</Count>
           </Tab>
         );
       })}
     </ScrollRow>
   );
 }
+

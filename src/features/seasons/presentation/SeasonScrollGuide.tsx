@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDown01Icon, ArrowLeft01Icon, ArrowRight01Icon, ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
 import { getSeasonParticles } from '@/features/hanok-year/presentation/seasonParticles';
 import type { SeasonPlace, SeasonScene } from '../application/buildSeasonsGuide';
 import type { SeasonId } from '../domain/seasons';
@@ -49,7 +50,7 @@ function PlaceCard({ place, focus, onPreview }: { place: SeasonPlace; focus?: st
     <div className={styles.cardTop}><h3>{place.name}</h3></div>
     {focus && <p className={styles.focus}>{focus}</p>}
     <p className={styles.cardMeta}>{place.region} · {place.address}</p>
-    <div className={styles.cardFoot}><Link href={mapHref(place)}>지도에서 보기 <ArrowUpRight size={15} aria-hidden="true" /></Link><details className={styles.sourceDetails}><summary>자료 출처</summary><div>장소 데이터: {place.source === 'live' ? '온마루 장소 API' : `TourAPI 스냅샷 ${place.snapshotAt.slice(0, 10)}`}</div><a href={place.image} target="_blank" rel="noopener noreferrer">{place.imageSource === 'live' ? '장소 API' : 'TourAPI'} 사진 원본 ↗</a><p>사진의 촬영 계절과 현재 풍경은 다를 수 있습니다.</p></details></div>
+    <div className={styles.cardFoot}><Link href={mapHref(place)}>지도에서 보기 <HugeiconsIcon icon={ArrowUpRight01Icon} size={15} strokeWidth={2} aria-hidden="true" /></Link><details className={styles.sourceDetails}><summary>자료 출처</summary><div>장소 데이터: {place.source === 'live' ? '온마루 장소 API' : `TourAPI 스냅샷 ${place.snapshotAt.slice(0, 10)}`}</div><a href={place.image} target="_blank" rel="noopener noreferrer">{place.imageSource === 'live' ? '장소 API' : 'TourAPI'} 사진 원본 ↗</a><p>사진의 촬영 계절과 현재 풍경은 다를 수 있습니다.</p></details></div>
   </div>;
 }
 
@@ -69,7 +70,7 @@ function NearbyPlaces({ scene, showHint, onDismissHint, onPreview }: { scene: Se
     </button>
     <div className={styles.nearbyBody} id={panelId} aria-hidden={!open} inert={!open}>
       <div className={styles.nearbyBodyInner}>
-        <div className={styles.nearbyPanelHead}><div className={styles.nearbyPanelTitle}><h3>주변 한옥 {scene.nearbyPlaces.length}곳</h3></div><div className={styles.nearbyActions}><span aria-live="polite">{String(page + 1).padStart(2, '0')} / {String(pages.length).padStart(2, '0')}</span><button type="button" onClick={() => changePage(page - 1)} disabled={page === 0} aria-label="이전 한옥 4곳"><ArrowLeft size={18} aria-hidden="true" /></button><button type="button" onClick={() => changePage(page + 1)} disabled={page === pages.length - 1} aria-label="다음 한옥 4곳"><ArrowRight size={18} aria-hidden="true" /></button><button type="button" onClick={close} aria-label="주변 한옥 목록 닫기">닫기 <span aria-hidden="true">×</span></button></div></div>
+        <div className={styles.nearbyPanelHead}><div className={styles.nearbyPanelTitle}><h3>주변 한옥 {scene.nearbyPlaces.length}곳</h3></div><div className={styles.nearbyActions}><span aria-live="polite">{String(page + 1).padStart(2, '0')} / {String(pages.length).padStart(2, '0')}</span><button type="button" onClick={() => changePage(page - 1)} disabled={page === 0} aria-label="이전 한옥 4곳"><HugeiconsIcon icon={ArrowLeft01Icon} size={18} strokeWidth={2} aria-hidden="true" /></button><button type="button" onClick={() => changePage(page + 1)} disabled={page === pages.length - 1} aria-label="다음 한옥 4곳"><HugeiconsIcon icon={ArrowRight01Icon} size={18} strokeWidth={2} aria-hidden="true" /></button><button type="button" onClick={close} aria-label="주변 한옥 목록 닫기">닫기 <span aria-hidden="true">×</span></button></div></div>
         {showHint && <div className={styles.nearbyHint}><p>카드를 눌러 사진 보기</p><button type="button" onClick={onDismissHint} aria-label="안내 문구 닫기">닫기</button></div>}
         <div className={styles.nearbyViewport}><div className={styles.nearbyTrack} style={{ transform: `translateX(-${page * 100}%)` }}>{pages.map((places, pageIndex) => <ol key={pageIndex} aria-hidden={page !== pageIndex} inert={page !== pageIndex}>{places.map((place, index) => <li key={place.id} data-active={highlighted?.id === place.id} style={{ '--nearby-index': index } as CSSProperties}
           onClick={(e) => {
@@ -80,7 +81,7 @@ function NearbyPlaces({ scene, showHint, onDismissHint, onPreview }: { scene: Se
           <button type="button" className={styles.nearbyPreviewButton} aria-label={`${place.name} 소개 미리보기`}><strong>{place.name}</strong></button>
           <small className={styles.nearbyArea}>{shortLocation(place)}</small>
           <p className={styles.nearbyDescription}>{place.description}</p>
-          <Link href={mapHref(place)}>지도에서 보기 <ArrowUpRight size={14} aria-hidden="true" /></Link>
+          <Link href={mapHref(place)}>지도에서 보기 <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} strokeWidth={2} aria-hidden="true" /></Link>
         </li>)}</ol>)}</div></div>
       </div>
     </div>
@@ -244,7 +245,7 @@ export default function SeasonScrollGuide({ scenes }: { scenes: SeasonScene[] })
           }
         }}
       >
-        이번 계절의 한옥 만나기 <ArrowDown size={18} aria-hidden="true" />
+        이번 계절의 한옥 만나기 <HugeiconsIcon icon={ArrowDown01Icon} size={18} strokeWidth={2} aria-hidden="true" />
       </a>
     </div>
 
@@ -277,7 +278,7 @@ export default function SeasonScrollGuide({ scenes }: { scenes: SeasonScene[] })
         );
       })}
     </nav>
-    {showScrollHint && <p className={styles.scrollHint} role="status">스크롤하여 다음 한옥을 만나보세요 <ArrowDown size={16} aria-hidden="true" /></p>}
+    {showScrollHint && <p className={styles.scrollHint} role="status">스크롤하여 다음 한옥을 만나보세요 <HugeiconsIcon icon={ArrowDown01Icon} size={16} strokeWidth={2} aria-hidden="true" /></p>}
 
     <div className={styles.steps}>{scenes.map((scene) => {
       const oni = SEASON_ONI[scene.id] ?? SEASON_ONI.autumn;
@@ -309,7 +310,7 @@ export default function SeasonScrollGuide({ scenes }: { scenes: SeasonScene[] })
     <div className={styles.end}>
       <h2>다음 계절에도,<br />같은 집을 다시.</h2>
       <p>마음에 머문 한옥을 저장하고 나만의 여정을 떠나보세요. 시간과 계절이 빚어낸 고즈넉한 온기가 언제나 당신의 걸음을 기다립니다.</p>
-      <Link href="/hanok">한옥마루에서 더 알아보기 <ArrowUpRight size={18} aria-hidden="true" /></Link>
+      <Link href="/hanok">한옥마루에서 더 알아보기 <HugeiconsIcon icon={ArrowUpRight01Icon} size={18} strokeWidth={2} aria-hidden="true" /></Link>
     </div>
   </section>;
 }

@@ -5,6 +5,8 @@ import {
   fetchDiscoveryWorks,
   fetchDiscoveryWorkDetail,
   fetchKContents,
+  savePlace,
+  unsavePlace,
 } from '../infrastructure/discoverySource';
 import type {
   DiscoveryTopic,
@@ -45,4 +47,8 @@ export async function getDiscoveryWorkDetail(workId: string): Promise<WorkDetail
 
 export async function getKContents(placeId: string): Promise<KContentsPage> {
   return fetchKContents(placeId);
+}
+
+export async function togglePlaceSave(placeId: string, currentlySaved: boolean): Promise<void> {
+  return currentlySaved ? unsavePlace(placeId) : savePlace(placeId);
 }

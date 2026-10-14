@@ -5,25 +5,38 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  MapPinIcon,
-  AddToListIcon,
-  Building04Icon,
-} from '@hugeicons/core-free-icons';
+import { MapPinIcon, Building04Icon, Layers01Icon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import type { DiscoveryPlaceSummary } from '../../domain/types';
 
-const shimmerAnim = keyframes`
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+/* 이미지 없는 장소를 위한 그래디언트 팔레트 */
+const FALLBACK_GRADIENTS = [
+  `linear-gradient(135deg, #e8d5c0 0%, #c9b08a 100%)`,
+  `linear-gradient(135deg, #c8d8c0 0%, #8aad85 100%)`,
+  `linear-gradient(135deg, #c8d0e0 0%, #8a9dc4 100%)`,
+  `linear-gradient(135deg, #ddc8d8 0%, #b08ab0 100%)`,
+  `linear-gradient(135deg, #d8e0c8 0%, #9aaa7a 100%)`,
+];
+
+function getFallbackGradient(placeId: string): string {
+  let hash = 0;
+  for (let i = 0; i < placeId.length; i++) {
+    hash = (hash * 31 + placeId.charCodeAt(i)) % FALLBACK_GRADIENTS.length;
+  }
+  return FALLBACK_GRADIENTS[hash];
+}
+
+const shimmer = keyframes`
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 `;
 
 const Card = styled(motion.button)`
   position: relative;
   display: flex;
   flex-direction: column;
-  border-radius: 18px;
+  border-radius: 14px;
   overflow: hidden;
   background: #ffffff;
   border: none;
@@ -31,24 +44,30 @@ const Card = styled(motion.button)`
   cursor: pointer;
   text-align: left;
   width: 100%;
-  box-shadow: ${ringShadow.light.cardElevated};
-  transition: box-shadow 0.22s ease;
+  box-shadow: ${ringShadow.light.card};
+  transition: box-shadow 0.18s ease, transform 0.18s cubic-bezier(0.16,1,0.3,1);
 
   [data-theme='dark'] & {
-    background: ${meok[800]};
-    box-shadow: ${ringShadow.dark.cardElevated};
+    background: #1e2330;
+    box-shadow: ${ringShadow.dark.card};
   }
 
   &:hover {
-    box-shadow: ${ringShadow.light.cardLift};
+    box-shadow: ${ringShadow.light.cardHoverGlow};
+    transform: translateY(-2px);
 
     [data-theme='dark'] & {
-      box-shadow: ${ringShadow.dark.cardLift};
+      box-shadow: ${ringShadow.dark.cardHoverGlow};
     }
   }
 
-  &:hover img {
-    transform: scale(1.05);
+  &:active {
+    transform: scale(0.985) translateY(0);
+    box-shadow: none;
+  }
+
+  &:hover .place-img {
+    transform: scale(1.04);
   }
 `;
 
@@ -62,67 +81,78 @@ const PlaceImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+`;
+
+const FallbackWrap = styled.div<{ $gradient: string }>`
+  width: 100%;
+  height: 100%;
+  background: ${({ $gradient }) => $gradient};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  [data-theme='dark'] & {
+    filter: brightness(0.55) saturate(0.7);
+  }
+`;
+
+const FallbackIcon = styled.div`
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.72);
 `;
 
 const ImageScrim = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.08) 55%);
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.12) 45%, transparent 70%);
 `;
 
-const FallbackImage = styled.div`
-  width: 100%;
-  height: 100%;
-  background: ${meok[200]};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${meok[400]};
-
-  [data-theme='dark'] & {
-    background: ${meok[700]};
-    color: ${meok[500]};
-  }
-`;
-
-const BadgeRow = styled.div`
+const TopRow = styled.div`
   position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
+  top: 9px;
+  left: 9px;
+  right: 9px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 `;
 
-const WorkCountBadge = styled.span`
+const MultiPill = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: 3px;
+  padding: 3px 8px;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[500]};
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 600;
+  background: rgba(0,0,0,0.48);
+  backdrop-filter: blur(6px);
+  color: rgba(255,255,255,0.88);
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: auto;
 `;
 
-const PlaceRolePill = styled.span`
+const RolePill = styled.span`
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  padding: 3px 10px;
+  bottom: 9px;
+  left: 9px;
+  padding: 3px 9px;
   border-radius: 9999px;
-  background: rgba(255,255,255,0.18);
-  backdrop-filter: blur(6px);
-  color: rgba(255,255,255,0.92);
-  font-size: 11px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  color: rgba(255,255,255,0.86);
+  font-size: 10px;
   font-weight: 500;
 `;
 
 const Body = styled.div`
-  padding: 12px 14px 14px;
+  padding: 10px 12px 13px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -130,82 +160,90 @@ const Body = styled.div`
 
 const PlaceName = styled.h3`
   font-family: var(--font-hanok);
-  font-size: ${fontSize.base};
+  font-size: ${fontSize.sm};
   font-weight: 700;
   color: ${meok[900]};
   margin: 0;
   line-height: 1.3;
-  letter-spacing: -0.02em;
-
-  [data-theme='dark'] & {
-    color: ${meok[100]};
-  }
-`;
-
-const RegionRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  color: ${meok[500]};
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-`;
-
-const WorkTitle = styled.p`
-  font-size: ${fontSize.xs};
-  color: ${lightPalette.juhong[600]};
-  margin: 0;
+  letter-spacing: -0.025em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: rgba(255,255,255,0.88);
+  }
+`;
+
+const Region = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: ${meok[400]};
+  font-size: 11px;
   font-weight: 500;
+
+  [data-theme='dark'] & {
+    color: rgba(255,255,255,0.30);
+  }
+`;
+
+const WorkRow = styled.p`
+  font-size: 11px;
+  color: ${lightPalette.juhong[500]};
+  font-weight: 600;
+  margin: 2px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   [data-theme='dark'] & {
     color: ${lightPalette.juhong[400]};
   }
 `;
 
+/* ─── skeleton ─── */
 export const SkeletonCard = styled.div`
-  border-radius: 18px;
+  border-radius: 14px;
   overflow: hidden;
-  background: ${meok[200]};
-  box-shadow: ${ringShadow.light.cardElevated};
+  background: #ffffff;
+  box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
-    background: #252422;
-    box-shadow: ${ringShadow.dark.cardElevated};
+    background: #1e2330;
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 
-const SkeletonImageWrap = styled.div`
+const SkImgWrap = styled.div`
   aspect-ratio: 4 / 3;
-  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
+  background: linear-gradient(90deg, ${meok[100]} 25%, #f0efec 50%, ${meok[100]} 75%);
   background-size: 200% 100%;
-  animation: ${shimmerAnim} 1.6s infinite ease-in-out;
+  animation: ${shimmer} 1.8s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
     background-size: 200% 100%;
   }
 `;
 
-const SkeletonBody = styled.div`
-  padding: 12px 14px 14px;
+const SkBody = styled.div`
+  padding: 10px 12px 13px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 `;
 
-const SkeletonLine = styled.div<{ $w?: string; $h?: string }>`
+const SkLine = styled.div<{ $w?: string; $h?: string }>`
   width: ${({ $w }) => $w ?? '100%'};
-  height: ${({ $h }) => $h ?? '14px'};
-  border-radius: 6px;
-  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
+  height: ${({ $h }) => $h ?? '13px'};
+  border-radius: 5px;
+  background: linear-gradient(90deg, ${meok[100]} 25%, #f0efec 50%, ${meok[100]} 75%);
   background-size: 200% 100%;
-  animation: ${shimmerAnim} 1.6s infinite ease-in-out;
+  animation: ${shimmer} 1.8s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
     background-size: 200% 100%;
   }
 `;
@@ -213,12 +251,12 @@ const SkeletonLine = styled.div<{ $w?: string; $h?: string }>`
 export function DiscoveryPlaceCardSkeleton() {
   return (
     <SkeletonCard>
-      <SkeletonImageWrap />
-      <SkeletonBody>
-        <SkeletonLine $w="65%" $h="18px" />
-        <SkeletonLine $w="40%" $h="13px" />
-        <SkeletonLine $w="80%" $h="13px" />
-      </SkeletonBody>
+      <SkImgWrap />
+      <SkBody>
+        <SkLine $w="65%" $h="15px" />
+        <SkLine $w="36%" $h="11px" />
+        <SkLine $w="80%" $h="11px" />
+      </SkBody>
     </SkeletonCard>
   );
 }
@@ -232,51 +270,48 @@ export interface DiscoveryPlaceCardProps {
 export default function DiscoveryPlaceCard({ place, index = 0, onClick }: DiscoveryPlaceCardProps) {
   const primaryRole = place.placeRoles[0];
   const relation = place.featuredRelation;
+  const fallbackGradient = getFallbackGradient(place.placeId);
 
   return (
     <Card
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
-      aria-label={`${place.name} — ${relation?.workTitle ?? '정보 없음'}`}
+      transition={{ duration: 0.26, delay: Math.min(index * 0.04, 0.32), ease: [0.16, 1, 0.3, 1] }}
+      aria-label={`${place.name}${relation ? ` — ${relation.workTitle}` : ''}`}
       onClick={() => onClick?.(place)}
     >
       <ImageWrap>
         {place.placeImage ? (
-          <PlaceImage src={place.placeImage} alt={place.name} loading="lazy" />
+          <PlaceImage className="place-img" src={place.placeImage} alt={place.name} loading="lazy" />
         ) : (
-          <FallbackImage>
-            <HugeiconsIcon icon={Building04Icon} size={36} strokeWidth={1.5} aria-hidden="true" />
-          </FallbackImage>
+          <FallbackWrap $gradient={fallbackGradient}>
+            <FallbackIcon>
+              <HugeiconsIcon icon={Building04Icon} size={20} strokeWidth={1.5} aria-hidden="true" />
+            </FallbackIcon>
+          </FallbackWrap>
         )}
         <ImageScrim />
 
-        <BadgeRow>
-          {relation && (
-            <WorkTypeBadge type={relation.type} variant="dark" />
-          )}
+        <TopRow>
+          {relation && <WorkTypeBadge type={relation.type} variant="light" />}
           {place.matchingWorkCount > 1 && (
-            <WorkCountBadge>
-              <HugeiconsIcon icon={AddToListIcon} size={11} strokeWidth={2} aria-hidden="true" />
-              작품 {place.matchingWorkCount}개
-            </WorkCountBadge>
+            <MultiPill>
+              <HugeiconsIcon icon={Layers01Icon} size={9} strokeWidth={2} aria-hidden="true" />
+              {place.matchingWorkCount}편
+            </MultiPill>
           )}
-        </BadgeRow>
+        </TopRow>
 
-        {primaryRole && (
-          <PlaceRolePill>{primaryRole.labelKo}</PlaceRolePill>
-        )}
+        {primaryRole && <RolePill>{primaryRole.labelKo}</RolePill>}
       </ImageWrap>
 
       <Body>
         <PlaceName>{place.name}</PlaceName>
-        <RegionRow>
-          <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} aria-hidden="true" />
+        <Region>
+          <HugeiconsIcon icon={MapPinIcon} size={10} strokeWidth={2} aria-hidden="true" />
           {place.region.nameKo}
-        </RegionRow>
-        {relation && (
-          <WorkTitle>{relation.workTitle}</WorkTitle>
-        )}
+        </Region>
+        {relation && <WorkRow>{relation.workTitle}</WorkRow>}
       </Body>
     </Card>
   );

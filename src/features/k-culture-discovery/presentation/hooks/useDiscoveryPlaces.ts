@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getDiscoveryPlaces } from '../../application/useCases';
+import { isOnmaruApiError } from '@/lib/api/errors';
 import type {
   DiscoveryPlaceSummary,
   DiscoveryFacets,
@@ -23,6 +24,15 @@ export interface UseDiscoveryPlacesResult {
   isError: boolean;
   hasMore: boolean;
   loadMore: () => void;
+}
+
+function isCursorError(err: unknown): boolean {
+  if (!isOnmaruApiError(err)) return false;
+  return (
+    err.code === 'CURSOR_INVALID' ||
+    err.code === 'CURSOR_EXPIRED' ||
+    err.status === 410
+  );
 }
 
 export function useDiscoveryPlaces(options: UseDiscoveryPlacesOptions = {}): UseDiscoveryPlacesResult {
@@ -74,10 +84,29 @@ export function useDiscoveryPlaces(options: UseDiscoveryPlacesOptions = {}): Use
     getDiscoveryPlaces({ topic, regionCode, placeRole, workId, limit, cursor: nextCursor })
       .then((page) => {
         setItems((prev) => [...prev, ...page.items]);
+        setFacets(page.facets);
         setHasMore(page.hasMore);
         setNextCursor(page.nextCursor);
       })
-      .catch(() => setIsError(true))
+      .catch((err) => {
+        if (isCursorError(err)) {
+          // CURSOR_INVALID / CURSOR_EXPIRED: 커서 버리고 처음부터 재조회
+          setNextCursor(null);
+          setItems([]);
+          getDiscoveryPlaces({ topic, regionCode, placeRole, workId, limit })
+            .then((page) => {
+              setItems(page.items);
+              setFacets(page.facets);
+              setMatchingCount(page.matchingPlaceCount);
+              setHasMore(page.hasMore);
+              setNextCursor(page.nextCursor);
+            })
+            .catch(() => setIsError(true))
+            .finally(() => setIsLoading(false));
+          return;
+        }
+        setIsError(true);
+      })
       .finally(() => setIsLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, nextCursor, isLoading, paramsKey]);

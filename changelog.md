@@ -4,6 +4,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- 메뉴바(상단 데스크톱 네비게이션, 모바일 하단 탭바, 모바일 메뉴 및 지도 사이드 레일)에 K-콘텐츠 탐색을 위한 `K-마루` 항목을 추가하고 헤더 정렬 테스트를 갱신했다.
+- 사계절(`seasons`) 컴포넌트의 `lucide-react` 화살표 아이콘을 프로젝트 표준인 `HugeIcons`로 교체하고 `lucide-react` 의존성을 제거했다.
+
 ## [v0.1.21] - 2026-10-13
 
 - 사계 화면에서 장소 사진 미리보기를 마우스 hover가 아니라 탭(클릭)으로 바꿔, 모든 화면 크기에서 배경 사진이 깜빡이지 않게 했다.

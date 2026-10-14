@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { MapPinIcon, ClapperboardIcon } from '@hugeicons/core-free-icons';
+import { MapPinIcon, ClapperboardIcon, HeadphonesIcon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import type { WorkSummary } from '../../domain/types';
@@ -27,19 +27,30 @@ const Card = styled(motion.button)`
   cursor: pointer;
   text-align: left;
   width: 100%;
-  box-shadow: ${ringShadow.light.cardElevated};
-  transition: box-shadow 0.22s ease;
+  box-shadow: ${ringShadow.light.card};
+  transition: background 0.14s ease, box-shadow 0.14s ease, transform 0.10s ease;
 
   [data-theme='dark'] & {
-    background: ${meok[800]};
-    box-shadow: ${ringShadow.dark.cardElevated};
+    background: #1e2330;
+    box-shadow: ${ringShadow.dark.card};
   }
 
   &:hover {
-    box-shadow: ${ringShadow.light.cardLift};
+    background: ${meok[100]};
+    box-shadow: ${ringShadow.light.cardHoverGlow};
 
     [data-theme='dark'] & {
-      box-shadow: ${ringShadow.dark.cardLift};
+      background: rgba(255,255,255,0.04);
+      box-shadow: ${ringShadow.dark.cardHoverGlow};
+    }
+  }
+
+  &:active {
+    transform: scale(0.985);
+    background: ${meok[200]};
+
+    [data-theme='dark'] & {
+      background: rgba(255,255,255,0.07);
     }
   }
 `;
@@ -88,7 +99,7 @@ const Title = styled.h3`
   text-overflow: ellipsis;
 
   [data-theme='dark'] & {
-    color: ${meok[100]};
+    color: rgba(255,255,255,0.88);
   }
 `;
 
@@ -213,7 +224,12 @@ export default function DiscoveryWorkCard({ work, index = 0, onClick }: Discover
         {work.workArtwork ? (
           <ArtworkImg src={work.workArtwork} alt={work.canonicalTitle} loading="lazy" />
         ) : (
-          <HugeiconsIcon icon={ClapperboardIcon} size={24} strokeWidth={1.5} aria-hidden="true" />
+          <HugeiconsIcon
+            icon={work.type === 'ARTIST' ? HeadphonesIcon : ClapperboardIcon}
+            size={24}
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
         )}
       </ArtworkWrap>
 

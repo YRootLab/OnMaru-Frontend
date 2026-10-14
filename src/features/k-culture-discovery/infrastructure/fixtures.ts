@@ -231,6 +231,7 @@ const FIXTURE_PLACE_DETAILS: Record<string, DiscoveryPlaceDetail> = {
     placeRoles: [{ code: 'PALACE', labelKo: '궁궐' }],
     topics: ['TRADITIONAL_SPACE_HERITAGE', 'K_DRAMA'],
     images: ['https://tong.visitkorea.or.kr/cms/resource/64/1939964_image2_1.jpg'],
+    placeSummaryPoints: ['1395년 창건', '조선 정궁', '유네스코 세계유산 다수 보유'],
     odii: { linked: true, storyCount: 3 },
     kContents: { relationCount: 4, href: '/api/v1/places/p-gyeongbok/k-contents' },
     saveAvailable: true,
@@ -253,6 +254,7 @@ const FIXTURE_PLACE_DETAILS: Record<string, DiscoveryPlaceDetail> = {
     placeRoles: [{ code: 'FOLK_VILLAGE', labelKo: '민속마을' }],
     topics: ['TRADITIONAL_SPACE_HERITAGE', 'K_DRAMA', 'K_MOVIE'],
     images: ['https://tong.visitkorea.or.kr/cms/resource/82/2567982_image2_1.jpg'],
+    placeSummaryPoints: ['600년 집성촌', 'UNESCO 세계문화유산', '낙동강 물돌이 지형'],
     odii: { linked: false, storyCount: 0 },
     kContents: { relationCount: 3, href: '/api/v1/places/p-andong-hahoe/k-contents' },
     saveAvailable: true,
@@ -506,6 +508,7 @@ export function getFixturePlaceDetail(placeId: string): DiscoveryPlaceDetail | n
     topics: summary.topics,
     images: summary.placeImage ? [summary.placeImage] : [],
     odii: { linked: summary.odiiLinked, storyCount: 0 },
+    placeSummaryPoints: [],
     kContents: {
       relationCount: summary.matchingWorkCount,
       href: `/api/v1/places/${placeId}/k-contents`,
