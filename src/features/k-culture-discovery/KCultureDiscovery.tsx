@@ -67,7 +67,7 @@ const HeroSub = styled.p`
 
 /* ─── search ─── */
 const SearchRow = styled.div`
-  padding: 16px 0 4px;
+  padding: 16px 0 14px;
   position: relative;
 `;
 
@@ -94,29 +94,35 @@ const SearchInput = styled.input`
   font-weight: 500;
   color: ${meok[900]};
   background: ${meok[100]};
-  border: 1.5px solid ${meok[200]};
+  border: none;
   border-radius: 12px;
   padding: 12px 16px 12px 42px;
   outline: none;
   letter-spacing: -0.01em;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  box-shadow: ${ringShadow.light.input};
+  transition: box-shadow 0.15s ease, background 0.15s ease;
 
-  &::placeholder { color: ${meok[400]}; font-weight: 400; }
+  &::placeholder {
+    color: ${meok[400]};
+    font-weight: 400;
+  }
 
   &:focus {
-    border-color: ${meok[600]};
+    box-shadow: ${ringShadow.light.focusJuhong};
     background: #ffffff;
   }
 
   [data-theme='dark'] & {
     color: rgba(255, 255, 255, 0.90);
     background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: ${ringShadow.dark.input};
 
-    &::placeholder { color: rgba(255, 255, 255, 0.28); }
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.28);
+    }
 
     &:focus {
-      border-color: rgba(255, 255, 255, 0.40);
+      box-shadow: ${ringShadow.dark.focusJuhong};
       background: rgba(255, 255, 255, 0.09);
     }
   }
