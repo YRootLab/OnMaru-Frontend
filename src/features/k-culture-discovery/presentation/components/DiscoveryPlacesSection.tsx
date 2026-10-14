@@ -11,11 +11,11 @@ import type { DiscoveryPlaceSummary } from '../../domain/types';
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 
-  @media (min-width: 640px) {
+  @media (min-width: 768px) {
     grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    gap: 16px;
   }
 
   @media (max-width: 360px) {

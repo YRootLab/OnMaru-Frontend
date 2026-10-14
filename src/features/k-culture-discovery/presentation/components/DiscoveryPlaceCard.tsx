@@ -5,27 +5,46 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { MapPinIcon, Building04Icon, Layers01Icon } from '@hugeicons/core-free-icons';
+import { MapPinIcon, Building04Icon, Layers01Icon, Film01Icon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
+import { useTourApiImage } from '../hooks/useTourApiImage';
 import type { DiscoveryPlaceSummary } from '../../domain/types';
 
-/* 이미지 없는 장소를 위한 그래디언트 팔레트 */
-const FALLBACK_GRADIENTS = [
-  `linear-gradient(135deg, #e8d5c0 0%, #c9b08a 100%)`,
-  `linear-gradient(135deg, #c8d8c0 0%, #8aad85 100%)`,
-  `linear-gradient(135deg, #c8d0e0 0%, #8a9dc4 100%)`,
-  `linear-gradient(135deg, #ddc8d8 0%, #b08ab0 100%)`,
-  `linear-gradient(135deg, #d8e0c8 0%, #9aaa7a 100%)`,
-];
-
-function getFallbackGradient(placeId: string): string {
-  let hash = 0;
-  for (let i = 0; i < placeId.length; i++) {
-    hash = (hash * 31 + placeId.charCodeAt(i)) % FALLBACK_GRADIENTS.length;
-  }
-  return FALLBACK_GRADIENTS[hash];
-}
+const REGION_CODE_MAP: Record<string, string> = {
+  '1': '서울',
+  '2': '인천',
+  '3': '대전',
+  '4': '대구',
+  '5': '광주',
+  '6': '부산',
+  '7': '울산',
+  '8': '세종',
+  '31': '경기',
+  '32': '강원',
+  '33': '충북',
+  '34': '충남',
+  '35': '전북',
+  '36': '전남',
+  '37': '경북',
+  '38': '경남',
+  '39': '제주',
+  '11': '서울',
+  '26': '부산',
+  '27': '대구',
+  '28': '인천',
+  '29': '광주',
+  '30': '대전',
+  '41': '경기',
+  '42': '강원',
+  '43': '충북',
+  '44': '충남',
+  '45': '전북',
+  '46': '전남',
+  '47': '경북',
+  '48': '경남',
+  '50': '제주',
+};
 
 const shimmer = keyframes`
   0%   { background-position: 200% 0; }
@@ -36,34 +55,39 @@ const Card = styled(motion.button)`
   position: relative;
   display: flex;
   flex-direction: column;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   background: #ffffff;
-  border: none;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   padding: 0;
   cursor: pointer;
   text-align: left;
   width: 100%;
   box-shadow: ${ringShadow.light.card};
-  transition: box-shadow 0.18s ease, transform 0.18s cubic-bezier(0.16,1,0.3,1);
+  transition:
+    box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.22s ease,
+    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
-    background: #1e2330;
+    background: #191f2c;
+    border: 1px solid rgba(255, 255, 255, 0.07);
     box-shadow: ${ringShadow.dark.card};
   }
 
   &:hover {
-    box-shadow: ${ringShadow.light.cardHoverGlow};
-    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-3px);
+    border-color: rgba(0, 0, 0, 0.08);
 
     [data-theme='dark'] & {
-      box-shadow: ${ringShadow.dark.cardHoverGlow};
+      box-shadow: 0 14px 32px -6px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.14);
     }
   }
 
   &:active {
     transform: scale(0.985) translateY(0);
-    box-shadow: none;
   }
 
   &:hover .place-img {
@@ -73,55 +97,90 @@ const Card = styled(motion.button)`
 
 const ImageWrap = styled.div`
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   overflow: hidden;
+  background: #f0eee8;
+
+  [data-theme='dark'] & {
+    background: #141822;
+  }
 `;
 
 const PlaceImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
-const FallbackWrap = styled.div<{ $gradient: string }>`
+const FallbackWrap = styled.div`
   width: 100%;
   height: 100%;
-  background: ${({ $gradient }) => $gradient};
+  background: linear-gradient(145deg, #f6f5f1 0%, #ebe7dc 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
 
   [data-theme='dark'] & {
-    filter: brightness(0.55) saturate(0.7);
+    background: linear-gradient(145deg, #1b212d 0%, #131720 100%);
   }
 `;
 
 const FallbackIcon = styled.div`
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.32);
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255,255,255,0.72);
+  color: ${meok[600]};
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    color: rgba(255, 255, 255, 0.65);
+  }
+`;
+
+const FallbackLabel = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  color: ${meok[500]};
+  letter-spacing: -0.01em;
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.4);
+  }
 `;
 
 const ImageScrim = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.12) 45%, transparent 70%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35) 0%,
+    transparent 35%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
 `;
 
 const TopRow = styled.div`
   position: absolute;
-  top: 9px;
-  left: 9px;
-  right: 9px;
+  top: 10px;
+  left: 10px;
+  right: 10px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  z-index: 2;
 `;
 
 const MultiPill = styled.span`
@@ -130,72 +189,134 @@ const MultiPill = styled.span`
   gap: 3px;
   padding: 3px 8px;
   border-radius: 9999px;
-  background: rgba(0,0,0,0.48);
-  backdrop-filter: blur(6px);
-  color: rgba(255,255,255,0.88);
-  font-size: 10px;
+  background: rgba(14, 18, 26, 0.68);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 10.5px;
   font-weight: 700;
   margin-left: auto;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 `;
 
 const RolePill = styled.span`
   position: absolute;
-  bottom: 9px;
-  left: 9px;
+  bottom: 10px;
+  left: 10px;
   padding: 3px 9px;
   border-radius: 9999px;
-  background: rgba(255,255,255,0.15);
+  background: rgba(14, 18, 26, 0.65);
   backdrop-filter: blur(8px);
-  color: rgba(255,255,255,0.86);
-  font-size: 10px;
-  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 10.5px;
+  font-weight: 600;
+  z-index: 2;
 `;
 
 const Body = styled.div`
-  padding: 10px 12px 13px;
+  padding: 13px 14px 15px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 `;
 
 const PlaceName = styled.h3`
-  font-family: var(--font-hanok);
-  font-size: ${fontSize.sm};
-  font-weight: 700;
+  font-family: var(--font-hanok), serif;
+  font-size: 15px;
+  font-weight: 800;
   color: ${meok[900]};
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.35;
   letter-spacing: -0.025em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.15s ease;
 
   [data-theme='dark'] & {
-    color: rgba(255,255,255,0.88);
+    color: #ffffff;
   }
 `;
 
 const Region = styled.div`
   display: flex;
   align-items: center;
-  gap: 3px;
-  color: ${meok[400]};
-  font-size: 11px;
+  gap: 4px;
+  color: ${meok[500]};
+  font-size: 11.5px;
   font-weight: 500;
+  letter-spacing: -0.01em;
 
   [data-theme='dark'] & {
-    color: rgba(255,255,255,0.30);
+    color: rgba(255, 255, 255, 0.45);
   }
 `;
 
-const WorkRow = styled.p`
-  font-size: 11px;
-  color: ${lightPalette.juhong[500]};
-  font-weight: 600;
-  margin: 2px 0 0;
+const WorkRelationBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(240, 100, 20, 0.05);
+  border: 1px solid rgba(240, 100, 20, 0.14);
+  min-width: 0;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 120, 40, 0.09);
+    border-color: rgba(255, 120, 40, 0.20);
+  }
+`;
+
+const WorkRelationIcon = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: ${lightPalette.juhong[600]};
+  flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    color: ${lightPalette.juhong[400]};
+  }
+`;
+
+const WorkRelationContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
   white-space: nowrap;
+  font-size: 11.5px;
+  line-height: 1.2;
+`;
+
+const WorkTitleText = styled.span`
+  font-weight: 700;
+  color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
+`;
+
+const WorkRoleDot = styled.span`
+  color: ${meok[400]};
+  font-weight: 400;
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.35);
+  }
+`;
+
+const WorkRoleLabel = styled.span`
+  font-weight: 600;
+  color: ${lightPalette.juhong[600]};
+  flex-shrink: 0;
 
   [data-theme='dark'] & {
     color: ${lightPalette.juhong[400]};
@@ -203,20 +324,23 @@ const WorkRow = styled.p`
 `;
 
 /* ─── skeleton ─── */
+/* ─── skeleton ─── */
 export const SkeletonCard = styled.div`
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
-    background: #1e2330;
+    background: #191f2c;
+    border: 1px solid rgba(255, 255, 255, 0.07);
     box-shadow: ${ringShadow.dark.card};
   }
 `;
 
 const SkImgWrap = styled.div`
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   background: linear-gradient(90deg, ${meok[100]} 25%, #f0efec 50%, ${meok[100]} 75%);
   background-size: 200% 100%;
   animation: ${shimmer} 1.8s infinite ease-in-out;
@@ -228,7 +352,7 @@ const SkImgWrap = styled.div`
 `;
 
 const SkBody = styled.div`
-  padding: 10px 12px 13px;
+  padding: 13px 14px 15px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -237,7 +361,7 @@ const SkBody = styled.div`
 const SkLine = styled.div<{ $w?: string; $h?: string }>`
   width: ${({ $w }) => $w ?? '100%'};
   height: ${({ $h }) => $h ?? '13px'};
-  border-radius: 5px;
+  border-radius: 6px;
   background: linear-gradient(90deg, ${meok[100]} 25%, #f0efec 50%, ${meok[100]} 75%);
   background-size: 200% 100%;
   animation: ${shimmer} 1.8s infinite ease-in-out;
@@ -253,9 +377,9 @@ export function DiscoveryPlaceCardSkeleton() {
     <SkeletonCard>
       <SkImgWrap />
       <SkBody>
-        <SkLine $w="65%" $h="15px" />
-        <SkLine $w="36%" $h="11px" />
-        <SkLine $w="80%" $h="11px" />
+        <SkLine $w="68%" $h="16px" />
+        <SkLine $w="32%" $h="12px" />
+        <SkLine $w="88%" $h="26px" />
       </SkBody>
     </SkeletonCard>
   );
@@ -270,7 +394,11 @@ export interface DiscoveryPlaceCardProps {
 export default function DiscoveryPlaceCard({ place, index = 0, onClick }: DiscoveryPlaceCardProps) {
   const primaryRole = place.placeRoles[0];
   const relation = place.featuredRelation;
-  const fallbackGradient = getFallbackGradient(place.placeId);
+  const resolvedImage = useTourApiImage(place.placeId, place.placeImage);
+
+  // 지역명이 비어 있거나 없는 경우 코드 기반 보완
+  const rawRegion = place.region?.nameKo?.trim();
+  const regionName = rawRegion || (place.region?.code ? REGION_CODE_MAP[place.region.code] : null);
 
   return (
     <Card
@@ -281,13 +409,14 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
       onClick={() => onClick?.(place)}
     >
       <ImageWrap>
-        {place.placeImage ? (
-          <PlaceImage className="place-img" src={place.placeImage} alt={place.name} loading="lazy" />
+        {resolvedImage ? (
+          <PlaceImage className="place-img" src={resolvedImage} alt={place.name} loading="lazy" />
         ) : (
-          <FallbackWrap $gradient={fallbackGradient}>
+          <FallbackWrap>
             <FallbackIcon>
-              <HugeiconsIcon icon={Building04Icon} size={20} strokeWidth={1.5} aria-hidden="true" />
+              <HugeiconsIcon icon={Building04Icon} size={22} strokeWidth={1.5} aria-hidden="true" />
             </FallbackIcon>
+            <FallbackLabel>문화유산 공간</FallbackLabel>
           </FallbackWrap>
         )}
         <ImageScrim />
@@ -296,7 +425,7 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
           {relation && <WorkTypeBadge type={relation.type} variant="light" />}
           {place.matchingWorkCount > 1 && (
             <MultiPill>
-              <HugeiconsIcon icon={Layers01Icon} size={9} strokeWidth={2} aria-hidden="true" />
+              <HugeiconsIcon icon={Layers01Icon} size={10} strokeWidth={2} aria-hidden="true" />
               {place.matchingWorkCount}편
             </MultiPill>
           )}
@@ -307,17 +436,25 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
 
       <Body>
         <PlaceName>{place.name}</PlaceName>
-        <Region>
-          <HugeiconsIcon icon={MapPinIcon} size={10} strokeWidth={2} aria-hidden="true" />
-          {place.region.nameKo}
-        </Region>
+
+        {regionName && (
+          <Region>
+            <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} aria-hidden="true" />
+            <span>{regionName}</span>
+          </Region>
+        )}
+
         {relation && (
-          <WorkRow>
-            {relation.workTitle}
-            <span style={{ opacity: 0.6, fontWeight: 500, marginLeft: 4 }}>
-              · {relation.relationType === 'VISIT_SPOT' ? '방문장소' : '촬영지'}
-            </span>
-          </WorkRow>
+          <WorkRelationBadge>
+            <WorkRelationIcon>
+              <HugeiconsIcon icon={Film01Icon} size={13} strokeWidth={2} aria-hidden="true" />
+            </WorkRelationIcon>
+            <WorkRelationContent>
+              <WorkTitleText title={relation.workTitle}>{relation.workTitle}</WorkTitleText>
+              <WorkRoleDot>·</WorkRoleDot>
+              <WorkRoleLabel>{relation.relationType === 'VISIT_SPOT' ? '방문지' : '촬영지'}</WorkRoleLabel>
+            </WorkRelationContent>
+          </WorkRelationBadge>
         )}
       </Body>
     </Card>

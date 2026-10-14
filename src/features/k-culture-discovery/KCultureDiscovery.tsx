@@ -22,26 +22,37 @@ const shimmer = keyframes`
 
 /* ─── full-bleed page → 자체 여백 적용 ─── */
 const PageWrap = styled.div`
+  width: min(calc(100% - 40px), 1140px);
   max-width: 1140px;
   margin: 0 auto;
-  padding: 0 16px 64px;
+  padding-bottom: 64px;
 
   @media (min-width: 768px) {
     padding-top: 8px;
+  }
+
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+  }
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
   }
 `;
 
 /* ─── hero ─── */
 const Hero = styled.div`
-  padding: 28px 0 24px;
+  padding: 34px 0 26px;
 `;
 
 const HeroBadge = styled.span`
   display: inline-flex;
   align-items: center;
+  gap: 5px;
   padding: 4px 12px;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[50]};
+  background: rgba(240, 100, 20, 0.07);
+  border: 1px solid rgba(240, 100, 20, 0.16);
   color: ${lightPalette.juhong[600]};
   font-size: 11px;
   font-weight: 700;
@@ -50,33 +61,28 @@ const HeroBadge = styled.span`
   margin-bottom: 12px;
 
   [data-theme='dark'] & {
-    background: rgba(255, 85, 0, 0.14);
-    color: ${lightPalette.juhong[300]};
+    background: rgba(255, 120, 40, 0.12);
+    border-color: rgba(255, 120, 40, 0.24);
+    color: ${lightPalette.juhong[400]};
   }
 `;
 
 const HeroTitle = styled.h1`
-  font-family: var(--font-display);
-  font-size: clamp(24px, 4.5vw, 36px);
-  font-weight: 400;
+  font-family: var(--font-hanok), serif;
+  font-size: clamp(26px, 4.2vw, 36px);
+  font-weight: 800;
   color: ${meok[900]};
-  margin: 0 0 8px;
-  letter-spacing: -0.03em;
-  line-height: 1.2;
-  white-space: nowrap;
-
-  @media (max-width: 360px) {
-    white-space: normal;
-    font-size: 22px;
-  }
+  margin: 0 0 10px;
+  letter-spacing: -0.035em;
+  line-height: 1.25;
 
   [data-theme='dark'] & {
-    color: rgba(255, 255, 255, 0.92);
+    color: #ffffff;
   }
 `;
 
 const HeroAccent = styled.span`
-  color: ${lightPalette.juhong[500]};
+  color: ${lightPalette.juhong[600]};
 
   [data-theme='dark'] & {
     color: ${lightPalette.juhong[400]};
@@ -85,13 +91,14 @@ const HeroAccent = styled.span`
 
 const HeroSub = styled.p`
   font-size: ${fontSize.sm};
-  color: ${meok[500]};
+  color: ${meok[600]};
   margin: 0;
-  line-height: 1.7;
-  max-width: 400px;
+  line-height: 1.65;
+  max-width: 540px;
+  word-break: keep-all;
 
   [data-theme='dark'] & {
-    color: ${meok[500]};
+    color: rgba(255, 255, 255, 0.65);
   }
 `;
 
@@ -166,27 +173,37 @@ const WorksLink = styled(Link)`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 14px 6px 11px;
+  padding: 6px 14px 6px 12px;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[50]};
+  background: rgba(240, 100, 20, 0.06);
+  border: 1px solid rgba(240, 100, 20, 0.16);
   color: ${lightPalette.juhong[600]};
   font-size: ${fontSize.xs};
   font-weight: 700;
   text-decoration: none;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.12s ease;
 
   &:hover {
-    background: ${lightPalette.juhong[100]};
-    color: ${lightPalette.juhong[700]};
+    background: rgba(240, 100, 20, 0.12);
+    border-color: rgba(240, 100, 20, 0.28);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 
   [data-theme='dark'] & {
-    background: rgba(255, 85, 0, 0.13);
-    color: ${lightPalette.juhong[300]};
+    background: rgba(255, 120, 40, 0.12);
+    border-color: rgba(255, 120, 40, 0.24);
+    color: ${lightPalette.juhong[400]};
 
     &:hover {
-      background: rgba(255, 85, 0, 0.20);
-      color: ${lightPalette.juhong[200]};
+      background: rgba(255, 120, 40, 0.18);
+      border-color: rgba(255, 120, 40, 0.35);
     }
   }
 `;
@@ -196,50 +213,59 @@ const FacetRow = styled.div`
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding: 0 0 10px;
+  padding: 0 0 12px;
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const FacetChip = styled.button<{ $active: boolean }>`
   flex-shrink: 0;
-  padding: 5px 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 13px;
   border-radius: 9999px;
-  border: none;
-  background: ${({ $active }) =>
-    $active ? lightPalette.cheongrok[500] : meok[100]};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[600])};
-  font-size: 11px;
+  border: 1px solid ${({ $active }) => ($active ? 'transparent' : 'rgba(0, 0, 0, 0.06)')};
+  background: ${({ $active }) => ($active ? meok[900] : 'rgba(0, 0, 0, 0.04)')};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  font-size: 11.5px;
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
-  transition: background 0.14s ease, color 0.14s ease, transform 0.10s ease;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.12s ease;
 
   &:hover {
-    background: ${({ $active }) =>
-      $active ? lightPalette.cheongrok[400] : meok[200]};
+    background: ${({ $active }) => ($active ? meok[800] : 'rgba(0, 0, 0, 0.07)')};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
   }
 
-  &:active { transform: scale(0.96); }
+  &:active {
+    transform: scale(0.96);
+  }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) =>
-      $active ? lightPalette.cheongrok[600] : 'rgba(255,255,255,0.07)'};
-    color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255,255,255,0.45)')};
+    border-color: ${({ $active }) => ($active ? 'transparent' : 'rgba(255, 255, 255, 0.08)')};
+    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.07)')};
+    color: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.7)')};
 
     &:hover {
-      background: ${({ $active }) =>
-        $active ? lightPalette.cheongrok[500] : 'rgba(255,255,255,0.12)'};
+      background: ${({ $active }) => ($active ? '#f0f0f0' : 'rgba(255, 255, 255, 0.12)')};
+      color: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
     }
   }
 `;
 
 const FacetCount = styled.span`
   font-size: 10px;
-  font-weight: 600;
-  opacity: 0.65;
-  margin-left: 3px;
+  font-weight: 700;
+  opacity: 0.7;
+  margin-left: 4px;
 `;
 
 /* ─── unavailable ─── */
@@ -302,6 +328,52 @@ const TYPE_KO: Record<string, string> = {
   MUSIC_VIDEO: 'MV',
 };
 
+const REGION_KO: Record<string, string> = {
+  // 한국관광공사 TourAPI areaCode
+  '1': '서울',
+  '2': '인천',
+  '3': '대전',
+  '4': '대구',
+  '5': '광주',
+  '6': '부산',
+  '7': '울산',
+  '8': '세종',
+  '31': '경기',
+  '32': '강원',
+  '33': '충북',
+  '34': '충남',
+  '35': '전북',
+  '36': '전남',
+  '37': '경북',
+  '38': '경남',
+  '39': '제주',
+  // 표준 행정구역 코드
+  '11': '서울',
+  '26': '부산',
+  '27': '대구',
+  '28': '인천',
+  '29': '광주',
+  '30': '대전',
+  '41': '경기',
+  '42': '강원',
+  '43': '충북',
+  '44': '충남',
+  '45': '전북',
+  '46': '전남',
+  '47': '경북',
+  '48': '경남',
+  '50': '제주',
+};
+
+function formatRegionName(code: string, labelKo?: string): string {
+  if (REGION_KO[code]) return REGION_KO[code];
+  if (labelKo && REGION_KO[labelKo]) return REGION_KO[labelKo];
+  if (labelKo) {
+    return labelKo.replace(/(특별시|광역시|특별자치시|특별자치도|도)$/, '');
+  }
+  return code;
+}
+
 /* ─── component ─── */
 export interface KCultureDiscoveryProps {
   initialTopic?: TopicCode | 'all';
@@ -334,9 +406,9 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
   const handlePlaceClick = (place: DiscoveryPlaceSummary) =>
     router.push(`/discover/places/${encodeURIComponent(place.placeId)}`);
 
-  const regionFacets: FacetEntry[] = facets?.regionCode?.filter((f) => f.count > 0) ?? [];
-  const roleFacets: FacetEntry[] = facets?.placeRole?.filter((f) => f.count > 0) ?? [];
-  const typeFacets: FacetEntry[] = facets?.type?.filter((f) => f.count > 0) ?? [];
+  const regionFacets: FacetEntry[] = facets?.regionCode?.filter((f) => f.count > 0 && (f.labelKo || REGION_KO[f.code])) ?? [];
+  const roleFacets: FacetEntry[] = facets?.placeRole?.filter((f) => f.count > 0 && f.labelKo) ?? [];
+  const typeFacets: FacetEntry[] = facets?.type?.filter((f) => f.count > 0 && TYPE_KO[f.code as WorkType]) ?? [];
   const hasFacets = regionFacets.length > 0 || roleFacets.length > 0 || typeFacets.length > 0;
 
   const serviceDown = isError && items.length === 0 && !isLoading;
@@ -386,7 +458,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
                   $active={activeRegion === f.code}
                   onClick={() => setActiveRegion(activeRegion === f.code ? null : f.code)}
                 >
-                  {f.labelKo ?? f.code}
+                  {formatRegionName(f.code, f.labelKo)}
                   <FacetCount>{f.count}</FacetCount>
                 </FacetChip>
               ))}
