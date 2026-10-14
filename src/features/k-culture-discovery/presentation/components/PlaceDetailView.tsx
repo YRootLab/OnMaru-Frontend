@@ -32,8 +32,10 @@ const Page = styled.article`
   margin: 0 auto;
   padding-bottom: 80px;
 
+  padding-top: 72px;
+
   @media (min-width: 768px) {
-    padding-top: 8px;
+    padding-top: 80px;
   }
 
   @media (max-width: 1024px) {

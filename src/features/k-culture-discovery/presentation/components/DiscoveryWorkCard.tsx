@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { MapPinIcon, ClapperboardIcon, HeadphonesIcon } from '@hugeicons/core-free-icons';
+import { MapPinIcon, ClapperboardIcon, HeadphonesIcon, Camera01Icon, MusicNote01Icon, Mic01Icon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import type { WorkSummary } from '../../domain/types';
@@ -225,7 +225,12 @@ export default function DiscoveryWorkCard({ work, index = 0, onClick }: Discover
           <ArtworkImg src={work.workArtwork} alt={work.canonicalTitle} loading="lazy" />
         ) : (
           <HugeiconsIcon
-            icon={work.type === 'ARTIST' ? HeadphonesIcon : ClapperboardIcon}
+            icon={
+              work.type === 'ARTIST' || work.type === 'MUSIC_VIDEO' ? HeadphonesIcon
+              : work.type === 'MOVIE' ? Camera01Icon
+              : work.type === 'VARIETY' ? Mic01Icon
+              : ClapperboardIcon
+            }
             size={24}
             strokeWidth={1.5}
             aria-hidden="true"

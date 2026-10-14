@@ -10,6 +10,7 @@ export function useTourApiImage(placeId: string, existingImage: string | null): 
   const [imageUrl, setImageUrl] = useState<string | null>(existingImage);
 
   useEffect(() => {
+    setImageUrl(null);
     if (existingImage) {
       setImageUrl(existingImage);
       return;

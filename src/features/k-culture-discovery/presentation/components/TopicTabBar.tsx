@@ -1,29 +1,8 @@
 'use client';
 
-import type { ComponentProps } from 'react';
 import styled from '@emotion/styled';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Building04Icon,
-  HandsClappingIcon,
-  Restaurant01Icon,
-  ClapperboardIcon,
-  Film01Icon,
-  Music02Icon,
-  HeadphonesIcon,
-} from '@hugeicons/core-free-icons';
-import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
+import { meok, ringShadow, fontSize } from '@/design-system/tokens';
 import type { DiscoveryTopic, TopicCode } from '../../domain/types';
-
-const TOPIC_ICONS: Record<TopicCode, ComponentProps<typeof HugeiconsIcon>['icon']> = {
-  TRADITIONAL_SPACE_HERITAGE: Building04Icon,
-  TRADITIONAL_EXPERIENCE: HandsClappingIcon,
-  TRADITIONAL_FOOD_TEA: Restaurant01Icon,
-  K_DRAMA: ClapperboardIcon,
-  K_MOVIE: Film01Icon,
-  K_POP_MV: Music02Icon,
-  K_ARTIST: HeadphonesIcon,
-};
 
 const ScrollRow = styled.div`
   display: flex;
@@ -41,7 +20,7 @@ const Tab = styled.button<{ $active: boolean }>`
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: 12px;
+  border-radius: 999px;
   border: none;
   font-size: ${fontSize.xs};
   font-weight: 600;
@@ -89,12 +68,6 @@ const Tab = styled.button<{ $active: boolean }>`
   }
 `;
 
-const TabIconWrap = styled.span<{ $active: boolean }>`
-  display: inline-flex;
-  opacity: ${({ $active }) => $active ? 1 : 0.6};
-  transition: opacity 0.15s ease;
-`;
-
 const Count = styled.span<{ $active: boolean }>`
   font-size: 10px;
   font-weight: 700;
@@ -105,7 +78,7 @@ const Count = styled.span<{ $active: boolean }>`
 const SkeletonTab = styled.div`
   flex-shrink: 0;
   height: 36px;
-  border-radius: 12px;
+  border-radius: 999px;
   background: rgba(0,0,0,0.04);
 
   [data-theme='dark'] & {
@@ -144,7 +117,6 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
       </Tab>
 
       {topics.map((topic) => {
-        const Icon = TOPIC_ICONS[topic.code];
         const isActive = activeCode === topic.code;
         return (
           <Tab
@@ -155,7 +127,6 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
             aria-selected={isActive}
             onClick={() => onChange(topic.code)}
           >
-            {Icon && <TabIconWrap $active={isActive}><HugeiconsIcon icon={Icon} size={13} strokeWidth={2.2} aria-hidden="true" /></TabIconWrap>}
             {topic.labelKo}
             <Count $active={isActive}>{topic.placeCount}</Count>
           </Tab>

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Search01Icon } from '@hugeicons/core-free-icons';
 import { meok, fontSize } from '@/design-system/tokens';
 import TopicTabBar from './presentation/components/TopicTabBar';
 import DiscoveryPlacesSection from './presentation/components/DiscoveryPlacesSection';
@@ -60,6 +62,63 @@ const HeroSub = styled.p`
 
   [data-theme='dark'] & {
     color: rgba(255, 255, 255, 0.45);
+  }
+`;
+
+/* ─── search ─── */
+const SearchRow = styled.div`
+  padding: 16px 0 4px;
+  position: relative;
+`;
+
+const SearchIconWrap = styled.span`
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: ${meok[400]};
+  pointer-events: none;
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.30);
+  }
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: ${fontSize.sm};
+  font-weight: 500;
+  color: ${meok[900]};
+  background: ${meok[100]};
+  border: 1.5px solid ${meok[200]};
+  border-radius: 12px;
+  padding: 12px 16px 12px 42px;
+  outline: none;
+  letter-spacing: -0.01em;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &::placeholder { color: ${meok[400]}; font-weight: 400; }
+
+  &:focus {
+    border-color: ${meok[600]};
+    background: #ffffff;
+  }
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.90);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+
+    &::placeholder { color: rgba(255, 255, 255, 0.28); }
+
+    &:focus {
+      border-color: rgba(255, 255, 255, 0.40);
+      background: rgba(255, 255, 255, 0.09);
+    }
   }
 `;
 
@@ -135,6 +194,7 @@ export interface KCultureDiscoveryProps {
 export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCultureDiscoveryProps) {
   const router = useRouter();
   const [activeTopic, setActiveTopic] = useState<TopicCode | 'all'>(initialTopic);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { topics, isLoading: topicsLoading } = useDiscoveryTopics();
   const { items, isLoading, isError, hasMore, loadMore } = useDiscoveryPlaces({
@@ -144,10 +204,14 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
 
   const handleTopicChange = (code: TopicCode | 'all') => {
     setActiveTopic(code);
+    setSearchQuery('');
   };
 
   const handlePlaceClick = (place: DiscoveryPlaceSummary) =>
     router.push(`/discover/places/${encodeURIComponent(place.placeId)}`);
+
+  const q = searchQuery.trim();
+  const filteredItems = q ? items.filter(p => p.name.includes(q)) : items;
 
   const serviceDown = isError && items.length === 0 && !isLoading;
 

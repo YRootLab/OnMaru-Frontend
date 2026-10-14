@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { togglePlaceSave } from '../../application/useCases';
 
 export interface UsePlaceSaveOptions {
@@ -20,6 +20,10 @@ export function usePlaceSave({
 }: UsePlaceSaveOptions): UsePlaceSaveResult {
   const [savedByMe, setSavedByMe] = useState<boolean | null>(initialSavedByMe);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!isSaving) setSavedByMe(initialSavedByMe);
+  }, [placeId, initialSavedByMe]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = useCallback(() => {
     if (!saveAvailable || isSaving || savedByMe === null) return;

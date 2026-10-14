@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BookOpen01Icon, Bookmark01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon } from '@hugeicons/core-free-icons';
@@ -49,6 +49,31 @@ const TabButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
+const TabLink = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 0;
+  color: rgba(33, 30, 25, 0.68);
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
+  font-size: ${fontSize.micro};
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  transition: color 180ms ease, transform 180ms ease;
+
+  &:active { transform: scale(0.94); }
+
+  [data-theme='dark'] & { color: ${meok[400]}; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & { color: ${meok[400]}; }
+  }
+`;
+
 const IconSlot = styled.span`
   position: relative;
   display: inline-flex;
@@ -85,7 +110,6 @@ const CountBadge = styled.span`
 `;
 
 export default function MapMobileTabs() {
-  const router = useRouter();
   const mode = useMapStore((s) => s.mode);
   const setMode = useMapStore((s) => s.setMode);
   const category = useMapStore((s) => s.category);
@@ -98,33 +122,33 @@ export default function MapMobileTabs() {
 
   return (
     <Nav aria-label="지도 탐색">
-      <TabButton type="button" onClick={() => router.push('/')} aria-label="홈으로 이동">
+      <TabLink href="/" aria-label="홈으로 이동">
         <IconSlot>
           <HugeiconsIcon icon={Home01Icon} size={19} />
         </IconSlot>
         <span>홈</span>
-      </TabButton>
+      </TabLink>
 
-      <TabButton type="button" onClick={() => router.push('/hanok')} aria-label="한옥마루">
+      <TabLink href="/hanok" aria-label="한옥마루">
         <IconSlot>
           <HugeiconsIcon icon={BookOpen01Icon} size={19} />
         </IconSlot>
         <span>한옥마루</span>
-      </TabButton>
+      </TabLink>
 
-      <TabButton type="button" onClick={() => router.push('/discover')} aria-label="K-마루">
+      <TabLink href="/discover" aria-label="K-마루">
         <IconSlot>
           <HugeiconsIcon icon={Film01Icon} size={19} />
         </IconSlot>
         <span>K-마루</span>
-      </TabButton>
+      </TabLink>
 
-      <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루">
+      <TabLink href="/sorimaru" aria-label="소리마루">
         <IconSlot>
           <HugeiconsIcon icon={HeadphonesIcon} size={19} />
         </IconSlot>
         <span>소리마루</span>
-      </TabButton>
+      </TabLink>
 
       <TabButton
         type="button"
