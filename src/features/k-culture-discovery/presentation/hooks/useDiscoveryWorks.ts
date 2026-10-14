@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getDiscoveryWorks } from '../../application/useCases';
+import { isOnmaruApiError } from '@/lib/api/errors';
 import type { WorkSummary, DiscoveryWorksParams, WorkType } from '../../domain/types';
 
 export interface UseDiscoveryWorksOptions {
@@ -15,6 +16,15 @@ export interface UseDiscoveryWorksResult {
   isError: boolean;
   hasMore: boolean;
   loadMore: () => void;
+}
+
+function isCursorError(err: unknown): boolean {
+  if (!isOnmaruApiError(err)) return false;
+  return (
+    err.code === 'CURSOR_INVALID' ||
+    err.code === 'CURSOR_EXPIRED' ||
+    err.status === 410
+  );
 }
 
 export function useDiscoveryWorks(options: UseDiscoveryWorksOptions = {}): UseDiscoveryWorksResult {
@@ -67,7 +77,24 @@ export function useDiscoveryWorks(options: UseDiscoveryWorksOptions = {}): UseDi
         setHasMore(page.hasMore);
         setNextCursor(page.nextCursor);
       })
-      .catch(() => setIsError(true))
+      .catch((err) => {
+        if (isCursorError(err)) {
+          // CURSOR_INVALID / CURSOR_EXPIRED: 커서 버리고 처음부터 재조회
+          setNextCursor(null);
+          setItems([]);
+          getDiscoveryWorks({ type, q, limit })
+            .then((page) => {
+              setItems(page.items);
+              setMatchingCount(page.matchingWorkCount);
+              setHasMore(page.hasMore);
+              setNextCursor(page.nextCursor);
+            })
+            .catch(() => setIsError(true))
+            .finally(() => setIsLoading(false));
+          return;
+        }
+        setIsError(true);
+      })
       .finally(() => setIsLoading(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, nextCursor, isLoading, paramsKey]);

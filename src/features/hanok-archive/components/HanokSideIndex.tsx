@@ -12,7 +12,6 @@ import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReve
 
 
 const SIDE_INDEX_SECTIONS = [
-  { id: 'hanok-kculture-themes', label: '스크린 속 한옥' },
   { id: HANOK_REVEAL_SECTIONS.structure, label: '3D 구조 & 일조' },
   { id: HANOK_REVEAL_SECTIONS.grid, label: '전국 한옥 도감' },
   { id: HANOK_REVEAL_SECTIONS.stay, label: '지역별 한옥 스테이' },

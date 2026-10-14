@@ -1,4 +1,4 @@
-import { apiGet } from '@/lib/api/client';
+import { apiGet, apiPost, apiDelete } from '@/lib/api/client';
 import type {
   DiscoveryTopic,
   DiscoveryPlaceDetail,
@@ -79,4 +79,12 @@ export async function fetchKContents(placeId: string): Promise<KContentsPage> {
   );
   if (res && Array.isArray(res.items)) return res;
   throw new Error('Invalid k-contents response');
+}
+
+export async function savePlace(placeId: string): Promise<void> {
+  await apiPost(`/api/v1/places/${encodeURIComponent(placeId)}/saves`);
+}
+
+export async function unsavePlace(placeId: string): Promise<void> {
+  await apiDelete(`/api/v1/places/${encodeURIComponent(placeId)}/saves`);
 }

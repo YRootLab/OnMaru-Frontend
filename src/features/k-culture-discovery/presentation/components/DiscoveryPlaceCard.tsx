@@ -5,207 +5,227 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  MapPinIcon,
-  AddToListIcon,
-  Building04Icon,
-} from '@hugeicons/core-free-icons';
-import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
+import type { IconSvgElement } from '@hugeicons/react';
+import { Layers01Icon } from '@hugeicons/core-free-icons';
+import { meok, ringShadow } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
+import { useTourApiImage } from '../hooks/useTourApiImage';
 import type { DiscoveryPlaceSummary } from '../../domain/types';
 
-const shimmerAnim = keyframes`
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
+const REGION_CODE_MAP: Record<string, string> = {
+  '1': '서울', '2': '인천', '3': '대전', '4': '대구', '5': '광주',
+  '6': '부산', '7': '울산', '8': '세종', '31': '경기', '32': '강원',
+  '33': '충북', '34': '충남', '35': '전북', '36': '전남', '37': '경북',
+  '38': '경남', '39': '제주', '11': '서울', '26': '부산', '27': '대구',
+  '28': '인천', '29': '광주', '30': '대전', '41': '경기', '42': '강원',
+  '43': '충북', '44': '충남', '45': '전북', '46': '전남', '47': '경북',
+  '48': '경남', '50': '제주',
+};
+
+const shimmer = keyframes`
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 `;
 
 const Card = styled(motion.button)`
   position: relative;
-  display: flex;
-  flex-direction: column;
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
-  background: #ffffff;
   border: none;
   padding: 0;
   cursor: pointer;
   text-align: left;
   width: 100%;
-  box-shadow: ${ringShadow.light.cardElevated};
-  transition: box-shadow 0.22s ease;
+  display: block;
+  transition: box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: ${ringShadow.light.card};
+  will-change: transform;
 
   [data-theme='dark'] & {
-    background: ${meok[800]};
-    box-shadow: ${ringShadow.dark.cardElevated};
+    box-shadow: ${ringShadow.dark.card};
   }
 
   &:hover {
-    box-shadow: ${ringShadow.light.cardLift};
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.20), 0 3px 10px rgba(0,0,0,0.10);
 
     [data-theme='dark'] & {
-      box-shadow: ${ringShadow.dark.cardLift};
+      box-shadow: 0 12px 36px rgba(0,0,0,0.55), 0 3px 10px rgba(0,0,0,0.35);
     }
   }
 
-  &:hover img {
-    transform: scale(1.05);
+  &:hover .place-img {
+    transform: scale(1.06);
+  }
+
+  &:active {
+    transform: translateY(0);
+    filter: brightness(0.90);
   }
 `;
 
 const ImageWrap = styled.div`
   position: relative;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
+  background: #ccc8c0;
+
+  @media (min-width: 480px) {
+    aspect-ratio: 4 / 3;
+  }
+
+  [data-theme='dark'] & {
+    background: #0f1420;
+  }
 `;
 
 const PlaceImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
-const ImageScrim = styled.div`
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.08) 55%);
-`;
-
-const FallbackImage = styled.div`
+const FallbackWrap = styled.div<{ $type?: string }>`
   width: 100%;
   height: 100%;
-  background: ${meok[200]};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${meok[400]};
+  background: ${({ $type }) => {
+    switch ($type) {
+      case 'DRAMA':    case 'K_DRAMA':   return 'linear-gradient(160deg, #d6d0e8 0%, #c8c0dc 100%)';
+      case 'MOVIE':    case 'K_MOVIE':   return 'linear-gradient(160deg, #c8ccd8 0%, #bcc0cc 100%)';
+      case 'MUSIC_VIDEO': case 'K_POP_MV':
+      case 'ARTIST':   case 'K_ARTIST':  return 'linear-gradient(160deg, #d8d0e8 0%, #ccbede 100%)';
+      case 'VARIETY':                     return 'linear-gradient(160deg, #dcd8cc 0%, #cec8bc 100%)';
+      default:                            return 'linear-gradient(160deg, #d4cfc6 0%, #c8c2b8 100%)';
+    }
+  }};
 
   [data-theme='dark'] & {
-    background: ${meok[700]};
-    color: ${meok[500]};
+    background: ${({ $type }) => {
+      switch ($type) {
+        case 'DRAMA':    case 'K_DRAMA':  return 'linear-gradient(160deg, #1e1830 0%, #16122a 100%)';
+        case 'MOVIE':    case 'K_MOVIE':  return 'linear-gradient(160deg, #181c2e 0%, #12162a 100%)';
+        case 'MUSIC_VIDEO': case 'K_POP_MV':
+        case 'ARTIST':   case 'K_ARTIST': return 'linear-gradient(160deg, #1c1530 0%, #140e28 100%)';
+        case 'VARIETY':                    return 'linear-gradient(160deg, #201e18 0%, #181612 100%)';
+        default:                           return 'linear-gradient(160deg, #1a1e2e 0%, #111520 100%)';
+      }
+    }};
   }
 `;
 
-const BadgeRow = styled.div`
+const BottomScrim = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0,0,0,0.06) 0%,
+    transparent 28%,
+    transparent 44%,
+    rgba(0,0,0,0.52) 70%,
+    rgba(0,0,0,0.86) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+`;
+
+const TopRow = styled.div`
   position: absolute;
   top: 10px;
   left: 10px;
   right: 10px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  z-index: 2;
+  gap: 4px;
 `;
 
-const WorkCountBadge = styled.span`
+const MultiPill = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  background: ${lightPalette.juhong[500]};
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 600;
+  gap: 3px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(8,12,22,0.72);
+  backdrop-filter: blur(8px);
+  color: rgba(255,255,255,0.88);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-left: auto;
 `;
 
-const PlaceRolePill = styled.span`
+const BottomInfo = styled.div`
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  padding: 3px 10px;
-  border-radius: 9999px;
-  background: rgba(255,255,255,0.18);
-  backdrop-filter: blur(6px);
-  color: rgba(255,255,255,0.92);
-  font-size: 11px;
-  font-weight: 500;
-`;
-
-const Body = styled.div`
-  padding: 12px 14px 14px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 12px 13px;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-`;
-
-const PlaceName = styled.h3`
-  font-family: var(--font-hanok);
-  font-size: ${fontSize.base};
-  font-weight: 700;
-  color: ${meok[900]};
-  margin: 0;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-
-  [data-theme='dark'] & {
-    color: ${meok[100]};
-  }
-`;
-
-const RegionRow = styled.div`
-  display: flex;
-  align-items: center;
   gap: 3px;
-  color: ${meok[500]};
-  font-size: ${fontSize.xs};
-  font-weight: 500;
+  min-width: 0;
 `;
 
-const WorkTitle = styled.p`
-  font-size: ${fontSize.xs};
-  color: ${lightPalette.juhong[600]};
+const PlaceNameOverlay = styled.h3`
+  font-family: var(--font-hanok), serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
   margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-weight: 500;
-
-  [data-theme='dark'] & {
-    color: ${lightPalette.juhong[400]};
-  }
+  text-shadow: 0 1px 8px rgba(0,0,0,0.28);
 `;
 
-export const SkeletonCard = styled.div`
-  border-radius: 18px;
-  overflow: hidden;
-  background: ${meok[200]};
-  box-shadow: ${ringShadow.light.cardElevated};
-
-  [data-theme='dark'] & {
-    background: #252422;
-    box-shadow: ${ringShadow.dark.cardElevated};
-  }
-`;
-
-const SkeletonImageWrap = styled.div`
-  aspect-ratio: 4 / 3;
-  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
-  background-size: 200% 100%;
-  animation: ${shimmerAnim} 1.6s infinite ease-in-out;
-
-  [data-theme='dark'] & {
-    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
-    background-size: 200% 100%;
-  }
-`;
-
-const SkeletonBody = styled.div`
-  padding: 12px 14px 14px;
+const MetaRow = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.62);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
 `;
 
-const SkeletonLine = styled.div<{ $w?: string; $h?: string }>`
-  width: ${({ $w }) => $w ?? '100%'};
-  height: ${({ $h }) => $h ?? '14px'};
-  border-radius: 6px;
-  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
-  background-size: 200% 100%;
-  animation: ${shimmerAnim} 1.6s infinite ease-in-out;
+const MetaSep = styled.span`
+  flex-shrink: 0;
+  opacity: 0.55;
+`;
+
+/* ─── skeleton ─── */
+export const SkeletonCard = styled.div`
+  border-radius: 16px;
+  overflow: hidden;
+  background: ${meok[100]};
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
+    background: #161c28;
+  }
+`;
+
+const SkImgWrap = styled.div`
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(90deg, ${meok[100]} 25%, #ece9e3 50%, ${meok[100]} 75%);
+  background-size: 200% 100%;
+  animation: ${shimmer} 1.8s infinite ease-in-out;
+
+  @media (min-width: 480px) {
+    aspect-ratio: 4 / 3;
+  }
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 75%);
     background-size: 200% 100%;
   }
 `;
@@ -213,12 +233,7 @@ const SkeletonLine = styled.div<{ $w?: string; $h?: string }>`
 export function DiscoveryPlaceCardSkeleton() {
   return (
     <SkeletonCard>
-      <SkeletonImageWrap />
-      <SkeletonBody>
-        <SkeletonLine $w="65%" $h="18px" />
-        <SkeletonLine $w="40%" $h="13px" />
-        <SkeletonLine $w="80%" $h="13px" />
-      </SkeletonBody>
+      <SkImgWrap />
     </SkeletonCard>
   );
 }
@@ -232,52 +247,57 @@ export interface DiscoveryPlaceCardProps {
 export default function DiscoveryPlaceCard({ place, index = 0, onClick }: DiscoveryPlaceCardProps) {
   const primaryRole = place.placeRoles[0];
   const relation = place.featuredRelation;
+  const resolvedImage = useTourApiImage(place.placeId, place.placeImage);
+  const workType = relation?.type ?? place.topics?.[0] ?? undefined;
+
+  const rawRegion = place.region?.nameKo?.trim();
+  const regionName = rawRegion || (place.region?.code ? REGION_CODE_MAP[place.region.code] : null);
+
+  const metaSecond = relation?.workTitle ?? primaryRole?.labelKo ?? null;
 
   return (
     <Card
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
-      aria-label={`${place.name} — ${relation?.workTitle ?? '정보 없음'}`}
+      transition={{ duration: 0.22, delay: Math.min(index * 0.035, 0.28), ease: [0.16, 1, 0.3, 1] }}
+      whileTap={{ scale: 0.97 }}
+      aria-label={`${place.name}${relation ? ` — ${relation.workTitle}` : ''}`}
       onClick={() => onClick?.(place)}
     >
       <ImageWrap>
-        {place.placeImage ? (
-          <PlaceImage src={place.placeImage} alt={place.name} loading="lazy" />
+        {resolvedImage ? (
+          <PlaceImage className="place-img" src={resolvedImage} alt={place.name} loading="lazy" />
         ) : (
-          <FallbackImage>
-            <HugeiconsIcon icon={Building04Icon} size={36} strokeWidth={1.5} aria-hidden="true" />
-          </FallbackImage>
+          <FallbackWrap $type={workType} />
         )}
-        <ImageScrim />
 
-        <BadgeRow>
-          {relation && (
-            <WorkTypeBadge type={relation.type} variant="dark" />
-          )}
+        <BottomScrim />
+
+        <TopRow>
+          {relation && <WorkTypeBadge type={relation.type} variant="light" />}
           {place.matchingWorkCount > 1 && (
-            <WorkCountBadge>
-              <HugeiconsIcon icon={AddToListIcon} size={11} strokeWidth={2} aria-hidden="true" />
-              작품 {place.matchingWorkCount}개
-            </WorkCountBadge>
+            <MultiPill>
+              <HugeiconsIcon icon={Layers01Icon} size={9} strokeWidth={2} aria-hidden="true" />
+              {place.matchingWorkCount}편
+            </MultiPill>
           )}
-        </BadgeRow>
+        </TopRow>
 
-        {primaryRole && (
-          <PlaceRolePill>{primaryRole.labelKo}</PlaceRolePill>
-        )}
+        <BottomInfo>
+          <PlaceNameOverlay>{place.name}</PlaceNameOverlay>
+          {(regionName || metaSecond) && (
+            <MetaRow>
+              {regionName && <span>{regionName}</span>}
+              {regionName && metaSecond && <MetaSep>·</MetaSep>}
+              {metaSecond && (
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {metaSecond}
+                </span>
+              )}
+            </MetaRow>
+          )}
+        </BottomInfo>
       </ImageWrap>
-
-      <Body>
-        <PlaceName>{place.name}</PlaceName>
-        <RegionRow>
-          <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} aria-hidden="true" />
-          {place.region.nameKo}
-        </RegionRow>
-        {relation && (
-          <WorkTitle>{relation.workTitle}</WorkTitle>
-        )}
-      </Body>
     </Card>
   );
 }
