@@ -24,10 +24,11 @@ const PageWrap = styled.div`
   width: min(calc(100% - 40px), 1140px);
   max-width: 1140px;
   margin: 0 auto;
+  padding-top: 64px;
   padding-bottom: 80px;
 
   @media (min-width: 768px) {
-    padding-top: 8px;
+    padding-top: 80px;
   }
 
   @media (max-width: 1024px) {
@@ -41,28 +42,15 @@ const PageWrap = styled.div`
 
 /* ─── hero ─── */
 const Hero = styled.div`
-  padding: 36px 0 28px;
-`;
-
-const HeroEyebrow = styled.p`
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: ${lightPalette.juhong[500]};
-  margin: 0 0 10px;
-
-  [data-theme='dark'] & {
-    color: ${lightPalette.juhong[400]};
-  }
+  padding: 32px 0 24px;
 `;
 
 const HeroTitle = styled.h1`
   font-family: var(--font-hanok), serif;
-  font-size: clamp(28px, 4.5vw, 42px);
+  font-size: clamp(26px, 4vw, 38px);
   font-weight: 800;
   color: ${meok[900]};
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   letter-spacing: -0.04em;
   line-height: 1.2;
 
@@ -71,39 +59,15 @@ const HeroTitle = styled.h1`
   }
 `;
 
-const HeroAccent = styled.span`
-  background: linear-gradient(135deg, ${lightPalette.juhong[500]} 0%, ${lightPalette.juhong[400]} 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-
-  [data-theme='dark'] & {
-    background: linear-gradient(135deg, ${lightPalette.juhong[400]} 0%, ${lightPalette.juhong[300]} 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-`;
-
 const HeroSub = styled.p`
   font-size: ${fontSize.sm};
   color: ${meok[500]};
   margin: 0;
-  line-height: 1.7;
-  max-width: 480px;
+  line-height: 1.6;
   word-break: keep-all;
 
   [data-theme='dark'] & {
-    color: rgba(255, 255, 255, 0.5);
-  }
-`;
-
-const HeroDivider = styled.div`
-  height: 1px;
-  background: linear-gradient(to right, rgba(0,0,0,0.07) 0%, transparent 80%);
-  margin-top: 24px;
-
-  [data-theme='dark'] & {
-    background: linear-gradient(to right, rgba(255,255,255,0.08) 0%, transparent 80%);
+    color: rgba(255, 255, 255, 0.45);
   }
 `;
 
@@ -116,19 +80,6 @@ const FilterSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-`;
-
-const FacetGroupLabel = styled.span`
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: ${meok[400]};
-  padding: 0 2px;
-
-  [data-theme='dark'] & {
-    color: rgba(255,255,255,0.3);
-  }
 `;
 
 const FacetRow = styled.div`
@@ -215,43 +166,18 @@ const ActionsBar = styled.div`
 `;
 
 const WorksLink = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 13px 6px 10px;
-  border-radius: 9999px;
-  border: none;
-  background: ${meok[900]};
-  color: #ffffff;
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: ${fontSize.xs};
+  font-weight: 600;
+  color: ${meok[500]};
   text-decoration: none;
   letter-spacing: -0.01em;
-  box-shadow: ${ringShadow.light.button};
-  transition:
-    background 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.12s ease;
+  transition: color 0.15s ease;
 
-  &:hover {
-    background: ${meok[800]};
-    box-shadow: ${ringShadow.light.buttonHover};
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: scale(0.97);
-  }
+  &:hover { color: ${meok[800]}; }
 
   [data-theme='dark'] & {
-    background: rgba(255,255,255,0.12);
-    color: rgba(255,255,255,0.85);
-    box-shadow: ${ringShadow.dark.button};
-
-    &:hover {
-      background: rgba(255,255,255,0.18);
-      box-shadow: ${ringShadow.dark.buttonHover};
-    }
+    color: rgba(255,255,255,0.38);
+    &:hover { color: rgba(255,255,255,0.7); }
   }
 `;
 
@@ -265,23 +191,6 @@ const UnavailableBox = styled.div`
 
   [data-theme='dark'] & {
     background: rgba(255,255,255,0.04);
-  }
-`;
-
-const UnavailableIcon = styled.div`
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: rgba(0,0,0,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-  color: ${meok[400]};
-
-  [data-theme='dark'] & {
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.28);
   }
 `;
 
@@ -349,6 +258,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
       placeRole: activePlaceRole ?? undefined,
       type: activeWorkType ?? undefined,
       workId,
+      limit: 20,
     });
 
   const handleTopicChange = (code: TopicCode | 'all') => {
@@ -370,22 +280,12 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
   return (
     <PageWrap>
       <Hero>
-        <HeroEyebrow>K-Culture Discovery</HeroEyebrow>
-        <HeroTitle>
-          공간이 된{' '}
-          <HeroAccent>문화의 기록</HeroAccent>
-        </HeroTitle>
-        <HeroSub>
-          드라마·영화 촬영지부터 아티스트 성지까지, 근거가 확인된 K-Culture 장소를 탐색하세요.
-        </HeroSub>
-        <HeroDivider />
+        <HeroTitle>공간이 된 문화의 기록</HeroTitle>
+        <HeroSub>드라마·영화·K-팝의 실제 공간을 탐색하세요.</HeroSub>
       </Hero>
 
       {serviceDown ? (
         <UnavailableBox role="status">
-          <UnavailableIcon aria-hidden="true">
-            <HugeiconsIcon icon={Film01Icon} size={22} strokeWidth={1.5} />
-          </UnavailableIcon>
           <UnavailableTitle>탐색 서비스 준비 중입니다</UnavailableTitle>
           <UnavailableSub>콘텐츠 검수 완료 후 공개 예정입니다.</UnavailableSub>
         </UnavailableBox>
@@ -402,73 +302,59 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
             <FilterArea>
               <FilterSection>
                 {typeFacets.length > 0 && (
-                  <>
-                    <FacetGroupLabel>콘텐츠 유형</FacetGroupLabel>
-                    <FacetRow aria-label="콘텐츠 유형 필터">
-                      {typeFacets.map((f) => (
-                        <FacetChip
-                          key={`t-${f.code}`}
-                          type="button"
-                          $active={activeWorkType === (f.code as WorkType)}
-                          $variant="type"
-                          onClick={() => setActiveWorkType(activeWorkType === f.code ? null : (f.code as WorkType))}
-                        >
-                          {TYPE_KO[f.code as WorkType]}
-                          <FacetCount>{f.count}</FacetCount>
-                        </FacetChip>
-                      ))}
-                    </FacetRow>
-                  </>
+                  <FacetRow aria-label="콘텐츠 유형 필터">
+                    {typeFacets.map((f) => (
+                      <FacetChip
+                        key={`t-${f.code}`}
+                        type="button"
+                        $active={activeWorkType === (f.code as WorkType)}
+                        $variant="type"
+                        onClick={() => setActiveWorkType(activeWorkType === f.code ? null : (f.code as WorkType))}
+                      >
+                        {TYPE_KO[f.code as WorkType]}
+                        <FacetCount>{f.count}</FacetCount>
+                      </FacetChip>
+                    ))}
+                  </FacetRow>
                 )}
                 {regionFacets.length > 0 && (
-                  <>
-                    <FacetGroupLabel>지역</FacetGroupLabel>
-                    <FacetRow aria-label="지역 필터">
-                      {regionFacets.map((f) => (
-                        <FacetChip
-                          key={`r-${f.code}`}
-                          type="button"
-                          $active={activeRegion === f.code}
-                          $variant="region"
-                          onClick={() => setActiveRegion(activeRegion === f.code ? null : f.code)}
-                        >
-                          <HugeiconsIcon icon={Location01Icon} size={10} strokeWidth={2} aria-hidden="true" />
-                          {formatRegionName(f.code, f.labelKo)}
-                          <FacetCount>{f.count}</FacetCount>
-                        </FacetChip>
-                      ))}
-                    </FacetRow>
-                  </>
+                  <FacetRow aria-label="지역 필터">
+                    {regionFacets.map((f) => (
+                      <FacetChip
+                        key={`r-${f.code}`}
+                        type="button"
+                        $active={activeRegion === f.code}
+                        $variant="region"
+                        onClick={() => setActiveRegion(activeRegion === f.code ? null : f.code)}
+                      >
+                        {formatRegionName(f.code, f.labelKo)}
+                        <FacetCount>{f.count}</FacetCount>
+                      </FacetChip>
+                    ))}
+                  </FacetRow>
                 )}
                 {roleFacets.length > 0 && (
-                  <>
-                    <FacetGroupLabel>장소 유형</FacetGroupLabel>
-                    <FacetRow aria-label="장소 유형 필터">
-                      {roleFacets.map((f) => (
-                        <FacetChip
-                          key={`p-${f.code}`}
-                          type="button"
-                          $active={activePlaceRole === f.code}
-                          $variant="role"
-                          onClick={() => setActivePlaceRole(activePlaceRole === f.code ? null : f.code)}
-                        >
-                          {f.labelKo}
-                          <FacetCount>{f.count}</FacetCount>
-                        </FacetChip>
-                      ))}
-                    </FacetRow>
-                  </>
+                  <FacetRow aria-label="장소 유형 필터">
+                    {roleFacets.map((f) => (
+                      <FacetChip
+                        key={`p-${f.code}`}
+                        type="button"
+                        $active={activePlaceRole === f.code}
+                        $variant="role"
+                        onClick={() => setActivePlaceRole(activePlaceRole === f.code ? null : f.code)}
+                      >
+                        {f.labelKo}
+                        <FacetCount>{f.count}</FacetCount>
+                      </FacetChip>
+                    ))}
+                  </FacetRow>
                 )}
               </FilterSection>
             </FilterArea>
           )}
 
           <ActionsBar>
-            <WorksLink href="/discover/works">
-              <HugeiconsIcon icon={Film01Icon} size={12} strokeWidth={2} aria-hidden="true" />
-              작품 목록
-              <HugeiconsIcon icon={ArrowRight01Icon} size={11} strokeWidth={2.5} aria-hidden="true" />
-            </WorksLink>
+            <WorksLink href="/discover/works">작품 목록</WorksLink>
           </ActionsBar>
 
           <AnimatePresence mode="wait">
@@ -484,6 +370,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
                 isLoading={isLoading}
                 isError={isError}
                 hasMore={hasMore}
+                filterKey={`${activeTopic}|${activeRegion ?? ''}|${activePlaceRole ?? ''}|${activeWorkType ?? ''}`}
                 onLoadMore={loadMore}
                 onPlaceClick={handlePlaceClick}
               />

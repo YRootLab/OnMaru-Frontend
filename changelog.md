@@ -5,6 +5,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 ## Unreleased
 
 - K-마루(`KCultureDiscovery`) 장소 카드 및 페이지 디자인을 전면 개편했다:
+  - 장소 목록의 과도한 세로 스크롤을 방지하기 위해 6개 단위 그리드 페이지네이션(`DiscoveryPlacesSection`)을 구현하고, `ringShadow` 토큰 기반의 세련된 페이지 버튼(`[<] [1] [2] ... [>]`)과 페이지 전환 시 부드러운 상단 스크롤을 지원했다.
   - 장소 목록 상단의 '장소 N곳' 개수 표시 및 라이브 닷 인디케이터를 삭제하여 시각적 군더더기를 없애고, '작품 목록' 버튼만 우측에 단정하게 배치했다.
   - 온마루 디자인 시스템 원칙에 맞추어 장소 카드, 스켈레톤, 필터 칩, 네비게이션 탭의 불필요한 외곽선(`border`)을 일체 배제하고, 자연스러운 입체감을 위해 온마루 표준 `ringShadow` 토큰(`card`, `cardHoverGlow`, `button`, `chipActive` 등)으로 통일했다.
   - 장소 카드에 K-콘텐츠 전용 인라인 뱃지(`WorkRelationBadge`)를 도입해 작품명과 촬영지/방문지 역할을 세련된 미니 블록으로 시각화했다.
