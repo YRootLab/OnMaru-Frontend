@@ -18,6 +18,7 @@ import KContentRelationCard from './KContentRelationCard';
 import { useDiscoveryPlaceDetail } from '../hooks/useDiscoveryPlaceDetail';
 import { useKContentRelations } from '../hooks/useKContentRelations';
 import { usePlaceSave } from '../hooks/usePlaceSave';
+import { useTourApiImage } from '../hooks/useTourApiImage';
 import type { TopicCode } from '../../domain/types';
 
 const shimmerAnim = keyframes`
@@ -26,9 +27,22 @@ const shimmerAnim = keyframes`
 `;
 
 const Page = styled.article`
-  max-width: 680px;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
   margin: 0 auto;
-  padding: 0 16px 64px;
+  padding-bottom: 80px;
+
+  @media (min-width: 768px) {
+    padding-top: 8px;
+  }
+
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+  }
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
+  }
 `;
 
 const BackLink = styled(Link)`
@@ -39,29 +53,32 @@ const BackLink = styled(Link)`
   font-weight: 600;
   color: ${meok[400]};
   text-decoration: none;
-  margin: 20px 0 0;
-  transition: color 0.14s ease;
+  padding: 20px 0 16px;
 
-  &:hover {
-    color: ${meok[700]};
-  }
+  &:hover { color: ${meok[700]}; }
 
   [data-theme='dark'] & {
-    color: rgba(255,255,255,0.28);
-    &:hover { color: rgba(255,255,255,0.60); }
+    color: rgba(255,255,255,0.25);
+    &:hover { color: rgba(255,255,255,0.55); }
   }
 `;
 
-const Hero = styled.div`
+/* ─── cinematic hero ─── */
+const HeroWrap = styled.div`
   position: relative;
-  aspect-ratio: 16 / 9;
   border-radius: 18px;
   overflow: hidden;
-  margin: 12px 0 20px;
+  aspect-ratio: 16 / 9;
   background: ${meok[200]};
+  margin-bottom: 20px;
+
+  @media (max-width: 640px) {
+    border-radius: 14px;
+    aspect-ratio: 4 / 3;
+  }
 
   [data-theme='dark'] & {
-    background: ${meok[700]};
+    background: #141822;
   }
 `;
 
@@ -77,147 +94,177 @@ const HeroFallback = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(155deg, #ede8de 0%, #ddd7c9 100%);
   color: ${meok[400]};
-  background: ${meok[200]};
 
   [data-theme='dark'] & {
-    color: ${meok[600]};
-    background: ${meok[700]};
+    background: linear-gradient(155deg, #181e2a 0%, #101420 100%);
+    color: rgba(255,255,255,0.2);
   }
 `;
 
-const Name = styled.h1`
-  font-family: var(--font-hanok);
-  font-size: clamp(22px, 4vw, 32px);
-  font-weight: 700;
-  color: ${meok[900]};
-  margin: 0 0 8px;
-  letter-spacing: -0.03em;
+const HeroScrim = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.08) 0%,
+    transparent 35%,
+    rgba(0,0,0,0.62) 100%
+  );
+  pointer-events: none;
+`;
+
+const HeroOverlay = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px 22px 22px;
+  z-index: 2;
+`;
+
+const HeroName = styled.h1`
+  font-family: var(--font-hanok), serif;
+  font-size: clamp(20px, 3.5vw, 30px);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 6px;
+  letter-spacing: -0.035em;
   line-height: 1.2;
-
-  [data-theme='dark'] & {
-    color: ${meok[100]};
-  }
+  text-shadow: 0 2px 12px rgba(0,0,0,0.45);
 `;
 
-const MetaRow = styled.div`
+const HeroMeta = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
 `;
 
-const Pill = styled.span`
+const HeroPill = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  background: ${meok[100]};
-  color: ${meok[600]};
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-
-  [data-theme='dark'] & {
-    background: ${meok[700]};
-    color: ${meok[300]};
-  }
-`;
-
-const SourceLabel = styled.span`
-  font-size: ${fontSize.xs};
-  color: ${meok[400]};
-`;
-
-const OdiiLink = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 14px;
-  border-radius: 9999px;
-  border: none;
-  background: ${lightPalette.cheongrok[50]};
-  color: ${lightPalette.cheongrok[700]};
-  font-size: ${fontSize.xs};
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(8px);
+  color: rgba(255,255,255,0.9);
+  font-size: 11px;
   font-weight: 600;
-  text-decoration: none;
-  transition: background 0.18s ease;
-
-  &:hover {
-    background: ${lightPalette.cheongrok[100]};
-  }
-
-  [data-theme='dark'] & {
-    background: rgba(0, 196, 113, 0.12);
-    color: ${lightPalette.cheongrok[300]};
-
-    &:hover {
-      background: rgba(0, 196, 113, 0.20);
-    }
-  }
+  border: 1px solid rgba(255,255,255,0.2);
 `;
 
-const Description = styled.p`
-  font-size: ${fontSize.sm};
-  line-height: 1.75;
-  color: ${meok[700]};
-  margin: 0 0 24px;
-
-  [data-theme='dark'] & {
-    color: ${meok[300]};
-  }
+/* ─── action bar ─── */
+const ActionBar = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
 `;
 
-const SaveBtn = styled.button<{ $saved: boolean; $disabled: boolean }>`
+const SaveBtn = styled.button<{ $saved: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 18px;
   border-radius: 9999px;
-  border: none;
-  background: ${({ $saved }) => ($saved ? lightPalette.juhong[500] : meok[100])};
-  color: ${({ $saved }) => ($saved ? '#ffffff' : meok[600])};
+  border: 1.5px solid ${({ $saved }) => $saved ? lightPalette.juhong[400] : 'rgba(0,0,0,0.1)'};
+  background: ${({ $saved }) => $saved ? lightPalette.juhong[50] : 'transparent'};
+  color: ${({ $saved }) => $saved ? lightPalette.juhong[600] : meok[600]};
   font-size: ${fontSize.xs};
-  font-weight: 600;
-  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
-  opacity: ${({ $disabled }) => ($disabled ? 0.45 : 1)};
+  font-weight: 700;
+  cursor: pointer;
   font-family: inherit;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.10s ease;
-  margin-bottom: 20px;
+  transition: all 0.15s ease;
 
-  &:not(:disabled):hover {
-    background: ${({ $saved }) =>
-      $saved ? lightPalette.juhong[400] : meok[200]};
+  &:hover {
+    background: ${({ $saved }) => $saved ? lightPalette.juhong[100] : 'rgba(0,0,0,0.04)'};
+    border-color: ${({ $saved }) => $saved ? lightPalette.juhong[500] : 'rgba(0,0,0,0.18)'};
   }
 
-  &:not(:disabled):active {
-    transform: scale(0.96);
-  }
+  &:active { transform: scale(0.96); }
+  &:disabled { opacity: 0.4; cursor: default; }
 
   [data-theme='dark'] & {
-    background: ${({ $saved }) =>
-      $saved ? lightPalette.juhong[500] : 'rgba(255,255,255,0.08)'};
-    color: ${({ $saved }) => ($saved ? '#ffffff' : 'rgba(255,255,255,0.55)')};
+    border-color: ${({ $saved }) => $saved ? lightPalette.juhong[500] : 'rgba(255,255,255,0.12)'};
+    background: ${({ $saved }) => $saved ? 'rgba(255,85,0,0.14)' : 'transparent'};
+    color: ${({ $saved }) => $saved ? lightPalette.juhong[400] : 'rgba(255,255,255,0.55)'};
 
-    &:not(:disabled):hover {
-      background: ${({ $saved }) =>
-        $saved ? lightPalette.juhong[400] : 'rgba(255,255,255,0.14)'};
+    &:hover {
+      background: ${({ $saved }) => $saved ? 'rgba(255,85,0,0.22)' : 'rgba(255,255,255,0.06)'};
+      border-color: ${({ $saved }) => $saved ? lightPalette.juhong[400] : 'rgba(255,255,255,0.2)'};
     }
   }
 `;
 
+const OdiiBtn = styled(Link)`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  background: transparent;
+  color: ${lightPalette.cheongrok[700]};
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(0,160,100,0.06);
+    border-color: ${lightPalette.cheongrok[400]};
+  }
+
+  [data-theme='dark'] & {
+    border-color: rgba(255,255,255,0.12);
+    color: ${lightPalette.cheongrok[400]};
+
+    &:hover {
+      background: rgba(0,196,113,0.1);
+      border-color: ${lightPalette.cheongrok[500]};
+    }
+  }
+`;
+
+/* ─── body content ─── */
 const AddressRow = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 5px;
   font-size: ${fontSize.xs};
-  color: ${meok[500]};
-  margin-bottom: 12px;
+  color: ${meok[400]};
+  margin-bottom: 16px;
   line-height: 1.5;
 
   [data-theme='dark'] & {
-    color: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.3);
+  }
+`;
+
+const TopicChips = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 16px;
+`;
+
+const TopicChip = styled.span`
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.04);
+  color: ${meok[600]};
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(0,0,0,0.06);
+
+  [data-theme='dark'] & {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.5);
+    border-color: rgba(255,255,255,0.08);
   }
 `;
 
@@ -236,36 +283,65 @@ const SummaryPoint = styled.li`
   gap: 5px;
   padding: 5px 12px;
   border-radius: 9999px;
-  background: ${meok[100]};
+  background: rgba(0,0,0,0.04);
   color: ${meok[700]};
   font-size: ${fontSize.xs};
   font-weight: 500;
-
-  &::before {
-    content: '';
-    width: 5px;
-    height: 5px;
-    border-radius: 9999px;
-    background: ${lightPalette.juhong[400]};
-    flex-shrink: 0;
-  }
+  border: 1px solid rgba(0,0,0,0.06);
 
   [data-theme='dark'] & {
-    background: rgba(255,255,255,0.07);
-    color: rgba(255,255,255,0.65);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.08);
+  }
+`;
+
+const Description = styled.p`
+  font-size: ${fontSize.sm};
+  line-height: 1.8;
+  color: ${meok[700]};
+  margin: 0 0 28px;
+  max-width: 680px;
+
+  [data-theme='dark'] & {
+    color: rgba(255,255,255,0.55);
+  }
+`;
+
+/* ─── K-Contents section ─── */
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+
+  [data-theme='dark'] & {
+    border-color: rgba(255,255,255,0.07);
   }
 `;
 
 const SectionTitle = styled.h2`
   font-family: var(--font-hanok);
-  font-size: ${fontSize.lg};
+  font-size: ${fontSize.base};
   font-weight: 700;
   color: ${meok[900]};
-  margin: 0 0 12px;
+  margin: 0;
   letter-spacing: -0.02em;
 
   [data-theme='dark'] & {
-    color: ${meok[100]};
+    color: #ffffff;
+  }
+`;
+
+const SectionCount = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  color: ${meok[400]};
+
+  [data-theme='dark'] & {
+    color: rgba(255,255,255,0.3);
   }
 `;
 
@@ -277,29 +353,12 @@ const RelationList = styled.div`
 
 const EmptyRelations = styled.p`
   font-size: ${fontSize.sm};
-  color: ${meok[500]};
-  padding: 20px 0;
+  color: ${meok[400]};
+  padding: 24px 0;
   text-align: center;
-`;
-
-const TopicChips = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 16px;
-`;
-
-const TopicChip = styled.span`
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: ${meok[100]};
-  color: ${meok[600]};
-  font-size: 11px;
-  font-weight: 500;
 
   [data-theme='dark'] & {
-    background: ${meok[700]};
-    color: ${meok[300]};
+    color: rgba(255,255,255,0.25);
   }
 `;
 
@@ -318,12 +377,12 @@ const SkeletonBlock = styled.div<{ $h?: string; $w?: string; $mb?: string }>`
   width: ${({ $w }) => $w ?? '100%'};
   border-radius: 8px;
   margin-bottom: ${({ $mb }) => $mb ?? '0'};
-  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
+  background: linear-gradient(90deg, #e8e6e2 25%, #dedad5 50%, #e8e6e2 75%);
   background-size: 200% 100%;
   animation: ${shimmerAnim} 1.6s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
+    background: linear-gradient(90deg, #1e2330 25%, #252c3a 50%, #1e2330 75%);
     background-size: 200% 100%;
   }
 `;
@@ -348,20 +407,20 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
     saveAvailable: place?.saveAvailable ?? false,
     initialSavedByMe: place?.savedByMe ?? null,
   });
+  const primaryImage = useTourApiImage(placeId, place?.images[0] ?? null);
 
   if (isLoading) {
     return (
       <Page>
         <BackLink href={backHref}>
-          <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.5} />
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.5} />
           목록으로
         </BackLink>
-        <Hero style={{ animation: 'none', background: '#e4e4e2' }} />
-        <SkeletonBlock $h="32px" $w="55%" $mb="10px" />
-        <SkeletonBlock $h="16px" $w="35%" $mb="16px" />
+        <SkeletonBlock $h="clamp(200px, 40vw, 420px)" $mb="20px" style={{ borderRadius: 18 }} />
+        <SkeletonBlock $h="28px" $w="50%" $mb="10px" />
+        <SkeletonBlock $h="14px" $w="32%" $mb="20px" />
         <SkeletonBlock $h="14px" $mb="6px" />
-        <SkeletonBlock $h="14px" $w="90%" $mb="6px" />
-        <SkeletonBlock $h="14px" $w="75%" />
+        <SkeletonBlock $h="14px" $w="88%" />
       </Page>
     );
   }
@@ -370,7 +429,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
     return (
       <Page>
         <BackLink href={backHref}>
-          <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.5} />
+          <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.5} />
           목록으로
         </BackLink>
         <NotFoundBox role="alert">
@@ -382,48 +441,73 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
     );
   }
 
-  const primaryImage = place.images[0] ?? null;
-
   return (
     <Page>
       <BackLink href={backHref}>
-        <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.5} />
+        <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.5} />
         목록으로
       </BackLink>
 
-      <Hero>
+      {/* ─── cinematic hero ─── */}
+      <HeroWrap>
         {primaryImage ? (
           <HeroImage src={primaryImage} alt={place.name} />
         ) : (
           <HeroFallback>
-            <HugeiconsIcon icon={Building04Icon} size={56} strokeWidth={1.2} aria-hidden="true" />
+            <HugeiconsIcon icon={Building04Icon} size={52} strokeWidth={1} aria-hidden="true" />
           </HeroFallback>
         )}
-      </Hero>
+        <HeroScrim />
+        <HeroOverlay>
+          <HeroName>{place.name}</HeroName>
+          <HeroMeta>
+            <HeroPill>
+              <HugeiconsIcon icon={MapPinIcon} size={10} strokeWidth={2} aria-hidden="true" />
+              {place.region.nameKo}
+            </HeroPill>
+            {place.placeRoles.slice(0, 2).map((role) => (
+              <HeroPill key={role.code}>{role.labelKo}</HeroPill>
+            ))}
+          </HeroMeta>
+        </HeroOverlay>
+      </HeroWrap>
 
-      <Name>{place.name}</Name>
+      {/* ─── action bar ─── */}
+      <ActionBar>
+        {place.saveAvailable && (
+          <SaveBtn
+            type="button"
+            $saved={!!savedByMe}
+            disabled={isSaving}
+            onClick={toggle}
+            aria-label={savedByMe ? '저장 취소' : '장소 저장'}
+          >
+            <HugeiconsIcon
+              icon={savedByMe ? BookmarkRemove01Icon : BookmarkAdd01Icon}
+              size={13}
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+            {savedByMe ? '저장됨' : '저장'}
+          </SaveBtn>
+        )}
+        {place.odii.linked && (
+          <OdiiBtn href="/sorimaru">
+            <HugeiconsIcon icon={HeadphonesIcon} size={13} strokeWidth={2} aria-hidden="true" />
+            소리마루 오디오{place.odii.storyCount > 0 ? ` ${place.odii.storyCount}편` : ''}
+          </OdiiBtn>
+        )}
+      </ActionBar>
 
-      <MetaRow>
-        <Pill>
-          <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} aria-hidden="true" />
-          {place.region.nameKo}
-        </Pill>
-        {place.placeRoles.map((role) => (
-          <Pill key={role.code}>
-            <HugeiconsIcon icon={Building04Icon} size={11} strokeWidth={2} aria-hidden="true" />
-            {role.labelKo}
-          </Pill>
-        ))}
-        <SourceLabel>{place.sourceTaxonomy.labelKo}</SourceLabel>
-      </MetaRow>
-
+      {/* ─── address ─── */}
       {place.address && (
         <AddressRow>
-          <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} aria-hidden="true" />
+          <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }} aria-hidden="true" />
           {place.address}
         </AddressRow>
       )}
 
+      {/* ─── topics ─── */}
       {place.topics.length > 0 && (
         <TopicChips>
           {place.topics.map((code) => (
@@ -432,6 +516,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
         </TopicChips>
       )}
 
+      {/* ─── summary points ─── */}
       {place.placeSummaryPoints.length > 0 && (
         <SummaryPoints>
           {place.placeSummaryPoints.map((point) => (
@@ -440,44 +525,25 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
         </SummaryPoints>
       )}
 
+      {/* ─── description ─── */}
       {place.description && <Description>{place.description}</Description>}
 
-      {place.odii.linked && (
-        <OdiiLink href="/sorimaru" style={{ display: 'inline-flex', marginBottom: 24 }}>
-          <HugeiconsIcon icon={HeadphonesIcon} size={13} strokeWidth={2} aria-hidden="true" />
-          소리마루 오디오 가이드 {place.odii.storyCount > 0 ? `${place.odii.storyCount}편` : ''}
-        </OdiiLink>
-      )}
-
-      {place.saveAvailable && (
-        <SaveBtn
-          type="button"
-          $saved={!!savedByMe}
-          $disabled={isSaving}
-          disabled={isSaving}
-          onClick={toggle}
-          aria-label={savedByMe ? '저장 취소' : '장소 저장'}
-        >
-          <HugeiconsIcon
-            icon={savedByMe ? BookmarkRemove01Icon : BookmarkAdd01Icon}
-            size={14}
-            strokeWidth={2}
-            aria-hidden="true"
-          />
-          {savedByMe ? '저장됨' : '장소 저장'}
-        </SaveBtn>
-      )}
-
-      <SectionTitle>K-Contents 관계</SectionTitle>
+      {/* ─── K-Contents 이력 ─── */}
+      <SectionHeader>
+        <SectionTitle>촬영·방문 이력</SectionTitle>
+        {!relLoading && relations.length > 0 && (
+          <SectionCount>{relations.length}건</SectionCount>
+        )}
+      </SectionHeader>
 
       {relLoading ? (
         <RelationList>
           {[1, 2].map((i) => (
-            <SkeletonBlock key={i} $h="100px" style={{ borderRadius: 14 }} />
+            <SkeletonBlock key={i} $h="96px" style={{ borderRadius: 12 }} />
           ))}
         </RelationList>
       ) : relations.length === 0 ? (
-        <EmptyRelations>확인된 촬영 관계가 없습니다.</EmptyRelations>
+        <EmptyRelations>확인된 촬영·방문 기록이 없습니다.</EmptyRelations>
       ) : (
         <RelationList>
           {relations.map((rel) => (

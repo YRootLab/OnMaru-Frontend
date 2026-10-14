@@ -6,44 +6,19 @@ import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { MapPinIcon, Building04Icon, Layers01Icon, Film01Icon } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import { useTourApiImage } from '../hooks/useTourApiImage';
 import type { DiscoveryPlaceSummary } from '../../domain/types';
 
 const REGION_CODE_MAP: Record<string, string> = {
-  '1': '서울',
-  '2': '인천',
-  '3': '대전',
-  '4': '대구',
-  '5': '광주',
-  '6': '부산',
-  '7': '울산',
-  '8': '세종',
-  '31': '경기',
-  '32': '강원',
-  '33': '충북',
-  '34': '충남',
-  '35': '전북',
-  '36': '전남',
-  '37': '경북',
-  '38': '경남',
-  '39': '제주',
-  '11': '서울',
-  '26': '부산',
-  '27': '대구',
-  '28': '인천',
-  '29': '광주',
-  '30': '대전',
-  '41': '경기',
-  '42': '강원',
-  '43': '충북',
-  '44': '충남',
-  '45': '전북',
-  '46': '전남',
-  '47': '경북',
-  '48': '경남',
-  '50': '제주',
+  '1': '서울', '2': '인천', '3': '대전', '4': '대구', '5': '광주',
+  '6': '부산', '7': '울산', '8': '세종', '31': '경기', '32': '강원',
+  '33': '충북', '34': '충남', '35': '전북', '36': '전남', '37': '경북',
+  '38': '경남', '39': '제주', '11': '서울', '26': '부산', '27': '대구',
+  '28': '인천', '29': '광주', '30': '대전', '41': '경기', '42': '강원',
+  '43': '충북', '44': '충남', '45': '전북', '46': '전남', '47': '경북',
+  '48': '경남', '50': '제주',
 };
 
 const shimmer = keyframes`
@@ -55,54 +30,47 @@ const Card = styled(motion.button)`
   position: relative;
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: none;
   padding: 0;
   cursor: pointer;
   text-align: left;
   width: 100%;
-  box-shadow: ${ringShadow.light.card};
-  transition:
-    box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.22s ease,
-    transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
 
   [data-theme='dark'] & {
-    background: #191f2c;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    box-shadow: ${ringShadow.dark.card};
+    background: #161c28;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
   }
 
   &:hover {
-    box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
-    transform: translateY(-3px);
-    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.07);
 
     [data-theme='dark'] & {
-      box-shadow: 0 14px 32px -6px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.14);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
     }
   }
 
-  &:active {
-    transform: scale(0.985) translateY(0);
+  &:hover .place-img {
+    transform: scale(1.05);
   }
 
-  &:hover .place-img {
-    transform: scale(1.04);
+  &:active {
+    filter: brightness(0.96);
   }
 `;
 
 const ImageWrap = styled.div`
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
-  background: #f0eee8;
+  background: #ede9e1;
 
   [data-theme='dark'] & {
-    background: #141822;
+    background: #111620;
   }
 `;
 
@@ -110,53 +78,27 @@ const PlaceImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
 const FallbackWrap = styled.div`
   width: 100%;
   height: 100%;
-  background: linear-gradient(145deg, #f6f5f1 0%, #ebe7dc 100%);
+  background: linear-gradient(155deg, #f0ede6 0%, #e5e0d5 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  position: relative;
-  overflow: hidden;
 
   [data-theme='dark'] & {
-    background: linear-gradient(145deg, #1b212d 0%, #131720 100%);
+    background: linear-gradient(155deg, #181e2a 0%, #111520 100%);
   }
 `;
 
 const FallbackIcon = styled.div`
-  width: 44px;
-  height: 44px;
-  border-radius: 13px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${meok[600]};
+  color: ${meok[400]};
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-    color: rgba(255, 255, 255, 0.65);
-  }
-`;
-
-const FallbackLabel = styled.span`
-  font-size: 11px;
-  font-weight: 600;
-  color: ${meok[500]};
-  letter-spacing: -0.01em;
-
-  [data-theme='dark'] & {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255,255,255,0.2);
   }
 `;
 
@@ -165,74 +107,73 @@ const ImageScrim = styled.div`
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.35) 0%,
-    transparent 35%,
-    rgba(0, 0, 0, 0.55) 100%
+    rgba(0,0,0,0.28) 0%,
+    transparent 30%,
+    rgba(0,0,0,0.48) 100%
   );
   pointer-events: none;
 `;
 
 const TopRow = styled.div`
   position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
+  top: 9px;
+  left: 9px;
+  right: 9px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   z-index: 2;
+  gap: 4px;
 `;
 
 const MultiPill = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 3px 8px;
-  border-radius: 9999px;
-  background: rgba(14, 18, 26, 0.68);
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(10,14,22,0.75);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
   color: #ffffff;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   margin-left: auto;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 `;
 
 const RolePill = styled.span`
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  padding: 3px 9px;
-  border-radius: 9999px;
-  background: rgba(14, 18, 26, 0.65);
+  bottom: 9px;
+  left: 9px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(10,14,22,0.72);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 10.5px;
+  color: rgba(255,255,255,0.92);
+  font-size: 10px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   z-index: 2;
 `;
 
 const Body = styled.div`
-  padding: 13px 14px 15px;
+  padding: 11px 13px 13px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 `;
 
 const PlaceName = styled.h3`
   font-family: var(--font-hanok), serif;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 800;
   color: ${meok[900]};
   margin: 0;
-  line-height: 1.35;
+  line-height: 1.3;
   letter-spacing: -0.025em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: color 0.15s ease;
 
   [data-theme='dark'] & {
     color: #ffffff;
@@ -242,43 +183,31 @@ const PlaceName = styled.h3`
 const Region = styled.div`
   display: flex;
   align-items: center;
-  gap: 4px;
-  color: ${meok[500]};
-  font-size: 11.5px;
+  gap: 3px;
+  color: ${meok[400]};
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: -0.01em;
 
   [data-theme='dark'] & {
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255,255,255,0.35);
   }
 `;
 
 const WorkRelationBadge = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 5px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: rgba(240, 100, 20, 0.05);
-  border: 1px solid rgba(240, 100, 20, 0.14);
+  gap: 5px;
+  margin-top: 4px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: rgba(240,100,20,0.06);
+  border-left: 2px solid ${lightPalette.juhong[400]};
   min-width: 0;
 
   [data-theme='dark'] & {
-    background: rgba(255, 120, 40, 0.09);
-    border-color: rgba(255, 120, 40, 0.20);
-  }
-`;
-
-const WorkRelationIcon = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: ${lightPalette.juhong[600]};
-  flex-shrink: 0;
-
-  [data-theme='dark'] & {
-    color: ${lightPalette.juhong[400]};
+    background: rgba(255,120,40,0.09);
+    border-color: ${lightPalette.juhong[500]};
   }
 `;
 
@@ -289,27 +218,27 @@ const WorkRelationContent = styled.div`
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 11.5px;
+  font-size: 11px;
   line-height: 1.2;
 `;
 
 const WorkTitleText = styled.span`
   font-weight: 700;
-  color: ${meok[900]};
+  color: ${meok[800]};
   overflow: hidden;
   text-overflow: ellipsis;
 
   [data-theme='dark'] & {
-    color: #ffffff;
+    color: rgba(255,255,255,0.85);
   }
 `;
 
 const WorkRoleDot = styled.span`
-  color: ${meok[400]};
-  font-weight: 400;
+  color: ${meok[300]};
+  flex-shrink: 0;
 
   [data-theme='dark'] & {
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255,255,255,0.25);
   }
 `;
 
@@ -324,35 +253,31 @@ const WorkRoleLabel = styled.span`
 `;
 
 /* ─── skeleton ─── */
-/* ─── skeleton ─── */
 export const SkeletonCard = styled.div`
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: ${ringShadow.light.card};
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
 
   [data-theme='dark'] & {
-    background: #191f2c;
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    box-shadow: ${ringShadow.dark.card};
+    background: #161c28;
   }
 `;
 
 const SkImgWrap = styled.div`
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 3 / 2;
   background: linear-gradient(90deg, ${meok[100]} 25%, #f0efec 50%, ${meok[100]} 75%);
   background-size: 200% 100%;
   animation: ${shimmer} 1.8s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 75%);
     background-size: 200% 100%;
   }
 `;
 
 const SkBody = styled.div`
-  padding: 13px 14px 15px;
+  padding: 11px 13px 13px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -361,13 +286,13 @@ const SkBody = styled.div`
 const SkLine = styled.div<{ $w?: string; $h?: string }>`
   width: ${({ $w }) => $w ?? '100%'};
   height: ${({ $h }) => $h ?? '13px'};
-  border-radius: 6px;
+  border-radius: 5px;
   background: linear-gradient(90deg, ${meok[100]} 25%, #f0efec 50%, ${meok[100]} 75%);
   background-size: 200% 100%;
   animation: ${shimmer} 1.8s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 75%);
     background-size: 200% 100%;
   }
 `;
@@ -377,9 +302,9 @@ export function DiscoveryPlaceCardSkeleton() {
     <SkeletonCard>
       <SkImgWrap />
       <SkBody>
-        <SkLine $w="68%" $h="16px" />
-        <SkLine $w="32%" $h="12px" />
-        <SkLine $w="88%" $h="26px" />
+        <SkLine $w="65%" $h="15px" />
+        <SkLine $w="30%" $h="11px" />
+        <SkLine $w="85%" $h="24px" />
       </SkBody>
     </SkeletonCard>
   );
@@ -396,15 +321,16 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
   const relation = place.featuredRelation;
   const resolvedImage = useTourApiImage(place.placeId, place.placeImage);
 
-  // 지역명이 비어 있거나 없는 경우 코드 기반 보완
   const rawRegion = place.region?.nameKo?.trim();
   const regionName = rawRegion || (place.region?.code ? REGION_CODE_MAP[place.region.code] : null);
 
   return (
     <Card
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.26, delay: Math.min(index * 0.04, 0.32), ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.22, delay: Math.min(index * 0.035, 0.28), ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -4 }}
+      whileTap={{ scale: 0.97 }}
       aria-label={`${place.name}${relation ? ` — ${relation.workTitle}` : ''}`}
       onClick={() => onClick?.(place)}
     >
@@ -414,9 +340,8 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
         ) : (
           <FallbackWrap>
             <FallbackIcon>
-              <HugeiconsIcon icon={Building04Icon} size={22} strokeWidth={1.5} aria-hidden="true" />
+              <HugeiconsIcon icon={Building04Icon} size={28} strokeWidth={1.2} aria-hidden="true" />
             </FallbackIcon>
-            <FallbackLabel>문화유산 공간</FallbackLabel>
           </FallbackWrap>
         )}
         <ImageScrim />
@@ -425,7 +350,7 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
           {relation && <WorkTypeBadge type={relation.type} variant="light" />}
           {place.matchingWorkCount > 1 && (
             <MultiPill>
-              <HugeiconsIcon icon={Layers01Icon} size={10} strokeWidth={2} aria-hidden="true" />
+              <HugeiconsIcon icon={Layers01Icon} size={9} strokeWidth={2} aria-hidden="true" />
               {place.matchingWorkCount}편
             </MultiPill>
           )}
@@ -439,16 +364,14 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
 
         {regionName && (
           <Region>
-            <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} aria-hidden="true" />
+            <HugeiconsIcon icon={MapPinIcon} size={10} strokeWidth={2} aria-hidden="true" />
             <span>{regionName}</span>
           </Region>
         )}
 
         {relation && (
           <WorkRelationBadge>
-            <WorkRelationIcon>
-              <HugeiconsIcon icon={Film01Icon} size={13} strokeWidth={2} aria-hidden="true" />
-            </WorkRelationIcon>
+            <HugeiconsIcon icon={Film01Icon} size={11} strokeWidth={2} color={lightPalette.juhong[500]} aria-hidden="true" />
             <WorkRelationContent>
               <WorkTitleText title={relation.workTitle}>{relation.workTitle}</WorkTitleText>
               <WorkRoleDot>·</WorkRoleDot>

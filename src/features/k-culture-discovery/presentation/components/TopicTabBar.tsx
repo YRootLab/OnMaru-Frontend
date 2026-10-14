@@ -12,7 +12,7 @@ import {
   Music02Icon,
   HeadphonesIcon,
 } from '@hugeicons/core-free-icons';
-import { lightPalette, meok, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, fontSize } from '@/design-system/tokens';
 import type { DiscoveryTopic, TopicCode } from '../../domain/types';
 
 const TOPIC_ICONS: Record<TopicCode, ComponentProps<typeof HugeiconsIcon>['icon']> = {
@@ -27,9 +27,9 @@ const TOPIC_ICONS: Record<TopicCode, ComponentProps<typeof HugeiconsIcon>['icon'
 
 const ScrollRow = styled.div`
   display: flex;
-  gap: 6px;
+  gap: 4px;
   overflow-x: auto;
-  padding: 2px 0 14px;
+  padding: 2px 0 16px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   &::-webkit-scrollbar { display: none; }
@@ -39,57 +39,70 @@ const Tab = styled.button<{ $active: boolean }>`
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 7px 14px;
-  border-radius: 9999px;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 12px;
   border: none;
-  background: ${({ $active }) =>
-    $active ? lightPalette.juhong[500] : meok[100]};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[600])};
   font-size: ${fontSize.xs};
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
-  transition: background 0.14s ease, color 0.14s ease, transform 0.10s ease;
+  letter-spacing: -0.01em;
+  transition: background 0.18s cubic-bezier(0.4,0,0.2,1), color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+
+  background: ${({ $active }) => $active
+    ? meok[900]
+    : 'rgba(0,0,0,0.04)'};
+  color: ${({ $active }) => $active ? '#ffffff' : meok[500]};
+  box-shadow: ${({ $active }) => $active
+    ? '0 2px 10px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.12)'
+    : 'none'};
 
   &:hover {
-    background: ${({ $active }) =>
-      $active ? lightPalette.juhong[400] : meok[200]};
-    color: ${({ $active }) => ($active ? '#ffffff' : meok[800])};
+    background: ${({ $active }) => $active ? meok[800] : 'rgba(0,0,0,0.07)'};
+    color: ${({ $active }) => $active ? '#ffffff' : meok[800]};
+    transform: ${({ $active }) => $active ? 'none' : 'translateY(-1px)'};
   }
 
-  &:active {
-    transform: scale(0.96);
-  }
+  &:active { transform: scale(0.96); }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) =>
-      $active ? lightPalette.juhong[500] : 'rgba(255,255,255,0.07)'};
-    color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
+    background: ${({ $active }) => $active
+      ? '#ffffff'
+      : 'rgba(255,255,255,0.07)'};
+    color: ${({ $active }) => $active ? meok[900] : 'rgba(255,255,255,0.5)'};
+    box-shadow: ${({ $active }) => $active
+      ? '0 2px 12px rgba(0,0,0,0.45)'
+      : 'none'};
 
     &:hover {
-      background: ${({ $active }) =>
-        $active ? lightPalette.juhong[400] : 'rgba(255,255,255,0.12)'};
-      color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255,255,255,0.72)')};
+      background: ${({ $active }) => $active ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.11)'};
+      color: ${({ $active }) => $active ? meok[900] : 'rgba(255,255,255,0.8)'};
     }
   }
 `;
 
+const TabIcon = styled(HugeiconsIcon)<{ $active: boolean }>`
+  opacity: ${({ $active }) => $active ? 1 : 0.6};
+  transition: opacity 0.15s ease;
+`;
+
 const Count = styled.span<{ $active: boolean }>`
   font-size: 10px;
-  font-weight: 600;
-  opacity: ${({ $active }) => ($active ? 0.72 : 0.55)};
+  font-weight: 700;
+  opacity: ${({ $active }) => $active ? 0.65 : 0.45};
+  letter-spacing: 0;
 `;
 
 const SkeletonTab = styled.div`
   flex-shrink: 0;
-  height: 34px;
-  border-radius: 9999px;
-  background: ${meok[100]};
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.04);
 
   [data-theme='dark'] & {
-    background: rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.05);
   }
 `;
 
@@ -104,7 +117,7 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
   if (isLoading) {
     return (
       <ScrollRow aria-busy="true">
-        {[48, 76, 100, 72, 88, 68, 84, 100].map((w, i) => (
+        {[52, 80, 104, 76, 92, 72, 88, 104].map((w, i) => (
           <SkeletonTab key={i} style={{ width: w }} />
         ))}
       </ScrollRow>
@@ -135,7 +148,7 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
             aria-selected={isActive}
             onClick={() => onChange(topic.code)}
           >
-            {Icon && <HugeiconsIcon icon={Icon} size={12} strokeWidth={2} aria-hidden="true" />}
+            {Icon && <TabIcon icon={Icon} size={13} strokeWidth={2.2} aria-hidden="true" $active={isActive} />}
             {topic.labelKo}
             <Count $active={isActive}>{topic.placeCount}</Count>
           </Tab>
@@ -144,4 +157,3 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
     </ScrollRow>
   );
 }
-

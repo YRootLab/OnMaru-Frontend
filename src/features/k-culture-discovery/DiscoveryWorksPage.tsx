@@ -14,9 +14,13 @@ import type { WorkSummary, WorkType } from './domain/types';
 
 /* full-bleed → 자체 여백 */
 const PageWrap = styled.div`
-  max-width: 720px;
+  max-width: 1140px;
   margin: 0 auto;
   padding: 0 16px 64px;
+
+  @media (min-width: 768px) {
+    padding-top: 66px;
+  }
 `;
 
 const BackLink = styled(Link)`

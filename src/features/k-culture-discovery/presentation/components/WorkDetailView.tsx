@@ -22,9 +22,13 @@ const shimmerAnim = keyframes`
 `;
 
 const Page = styled.article`
-  max-width: 680px;
+  max-width: 1140px;
   margin: 0 auto;
   padding: 0 16px 64px;
+
+  @media (min-width: 768px) {
+    padding-top: 66px;
+  }
 `;
 
 const BackLink = styled(Link)`
