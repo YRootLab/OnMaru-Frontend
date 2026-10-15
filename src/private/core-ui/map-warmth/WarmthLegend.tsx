@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { MapPinIcon, FlameIcon } from '@hugeicons/core-free-icons'
-import { meok, surface, typographyRole } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import {
