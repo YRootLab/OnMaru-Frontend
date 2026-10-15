@@ -8,7 +8,7 @@ import { Global, css } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, LocateFixedIcon, MinusSignIcon, Moon01Icon, PlusSignIcon, RotateCcwIcon, Sun01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
-import { meok, lightPalette, surface, typographyRole, palette } from '@/design-system/tokens';
+import { meok, surface, typographyRole, palette } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { KAKAO_SDK_SRC, snapshotFromMap, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { useKakaoSdkLoad } from '@/features/map/hooks/useKakaoSdkLoad';

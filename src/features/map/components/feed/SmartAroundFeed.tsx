@@ -63,7 +63,7 @@ const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
 `;
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, typographyRole, fontFamily } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { CATEGORY_STYLES } from '../PlaceMarkers';
 import { isHanok } from '@/features/map/utils/isHanok';

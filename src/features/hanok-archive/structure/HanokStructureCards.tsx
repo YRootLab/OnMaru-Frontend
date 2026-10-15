@@ -17,7 +17,7 @@ import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowUpRight01Icon, Layers01Icon, SunMediumIcon } from '@hugeicons/core-free-icons'
 
-import { meok, palette, lightPalette, surface, ringShadow, typographyRole, spacingLayout, mq } from '@/design-system/tokens';
+import { meok, palette, lightPalette, surface, ringShadow, typographyRole, spacingLayout } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 
 const SolarShadowModal = dynamic(() => import('./SolarShadowModal'), { ssr: false });

@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, palette, typographyRole, mq } from '@/design-system/tokens';
+import { meok, palette, typographyRole } from '@/design-system/tokens';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { HeadphonesIcon, MapPinIcon, ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
 import type { Village } from '@/features/hanok-archive/types';

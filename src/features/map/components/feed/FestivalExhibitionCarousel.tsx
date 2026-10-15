@@ -62,7 +62,7 @@ const SkeletonBar = styled.div<{ $w: string; $h: string }>`
 `;
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar01Icon, ChevronLeftIcon, ChevronRightIcon, SparklesIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, darkPalette, meok, surface, typographyRole, fontFamily } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok, typographyRole } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { isHanok } from '@/features/map/utils/isHanok';
 import { EmphasisBadge } from '@/features/map/components/EmphasisBadge';

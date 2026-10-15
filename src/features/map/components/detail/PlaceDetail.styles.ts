@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { lightPalette, darkPalette, palette, meok, surface, typographyRole, fontFamily } from '@/design-system/tokens';
+import { lightPalette, darkPalette, palette, meok, surface, typographyRole } from '@/design-system/tokens';
 
 export const pulse = keyframes`
   0%, 100% { opacity: 1; }

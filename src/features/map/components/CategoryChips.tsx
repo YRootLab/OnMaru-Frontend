@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Calendar01Icon, Coffee01Icon, FlameIcon, HeartIcon, LandmarkIcon, Leaf01Icon, Moon01Icon, ShoppingBag01Icon, SparklesIcon, UsersIcon, UtensilsIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
-import { meok, palette, fontFamily, typographyRole, ringShadow } from '@/design-system/tokens';
+import { meok, palette, typographyRole, ringShadow } from '@/design-system/tokens';
 
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { MapInfoCategory, MapMode } from '@/features/map/types';

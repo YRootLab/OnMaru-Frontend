@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Camera01Icon, Cancel01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons'
-import { meok, lightPalette, darkPalette, surface, typographyRole } from '@/design-system/tokens';
+import { meok, lightPalette, surface, typographyRole } from '@/design-system/tokens';
 import { livelyModalEnter } from '@/shared/motion/modalMotion';
 
 const Backdrop = styled.div`
