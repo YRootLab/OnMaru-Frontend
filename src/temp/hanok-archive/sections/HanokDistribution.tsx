@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { meok, palette, fluidHeading, fontSize } from '@/design-system/tokens';
+import { meok, palette, typographyRole } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -48,7 +48,7 @@ const Stat = styled.div`
 `;
 
 const StatLabel = styled.dt`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   letter-spacing: 0.06em;
   color: ${meok[500]};
@@ -60,7 +60,7 @@ const StatLabel = styled.dt`
 
 const StatValue = styled.dd`
   margin: 0;
-  font-size: ${fluidHeading.feature};
+  font-size: ${typographyRole.display.fontSize};
   font-weight: 300;
   letter-spacing: -0.02em;
   line-height: 1.1;
@@ -85,7 +85,7 @@ const StatUnit = styled.span`
 
 const Finding = styled.p`
   margin: 0 0 clamp(20px, 3vh, 28px);
-  font-size: ${fontSize.base};
+  font-size: ${typographyRole.body.fontSize};
   font-weight: 400;
   line-height: 1.75;
   color: ${meok[700]};
@@ -174,7 +174,7 @@ const Row = styled(motion.li)`
 `;
 
 const RegionName = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
@@ -185,7 +185,7 @@ const RegionName = styled.span`
 `;
 
 const Count = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   color: ${meok[700]};
   font-variant-numeric: tabular-nums;

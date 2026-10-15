@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { LandmarkIcon, Home01Icon, UtensilsIcon, Coffee01Icon, ShoppingBag01Icon, FlameIcon, Leaf01Icon, ChevronRightIcon, ChevronUpIcon, ChevronDownIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, darkPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { OniAvatar } from '@/features/profile/OniAvatar';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { toggleHelpful } from '@/features/map/warmth/warmthRepo';
@@ -80,7 +80,7 @@ const PlaceTitleRow = styled.div`
 
 const PlaceName = styled.h4`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
@@ -98,7 +98,7 @@ const CrowdMoodBadge = styled.span<{ $crowd?: '북적' | '한적' }>`
   gap: 3px;
   padding: 2px 7px;
   border-radius: 9999px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
   white-space: nowrap;
   flex-shrink: 0;
@@ -125,7 +125,7 @@ const MascotBadgeIcon = styled.img`
 
 const PlaceMeta = styled.p`
   margin: 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
 `;
 
@@ -145,7 +145,7 @@ const TagSection = styled.div`
 
 const ReviewText = styled.p<{ $expanded: boolean }>`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   line-height: 1.6;
   color: ${meok[900]};
   word-break: keep-all;
@@ -171,7 +171,7 @@ const TextToggleBtn = styled.button`
   border: none;
   background: transparent;
   color: ${meok[700]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
 
@@ -190,7 +190,7 @@ const FooterMeta = styled.div`
 `;
 
 const MetaDate = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
 `;
 
@@ -207,7 +207,7 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   color: ${({ $active }) =>
     $active ? lightPalette.hwanggeum[700] : meok[700]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -286,7 +286,7 @@ const RelatedInfo = styled.div`
 
 const RelatedName = styled.h5`
   margin: 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
@@ -295,7 +295,7 @@ const RelatedName = styled.h5`
 `;
 
 const RelatedMeta = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
 `;
 

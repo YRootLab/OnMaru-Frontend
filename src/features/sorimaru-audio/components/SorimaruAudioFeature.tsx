@@ -30,7 +30,7 @@ import { useSorimaruDetailSelection } from '@/features/sorimaru-audio/hooks/useS
 import { useSorimaruRegionStories } from '@/features/sorimaru-audio/presentation/hooks/useSorimaruRegionStories';
 import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
 import { SOUND_CONSTELLATION_API_ROOT_MARGIN } from '@/private/core-ui/sorimaru/soundConstellationMotion';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 import { NearbyLocationDescription } from '@/features/sorimaru-audio/presentation/NearbyLocationDescription';
 
@@ -258,7 +258,7 @@ const LocationButton = styled.button`
   border-radius: 9999px;
   background-color: rgba(255, 255, 255, 0.55);
   padding: 0 0.75rem;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[700]};
   border: 1px solid rgba(33, 30, 25, 0.08);
@@ -556,7 +556,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                       </SectionDescription>
                     </div>
                     <div style={{ display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-                      <span style={{ textAlign: 'right', fontSize: fontSize.micro, lineHeight: '1rem' }}>
+                      <span style={{ textAlign: 'right', fontSize: typographyRole.caption.fontSize, lineHeight: '1rem' }}>
                         <SectionSubText style={{ display: 'block' }}>{locationLabel}</SectionSubText>
                         <SectionStrongText>
                           내 주변 오디오 {nearbyStories.length}개

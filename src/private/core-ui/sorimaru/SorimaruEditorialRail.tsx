@@ -11,7 +11,7 @@ import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sori
 import { editorialRailCardViewModel } from '@/features/sorimaru-audio/presentation/sorimaruEditorialRailViewModel';
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import { SORIMARU_RAIL_VISIBLE_BUFFER, getVisibleRailPositions } from './sorimaruEditorialRailModel';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
 import { SorimaruRequestErrorState } from '@/features/sorimaru-audio/presentation/SorimaruRequestErrorState';
 
@@ -538,7 +538,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              fontSize: fontSize.micro,
+              fontSize: typographyRole.caption.fontSize,
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
@@ -560,7 +560,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
-                fontSize: fontSize.micro,
+                fontSize: typographyRole.caption.fontSize,
                 color: palette.juhong[500],
               }}
             >
@@ -615,7 +615,7 @@ const CardSub = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   line-height: 1rem;
   color: ${meok[700]};
 

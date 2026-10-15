@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { RotateCcwIcon } from '@hugeicons/core-free-icons';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
-import { fontSize, meok, palette } from '@/design-system/tokens';
+import { typographyRole, meok, palette } from '@/design-system/tokens';
 
 const RetryButton = styled.button`
   display: inline-flex;
@@ -19,7 +19,7 @@ const RetryButton = styled.button`
   padding: 0.5rem 1rem;
   color: ${meok[800]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   cursor: pointer;
   transition: border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;

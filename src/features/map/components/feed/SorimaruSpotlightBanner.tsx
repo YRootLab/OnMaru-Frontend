@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { PlayIcon } from '@hugeicons/core-free-icons';
-import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, typographyRole } from '@/design-system/tokens';
 
 const bannerShimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -65,14 +65,14 @@ const TopRow = styled.div`
 `;
 
 const DurationText = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[500]};
 `;
 
 const StoryTitle = styled.h4`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.01em;
@@ -87,7 +87,7 @@ const StoryTitle = styled.h4`
 
 const StoryExcerpt = styled.p`
   margin: 0 0 12px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.4;
   color: ${meok[500]};
   white-space: nowrap;
@@ -110,7 +110,7 @@ const DocentTag = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${lightPalette.jangmi[700]};
 `;
@@ -126,7 +126,7 @@ const StartBtn = styled.button`
   background: ${lightPalette.jangmi[500]};
   color: ${surface.light.card};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);

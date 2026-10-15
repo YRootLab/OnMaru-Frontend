@@ -2,12 +2,12 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { fontSize, lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok, typographyRole } from '@/design-system/tokens';
 
 const Kicker = styled.p`
   margin: 0 0 16px;
   color: ${meok[500]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   letter-spacing: 0.02em;
 
@@ -18,6 +18,7 @@ const Kicker = styled.p`
 
 
 const Title = styled.h1`
+  /* ponytail: 예외 — Dohyun 폰트 아카이브 인트로 타이틀, 브랜드 감성 의도적 크기 */
   --section-heading-size: clamp(24px,3.2vw,36px);
   width: fit-content;
   margin: 0 0 14px;

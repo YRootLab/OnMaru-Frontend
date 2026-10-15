@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Bookmark01Icon, Cancel01Icon, Car01Icon, ChevronLeftIcon, ChevronRightIcon, Clock01Icon, Coffee01Icon, ExternalLinkIcon, Flower01Icon, GlobeIcon, Home01Icon, Image02Icon, Layers01Icon, Leaf01Icon, MapPinIcon, Navigation01Icon, PhoneIcon, SnowflakeIcon, SparklesIcon, SproutIcon, WindIcon, ZoomInIcon } from '@hugeicons/core-free-icons'
-import { meok, palette, surface , fontSize } from '@/design-system/tokens';
+import { meok, surface, typographyRole } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -505,7 +505,7 @@ const DirectBookingButton = styled.a`
   border-radius: 9999px;
   background: var(--color-action-secondary);
   color: #ffffff;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -526,7 +526,7 @@ const MapGuideBtn = styled.a`
   border-radius: 9999px;
   background: #f5f5f4;
   color: ${meok[900]};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   display: flex;
   align-items: center;

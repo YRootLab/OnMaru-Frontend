@@ -22,7 +22,7 @@ const FONT = 'var(--font-hanok)';
 
 
 
-import { meok, surface } from '@/design-system/tokens';
+import { meok, surface, typographyRole, mq } from '@/design-system/tokens';
 
 
 
@@ -274,7 +274,7 @@ const TermTag = styled.p`
   justify-content: center;
   gap: 8px;
   margin: 12px 0 0;
-  font-size: 12px;
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   letter-spacing: 0.1em;
   color: var(--sim-accent);
@@ -304,10 +304,10 @@ const Headline = styled.h2`
 
 
 
-  font-size: clamp(21px, 2.5vw, 34px);
+  font-size: ${typographyRole.sectionTitle.fontSize};
 
   font-weight: 400;
-  letter-spacing: -0.02em;
+  letter-spacing: ${typographyRole.sectionTitle.letterSpacing};
   line-height: 1.25;
   word-break: keep-all;
   white-space: nowrap;
@@ -317,8 +317,7 @@ const Headline = styled.h2`
   animation: ${fadeUp} 0.32s ease-out;
 
 
-  @media (max-width: 768px) {
-    font-size: clamp(19px, 2.9vw, 34px);
+  ${mq.mobile} {
     white-space: normal;
     text-wrap: balance;
   }
@@ -346,7 +345,7 @@ const Stat = styled.div`
 
 
 const StatLabel = styled.dt`
-  font-size: clamp(11px, 1.1vw, 13px);
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   letter-spacing: 0.06em;
   color: ${INK_WEAK};
@@ -356,9 +355,9 @@ const StatLabel = styled.dt`
 
 const StatValue = styled.dd`
   margin: 0;
-  font-size: clamp(17px, 1.9vw, 24px);
+  font-size: ${typographyRole.cardTitle.fontSize};
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: ${typographyRole.cardTitle.letterSpacing};
 
   font-variant-numeric: tabular-nums;
   color: ${INK};
@@ -373,8 +372,8 @@ const StatValue = styled.dd`
 
 
   &[data-lead='true'] {
-    font-size: clamp(24px, 2.8vw, 34px);
-    letter-spacing: -0.03em;
+    font-size: ${typographyRole.numeric.fontSize};
+    letter-spacing: ${typographyRole.numeric.letterSpacing};
   }
 
   small {
@@ -399,7 +398,7 @@ const StatValue = styled.dd`
 const Note = styled.p`
   margin: 7px auto 0;
   max-width: 420px;
-  font-size: 14px;
+  font-size: ${typographyRole.bodySm.fontSize};
   line-height: 1.55;
   word-break: keep-all;
   color: ${INK_SUB};
@@ -407,9 +406,9 @@ const Note = styled.p`
 
   animation: ${fadeUp} 0.32s 0.06s ease-out both;
 
-  @media (max-width: 767px) {
+  ${mq.mobile} {
     margin-top: 6px;
-    font-size: 13px;
+    font-size: ${typographyRole.caption.fontSize};
     line-height: 1.5;
   }
 
@@ -442,7 +441,7 @@ const LocationButton = styled.button`
   border-radius: 9999px;
   background: transparent;
   font-family: inherit;
-  font-size: 12px;
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.2;
 
   color: var(--sim-accent);
@@ -523,7 +522,7 @@ const Hint = styled.p`
 
   box-shadow: 0 0 0 1px var(--sim-pill-border);
   background: var(--sim-pill);
-  font-size: 12px;
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   white-space: nowrap;
   color: ${INK_WEAK};
@@ -569,14 +568,14 @@ const HelpCard = styled.div`
   background: var(--sim-pill-strong);
   box-shadow: 0 12px 32px rgba(23, 30, 43, 0.13);
   color: ${INK_SUB};
-  font-size: 12px;
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.55;
 
   strong {
     display: block;
     margin-bottom: 4px;
     color: ${INK};
-    font-size: 13px;
+    font-size: ${typographyRole.caption.fontSize};
   }
 
   p { margin: 0; }
@@ -795,7 +794,7 @@ const BackToToday = styled.button`
   box-shadow: 0 0 0 1px var(--sim-pill-border);
   background: var(--sim-pill-strong);
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   white-space: nowrap;
   color: ${ACCENT};

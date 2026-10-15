@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, palette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
+import { meok, palette, surface, typographyRole, mq } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAY_TYPE } from '@/features/hanok-archive/types';
 import type { Village } from '@/features/hanok-archive/types';
@@ -28,7 +28,7 @@ const FilterToolbar = styled.div`
   gap: 16px;
   margin-bottom: 24px;
 
-  @media (max-width: 768px) {
+  ${mq.mobile} {
     grid-template-columns: minmax(0, 1fr);
     gap: 6px;
   }
@@ -51,7 +51,7 @@ const ResultCount = styled.span`
   align-items: center;
   justify-content: flex-end;
   color: ${meok[500]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   white-space: nowrap;
 
@@ -59,7 +59,7 @@ const ResultCount = styled.span`
     color: ${meok[400]};
   }
 
-  @media (max-width: 768px) {
+  ${mq.mobile} {
     justify-self: end;
   }
 `;
@@ -71,7 +71,7 @@ const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
   background: ${({ $active }) =>
     $active ? palette.juhong[500] : '#ffffff'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   padding: 8px 18px;
   border-radius: 9999px;
@@ -178,7 +178,7 @@ const PageCounter = styled.span`
   min-width: 48px;
   text-align: center;
   color: ${meok[500]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-variant-numeric: tabular-nums;
   font-weight: 500;
 
@@ -347,7 +347,7 @@ const TagRow = styled.div`
 `;
 
 const StayTag = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: #ffffff;
   background: rgba(0, 0, 0, 0.45);
@@ -360,7 +360,7 @@ const StayTag = styled.span`
 
 const StayTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: ${fluidHeading.card};
+  font-size: ${typographyRole.cardTitle.fontSize};
   font-weight: 500;
   letter-spacing: -0.02em;
   margin: 0;
@@ -378,7 +378,7 @@ const StayAddress = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   color: rgba(255, 255, 255, 0.88);
   line-height: 1.4;
@@ -453,7 +453,7 @@ const ActionGroup = styled.div`
 const DirectBookingBtn = styled.a`
   background: ${palette.juhong[500]};
   color: #ffffff;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   padding: 8px 15px;
   border-radius: 9999px;
@@ -493,7 +493,7 @@ const DetailActionBtn = styled.button`
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   padding: 9px 15px;
   border-radius: 9999px;
@@ -545,7 +545,7 @@ const EmptyState = styled.div`
 
 const EmptyHeadline = styled.p`
   margin: 0;
-  font-size: ${fluidHeading.label};
+  font-size: ${typographyRole.body.fontSize};
   font-weight: 300;
   letter-spacing: -0.02em;
   color: ${meok[900]};
@@ -558,7 +558,7 @@ const EmptyHeadline = styled.p`
 
 const EmptyHint = styled.p`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 400;
   line-height: 1.7;
   color: ${meok[500]};
@@ -576,7 +576,7 @@ const EmptyAction = styled.button`
   background: ${meok[900]};
   color: #ffffff;
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.18s ease, transform 0.18s ease;
@@ -764,11 +764,11 @@ export default function HanokStayAccordion({
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    setIsMobile(mq.matches);
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mediaQuery.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
   const allStays = useMemo(() => {

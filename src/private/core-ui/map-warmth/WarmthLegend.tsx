@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { MapPinIcon, FlameIcon } from '@hugeicons/core-free-icons'
-import { meok, surface , fontSize } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import {
@@ -57,7 +57,7 @@ const Root = styled.div<{ $isDark: boolean }>`
 
 const Summary = styled.p<{ $isDark: boolean }>`
   margin: 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   line-height: 1.35;
   color: ${({ $isDark }) => ($isDark ? '#F3F4F6' : meok[900])};
@@ -99,7 +99,7 @@ const PeriodRow = styled.div`
 
 const PeriodLabel = styled.span<{ $isDark: boolean }>`
   margin-right: 2px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${({ $isDark }) => ($isDark ? '#9CA3AF' : meok[500])};
 
@@ -130,7 +130,7 @@ const PeriodBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
         ? '#D1D5DB'
         : meok[700]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
   transition: all 0.15s ease;
@@ -186,7 +186,7 @@ const ViewTypeBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
   border-radius: 9px;
   border: none;
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);

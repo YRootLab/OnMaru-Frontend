@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Megaphone01Icon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, typographyRole } from '@/design-system/tokens';
 
 const NOTICES = [
   '지도에서 전국 한옥 공간과 전통 체험을 찾아보세요',
@@ -60,7 +60,7 @@ const TextScroller = styled.div`
 
 const NoticeText = styled.p`
   margin: 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;

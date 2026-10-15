@@ -16,7 +16,7 @@ import { STAGES } from './stages';
 import { MODEL_URL } from './constants';
 useGLTF.preload(MODEL_URL);
 import { assemblyProgress, useSceneStore } from './sceneStore';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette, typographyRole } from '@/design-system/tokens';
 import { clamp01 } from './motion';
 
 const FONT = 'var(--font-hanok)';
@@ -262,9 +262,9 @@ const TitleLine = styled.h2`
   margin: 0;
   display: flex;
   align-items: baseline;
-  font-size: clamp(36px, 4vw, 56px);
+  font-size: ${typographyRole.display.fontSize};
   font-weight: 100;
-  letter-spacing: -0.015em;
+  letter-spacing: ${typographyRole.display.letterSpacing};
   line-height: 1.05;
   background: ${titleGradient};
   background-size: 200% 200%;
@@ -310,9 +310,9 @@ const ResultWrapper = styled(motion.div)`
 
 const Result = styled(motion.p)`
   margin: 0;
-  font-size: clamp(26px, 3.0vw, 42px);
+  font-size: ${typographyRole.sectionTitle.fontSize};
   font-weight: 400;
-  letter-spacing: -0.02em;
+  letter-spacing: ${typographyRole.sectionTitle.letterSpacing};
   line-height: 1.35;
   background: ${titleGradient};
   background-size: 200% 200%;

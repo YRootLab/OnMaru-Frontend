@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { meok, surface , fontSize } from '@/design-system/tokens';
+import { meok, surface, typographyRole, spacingLayout, mq } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import FilterBar, { type VillageTypeFilter } from '@/features/hanok-archive/components/FilterBar';
 import VillageCard from '@/features/hanok-archive/components/VillageCard';
@@ -22,23 +22,19 @@ const Section = styled.section``;
 const Grid = styled(motion.div)`
   display: grid;
   grid-template-columns: repeat(1, 1fr);
-  gap: 20px;
+  gap: ${spacingLayout.cardGap};
 
-  @media (min-width: 400px) {
+  ${mq.tablet} {
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
   }
 
-  @media (min-width: 800px) {
+  ${mq.laptop} {
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
   }
 
-  @media (min-width: 1080px) {
+  ${mq.desktop} {
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
   }
-
 `;
 
 const containerVariants = {
@@ -66,7 +62,7 @@ const EmptyState = styled.div`
   justify-content: center;
   gap: 14px;
   color: ${meok[500]};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   text-align: center;
   word-break: keep-all;
 
@@ -92,7 +88,7 @@ const ResetAll = styled.button`
   border-radius: 9999px;
   background: #ffffff;
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[700]};
   cursor: pointer;

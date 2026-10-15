@@ -7,7 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { HeartIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 
 interface SavedSoundDrawerProps {
   savedStories: SorimaruStorySummary[];
@@ -206,7 +206,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
       >
         <HugeiconsIcon icon={HeartIcon} size={14} strokeWidth={2} fill="currentColor" style={{ color: palette.cheongrok[500] }} />
         마음 담아둔 소리
-        <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums', fontSize: fontSize.micro, color: meok[700] }}>
+        <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums', fontSize: typographyRole.caption.fontSize, color: meok[700] }}>
           {savedStories.length}
         </span>
       </FloatingOpenButton>
@@ -276,7 +276,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                           />
                         </ThumbBox>
                         <div style={{ minWidth: 0, flex: 1 }}>
-                          <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, color: palette.juhong[500] }}>
+                          <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: typographyRole.caption.fontSize, color: palette.juhong[500] }}>
                             {story.region.name || '소리의 장소'}
                           </p>
                           <button
@@ -287,7 +287,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                             <h3 style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-hanok)', fontSize: '0.875rem', fontWeight: 700 }}>
                               {story.title}
                             </h3>
-                            <p style={{ marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, color: meok[700] }}>
+                            <p style={{ marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: typographyRole.caption.fontSize, color: meok[700] }}>
                               {story.audioTitle}
                             </p>
                           </button>
@@ -295,14 +295,14 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                             <button
                               type="button"
                               onClick={() => handlePlay(story)}
-                              style={{ fontSize: fontSize.micro, fontWeight: 600, color: palette.juhong[500], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                              style={{ fontSize: typographyRole.caption.fontSize, fontWeight: 600, color: palette.juhong[500], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
                               {isCurrentPlaying ? '잠시 멈추기' : '이야기 듣기'}
                             </button>
                             <button
                               type="button"
                               onClick={() => onRemoveBookmark(story.storyId)}
-                              style={{ fontSize: fontSize.micro, color: meok[700], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                              style={{ fontSize: typographyRole.caption.fontSize, color: meok[700], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
                               담기 해제
                             </button>
@@ -314,7 +314,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                 )}
               </ScrollList>
 
-              <p style={{ paddingTop: '1rem', fontSize: fontSize.micro, color: meok[700], borderTop: '1px solid rgba(33, 30, 25, 0.08)' }}>
+              <p style={{ paddingTop: '1rem', fontSize: typographyRole.caption.fontSize, color: meok[700], borderTop: '1px solid rgba(33, 30, 25, 0.08)' }}>
                 이 기기에만 저장돼요.
               </p>
             </DrawerAside>

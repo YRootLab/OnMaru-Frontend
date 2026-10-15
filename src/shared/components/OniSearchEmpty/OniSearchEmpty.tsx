@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useReducedMotion } from 'framer-motion';
-import { meok, fontSize } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 
 export interface OniSearchEmptyProps {
@@ -112,7 +112,7 @@ const MascotStaticFallback = styled.img`
 const MainTitle = styled.h4`
   margin: 0 0 4px;
   font-family: var(--font-hanok, inherit);
-  font-size: ${fontSize.lg};
+  font-size: ${typographyRole.cardTitle.fontSize};
   font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.02em;
@@ -127,7 +127,7 @@ const MainTitle = styled.h4`
 
 const SubDescription = styled.p`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 400;
   color: ${meok[600]};
   line-height: 1.45;
