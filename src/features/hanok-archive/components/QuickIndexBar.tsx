@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok, palette, surface, typographyRole } from '@/design-system/tokens';
+import { meok, palette, typographyRole } from '@/design-system/tokens';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BookOpen01Icon, Home01Icon, Sun01Icon, MapPinIcon } from '@hugeicons/core-free-icons'
 
