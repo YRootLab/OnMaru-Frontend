@@ -1,8 +1,8 @@
-﻿import styled from '@emotion/styled';
+import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronDownIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, typographyRole } from '@/design-system/tokens';
 
 export const FeedContainer = styled.div`
   display: flex;

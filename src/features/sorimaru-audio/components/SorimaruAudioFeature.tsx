@@ -556,7 +556,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                       </SectionDescription>
                     </div>
                     <div style={{ display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-                      <span style={{ textAlign: 'right', fontSize: fontSize.micro, lineHeight: '1rem' }}>
+                      <span style={{ textAlign: 'right', fontSize: typographyRole.caption.fontSize, lineHeight: '1rem' }}>
                         <SectionSubText style={{ display: 'block' }}>{locationLabel}</SectionSubText>
                         <SectionStrongText>
                           내 주변 오디오 {nearbyStories.length}개

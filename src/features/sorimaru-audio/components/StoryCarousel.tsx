@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
@@ -226,7 +226,7 @@ const CardMainTitle = styled.h3<{ $isCurrent: boolean }>`
   }
 
   @media (min-width: 640px) {
-    font-size: ${fontSize.lg};
+    font-size: ${typographyRole.cardTitle.fontSize};
   }
 `;
 

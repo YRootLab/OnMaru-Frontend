@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, LandmarkIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { RankedPlace } from '@/features/map/types';
 

@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { LandmarkIcon, Home01Icon, UtensilsIcon, Coffee01Icon, ShoppingBag01Icon, FlameIcon, Leaf01Icon, ChevronRightIcon, ChevronUpIcon, ChevronDownIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, darkPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { OniAvatar } from '@/features/profile/OniAvatar';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { toggleHelpful } from '@/features/map/warmth/warmthRepo';

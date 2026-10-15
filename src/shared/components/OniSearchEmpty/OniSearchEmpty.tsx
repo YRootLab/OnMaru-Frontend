@@ -112,7 +112,7 @@ const MascotStaticFallback = styled.img`
 const MainTitle = styled.h4`
   margin: 0 0 4px;
   font-family: var(--font-hanok, inherit);
-  font-size: ${fontSize.lg};
+  font-size: ${typographyRole.cardTitle.fontSize};
   font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.02em;

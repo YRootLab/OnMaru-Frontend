@@ -538,7 +538,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              fontSize: fontSize.micro,
+              fontSize: typographyRole.caption.fontSize,
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
@@ -560,7 +560,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
-                fontSize: fontSize.micro,
+                fontSize: typographyRole.caption.fontSize,
                 color: palette.juhong[500],
               }}
             >

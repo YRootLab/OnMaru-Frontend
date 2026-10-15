@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
-import { meok, lightPalette, darkPalette, surface , fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, darkPalette, surface, typographyRole } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { paintOverlays, type OverlaySpec } from '@/features/map/hooks/overlay';

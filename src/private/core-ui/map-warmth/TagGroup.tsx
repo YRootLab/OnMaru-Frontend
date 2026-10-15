@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok , fontSize } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 
 interface TagGroupProps {
   tags: string[];

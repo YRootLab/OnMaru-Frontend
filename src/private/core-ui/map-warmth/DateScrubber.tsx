@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PauseIcon, PlayIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { SNAP_CSS } from '@/features/map/components/BottomSheet';
 import type { SheetSnap } from '@/features/map/types';

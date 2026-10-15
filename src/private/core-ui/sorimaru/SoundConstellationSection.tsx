@@ -967,7 +967,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                   )}
 
                   {!hasMore && regionStories.length > 5 && (
-                    <p style={{ padding: '0.75rem 0', textAlign: 'center', fontSize: fontSize.micro, color: meok[500] }}>
+                    <p style={{ padding: '0.75rem 0', textAlign: 'center', fontSize: typographyRole.caption.fontSize, color: meok[500] }}>
                       {selectedRegion.label}의 모든 오디오 이야기를 확인했어요.
                     </p>
                   )}

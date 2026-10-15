@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { SmilePlusIcon, SmileIcon, MehIcon, FrownIcon, AngryIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, typographyRole } from '@/design-system/tokens';
 
 export type MoodValue = 1 | 2 | 3 | 4 | 5;
 

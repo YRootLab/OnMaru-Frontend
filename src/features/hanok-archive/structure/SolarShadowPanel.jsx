@@ -318,7 +318,6 @@ const Headline = styled.h2`
 
 
   ${mq.mobile} {
-    font-size: ${typographyRole.sectionTitle.fontSize};
     white-space: normal;
     text-wrap: balance;
   }

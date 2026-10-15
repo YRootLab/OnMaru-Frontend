@@ -437,7 +437,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                       border: '1px solid rgba(255, 255, 255, 0.15)',
                       background: 'rgba(255, 255, 255, 0.08)',
                       color: meok[200],
-                      fontSize: fontSize.xs,
+                      fontSize: typographyRole.label.fontSize,
                       cursor: 'pointer',
                     }}
                   >

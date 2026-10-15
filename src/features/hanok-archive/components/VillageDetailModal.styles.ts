@@ -1,4 +1,4 @@
-﻿import styled from '@emotion/styled';
+import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { meok, palette, surface, typographyRole, mq } from '@/design-system/tokens';
 
@@ -13,7 +13,7 @@ export const Overlay = styled(motion.div)`
   place-items: center;
   padding: 24px;
 
-  ${mq.mobile} {
+  @media (max-width: 640px) {
     padding: 0;
     place-items: end center;
   }
@@ -36,7 +36,7 @@ export const ModalCard = styled(motion.div)`
     background: ${surface.dark.card};
   }
 
-  ${mq.mobile} {
+  @media (max-width: 640px) {
     border-radius: 24px 24px 0 0;
     max-height: 92dvh;
     width: 100%;
@@ -74,7 +74,7 @@ export const ImageHero = styled.div<{ $bg: string | null }>`
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 40%, rgba(14, 20, 36, 0.8) 100%);
   }
 
-  ${mq.mobile} {
+  @media (max-width: 640px) {
     height: 220px;
   }
 `;

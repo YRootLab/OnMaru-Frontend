@@ -73,7 +73,7 @@ const ModalHeader = styled.div`
 `;
 
 const HeaderTitle = styled.h2`
-  font-size: ${fontSize.lg};
+  font-size: ${typographyRole.cardTitle.fontSize};
   font-weight: 700;
   color: ${meok[900]};
   margin: 0;

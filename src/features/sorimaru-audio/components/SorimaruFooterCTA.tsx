@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
@@ -132,17 +132,13 @@ const PulseDot = styled.span`
 const MainHeading = styled.h2`
   margin-top: 1.25rem;
   font-family: inherit;
-  font-size: ${fontSize['2xl']};
+  font-size: ${typographyRole.display.fontSize};
   font-weight: 800;
   letter-spacing: -0.025em;
   color: ${meok[900]};
 
   [data-theme='dark'] & {
     color: #ffffff;
-  }
-
-  @media (min-width: 640px) {
-    font-size: ${fontSize['4xl']};
   }
 `;
 

@@ -48,7 +48,7 @@ const CardBox = styled.div`
 
 const QuestionHeading = styled.h3`
   font-family: inherit;
-  font-size: ${fontSize.lg};
+  font-size: ${typographyRole.cardTitle.fontSize};
   font-weight: 700;
   letter-spacing: -0.035em;
   color: ${meok[900]};

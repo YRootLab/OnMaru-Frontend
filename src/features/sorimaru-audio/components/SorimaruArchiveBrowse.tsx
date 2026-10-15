@@ -647,7 +647,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading, error = null, onRetr
         </ViewSegmentControl>
 
         {view === 'places' && (
-          <span style={{ fontSize: fontSize.micro, fontWeight: 500, color: meok[500] }}>
+          <span style={{ fontSize: typographyRole.caption.fontSize, fontWeight: 500, color: meok[500] }}>
             현재 결과 기준
           </span>
         )}
