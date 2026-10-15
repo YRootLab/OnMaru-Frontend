@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok, fontSize } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 
 const Wrapper = styled.div`
   position: relative;
@@ -20,7 +20,7 @@ const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
   z-index: 1;
   background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   min-width: 40px;
   height: 40px;
@@ -58,7 +58,7 @@ const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
 const Dots = styled.span`
   color: ${meok[400]};
   padding: 0 4px;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
 
   [data-theme='dark'] & {
     color: ${meok[500]};

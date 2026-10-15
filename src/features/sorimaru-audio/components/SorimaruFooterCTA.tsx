@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import SHADOW from '@/data/solarShadow.json';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 
 function getNextSolarTerm(now = new Date()) {
   const year = now.getFullYear();
@@ -109,7 +109,7 @@ const SolarBadge = styled.div`
   border-radius: 9999px;
   background: ${palette.juhong[50]};
   padding: 0.25rem 0.875rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   color: ${palette.juhong[500]};
   backdrop-filter: blur(4px);
@@ -132,7 +132,7 @@ const PulseDot = styled.span`
 const MainHeading = styled.h2`
   margin-top: 1.25rem;
   font-family: inherit;
-  font-size: ${fontSize['2xl']};
+  font-size: ${typographyRole.display.fontSize};
   font-weight: 800;
   letter-spacing: -0.025em;
   color: ${meok[900]};
@@ -140,16 +140,12 @@ const MainHeading = styled.h2`
   [data-theme='dark'] & {
     color: #ffffff;
   }
-
-  @media (min-width: 640px) {
-    font-size: ${fontSize['4xl']};
-  }
 `;
 
 const Description = styled.p`
   margin-top: 0.875rem;
   max-width: 36rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.625;
   color: ${meok[700]};
 
@@ -158,7 +154,7 @@ const Description = styled.p`
   }
 
   @media (min-width: 640px) {
-    font-size: ${fontSize.sm};
+    font-size: ${typographyRole.bodySm.fontSize};
   }
 `;
 
@@ -187,7 +183,7 @@ const PrimaryCtaLink = styled(Link)`
   border-radius: 9999px;
   background: linear-gradient(to right, ${palette.juhong[500]}, ${palette.juhong[700]});
   padding: 0.875rem 1.75rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   color: #ffffff;
   text-decoration: none;
@@ -220,7 +216,7 @@ const SecondaryCtaLink = styled(Link)`
   border-radius: 9999px;
   background: #ffffff;
   padding: 0.875rem 1.75rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   color: ${palette.juhong[500]};
   text-decoration: none;
@@ -250,7 +246,7 @@ const SecondaryCtaLink = styled(Link)`
 
 const SubText = styled.p`
   margin-top: 2rem;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[500]};
 
@@ -316,4 +312,4 @@ export const SorimaruFooterCTA: React.FC = () => {
       </ContentWrapper>
     </SectionContainer>
   );
-};
+};

@@ -9,7 +9,7 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BookOpen01Icon, Cancel01Icon, ChevronRightIcon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon, Menu01Icon, SearchAreaIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
-import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
+import { meok, ringShadow } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useAuth } from '@/features/auth';
 import { OniAvatar } from '@/features/profile/OniAvatar';

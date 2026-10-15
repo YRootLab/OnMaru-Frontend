@@ -6,7 +6,7 @@ import { keyframes } from '@emotion/react';
 import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronLeftIcon, ChevronRightIcon, ClapperboardIcon, ExternalLinkIcon, Film01Icon, HashtagIcon, HeartIcon, MapPinIcon, Music02Icon, SparklesIcon } from '@hugeicons/core-free-icons'
-import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, typographyRole, mq } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { useKCultureThemes } from '@/features/hanok-archive/hooks/useKCultureThemes';
 import type { ScreenHanokItem, ScreenHanokMediaType } from '@/features/hanok-archive/services/screenHanok.service';
@@ -38,7 +38,7 @@ const FilterChip = styled.button<{ $active: boolean }>`
   border: 1px solid ${({ $active }) => ($active ? lightPalette.juhong[500] : 'rgba(78,89,104,0.16)')};
   background: ${({ $active }) => ($active ? lightPalette.juhong[500] : 'transparent')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
@@ -59,11 +59,11 @@ const BentoGrid = styled.div`
   gap: 7px;
   align-items: stretch;
 
-  @media (min-width: 900px) {
+  ${mq.laptop} {
     grid-template-columns: 55fr 45fr;
   }
 
-  @media (max-width: 640px) {
+  ${mq.mobile} {
     grid-template-columns: 1fr;
   }
 `;
@@ -154,7 +154,7 @@ const MediaBadge = styled.div`
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(8px);
   color: #ffffff;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   letter-spacing: -0.01em;
 `;
@@ -187,12 +187,12 @@ const HeroBody = styled.div`
 
 const HeroWorkTitle = styled.p`
   font-family: var(--font-hanok);
-  font-size: clamp(22px, 3.5vw, 30px);
-  font-weight: 700;
+  font-size: ${typographyRole.sectionTitle.fontSize};
+  font-weight: ${typographyRole.sectionTitle.fontWeight};
   color: #ffffff;
   margin: 0 0 5px;
-  line-height: 1.2;
-  letter-spacing: -0.03em;
+  line-height: ${typographyRole.sectionTitle.lineHeight};
+  letter-spacing: ${typographyRole.sectionTitle.letterSpacing};
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -205,12 +205,12 @@ const HeroNameRow = styled.div`
   gap: 4px;
   margin-bottom: 10px;
   color: rgba(255,255,255,0.78);
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 12.5px;
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.5;
   color: rgba(255,255,255,0.82);
   margin: 0 0 12px;
@@ -305,7 +305,7 @@ const ThumbMeta = styled.div`
 
 const ThumbWorkTitle = styled.p`
   font-family: var(--font-hanok);
-  font-size: 12px;
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   color: #ffffff;
   margin: 0 0 2px;
@@ -432,7 +432,7 @@ const EmptyNote = styled.p`
   grid-column: 1 / -1;
   padding: 48px 0;
   text-align: center;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   color: ${meok[500]};
 `;
 
@@ -482,7 +482,7 @@ const NavBtn = styled.button<{ $disabled: boolean }>`
 `;
 
 const NavCounter = styled.span`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   color: ${meok[500]};
   font-variant-numeric: tabular-nums;
@@ -495,7 +495,7 @@ const NavCounter = styled.span`
 `;
 
 const ViewAllLink = styled.button`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   color: ${lightPalette.juhong[500]};
   background: none;

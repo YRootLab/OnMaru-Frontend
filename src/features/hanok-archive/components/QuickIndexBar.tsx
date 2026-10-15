@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok, palette, surface , fontSize } from '@/design-system/tokens';
+import { meok, palette, typographyRole } from '@/design-system/tokens';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BookOpen01Icon, Home01Icon, Sun01Icon, MapPinIcon } from '@hugeicons/core-free-icons'
 
@@ -47,7 +47,7 @@ const IndexChip = styled.button`
   background: transparent;
   color: ${meok[700]};
   font-family: inherit;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   letter-spacing: -0.01em;
   cursor: pointer;
@@ -75,7 +75,7 @@ const IndexChip = styled.button`
 
   @media (max-width: 640px) {
     padding: 6px 10px;
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
   }
 `;
 

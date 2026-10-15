@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, ChevronDownIcon, RotateCcwIcon, Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons'
-import { meok, palette, surface , fontSize } from '@/design-system/tokens';
+import { meok, palette, surface, typographyRole } from '@/design-system/tokens';
 import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
@@ -89,7 +89,7 @@ const SearchInput = styled.input`
   outline: none;
   background: none;
   font-family: inherit;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   color: ${meok[900]};
 
   &::placeholder {
@@ -163,7 +163,7 @@ const RegionSelectControl = styled.div`
 `;
 
 const RegionSelectValue = styled.span`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   line-height: 1;
   white-space: nowrap;
 `;
@@ -185,7 +185,7 @@ const RegionSelect = styled.select`
   height: 42px;
   opacity: 0;
   font-family: inherit;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   cursor: pointer;
 `;
 
@@ -222,7 +222,7 @@ const Segment = styled.button<{ $active: boolean }>`
   background: transparent;
   border: none;
   padding: 9px 22px;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   cursor: pointer;
@@ -273,7 +273,7 @@ const BadgeHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   letter-spacing: 0.04em;
   color: ${meok[700]};
@@ -314,7 +314,7 @@ const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'ju
     return `linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.juhong[700]} 100%)`;
   }};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   padding: 6px 14px;
   border-radius: 9999px;
@@ -342,7 +342,7 @@ const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'ju
 const ResetBtn = styled.button`
   background: transparent;
   color: ${meok[500]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   padding: 4px 10px;
   border-radius: 9999px;

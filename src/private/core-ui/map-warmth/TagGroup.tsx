@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok , fontSize } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 
 interface TagGroupProps {
   tags: string[];
@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 const TagBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   padding: 3px 8.5px;
   border-radius: 9999px;

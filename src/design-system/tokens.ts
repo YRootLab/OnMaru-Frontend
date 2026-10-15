@@ -2,7 +2,6 @@
 
 
 
-import { px } from 'framer-motion';
 
 
 
@@ -460,6 +459,79 @@ export const fontSize = {
   '6xl': '3.75rem',
 } as const;
 
+// ─── 역할 기반 타이포그래피 (앞으로 이것만 쓸 것) ──────────────────────────
+export const typographyRole = {
+  display: {
+    fontSize: 'clamp(32px, 5vw, 56px)',
+    fontWeight: 700,
+    letterSpacing: '-0.03em',
+    lineHeight: 1.2,
+  },
+  sectionTitle: {
+    fontSize: 'clamp(22px, 2.6vw, 30px)',
+    fontWeight: 700,
+    letterSpacing: '-0.02em',
+    lineHeight: 1.3,
+  },
+  cardTitle: {
+    fontSize: 'clamp(16px, 1.4vw, 18px)',
+    fontWeight: 600,
+    letterSpacing: '-0.01em',
+    lineHeight: 1.4,
+  },
+  body: {
+    fontSize: '15px',
+    fontWeight: 400,
+    lineHeight: 1.7,
+  },
+  bodySm: {
+    fontSize: '14px',
+    fontWeight: 400,
+    lineHeight: 1.6,
+  },
+  caption: {
+    fontSize: '13px',
+    fontWeight: 400,
+    lineHeight: 1.5,
+  },
+  label: {
+    fontSize: '12px',
+    fontWeight: 500,
+    letterSpacing: '0.02em',
+    lineHeight: 1.4,
+  },
+  eyebrow: {
+    fontSize: '12px',
+    fontWeight: 500,
+    letterSpacing: '0.12em',
+    lineHeight: 1.4,
+  },
+  numeric: {
+    fontSize: 'clamp(28px, 4vw, 44px)',
+    fontWeight: 700,
+    letterSpacing: '-0.03em',
+    fontVariantNumeric: 'tabular-nums' as const,
+  },
+} as const;
+
+// ─── 레이아웃 간격 토큰 ────────────────────────────────────────────────────
+export const spacingLayout = {
+  pageX:      'clamp(20px, 5vw, 40px)',
+  pageTop:    'clamp(48px, 8vh, 80px)',
+  sectionGap: 'clamp(56px, 9vh, 96px)',
+  cardPadding:'clamp(16px, 2vw, 20px)',
+  cardGap:    'clamp(12px, 1.5vw, 16px)',
+} as const;
+
+// ─── 미디어 쿼리 헬퍼 ─────────────────────────────────────────────────────
+export const mq = {
+  mobile:   '@media (max-width: 767px)',
+  tablet:   '@media (min-width: 768px) and (max-width: 1023px)',
+  laptop:   '@media (min-width: 1024px)',
+  desktop:  '@media (min-width: 1280px)',
+  tabletSm: '@media (min-width: 640px)',  // sorimaru/core-ui 640px 대응
+} as const;
+
 
 
 export const fluidHeading = {
@@ -533,8 +605,7 @@ export const createTheme = (mode: ColorMode) => {
         p1: '18px', p2: '16px', p3: '14px', p4: '12px',
         headline: '18px', headlineCaps: '14px', inputField: '16px',
       },
-
-
+      role: typographyRole,
       fontWeight: { thin: 100, light: 300, regular: 400, medium: 500, bold: 700 },
       lineHeight:  { tight: 1.25, normal: 1.6, loose: 1.8 },
     },
@@ -543,6 +614,7 @@ export const createTheme = (mode: ColorMode) => {
       0: '0',       1: '0.25rem', 2: '0.5rem',  3: '0.75rem',
       4: '1rem',    5: '1.25rem', 6: '1.5rem',  8: '2rem',
       10: '2.5rem', 12: '3rem',  16: '4rem',   20: '5rem', 24: '6rem',
+      layout: spacingLayout,
     },
 
     borderRadius: {

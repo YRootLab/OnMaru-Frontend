@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Calendar01Icon, Coffee01Icon, FlameIcon, HeartIcon, LandmarkIcon, Leaf01Icon, Moon01Icon, ShoppingBag01Icon, SparklesIcon, UsersIcon, UtensilsIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
-import { meok, palette, fontFamily, fontSize, ringShadow } from '@/design-system/tokens';
+import { meok, palette, typographyRole, ringShadow } from '@/design-system/tokens';
 
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { MapInfoCategory, MapMode } from '@/features/map/types';
@@ -143,7 +143,7 @@ const Chip = styled.button<{
   /* 폰트: 전체 카테고리 칩 통일 */
   font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   letter-spacing: -0.02em;
 
   /* 배경 & 폰트 컬러:
@@ -198,7 +198,7 @@ const Chip = styled.button<{
   @media (max-width: 1023px) {
     height: 32px;
     padding: 0 11px;
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
     gap: 4px;
 
     svg {

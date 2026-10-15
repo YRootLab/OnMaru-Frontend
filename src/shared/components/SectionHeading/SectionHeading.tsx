@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { lightPalette, meok, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, typographyRole } from '@/design-system/tokens';
 
 const Root = styled.div`
   display: flex;
@@ -48,7 +48,7 @@ const Title = styled.h2`
 const Subtitle = styled.p`
   margin: 0;
   color: ${meok[500]};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   line-height: 1.5;
 
   [data-theme='dark'] & {
@@ -61,7 +61,7 @@ const ActionLink = styled.a`
   align-items: center;
   flex-shrink: 0;
   color: ${lightPalette.juhong[500]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   text-decoration: none;
   white-space: nowrap;

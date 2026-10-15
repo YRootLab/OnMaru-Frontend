@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, MapIcon, RotateCcwIcon, AlertCircleIcon, SparklesIcon, ListIcon, Bookmark01Icon, GridViewIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { lightPalette, meok, surface, typographyRole, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { distanceInMeters } from '@/features/map/utils/geo';
@@ -69,7 +69,7 @@ const DegradedNotice = styled.div`
   background: #f8f8f7;
   padding: 10px 12px;
   color: ${meok[700]};
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   line-height: 1.4;
 
   [data-theme='dark'] & {
@@ -130,7 +130,7 @@ const SortSelect = styled.select`
   box-shadow: none !important;
 
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[700]};
   padding: 4px 24px 4px 10px;
@@ -192,7 +192,7 @@ const PageNavBtn = styled.button`
   background: rgba(78, 89, 104, 0.06);
   color: ${meok[500]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -237,7 +237,7 @@ const PageNumberBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? meok[900] : 'transparent')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
   transition: all 0.15s ease;
@@ -343,14 +343,14 @@ const EmptyIconBox = styled.div`
 
 const EmptyTitle = styled.h4`
   margin: 0 0 6px;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
 `;
 
 const EmptyDesc = styled.p`
   margin: 0 0 18px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   color: ${meok[500]};
   line-height: 1.5;
@@ -367,7 +367,7 @@ const ActionButton = styled.button`
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[700]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;

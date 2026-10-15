@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, BookOpen01Icon, ChevronLeftIcon, ChevronRightIcon, MapIcon, MapPinIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, typographyRole } from '@/design-system/tokens';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
@@ -113,7 +113,7 @@ const MapCanvas = styled.div`
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid ${JUHONG_BORDER};
     border-radius: 10px;
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
     font-weight: 500;
     letter-spacing: -0.01em;
     color: ${meok[900]};
@@ -137,7 +137,7 @@ const MapLoadingState = styled.div`
   gap: 10px;
   background: #ffffff;
   color: ${JUHONG_PRIMARY};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   z-index: 10;
   text-align: center;
@@ -149,7 +149,7 @@ const MapLoadingState = styled.div`
 `;
 
 const ErrorSubtext = styled.p`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[700]};
   max-width: 340px;
   line-height: 1.45;
@@ -198,7 +198,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   border: none;
   border-radius: 9999px;
   padding: 5px 11px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   white-space: nowrap;
   cursor: pointer;
@@ -263,7 +263,7 @@ const PanelHeaderRow = styled.div`
 `;
 
 const PanelSubHeader = styled.div`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   letter-spacing: 0.03em;
   color: ${JUHONG_PRIMARY};
@@ -294,7 +294,7 @@ const CollapseBtn = styled.button`
 
 const PanelTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: ${fontSize.base};
+  font-size: ${typographyRole.body.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   margin: 0 0 4px;
@@ -307,7 +307,7 @@ const PanelTitle = styled.h3`
 
 const PanelCountBadge = styled.span`
   display: inline-block;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${JUHONG_PRIMARY};
   background: ${JUHONG_LIGHT};
@@ -319,7 +319,7 @@ const PanelCountBadge = styled.span`
 `;
 
 const PanelDesc = styled.p`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[700]};
   line-height: 1.45;
   margin: 0 0 10px;
@@ -390,7 +390,7 @@ const MiniInfo = styled.div`
 `;
 
 const MiniTitle = styled.h4`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   margin: 0 0 2px;
@@ -403,12 +403,12 @@ const MiniTitle = styled.h4`
   }
 
   @media (max-width: 900px) {
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
   }
 `;
 
 const MiniMeta = styled.div`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 400;
   color: ${meok[500]};
 
@@ -433,7 +433,7 @@ const CollapsedPillBtn = styled(motion.button)`
   align-items: center;
   gap: 6px;
   color: ${meok[900]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
   box-shadow: none;

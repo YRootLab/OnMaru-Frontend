@@ -6,7 +6,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { HeadphonesIcon, PlayIcon, PauseIcon, RotateCcwIcon, FileTextIcon, ChevronDownIcon, ChevronUpIcon } from '@hugeicons/core-free-icons'
 
 import type { SorimaruStory } from '../hooks/useHanokSorimaru';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 
 interface HanokAudioPlayerProps {
   stories: SorimaruStory[];
@@ -200,7 +200,7 @@ const BadgeBox = styled.div`
 `;
 
 const BadgeText = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   color: ${palette.jangmi[700]};
 
@@ -210,7 +210,7 @@ const BadgeText = styled.span`
 `;
 
 const QualityTag = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[500]};
 
@@ -229,7 +229,7 @@ const StoryTitleBox = styled.div`
 `;
 
 const StoryTitle = styled.h4`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   color: ${meok[900]};
   margin: 0;
@@ -241,7 +241,7 @@ const StoryTitle = styled.h4`
 `;
 
 const SelectorSelect = styled.select`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   background: #ffffff;
   border: none;
   box-shadow: none;
@@ -324,7 +324,7 @@ const SecondaryBtn = styled.button`
 `;
 
 const TimeDisplay = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: ${meok[500]};
@@ -387,7 +387,7 @@ const ScriptToggleBtn = styled.button`
   border: none;
   box-shadow: none;
   padding: 4px 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   color: ${meok[700]};
   cursor: pointer;
@@ -419,7 +419,7 @@ const ScriptContent = styled.div`
   box-shadow: none;
   max-height: 180px;
   overflow-y: auto;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.7;
   color: ${meok[700]};
   word-break: keep-all;
@@ -435,4 +435,4 @@ const ScriptContent = styled.div`
     background: ${surface.dark.app};
     color: ${meok[200]};
   }
-`;
+`;

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, surface, typographyRole, spacingLayout, mq } from '@/design-system/tokens';
 import HanokGrid from '@/features/hanok-archive/sections/HanokGrid';
 import HanokStayAccordion from '@/features/hanok-archive/sections/HanokStayAccordion';
 import HanokMap from '@/features/hanok-archive/sections/HanokMap';
@@ -60,9 +60,9 @@ const PageInner = styled.div`
   width: 100%;
   margin: 0;
   padding-top: 76px;
-  padding-bottom: clamp(64px, 8vh, 120px);
+  padding-bottom: ${spacingLayout.sectionGap};
 
-  @media (max-width: 767px) {
+  ${mq.mobile} {
     padding-top: 20px;
   }
 `;
@@ -71,16 +71,15 @@ const SectionContainer = styled.div`
   margin: 0 auto;
   width: min(calc(100% - 40px), 1140px);
   max-width: 1140px;
-  padding: clamp(28px, 4vw, 48px) 0;
+  padding: ${spacingLayout.sectionGap} 0;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     width: calc(100% - 28px);
-    padding: clamp(24px, 4vw, 40px) 0;
+    padding: ${spacingLayout.sectionGap} 0;
   }
 
-  @media (max-width: 640px) {
+  ${mq.mobile} {
     width: calc(100% - 24px);
-    padding: clamp(20px, 4vw, 32px) 0;
   }
 `;
 
@@ -106,12 +105,12 @@ const paperGround = css`
 
 
 const ChapterBreak = styled.div`
-  padding-top: clamp(80px, 9vh, 124px);
+  padding-top: ${spacingLayout.sectionGap};
 `;
 
 
 const ArchiveSection = styled.div`
-  padding-top: clamp(64px, 7vh, 92px);
+  padding-top: ${spacingLayout.sectionGap};
 `;
 
 const IntroStage = styled.div`
@@ -126,12 +125,12 @@ const IntroStage = styled.div`
   align-items: center;
   justify-content: center;
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     width: calc(100% - 28px);
     margin: 0 auto;
   }
 
-  @media (max-width: 640px) {
+  ${mq.mobile} {
     width: calc(100% - 24px);
     margin: 0 auto;
     border-radius: 18px;
@@ -183,7 +182,7 @@ const Lead = styled.p`
 `;
 
 const SourceNote = styled.p`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
   margin: 0;
 

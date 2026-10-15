@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { SmilePlusIcon, SmileIcon, MehIcon, FrownIcon, AngryIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, typographyRole } from '@/design-system/tokens';
 
 export type MoodValue = 1 | 2 | 3 | 4 | 5;
 
@@ -64,7 +64,7 @@ const FaceButton = styled.button<{ $selected: boolean; $readonly: boolean }>`
 `;
 
 const MoodLabel = styled.span`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;

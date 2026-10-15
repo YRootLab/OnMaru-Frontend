@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PlayIcon, PauseIcon, Cancel01Icon, HeartIcon, RotateCcwIcon, RotateCwIcon, Compass01Icon, BookOpen01Icon } from '@hugeicons/core-free-icons'
-import { meok, palette, surface, fontSize } from '@/design-system/tokens';
+import { meok, palette, surface, typographyRole } from '@/design-system/tokens';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { useSorimaruAudioPlayer } from '@/features/sorimaru-audio/hooks/useSorimaruAudioPlayer';
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
@@ -231,7 +231,7 @@ const StoryTitle = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-hanok);
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   color: ${meok[900]};
 
@@ -243,7 +243,7 @@ const StoryTitle = styled.span`
 const StorySubMeta = styled.span`
   display: flex;
   align-items: center;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   color: ${meok[500]};
   margin-top: 0.125rem;
 

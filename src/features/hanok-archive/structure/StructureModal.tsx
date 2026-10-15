@@ -13,7 +13,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
 import { createPortal } from 'react-dom';
 
-import { meok, surface , fontSize } from '@/design-system/tokens';
+import { meok, surface, typographyRole } from '@/design-system/tokens';
 import { livelyModalEnter } from '@/shared/motion/modalMotion';
 
 const Overlay = styled.div`
@@ -62,7 +62,7 @@ const CloseButton = styled.button`
   color: ${meok[700]};
   transition: background 0.2s ease-out, color 0.2s ease-out;
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
 

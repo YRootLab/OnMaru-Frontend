@@ -12,7 +12,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronLeftIcon, LocateFixedIcon } from '@hugeicons/core-free-icons'
 
 import { transientProps } from '@/design-system/styled';
-import { meok, surface, fontSize, palette } from '@/design-system/tokens';
+import { meok, surface, typographyRole, palette } from '@/design-system/tokens';
 import {
   FLOATING_ENTER_DELAY_S,
   FLOATING_SPRING_TRANSITION,
@@ -133,7 +133,7 @@ const FloatingHomeButton = styled.button`
 
   color: ${meok[700]};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   letter-spacing: -0.02em;
   white-space: nowrap;

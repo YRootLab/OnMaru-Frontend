@@ -4,7 +4,7 @@ import Link from 'next/link';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BookOpen01Icon, Bookmark01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon } from '@hugeicons/core-free-icons';
-import { lightPalette, meok, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, typographyRole } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 
@@ -28,7 +28,7 @@ const TabButton = styled.button<{ $active?: boolean }>`
   background: none;
   color: ${({ $active }) => ($active ? lightPalette.hwanggeum[700] : 'rgba(33, 30, 25, 0.68)')};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   letter-spacing: -0.02em;
   cursor: pointer;
@@ -59,7 +59,7 @@ const TabLink = styled(Link)`
   padding: 0;
   color: rgba(33, 30, 25, 0.68);
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 400;
   letter-spacing: -0.02em;
   text-decoration: none;
@@ -104,7 +104,7 @@ const CountBadge = styled.span`
       background: ${lightPalette.hwanggeum[400]};
     }
   }
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
   line-height: 1;
 `;
