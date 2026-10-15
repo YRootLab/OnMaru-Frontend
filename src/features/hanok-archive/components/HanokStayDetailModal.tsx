@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Bookmark01Icon, Cancel01Icon, Car01Icon, ChevronLeftIcon, ChevronRightIcon, Clock01Icon, Coffee01Icon, ExternalLinkIcon, Flower01Icon, GlobeIcon, Home01Icon, Image02Icon, Layers01Icon, Leaf01Icon, MapPinIcon, Navigation01Icon, PhoneIcon, SnowflakeIcon, SparklesIcon, SproutIcon, WindIcon, ZoomInIcon } from '@hugeicons/core-free-icons'
-import { meok, palette, surface, typographyRole } from '@/design-system/tokens';
+import { meok, surface, typographyRole } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
