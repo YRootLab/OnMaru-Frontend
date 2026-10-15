@@ -15,7 +15,7 @@ import { getVirtualRange, VIRTUAL_ITEM_HEIGHT } from './soundConstellationScroll
 import {
   getRegionPathMotion,
 } from './soundConstellationMotion';
-import { palette, meok, surface, typographyRole, ringShadow } from '@/design-system/tokens';
+import { palette, meok, typographyRole, ringShadow } from '@/design-system/tokens';
 
 export interface SoundConstellationSectionProps {
   groupsState: RegionGroupsState;
