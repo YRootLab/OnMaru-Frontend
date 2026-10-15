@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FlameIcon, Leaf01Icon, UsersIcon, PlusSignIcon, MessageCircleIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, palette, meok, surface, typographyRole } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { usePlaceVisitReviews } from '@/features/visit-review/presentation/usePlaceVisitReviews';
 import WriteWarmthModal from './WriteWarmthModal';
 import MoodSelector from './MoodSelector';
