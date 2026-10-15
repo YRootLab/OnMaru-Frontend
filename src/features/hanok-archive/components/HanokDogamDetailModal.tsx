@@ -8,7 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowRight01Icon, Award01Icon, BookOpen01Icon, Bookmark01Icon, Building01Icon, Calendar01Icon, Cancel01Icon, Car01Icon, CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, Clock01Icon, Copy01Icon, Flower01Icon, GlobeIcon, Image02Icon, InformationCircleIcon, LandmarkIcon, Layers01Icon, Leaf01Icon, MapPinIcon, Navigation01Icon, PhoneIcon, SnowflakeIcon, SparklesIcon, SproutIcon, WindIcon, ZoomInIcon } from '@hugeicons/core-free-icons'
 import { inferStructureTags, extractHeritageGrade, inferSeasonTags } from '@/features/hanok-archive/utils/villageInsights';
-import { meok, palette, surface, typographyRole } from '@/design-system/tokens';
+import { palette, typographyRole } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
