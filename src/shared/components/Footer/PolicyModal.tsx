@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, CodeIcon, Database01Icon, FileTextIcon, ShieldCheckIcon } from '@hugeicons/core-free-icons'
-import { meok, palette, lightPalette, surface, fontSize } from '@/design-system/tokens';
+import { meok, palette, lightPalette, surface, typographyRole } from '@/design-system/tokens';
 import { livelyModalSpring, livelyBottomSheetSpring, modalOverlayTransition } from '@/shared/motion/modalMotion';
 
 export type PolicyTabKey = 'privacy' | 'terms' | 'publicData' | 'openSource';
@@ -142,7 +142,7 @@ const TabButton = styled.button<{ $active: boolean }>`
   border-radius: 9999px;
   border: none;
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
   white-space: nowrap;
@@ -170,7 +170,7 @@ const ContentBody = styled.div`
   overflow-y: auto;
   padding: 24px clamp(20px, 3.5vw, 32px);
   color: ${meok[800]};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   line-height: 1.7;
 
   [data-theme='dark'] & {
@@ -191,7 +191,7 @@ const Section = styled.div`
   margin-bottom: 28px;
 
   h3 {
-    font-size: ${fontSize.base};
+    font-size: ${typographyRole.body.fontSize};
     font-weight: 700;
     color: ${meok[900]};
     margin: 0 0 10px;
@@ -203,7 +203,7 @@ const Section = styled.div`
   }
 
   h4 {
-    font-size: ${fontSize.sm};
+    font-size: ${typographyRole.bodySm.fontSize};
     font-weight: 600;
     color: ${meok[800]};
     margin: 14px 0 6px;
@@ -273,7 +273,7 @@ const CodeBlock = styled.div`
 `;
 
 const MetaDate = styled.div`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
   margin-top: 20px;
   padding-top: 16px;

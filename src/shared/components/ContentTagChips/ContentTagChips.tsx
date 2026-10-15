@@ -1,7 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { meok, fontSize } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 
 
 
@@ -22,7 +22,7 @@ const Chip = styled.span`
   border-radius: 9999px;
   background: rgba(78, 89, 104, 0.07);
   color: ${meok[600]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;

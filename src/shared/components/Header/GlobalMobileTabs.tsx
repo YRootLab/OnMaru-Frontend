@@ -7,7 +7,7 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BookOpen01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon, SearchAreaIcon, UserIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
-import { lightPalette, fontSize } from '@/design-system/tokens';
+import { lightPalette, typographyRole } from '@/design-system/tokens';
 import { HanokIcon } from '@/features/map/components/HanokIcon';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
 import { useAuth } from '@/features/auth';
@@ -88,7 +88,7 @@ const TabLink = styled(Link, transientProps)<TabProps>`
     return $isLanding ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.07)';
   }};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   letter-spacing: -0.02em;
   text-decoration: none;

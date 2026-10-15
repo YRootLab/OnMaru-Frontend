@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
-import { fontFamily, fontSize, meok, surface } from '@/design-system/tokens';
+import { fontFamily, typographyRole, meok, surface } from '@/design-system/tokens';
 import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import PolicyModal, { type PolicyTabKey } from './PolicyModal';
 
@@ -101,7 +101,7 @@ const NavCol = styled.div`
 `;
 
 const NavColTitle = styled.div`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   letter-spacing: 0.04em;
   margin-bottom: 2px;
@@ -113,7 +113,7 @@ const NavColTitle = styled.div`
 `;
 
 const FooterLink = styled(Link)`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   text-decoration: none;
   transition: color 0.18s ease;
   color: ${meok[600]};
@@ -132,7 +132,7 @@ const FooterLink = styled(Link)`
 `;
 
 const ExternalFooterLink = styled.a`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   text-decoration: none;
   transition: color 0.18s ease;
   color: ${meok[600]};
@@ -184,7 +184,7 @@ const PolicyButton = styled.button<{ $bold?: boolean }>`
   border: none;
   padding: 0;
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: ${({ $bold }) => ($bold ? 700 : 500)};
   cursor: pointer;
   transition: color 0.18s ease;
