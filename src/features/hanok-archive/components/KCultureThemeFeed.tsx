@@ -6,7 +6,7 @@ import { keyframes } from '@emotion/react';
 import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronLeftIcon, ChevronRightIcon, ClapperboardIcon, ExternalLinkIcon, Film01Icon, HashtagIcon, HeartIcon, MapPinIcon, Music02Icon, SparklesIcon } from '@hugeicons/core-free-icons'
-import { meok, lightPalette, surface, typographyRole, mq } from '@/design-system/tokens';
+import { meok, lightPalette, typographyRole, mq } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { useKCultureThemes } from '@/features/hanok-archive/hooks/useKCultureThemes';
 import type { ScreenHanokItem, ScreenHanokMediaType } from '@/features/hanok-archive/services/screenHanok.service';

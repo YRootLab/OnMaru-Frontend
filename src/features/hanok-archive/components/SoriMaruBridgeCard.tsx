@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { HeadphonesIcon, ArrowRight01Icon, SparklesIcon } from '@hugeicons/core-free-icons'
+import { HeadphonesIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { useRouter } from 'next/navigation';
 
 import type { AudioGuideStory } from '../hooks/useHanokAudioGuide';

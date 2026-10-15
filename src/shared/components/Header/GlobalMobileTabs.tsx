@@ -7,7 +7,7 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BookOpen01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon, SearchAreaIcon, UserIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
-import { lightPalette, typographyRole } from '@/design-system/tokens';
+import { typographyRole } from '@/design-system/tokens';
 import { HanokIcon } from '@/features/map/components/HanokIcon';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
 import { useAuth } from '@/features/auth';

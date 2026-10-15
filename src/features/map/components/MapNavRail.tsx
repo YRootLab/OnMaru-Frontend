@@ -11,7 +11,7 @@ import { HanokIcon } from './HanokIcon'
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
-import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
+import { meok, ringShadow } from '@/design-system/tokens';
 import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 
