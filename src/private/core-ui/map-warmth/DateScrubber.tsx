@@ -143,7 +143,7 @@ const PlayButton = styled.button<{ $playing: boolean }>`
 
 const Stamp = styled.p`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   font-variant-numeric: tabular-nums;
@@ -155,7 +155,7 @@ const Stamp = styled.p`
 
   span {
     margin-left: 6px;
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
     font-weight: 500;
     color: ${meok[500]};
   }
@@ -163,7 +163,7 @@ const Stamp = styled.p`
 
 const Verdict = styled.p<{ $tone: 'quiet' | 'busy' | 'flat' }>`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -209,7 +209,7 @@ const Bar = styled.div<{ $live: boolean }>`
 const Ends = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[500]};
   font-variant-numeric: tabular-nums;

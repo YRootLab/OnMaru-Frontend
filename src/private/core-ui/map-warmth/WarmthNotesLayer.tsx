@@ -114,7 +114,7 @@ const styles = css`
   }
 
   .om-note-pin-place {
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
     font-weight: 500;
     color: ${meok[900]};
   }
@@ -129,7 +129,7 @@ const styles = css`
     border-radius: 9999px;
     background: ${meok[900]};
     color: #ffffff;
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
     font-weight: 700;
     line-height: 15px;
     text-align: center;
@@ -189,7 +189,7 @@ const styles = css`
   }
 
   .om-note-place {
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
     font-weight: 700;
     color: ${meok[900]};
     white-space: nowrap;
@@ -261,7 +261,7 @@ const styles = css`
   }
 
   .om-note-page-indicator {
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
     font-weight: 700;
     color: ${meok[500]};
     font-variant-numeric: tabular-nums;
@@ -273,7 +273,7 @@ const styles = css`
     gap: 2.5px;
     padding: 1.5px 5.5px;
     border-radius: 9999px;
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
     font-weight: 700;
     white-space: nowrap;
   }
@@ -297,7 +297,7 @@ const styles = css`
   .om-note-body {
     flex: 1;
     padding: 0 8px;
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
     line-height: 1.45;
     font-weight: 500;
     color: ${meok[900]};
@@ -320,7 +320,7 @@ const styles = css`
     align-items: center;
     justify-content: space-between;
     margin-top: 4px;
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
     color: ${meok[500]};
   }
 
@@ -328,7 +328,7 @@ const styles = css`
     border: none;
     background: transparent;
     padding: 2px 6px;
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
     font-weight: 700;
     color: ${lightPalette.hwanggeum[500]};
     cursor: pointer;

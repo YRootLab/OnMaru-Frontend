@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, Search01Icon } from '@hugeicons/core-free-icons';
-import { meok, palette, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { meok, palette, surface, typographyRole, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
 import { RAIL_INSET, RAIL_WIDTH } from '@/features/map/components/MapNavRail';

@@ -42,7 +42,7 @@ export const SectionTitleGroup = styled.div`
 
 export const SectionTitle = styled.h3`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
@@ -128,7 +128,7 @@ export const RegionChip = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? '#191f28' : 'rgba(0,0,0,0.05)')};
   color: ${({ $active }) => ($active ? '#ffffff' : '#333d4b')};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   cursor: pointer;
   white-space: nowrap;
@@ -226,7 +226,7 @@ export const FeaturedInfo = styled.div`
 `;
 
 export const FeaturedRank = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
   color: ${lightPalette.hwanggeum[700]};
   display: block;
@@ -250,7 +250,7 @@ export const FeaturedName = styled.h4`
 
 export const FeaturedMeta = styled.p`
   margin: 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
 `;
 
@@ -264,7 +264,7 @@ export const MoreBtn = styled.button`
   background: #ffffff;
   color: ${meok[900]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
   flex-shrink: 0;
@@ -295,7 +295,7 @@ export const ReviewSectionHeader = styled.div`
 
 export const ReviewSectionTitle = styled.h4`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   display: flex;
@@ -340,7 +340,7 @@ export const SortSelect = styled.select`
   box-shadow: none !important;
 
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[700]};
   padding: 4px 24px 4px 10px;
@@ -384,7 +384,7 @@ export const EmptyState = styled.div`
   padding: 40px 16px;
   text-align: center;
   color: ${meok[500]};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   line-height: 1.6;
 `;
 
@@ -408,7 +408,7 @@ export const PageNavBtn = styled.button`
   background: rgba(78, 89, 104, 0.06);
   color: ${meok[700]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -444,7 +444,7 @@ export const PageNumberBtn = styled.button<{ $active: boolean }>`
     $active ? lightPalette.hwanggeum[500] : 'transparent'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
   transition: all 0.15s ease;
@@ -457,7 +457,7 @@ export const PageNumberBtn = styled.button<{ $active: boolean }>`
 `;
 
 export const PageIndicator = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[500]};
   margin-left: 4px;
@@ -516,7 +516,7 @@ export const OniBannerTextCol = styled.div`
 
 export const OniBannerTitle = styled.h4`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.02em;
@@ -537,7 +537,7 @@ export const OniBannerBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 600;
   color: ${lightPalette.hwanggeum[700]};
   background: rgba(245, 166, 35, 0.12);
@@ -552,7 +552,7 @@ export const OniBannerBadge = styled.span`
 
 export const OniBannerDesc = styled.p`
   margin: 2px 0 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[600]};
   line-height: 1.4;
   letter-spacing: -0.01em;

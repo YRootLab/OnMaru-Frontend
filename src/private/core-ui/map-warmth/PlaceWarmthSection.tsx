@@ -37,7 +37,7 @@ const TitleBox = styled.div`
 
 const SectionTitle = styled.h3`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
 
@@ -56,7 +56,7 @@ const CountBadge = styled.span`
   border-radius: 9999px;
   background: ${palette.juhong[50]};
   color: ${palette.juhong[700]};
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   border: none;
@@ -78,7 +78,7 @@ const WriteButton = styled.button`
   background: ${palette.juhong[50]};
   color: ${palette.juhong[700]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -144,7 +144,7 @@ const MoodBadge = styled.span<{ $mood?: '한적' | '북적' }>`
   gap: 4px;
   padding: 2.5px 7px;
   border-radius: 6px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
   color: ${palette.juhong[800]};
   background: ${palette.juhong[50]};
@@ -166,12 +166,12 @@ const MineBadge = styled.span`
   border-radius: 4px;
   background: ${meok[900]};
   color: #ffffff;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
 `;
 
 const TimeText = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   color: ${meok[400]};
 `;
 
@@ -191,7 +191,7 @@ const TagItem = styled.span`
   border-radius: 6px;
   background: rgba(255, 106, 16, 0.08);
   color: ${palette.juhong[800]};
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
 
   [data-theme='dark'] & {
@@ -202,7 +202,7 @@ const TagItem = styled.span`
 
 const WarmthText = styled.p`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   line-height: 1.55;
   color: ${meok[900]};
@@ -246,7 +246,7 @@ const EmptyIconBox = styled.div`
 `;
 
 const EmptyTitle = styled.div`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   margin-bottom: 4px;
@@ -257,7 +257,7 @@ const EmptyTitle = styled.div`
 `;
 
 const EmptySub = styled.div`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
   margin-bottom: 12px;
 
@@ -278,7 +278,7 @@ const EmptyActionBtn = styled.button`
   background: ${palette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
 

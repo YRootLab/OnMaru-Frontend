@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PenLineIcon } from '@hugeicons/core-free-icons'
-import { meok, fontSize } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 import WriteWarmthModal from './WriteWarmthModal';
@@ -22,7 +22,7 @@ const FloatingBtn = styled.button`
   background: ${meok[900]};
   color: #ffffff;
   font-family: inherit;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 700;
 
   cursor: pointer;
@@ -49,7 +49,7 @@ const FloatingBtn = styled.button`
   @media (max-width: 1023px) {
     height: 38px;
     padding: 0 14px;
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
   }
 `;
 

@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 const TagBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   padding: 3px 8.5px;
   border-radius: 9999px;
