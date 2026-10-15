@@ -62,7 +62,7 @@ const SkeletonBar = styled.div<{ $w: string; $h: string }>`
 `;
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar01Icon, ChevronLeftIcon, ChevronRightIcon, SparklesIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, darkPalette, meok, surface, fontSize, fontFamily } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok, surface, typographyRole, fontFamily } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { isHanok } from '@/features/map/utils/isHanok';
 import { EmphasisBadge } from '@/features/map/components/EmphasisBadge';
@@ -100,7 +100,7 @@ const TitleGroup = styled.div`
 
 const SectionTitle = styled.h3`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.02em;
@@ -111,7 +111,7 @@ const SectionTitle = styled.h3`
 `;
 
 const BadgeTitle = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${lightPalette.jaha[600]};
 
@@ -126,7 +126,7 @@ const MoreBtn = styled.button`
   gap: 2px;
 
   background: transparent;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${lightPalette.jaha[600]};
   cursor: pointer;
@@ -284,7 +284,7 @@ const CardBadge = styled.div`
   gap: 3px;
   padding: 2.5px 7.5px;
   border-radius: 9999px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
   color: #ffffff;
   background: ${lightPalette.jaha[600]};
@@ -301,7 +301,7 @@ const CardBody = styled.div`
 
 const CardTitle = styled.h4`
   margin: 0 0 4px;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
@@ -318,7 +318,7 @@ const CardDateRow = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   color: ${lightPalette.jaha[600]};
   font-weight: 500;
 
@@ -329,7 +329,7 @@ const CardDateRow = styled.div`
 
 const CardAddr = styled.div`
   margin-top: 3px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 400;
   color: ${meok[400]};
   white-space: nowrap;

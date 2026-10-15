@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { lightPalette, darkPalette, palette, meok, surface, fontSize, fontFamily } from '@/design-system/tokens';
+import { lightPalette, darkPalette, palette, meok, surface, typographyRole, fontFamily } from '@/design-system/tokens';
 
 export const pulse = keyframes`
   0%, 100% { opacity: 1; }
@@ -50,7 +50,7 @@ export const HeaderBadge = styled.div`
   border-radius: 9999px;
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[700]};
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   letter-spacing: 0.06em;
   border: none;
@@ -70,7 +70,7 @@ export const BackToPopularBtn = styled.button`
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[900]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   border: none;
   cursor: pointer;
@@ -157,7 +157,7 @@ export const PlaceTitle = styled.h2`
 
 export const PlaceAddress = styled.p`
   margin: 0 0 10px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
 
   [data-theme='dark'] & {
@@ -174,7 +174,7 @@ export const BadgeRow = styled.div`
 export const Badge = styled.span`
   padding: 3px 9px;
   border-radius: 9999px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 400;
   color: ${meok[700]};
   background: rgba(78, 89, 104, 0.07);
@@ -199,7 +199,7 @@ export const SmartFeatureChip = styled.span<{ $type?: 'free' | 'parking' | 'audi
   gap: 4px;
   padding: 3px 8px;
   border-radius: 8px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${({ $type }) =>
     $type === 'audio' ? lightPalette.jangmi[700] : meok[700]};
@@ -248,7 +248,7 @@ export const LiveWarmthStatus = styled.div`
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   min-width: 0;
@@ -338,7 +338,7 @@ export const StampBannerTitle = styled.span`
 `;
 
 export const StampBannerSub = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   color: ${meok[500]};
 
   [data-theme='dark'] & {
@@ -353,7 +353,7 @@ export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
   padding: 6px 12px;
   border: none;
   border-radius: 8px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
   cursor: pointer;
 
@@ -386,7 +386,7 @@ export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
 `;
 
 export const LiveWarmthCount = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   color: ${palette.juhong[600]};
   font-weight: 700;
   flex-shrink: 0;
@@ -473,7 +473,7 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: 
   }
 
   span {
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
     font-weight: 500;
     white-space: nowrap;
   }
@@ -505,7 +505,7 @@ export const HeroActionLink = styled.a`
   }
 
   span {
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
     font-weight: 500;
     white-space: nowrap;
   }
@@ -534,7 +534,7 @@ export const CoreRow = styled.div`
 `;
 
 export const CoreLabel = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
   flex-shrink: 0;
 
@@ -544,7 +544,7 @@ export const CoreLabel = styled.span`
 `;
 
 export const CoreValue = styled.span`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   text-align: right;
@@ -556,7 +556,7 @@ export const CoreValue = styled.span`
 `;
 
 export const BuildingSpecValue = styled.span`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   color: ${palette.juhong[500]};
   text-align: right;
@@ -613,7 +613,7 @@ export const ToggleMoreBtn = styled.button`
   background: transparent;
   color: var(--color-action-secondary);
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   cursor: pointer;
 
@@ -655,7 +655,7 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
   color: ${({ $active }) =>
     $active ? palette.juhong[500] : meok[900]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -689,7 +689,7 @@ export const ShareButton = styled.button`
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[900]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -724,7 +724,7 @@ export const NavButton = styled.a`
   background: ${meok[900]};
   color: #ffffff;
   font-family: inherit;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
 
   font-weight: 700;
   text-decoration: none;

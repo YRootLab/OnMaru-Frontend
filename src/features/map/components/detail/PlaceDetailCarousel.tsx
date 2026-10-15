@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronLeftIcon, ChevronRightIcon, LandmarkIcon, Home01Icon, UtensilsIcon, Coffee01Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
-import { meok , fontSize } from '@/design-system/tokens';
+import { meok, typographyRole } from '@/design-system/tokens';
 import type { PlaceCategory } from '@/features/map/types';
 
 const ImageContainer = styled.div`
@@ -135,7 +135,7 @@ const FallbackIconWrap = styled.div`
 `;
 
 const FallbackText = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[700]};
   letter-spacing: -0.2px;

@@ -6,7 +6,7 @@ import { keyframes } from '@emotion/react';
 import { isOnmaruApiError } from '@/lib/api/errors';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, ChevronLeftIcon, ListIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
-import { meok, surface, fontSize } from '@/design-system/tokens';
+import { meok, surface, typographyRole } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { listInfoPlaces } from '@/features/map/services/infoMap.service';
 import { mapInfoPlaceToItem } from '@/features/map/services/infoMarker.service';
@@ -51,7 +51,7 @@ const Breadcrumb = styled.div`
   align-items: center;
   gap: 4px;
   padding: 16px 14px 12px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
 `;
 
@@ -83,7 +83,7 @@ const Sentinel = styled.div`
 const LoadingMore = styled.div`
   text-align: center;
   padding: 16px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[400]};
 `;
 
@@ -96,7 +96,7 @@ const InlineError = styled.div`
   border-radius: 10px;
   background: #f5f5f4;
   color: ${meok[700]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
 
   & > span {
     flex: 1;
@@ -158,7 +158,7 @@ const EmptyBox = styled.div`
   text-align: center;
   gap: 8px;
   color: ${meok[500]};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
 `;
 
 const RetryBtn = styled.button`
@@ -171,7 +171,7 @@ const RetryBtn = styled.button`
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[700]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
   border: none;

@@ -63,7 +63,7 @@ const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
 `;
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, fontSize, fontFamily } from '@/design-system/tokens';
+import { lightPalette, meok, typographyRole, fontFamily } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { CATEGORY_STYLES } from '../PlaceMarkers';
 import { isHanok } from '@/features/map/utils/isHanok';
@@ -111,7 +111,7 @@ const Title = styled.h3`
 `;
 
 const SubText = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[500]};
 `;
@@ -251,7 +251,7 @@ const DistanceOverlay = styled.div`
   background: rgba(25, 31, 40, 0.68);
   backdrop-filter: blur(4px);
   color: #ffffff;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
 `;
 
@@ -264,7 +264,7 @@ const Body = styled.div`
 
 const Name = styled.h4`
   margin: 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
@@ -279,7 +279,7 @@ const Name = styled.h4`
 
 const MoodReview = styled.p`
   margin: 1px 0 4px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   color: ${meok[500]};
   white-space: nowrap;
@@ -298,7 +298,7 @@ const TagRow = styled.div`
 const HashTag = styled.span<{ $category?: PlaceCategory }>`
   display: inline-flex;
   align-items: center;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${({ $category }) =>
     $category ? CATEGORY_STYLES[$category]?.main : meok[600]};

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { GlobeIcon, Search01Icon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { lightPalette, meok, surface, typographyRole, ringShadow } from '@/design-system/tokens';
 import { snapshotFromMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/features/map/hooks/useMapStore';
 
@@ -62,7 +62,7 @@ const Input = styled.input`
   -webkit-appearance: none;
   appearance: none;
   font-family: inherit;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   text-overflow: ellipsis;
@@ -135,7 +135,7 @@ const ResetAllBtn = styled.button`
   background: rgba(25, 31, 40, 0.03);
   border: none;
   color: ${meok[500]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -161,7 +161,7 @@ const GroupTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[500]};
   letter-spacing: 0.3px;
@@ -188,7 +188,7 @@ const Suggestion = styled.button`
   background: rgba(25, 31, 40, 0.04);
   color: ${meok[700]};
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   cursor: pointer;
   border: none;

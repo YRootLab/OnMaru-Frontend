@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Camera01Icon, Cancel01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons'
-import { meok, lightPalette, darkPalette, surface, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, darkPalette, surface, typographyRole } from '@/design-system/tokens';
 import { livelyModalEnter } from '@/shared/motion/modalMotion';
 
 const Backdrop = styled.div`
@@ -70,7 +70,7 @@ const TitleBox = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   margin: 0;
@@ -88,7 +88,7 @@ const SubBadge = styled.span`
   border-radius: 9999px;
   background: var(--color-action-secondary-bg);
   color: var(--color-action-secondary);
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
 `;
 
@@ -142,7 +142,7 @@ const FallbackOverlay = styled.div`
   background: ${surface.dark.app};
 
   p {
-    font-size: ${fontSize.sm};
+    font-size: ${typographyRole.bodySm.fontSize};
     color: ${meok[400]};
     margin: 0;
     max-width: 320px;
