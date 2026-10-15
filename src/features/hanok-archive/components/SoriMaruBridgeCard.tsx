@@ -7,7 +7,7 @@ import { HeadphonesIcon, ArrowRight01Icon, SparklesIcon } from '@hugeicons/core-
 import { useRouter } from 'next/navigation';
 
 import type { AudioGuideStory } from '../hooks/useHanokAudioGuide';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 
 interface SoriMaruBridgeCardProps {
   stories: AudioGuideStory[];
@@ -99,7 +99,7 @@ const BadgeBox = styled.div`
   gap: 6px;
   background: ${palette.jangmi[50]};
   color: ${palette.jangmi[700]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 9999px;
@@ -119,7 +119,7 @@ const BadgeBox = styled.div`
 `;
 
 const OfficialTag = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[500]};
 
@@ -133,7 +133,7 @@ const ContentBody = styled.div`
 `;
 
 const StoryTitle = styled.h4`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 700;
   color: ${meok[900]};
   margin: 0 0 6px;
@@ -145,7 +145,7 @@ const StoryTitle = styled.h4`
 `;
 
 const GuideDesc = styled.p`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.6;
   color: ${meok[700]};
   margin: 0;
@@ -189,7 +189,7 @@ const ListenInSoriMaruBtn = styled.button`
   border-radius: 9999px;
   background: ${palette.jangmi[500]};
   color: #ffffff;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   border: none;
   cursor: pointer;
@@ -210,4 +210,4 @@ const ListenInSoriMaruBtn = styled.button`
       background: ${palette.jangmi[400]};
     }
   }
-`;
+`;

@@ -17,7 +17,7 @@ import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowUpRight01Icon, Layers01Icon, SunMediumIcon } from '@hugeicons/core-free-icons'
 
-import { meok, palette, lightPalette, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { meok, palette, lightPalette, surface, ringShadow, typographyRole, spacingLayout, mq } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 
 const SolarShadowModal = dynamic(() => import('./SolarShadowModal'), { ssr: false });
@@ -33,9 +33,9 @@ const SectionWrapper = styled.section`
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(16px, 2.2vw, 28px);
+  gap: ${spacingLayout.cardGap};
 
-  @media (max-width: 840px) {
+  @media (max-width: 767px) {
     grid-template-columns: 1fr;
   }
 `;
@@ -79,25 +79,25 @@ const CardContainer = styled.button<{ $accentColor: string }>`
 `;
 
 const CardBody = styled.div`
-  padding: clamp(22px, 2.6vw, 30px) clamp(24px, 2.8vw, 36px) clamp(24px, 2.8vw, 36px);
+  padding: ${spacingLayout.cardPadding} clamp(24px, 2.8vw, 36px) ${spacingLayout.cardPadding};
 `;
 
 const SectionLabel = styled.div<{ $color: string }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.eyebrow.fontSize};
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: ${typographyRole.eyebrow.letterSpacing};
   color: ${({ $color }) => $color};
   margin-bottom: 12px;
 `;
 
 const CardTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: clamp(19px, 1.8vw, 23px);
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-size: ${typographyRole.cardTitle.fontSize};
+  font-weight: ${typographyRole.cardTitle.fontWeight};
+  letter-spacing: ${typographyRole.cardTitle.letterSpacing};
   line-height: 1.35;
   color: ${meok[900]};
   margin: 0 0 8px;
@@ -109,7 +109,7 @@ const CardTitle = styled.h3`
 `;
 
 const CardDesc = styled.p`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.body.fontSize};
   font-weight: 400;
   line-height: 1.65;
   color: ${meok[700]};
@@ -149,7 +149,7 @@ const PreviewBadge = styled.div`
   border-radius: 9999px;
   background: rgba(0, 0, 0, 0.55);
   color: #ffffff;
-  font-size: 14px;
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 400;
   line-height: 1.35;
   letter-spacing: -0.01em;
@@ -307,7 +307,7 @@ const MoreLink = styled.div<{ $color: string }>`
   align-items: center;
   gap: 4px;
   color: ${({ $color }) => $color};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
 
   svg {

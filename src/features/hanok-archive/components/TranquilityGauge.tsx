@@ -6,7 +6,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Activity01Icon, Clock01Icon, ShieldCheckIcon, SparklesIcon } from '@hugeicons/core-free-icons'
 
 import type { TranquilityData } from '../hooks/useHanokTranquility';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize, typographyRole } from '@/design-system/tokens';
 
 interface TranquilityGaugeProps {
   data: TranquilityData | null;
@@ -113,7 +113,7 @@ const BadgeBox = styled.div`
 `;
 
 const BadgeText = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   color: ${palette.juhong[700]};
 
@@ -123,7 +123,7 @@ const BadgeText = styled.span`
 `;
 
 const DistrictTag = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[500]};
 
@@ -158,7 +158,7 @@ const ScoreNumber = styled.span`
 `;
 
 const ScoreMax = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[400]};
 `;
 
@@ -166,7 +166,7 @@ const LevelBadge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   padding: 5px 13px;
   border-radius: 9999px;
@@ -205,7 +205,7 @@ const InfoPill = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[700]};
   background: #ffffff;
   padding: 8px 14px;
@@ -241,7 +241,7 @@ const AdviceText = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.5;
   color: ${meok[500]};
   background: rgba(0, 0, 0, 0.02);
@@ -254,4 +254,4 @@ const AdviceText = styled.div`
     background: rgba(255, 255, 255, 0.04);
     color: ${meok[200]};
   }
-`;
+`;

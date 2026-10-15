@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, palette, fontSize } from '@/design-system/tokens';
+import { meok, palette, typographyRole, mq } from '@/design-system/tokens';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { HeadphonesIcon, MapPinIcon, ArrowUpRight01Icon } from '@hugeicons/core-free-icons';
 import type { Village } from '@/features/hanok-archive/types';
@@ -243,7 +243,7 @@ const TypeBadge = styled.span`
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(0, 0, 0, 0.06);
   color: ${meok[800]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 9999px;
@@ -266,7 +266,7 @@ const DocentTag = styled.span`
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(0, 0, 0, 0.06);
   color: ${meok[800]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   padding: 4px 10px;
   border-radius: 9999px;
@@ -298,7 +298,7 @@ const TypographyArea = styled.div`
 
 const Name = styled.h3`
   font-family: var(--font-hanok);
-  font-size: 1.02rem;
+  font-size: ${typographyRole.cardTitle.fontSize};
   font-weight: 700;
   color: ${meok[900]};
   margin: 0;
@@ -327,7 +327,7 @@ const MetaRow = styled.div`
 `;
 
 const RegionText = styled.p`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[500]};
   margin: 0;

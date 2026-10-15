@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette, typographyRole } from '@/design-system/tokens';
 import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReveal';
 
 
@@ -48,7 +48,7 @@ const IndexItem = styled.button<{ $active: boolean }>`
   cursor: pointer;
   text-align: left;
   font-family: var(--font-hanok);
-  font-size: 12.5px;
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.35;
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
   letter-spacing: -0.01em;

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import styled from '@emotion/styled';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import { meok, palette, surface, fontSize } from '@/design-system/tokens';
+import { meok, palette, surface, typographyRole } from '@/design-system/tokens';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 
@@ -54,6 +54,7 @@ const Container = styled.div`
 
 const ManifestoParagraph = styled(motion.h2)`
   font-family: 'Dohyun', 'Pretendard', var(--font-hanok), -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  /* ponytail: 예외 — Dohyun 폰트 매니페스토 시 감성 카피, display보다 절제된 극적 크기 의도 */
   font-size: clamp(20px, 3.2vw, 38px);
   font-weight: 400;
   line-height: 1.8;
@@ -104,7 +105,7 @@ const CtaButton = styled(Link, {
   background: ${({ $primary }) =>
     $primary ? palette.juhong[500] : '#f5f5f4'};
   color: ${({ $primary }) => ($primary ? '#ffffff' : meok[900])};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: ${({ $primary }) => ($primary ? 700 : 500)};
   padding: 14px 28px;
   border-radius: 9999px;

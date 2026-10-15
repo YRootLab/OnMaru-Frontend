@@ -1,6 +1,6 @@
 ﻿import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { meok, palette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
+import { meok, palette, surface, typographyRole, mq } from '@/design-system/tokens';
 
 export const Overlay = styled(motion.div)`
   position: fixed;
@@ -13,7 +13,7 @@ export const Overlay = styled(motion.div)`
   place-items: center;
   padding: 24px;
 
-  @media (max-width: 640px) {
+  ${mq.mobile} {
     padding: 0;
     place-items: end center;
   }
@@ -36,7 +36,7 @@ export const ModalCard = styled(motion.div)`
     background: ${surface.dark.card};
   }
 
-  @media (max-width: 640px) {
+  ${mq.mobile} {
     border-radius: 24px 24px 0 0;
     max-height: 92dvh;
     width: 100%;
@@ -74,7 +74,7 @@ export const ImageHero = styled.div<{ $bg: string | null }>`
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 40%, rgba(14, 20, 36, 0.8) 100%);
   }
 
-  @media (max-width: 640px) {
+  ${mq.mobile} {
     height: 220px;
   }
 `;
@@ -113,7 +113,7 @@ export const HeroContent = styled.div`
 
 export const HeroRegion = styled.span`
   display: inline-block;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${palette.hwanggeum[200]};
   margin-bottom: 6px;
@@ -123,7 +123,7 @@ export const HeroRegion = styled.span`
 
 export const HeroTitle = styled.h2`
   font-family: var(--font-hanok);
-  font-size: ${fluidHeading.feature};
+  font-size: ${typographyRole.sectionTitle.fontSize};
   font-weight: 400;
   margin: 0;
   line-height: 1.25;
@@ -159,7 +159,7 @@ export const MetaRow = styled.div`
 export const TypeBadge = styled.span`
   background: #f0f0ee;
   color: ${meok[800]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   padding: 4px 12px;
   border-radius: 9999px;
@@ -172,7 +172,7 @@ export const TypeBadge = styled.span`
 `;
 
 export const AddrText = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
 
   [data-theme='dark'] & {
@@ -197,7 +197,7 @@ export const NoteHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   color: ${meok[900]};
   margin-bottom: 12px;
@@ -214,7 +214,7 @@ export const HeaderBadge = styled.div`
 `;
 
 export const SourceTag = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[700]};
   background: ${meok[200]};
@@ -237,7 +237,7 @@ export const StoryContainer = styled.div<{ $isExpanded: boolean }>`
 `;
 
 export const StoryParagraph = styled.p`
-  font-size: 15px;
+  font-size: ${typographyRole.body.fontSize};
   font-weight: 450;
   color: ${meok[800]};
   line-height: 1.82;
@@ -257,7 +257,7 @@ export const StoryParagraph = styled.p`
 export const ExpandBtn = styled.button`
   background: transparent;
   color: ${palette.juhong[600]};
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   cursor: pointer;
   padding: 6px 0 0;
@@ -277,7 +277,7 @@ export const ExpandBtn = styled.button`
 `;
 
 export const SectionTitle = styled.h3`
-  font-size: ${fontSize.base};
+  font-size: ${typographyRole.body.fontSize};
   font-weight: 400;
   color: ${meok[900]};
   margin: 24px 0 12px;
@@ -342,7 +342,7 @@ export const InfoContentBox = styled.div`
 `;
 
 export const InfoLabel = styled.div`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${meok[500]};
   margin-bottom: 3px;
@@ -353,7 +353,7 @@ export const InfoLabel = styled.div`
 `;
 
 export const InfoVal = styled.div`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   color: ${meok[700]};
   line-height: 1.5;
@@ -396,7 +396,7 @@ export const RepeatItemCard = styled.div`
 `;
 
 export const RepeatTitleText = styled.div`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   color: ${meok[700]};
   margin-bottom: 4px;
@@ -407,7 +407,7 @@ export const RepeatTitleText = styled.div`
 `;
 
 export const RepeatContentText = styled.div`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[700]};
   line-height: 1.6;
   white-space: pre-wrap;
@@ -505,7 +505,7 @@ export const MapBtn = styled.a`
   background: ${meok[900]};
   color: #ffffff;
   border-radius: 14px;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   text-decoration: none;
   border: none;
@@ -539,7 +539,7 @@ export const BookingModalBtn = styled.a`
   background: ${palette.juhong[500]};
   color: #ffffff;
   border-radius: 14px;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   text-decoration: none;
   border: none;
@@ -594,7 +594,7 @@ export const BookmarkActionBtn = styled.button<{ $bookmarked: boolean }>`
   height: 48px;
   padding: 0 18px;
   border-radius: 14px;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 500;
   cursor: pointer;
   border: none;
@@ -629,7 +629,7 @@ export const HeroZoomBadge = styled.button`
   border: none;
   box-shadow: none;
   color: #ffffff;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   padding: 6px 14px;
   border-radius: 9999px;
@@ -736,7 +736,7 @@ export const LightboxFooter = styled.div`
   align-items: center;
   gap: 12px;
   color: #ffffff;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
 `;
 
 export const LightboxCounter = styled.span`
@@ -744,7 +744,7 @@ export const LightboxCounter = styled.span`
   backdrop-filter: blur(8px);
   padding: 4px 14px;
   border-radius: 9999px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   letter-spacing: 0.05em;
 `;
@@ -762,7 +762,7 @@ export const InsightBadge = styled.span<{ $color: string }>`
   gap: 4px;
   padding: 4px 10px;
   border-radius: 9999px;
-  font-size: 11.5px;
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 600;
   color: ${({ $color }) => $color};
   background: ${({ $color }) => $color}16;
@@ -824,7 +824,7 @@ export const MapPreviewLabel = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 600;
   color: ${palette.juhong[600]};
   margin-bottom: 3px;
@@ -837,7 +837,7 @@ export const MapPreviewLabel = styled.div`
 `;
 
 export const MapPreviewName = styled.div`
-  font-size: 14px;
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   color: ${meok[900]};
   letter-spacing: -0.02em;
@@ -852,7 +852,7 @@ export const MapPreviewName = styled.div`
 `;
 
 export const MapPreviewAddr = styled.div`
-  font-size: 11.5px;
+  font-size: ${typographyRole.caption.fontSize};
   color: ${meok[600]};
   white-space: nowrap;
   overflow: hidden;
@@ -868,7 +868,7 @@ export const MapPreviewAction = styled.div`
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 12px;
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   color: ${palette.juhong[600]};
   white-space: nowrap;
@@ -895,7 +895,7 @@ export const ExpguideLabel = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 11.5px;
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 600;
   color: ${meok[600]};
   margin-bottom: 8px;
@@ -908,7 +908,7 @@ export const ExpguideLabel = styled.div`
 
 export const ExpguideText = styled.p`
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   line-height: 1.7;
   color: ${meok[800]};
   white-space: pre-line;
@@ -947,7 +947,7 @@ export const QuickInfoTitle = styled.h3`
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 600;
   color: ${meok[900]};
   margin: 0;
@@ -1005,7 +1005,7 @@ export const QuickInfoBody = styled.div`
 `;
 
 export const QuickInfoItemLabel = styled.div`
-  font-size: 11px;
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[500]};
   margin-bottom: 2px;
@@ -1017,7 +1017,7 @@ export const QuickInfoItemLabel = styled.div`
 `;
 
 export const QuickInfoItemValue = styled.div`
-  font-size: 13px;
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   color: ${meok[900]};
   line-height: 1.45;
@@ -1047,7 +1047,7 @@ export const CopyBtn = styled.button`
   margin-left: 6px;
   padding: 2px 7px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   background: ${meok[200]};
   color: ${meok[800]};

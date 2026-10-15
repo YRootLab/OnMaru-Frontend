@@ -10,7 +10,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Home01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
-import { lightPalette, meok, surface, ringShadow, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, ringShadow, fontSize, typographyRole } from '@/design-system/tokens';
 
 
 const ROTATIONS = [-4.2, 2.8, -2.1, 3.5];
@@ -117,6 +117,7 @@ const HandWritingCaption = styled.div`
 
 const HandWritingText = styled.p`
   font-family: 'GeuriunXGukhanbakSingoyangI', var(--font-hanok);
+  /* ponytail: 예외 — 폴라로이드 손글씨 캡션, 수기 폰트 감성 크기 */
   font-size: ${fontSize.xl};
   font-weight: 400;
   color: ${meok[900]};
@@ -169,7 +170,7 @@ const OutsideMeta = styled.div`
 
 const OutsideTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: ${fontSize.base};
+  font-size: ${typographyRole.body.fontSize};
   font-weight: 300;
   color: ${meok[900]};
   margin: 0;
@@ -188,7 +189,7 @@ const OutsideBadges = styled.div`
 
   span {
     font-family: var(--font-hanok);
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
     font-weight: 500;
     color: ${lightPalette.juhong[500]};
     background: rgba(78, 89, 104, 0.06);
@@ -208,7 +209,7 @@ const DetailButton = styled.div`
   gap: 4px;
   margin-top: 4px;
   font-family: var(--font-hanok);
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 400;
   color: ${meok[900]};
   transition: color 0.2s ease, transform 0.2s ease;
@@ -320,4 +321,4 @@ export default function PolaroidCard({
       )}
     </Wrapper>
   );
-}
+}

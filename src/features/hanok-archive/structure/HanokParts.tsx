@@ -25,7 +25,7 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 
-import { meok, palette, lightPalette, fluidHeading, fontSize } from '@/design-system/tokens';
+import { meok, palette, lightPalette, typographyRole } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAGES } from './stages';
 
@@ -96,7 +96,7 @@ const Row = styled.button`
 `;
 
 const Step = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
@@ -106,7 +106,7 @@ const Step = styled.span`
 const Name = styled.h3`
   font-family: var(--font-traditional-title);
   margin: 0;
-  font-size: ${fluidHeading.label};
+  font-size: ${typographyRole.cardTitle.fontSize};
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.35;
@@ -117,7 +117,7 @@ const Name = styled.h3`
     font-family: var(--font-traditional-body);
     display: block;
     margin-top: 3px;
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
     font-weight: 400;
     letter-spacing: 0.02em;
     color: ${meok[500]};
@@ -135,7 +135,7 @@ const Name = styled.h3`
 const Desc = styled.p`
   font-family: var(--font-traditional-body);
   margin: 0;
-  font-size: 14.5px;
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 400;
   line-height: 1.8;
   color: ${meok[700]};
@@ -170,7 +170,7 @@ const Cue = styled.span`
   align-items: center;
   gap: 5px;
   margin-top: 10px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   color: ${lightPalette.juhong[500]};
 
