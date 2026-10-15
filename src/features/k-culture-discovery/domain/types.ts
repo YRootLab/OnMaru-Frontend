@@ -37,13 +37,17 @@ export interface FeaturedRelation {
   relationType: RelationType;
 }
 
+export interface PlaceImage {
+  url: string;
+}
+
 export interface DiscoveryPlaceSummary {
   placeId: string;
   name: string;
   region: Region;
   placeRoles: PlaceRole[];
   topics: TopicCode[];
-  placeImage: string | null;
+  placeImage: string | PlaceImage | null;
   odiiLinked: boolean;
   featuredRelation: FeaturedRelation | null;
   matchingWorkCount: number;

@@ -2,8 +2,11 @@
 
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
-## Unreleased
+## [v0.1.22] - 2026-10-15
 
+- K-마루 탐색(`KCultureDiscovery`) 장소 이미지 응답 형태 대응:
+  - 백엔드가 `placeImage` 필드를 객체(`{ url: string }`)로 반환할 때 안전하게 파싱하도록 도메인 모델(`PlaceImage`) 및 훅(`useTourApiImage`)을 수정했다.
+  - 외부 관광공사 이미지의 `http://` URL을 `https://`로 자동 승격하여 브라우저 Mixed Content 차단 문제를 해결했다.
 - K-마루(`KCultureDiscovery`) 장소 카드 및 페이지 디자인을 전면 개편했다:
   - 주제 탭 아래 중복되어 시각적 피로감을 주던 세부 서브 필터 영역(콘텐츠 유형, 지역, 장소 유형 칩 묶음)을 전면 제거하여, 주제 탭과 장소 카드가 시원하고 여백감 넘치게 이어지도록 페이지 구성을 정돈했다.
   - 장소 목록의 과도한 세로 스크롤을 방지하기 위해 6개 단위 그리드 페이지네이션(`DiscoveryPlacesSection`)을 구현하고, `ringShadow` 토큰 기반의 세련된 페이지 버튼(`[<] [1] [2] ... [>]`)과 페이지 전환 시 부드러운 상단 스크롤을 지원했다.
