@@ -7,7 +7,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { HeartIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface } from '@/design-system/tokens';
 
 interface SavedSoundDrawerProps {
   savedStories: SorimaruStorySummary[];

@@ -8,7 +8,7 @@ import { Cancel01Icon, Search01Icon, Clock01Icon, PauseIcon, PlayIcon } from '@h
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import type { SorimaruCategory } from '@/features/sorimaru-audio/types/sorimaru.types';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { livelyModalEnter } from '@/shared/motion/modalMotion';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 
@@ -65,7 +65,7 @@ const ModalHeader = styled.div`
 `;
 
 const HeaderBadge = styled.span`
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
   color: ${palette.juhong[400]};
   text-transform: uppercase;
@@ -76,13 +76,9 @@ const HeaderBadge = styled.span`
 
 const HeaderTitle = styled.h2`
   font-family: inherit;
-  font-size: ${fontSize.xl};
+  font-size: ${typographyRole.sectionTitle.fontSize};
   font-weight: 600;
   color: #ffffff;
-
-  @media (min-width: 640px) {
-    font-size: ${fontSize['2xl']};
-  }
 `;
 
 const CloseButton = styled.button`
@@ -128,7 +124,7 @@ const CategoryChipsRail = styled.div`
 const ChipButton = styled.button<{ isSelected: boolean }>`
   padding: 0.375rem 0.875rem;
   border-radius: 9999px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   white-space: nowrap;
   border: 1px solid ${(props) => (props.isSelected ? palette.juhong[500] : 'rgba(255, 255, 255, 0.1)')};
@@ -154,7 +150,7 @@ const SearchInput = styled.input`
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
   font-family: inherit;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   color: #ffffff;
   outline: none;
 
@@ -189,7 +185,7 @@ const EmptyState = styled.div`
   padding: 3rem 0;
   text-align: center;
   color: ${meok[500]};
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
 `;
 
 const StoryCard = styled.div<{ isCurrent: boolean }>`
@@ -237,7 +233,7 @@ const MetaRow = styled.div`
 
 const CategoryTag = styled.span`
   padding: 0.125rem 0.5rem;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 700;
   background-color: ${palette.juhong[500]};
   color: #ffffff;
@@ -245,7 +241,7 @@ const CategoryTag = styled.span`
 `;
 
 const DurationText = styled.span`
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
@@ -253,7 +249,7 @@ const DurationText = styled.span`
 `;
 
 const StoryTitle = styled.h4`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 700;
   color: #ffffff;
   overflow: hidden;
@@ -261,13 +257,13 @@ const StoryTitle = styled.h4`
   white-space: nowrap;
 
   @media (min-width: 640px) {
-    font-size: ${fontSize.base};
+    font-size: ${typographyRole.body.fontSize};
   }
 `;
 
 const StoryDesc = styled.p`
   margin-top: 0.125rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
 
   & .loc {
@@ -283,7 +279,7 @@ const StoryDesc = styled.p`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
   }
 `;
 
@@ -294,7 +290,7 @@ const PlayActionBtn = styled.button<{ isPlaying: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 700;
   flex-shrink: 0;
   margin-left: 0.75rem;

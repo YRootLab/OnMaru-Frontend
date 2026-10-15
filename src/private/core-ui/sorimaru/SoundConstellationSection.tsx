@@ -15,7 +15,7 @@ import { getVirtualRange, VIRTUAL_ITEM_HEIGHT } from './soundConstellationScroll
 import {
   getRegionPathMotion,
 } from './soundConstellationMotion';
-import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole, ringShadow } from '@/design-system/tokens';
 
 export interface SoundConstellationSectionProps {
   groupsState: RegionGroupsState;
@@ -130,7 +130,7 @@ const MainHeading = styled.h2`
 const SubDesc = styled.p`
   margin-top: 0.25rem;
   max-width: 36rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.25rem;
   color: ${meok[700]};
 
@@ -139,7 +139,7 @@ const SubDesc = styled.p`
   }
 
   @media (min-width: 640px) {
-    font-size: ${fontSize.sm};
+    font-size: ${typographyRole.bodySm.fontSize};
   }
 `;
 
@@ -176,7 +176,7 @@ const MapHintPill = styled.div`
   border-radius: 9999px;
   background-color: rgba(255, 255, 255, 0.9);
   padding: 0.5rem 0.875rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[700]};
   backdrop-filter: blur(4px);
 
@@ -234,7 +234,7 @@ const RegionPinButton = styled.button<{ isActive: boolean }>`
   border: none;
   border-radius: 9999px;
   padding: 0.375rem 0.65rem;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: ${(props) => (props.isActive ? 700 : 600)};
   backdrop-filter: blur(12px);
   outline: none;
@@ -272,7 +272,7 @@ const RegionPinButton = styled.button<{ isActive: boolean }>`
 
   @media (min-width: 640px) {
     padding: 0.4rem 0.8rem;
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
   }
 `;
 
@@ -321,7 +321,7 @@ const AsideHeader = styled.div`
 `;
 
 const RegionLabel = styled.h3`
-  font-size: ${fontSize.xl};
+  font-size: ${typographyRole.sectionTitle.fontSize};
   font-weight: 800;
   letter-spacing: -0.04em;
   color: ${meok[900]};
@@ -334,7 +334,7 @@ const RegionLabel = styled.h3`
 const StoriesCount = styled.span`
   font-family: var(--font-hanok);
   font-variant-numeric: tabular-nums;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   color: ${palette.juhong[500]};
 `;
@@ -469,7 +469,7 @@ const StoryTitle = styled.strong<{ isActive: boolean }>`
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-family: inherit;
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   font-weight: 700;
   line-height: 1.35;
   color: ${(props) => (props.isActive ? palette.juhong[500] : meok[900])};
@@ -482,7 +482,7 @@ const StoryTitle = styled.strong<{ isActive: boolean }>`
 const DurationStatus = styled.span<{ isActive: boolean }>`
   margin-top: 1px;
   flex-shrink: 0;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 400;
   color: ${(props) => (props.isActive ? palette.juhong[500] : meok[500])};
 
@@ -497,7 +497,7 @@ const ExcerptText = styled.span`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   line-height: 1.4;
   color: ${meok[700]};
 
@@ -512,7 +512,7 @@ const LoadingSpinnerWrapper = styled.div`
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 700;
   color: ${palette.juhong[500]};
 
@@ -1008,4 +1008,4 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
       </InnerContainer>
     </SectionWrapper>
   );
-};
+};

@@ -11,7 +11,7 @@ import { ChevronLeftIcon, ChevronRightIcon, MapIcon, PauseIcon, PlayIcon } from 
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
 
 interface StoryCarouselProps {
@@ -210,7 +210,7 @@ const CardInfoCol = styled.div`
 
 const CardMainTitle = styled.h3<{ $isCurrent: boolean }>`
   font-family: var(--font-hanok);
-  font-size: ${fontSize.base};
+  font-size: ${typographyRole.body.fontSize};
   font-weight: 700;
   line-height: 1.35;
   letter-spacing: -0.035em;
@@ -235,7 +235,7 @@ const CardSubTitle = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   line-height: 1rem;
   color: ${meok[700]};
@@ -258,7 +258,7 @@ const MiniCategoryTag = styled.span`
   border-radius: 4px;
   background-color: ${palette.juhong[50]};
   padding: 1px 0.375rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   line-height: 1rem;
   color: ${palette.juhong[600]};
@@ -273,7 +273,7 @@ const LocationSpan = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   line-height: 1rem;
   color: ${meok[500]};
@@ -289,7 +289,7 @@ const ExcerptText = styled.p`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.4;
   color: ${meok[500]};
 
@@ -304,7 +304,7 @@ const CardBottomMeta = styled.div`
   align-items: center;
   justify-content: space-between;
   padding-top: 0.5rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[500]};
 
   [data-theme='dark'] & {
@@ -602,7 +602,7 @@ const CounterContainer = styled.div`
   align-items: center;
   justify-content: flex-end;
   padding: 0.25rem 1.5rem 0.75rem;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   font-weight: 500;
   letter-spacing: 0.08em;
   color: ${meok[500]};

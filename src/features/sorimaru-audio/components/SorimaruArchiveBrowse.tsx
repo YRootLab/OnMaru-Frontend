@@ -9,7 +9,7 @@ import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorima
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features/sorimaru-audio/utils/sorimaruArchiveGrouping';
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
-import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole, ringShadow } from '@/design-system/tokens';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { SorimaruRequestErrorState } from '@/features/sorimaru-audio/presentation/SorimaruRequestErrorState';
 
@@ -301,7 +301,7 @@ const TitleRow = styled.div`
 
 const StoryRowTitle = styled.h3<{ $isCurrent: boolean }>`
   font-family: var(--font-hanok);
-  font-size: ${fontSize.base};
+  font-size: ${typographyRole.body.fontSize};
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.02em;
@@ -327,7 +327,7 @@ const StoryRowTitle = styled.h3<{ $isCurrent: boolean }>`
 
 const DurationPill = styled.span`
   flex-shrink: 0;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   font-weight: 600;
   color: ${meok[500]};
   background-color: rgba(0, 0, 0, 0.04);
@@ -345,7 +345,7 @@ const LocationMeta = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[600]};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -361,7 +361,7 @@ const HashtagsRow = styled.div`
   flex-wrap: wrap;
   align-items: center;
   gap: 0.2rem 0.45rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.3;
   margin-top: 0.05rem;
 `;

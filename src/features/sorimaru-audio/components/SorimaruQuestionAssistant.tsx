@@ -6,7 +6,7 @@ import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowUp01Icon, RotateCcwIcon, Search01Icon } from '@hugeicons/core-free-icons'
 import type { SorimaruAssistantFilters, SorimaruAssistantResponse, SorimaruAssistantSource } from '@/features/sorimaru-audio/api/sorimaruAssistant.types';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 
 interface SorimaruQuestionAssistantProps {
   filters: SorimaruAssistantFilters;
@@ -60,7 +60,7 @@ const QuestionHeading = styled.h3`
 
 const QuestionDesc = styled.p`
   margin-top: 0.375rem;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   line-height: 1.25rem;
   color: ${meok[700]};
 
@@ -82,7 +82,7 @@ const SuggestionButton = styled.button`
   background-color: #ffffff;
   padding: 0.375rem 0.625rem;
   text-align: left;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   line-height: 1rem;
   color: ${meok[700]};
   cursor: pointer;
@@ -140,7 +140,7 @@ const StyledInput = styled.input`
   background: transparent;
   border: none;
   font-family: inherit;
-  font-size: ${fontSize.xs};
+  font-size: ${typographyRole.label.fontSize};
   color: ${meok[900]};
   outline: none;
 
@@ -182,7 +182,7 @@ const SubmitButton = styled.button`
 
 const HelperText = styled.p`
   margin-top: 0.75rem;
-  font-size: ${fontSize.micro};
+  font-size: ${typographyRole.caption.fontSize};
   color: ${meok[700]};
   line-height: 1.25rem;
 
@@ -208,7 +208,7 @@ const ResultCard = styled.div`
 `;
 
 const ResultAnswer = styled.p`
-  font-size: ${fontSize.sm};
+  font-size: ${typographyRole.bodySm.fontSize};
   line-height: 1.5rem;
   color: ${meok[900]};
 
@@ -258,7 +258,7 @@ const SourceButton = styled.button`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: ${fontSize.xs};
+    font-size: ${typographyRole.label.fontSize};
     font-weight: 600;
     color: ${meok[900]};
 
@@ -273,7 +273,7 @@ const SourceButton = styled.button`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: ${fontSize.micro};
+    font-size: ${typographyRole.caption.fontSize};
     color: ${meok[700]};
 
     [data-theme='dark'] & {
