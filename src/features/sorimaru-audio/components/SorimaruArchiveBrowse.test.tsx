@@ -4,6 +4,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
+import { typographyRole } from '@/design-system/tokens';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
 
 vi.mock('@/features/sorimaru-audio/hooks/useSorimaruImage', () => ({
@@ -68,7 +69,7 @@ describe('SorimaruArchiveBrowse typography', () => {
 
     const title = screen.getByRole('heading', { name: LONG_TITLE });
     expect(getComputedStyle(title).webkitLineClamp).toBe('2');
-    expect(getComputedStyle(title).fontSize).toBe('1rem');
+    expect(getComputedStyle(title).fontSize).toBe(typographyRole.body.fontSize);
 
     const article = title.closest('article');
     expect(article).not.toBeNull();
