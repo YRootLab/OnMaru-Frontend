@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { meok, palette, surface, typographyRole, mq } from '@/design-system/tokens';
+import { meok, palette, surface, typographyRole } from '@/design-system/tokens';
 
 export const Overlay = styled(motion.div)`
   position: fixed;
