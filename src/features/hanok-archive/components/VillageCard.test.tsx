@@ -4,6 +4,7 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Village } from '@/features/hanok-archive/types';
+import { typographyRole } from '@/design-system/tokens';
 import VillageCard from './VillageCard';
 
 const village: Village = {
@@ -33,8 +34,8 @@ describe('VillageCard', () => {
     const tagArea = screen.getByLabelText('한옥 태그');
     expect(tagArea.textContent).toContain('한옥');
     expect(tagArea.textContent).toContain('소리마루 도슨트');
-    expect(getComputedStyle(tagArea.children[0]).fontSize).toBe('0.75rem');
-    expect(getComputedStyle(tagArea.children[1]).fontSize).toBe('0.75rem');
+    expect(getComputedStyle(tagArea.children[0]).fontSize).toBe(typographyRole.label.fontSize);
+    expect(getComputedStyle(tagArea.children[1]).fontSize).toBe(typographyRole.label.fontSize);
   });
 
   it('keeps the complete title available while limiting it to two visual lines', () => {

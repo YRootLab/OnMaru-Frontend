@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
 import { meok, lightPalette, darkPalette, surface, typographyRole } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
-import { paintOverlays, type OverlaySpec } from '@/features/map/hooks/overlay';
 import { escapeHtml } from '@/features/map/utils/formatters';
 import { mapIconSvg } from '@/features/map/utils/mapIconSvg';
 import { getCuratedPlace } from '@/features/map/data/curatedPlaces';
@@ -22,9 +21,9 @@ import type { Item, Warmth } from '@/features/map/types';
 const GOTHIC_FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
 
 const ICONS = {
-  mapPin: mapIconSvg('mapPin', 11),
-  flame: mapIconSvg('flame', 10),
-  wind: mapIconSvg('leaf', 10),
+  mapPin: mapIconSvg('mapPin', 14),
+  flame: mapIconSvg('flame', 11),
+  wind: mapIconSvg('leaf', 11),
   quote: mapIconSvg('messageCircle', 11),
   chevronLeft: mapIconSvg('chevronLeft', 12),
   chevronRight: mapIconSvg('chevronRight', 12),
@@ -45,9 +44,6 @@ function formatTimeAgo(isoString: string): string {
 }
 
 const styles = css`
-
-
-
   @keyframes om-note-appear {
     0% {
       opacity: 0;
@@ -74,12 +70,6 @@ const styles = css`
     transform: translate(-50%, -100%) translateY(-5px) scale(1.03);
     z-index: 85 !important;
   }
-
-
-
-
-
-
 
   .om-warmth-note-wrap.is-compact {
     transform: translate(-50%, -50%);
@@ -143,14 +133,14 @@ const styles = css`
 
   .om-warmth-note-card {
     position: relative;
-    width: 264px;
-    padding: 11px 14px 10px 14px;
+    width: 284px;
+    padding: 12px 14px 11px 14px;
     border-radius: 14px;
     border: none;
     font-family: ${GOTHIC_FONT};
     transition: all 0.2s ease;
+    box-sizing: border-box;
   }
-
 
   [data-theme='light'] .om-warmth-note-card,
   :root:not([data-theme='dark']) .om-warmth-note-card {
@@ -158,12 +148,10 @@ const styles = css`
     box-shadow: 0 10px 26px -4px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.04);
   }
 
-
   [data-theme='dark'] .om-warmth-note-card {
     background: ${surface.dark.surface};
     box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.4);
   }
-
 
   .om-warmth-note-card::after {
     content: '';
@@ -179,17 +167,16 @@ const styles = css`
     border-top-color: ${surface.dark.surface};
   }
 
-
   .om-note-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
-    margin-bottom: 5px;
+    gap: 8px;
+    margin-bottom: 6px;
   }
 
   .om-note-place {
-    font-size: ${typographyRole.label.fontSize};
+    font-size: 13px;
     font-weight: 700;
     color: ${meok[900]};
     white-space: nowrap;
@@ -197,12 +184,25 @@ const styles = css`
     text-overflow: ellipsis;
     display: inline-flex;
     align-items: center;
-    gap: 3.5px;
+    gap: 4px;
     flex: 1;
+    min-width: 0;
+  }
+
+  .om-note-place-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: ${lightPalette.hwanggeum[600]};
   }
 
   [data-theme='dark'] .om-note-place {
     color: ${meok[200]};
+  }
+
+  [data-theme='dark'] .om-note-place-icon {
+    color: ${darkPalette.hwanggeum[400]};
   }
 
   .om-note-head-right {
@@ -212,21 +212,21 @@ const styles = css`
     flex: none;
   }
 
-
   .om-note-content-row {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: space-between;
-    margin: 5px -8px 7px -8px;
-    min-height: 38px;
+    margin: 4px -4px 6px -4px;
+    min-height: 42px;
   }
 
   .om-inner-nav-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
+    align-self: center;
+    width: 20px;
     height: 36px;
     border: none;
     background: transparent;
@@ -244,11 +244,11 @@ const styles = css`
   }
 
   .om-inner-nav-btn.om-btn-prev {
-    margin-left: 2px;
+    margin-left: 0;
   }
 
   .om-inner-nav-btn.om-btn-next {
-    margin-right: 2px;
+    margin-right: 0;
   }
 
   [data-theme='dark'] .om-inner-nav-btn {
@@ -262,7 +262,7 @@ const styles = css`
 
   .om-note-page-indicator {
     font-size: ${typographyRole.caption.fontSize};
-    font-weight: 700;
+    font-weight: 600;
     color: ${meok[500]};
     font-variant-numeric: tabular-nums;
   }
@@ -270,12 +270,13 @@ const styles = css`
   .om-note-badge {
     display: inline-flex;
     align-items: center;
-    gap: 2.5px;
-    padding: 1.5px 5.5px;
+    gap: 3px;
+    padding: 2px 7px;
     border-radius: 9999px;
-    font-size: ${typographyRole.caption.fontSize};
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 500;
     white-space: nowrap;
+    letter-spacing: -0.2px;
   }
 
   .om-note-badge.mood-busy {
@@ -293,22 +294,23 @@ const styles = css`
     color: var(--color-action-secondary);
   }
 
-
   .om-note-body {
     flex: 1;
-    padding: 0 8px;
-    font-size: ${typographyRole.label.fontSize};
-    line-height: 1.45;
-    font-weight: 500;
-    color: ${meok[900]};
-    word-break: keep-all;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    padding: 0 4px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    font-weight: 400;
+    color: ${meok[800]};
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
     letter-spacing: -0.2px;
-    min-height: 34px;
-    text-align: center;
+    text-align: left;
   }
 
   [data-theme='dark'] .om-note-body {
@@ -355,10 +357,18 @@ const styles = css`
 
 interface NoteCluster {
   id: string;
+  placeId: string;
   lat: number;
   lng: number;
   notes: Warmth[];
 }
+
+type WarmthOverlayRecord = {
+  overlay: any;
+  el: HTMLElement;
+  clusterKey: string;
+  notesCount: number;
+};
 
 export default function WarmthNotesLayer() {
   const map = useMapStore((s) => s.map);
@@ -369,142 +379,145 @@ export default function WarmthNotesLayer() {
   const { mode: colorMode } = useOnmaruTheme();
   const isDark = colorMode === 'dark';
 
+  const overlayMapRef = useRef(new Map<string, WarmthOverlayRecord>());
+
+  // 모드가 변경되거나 컴포넌트가 언마운트될 때 오버레이 정리
   useEffect(() => {
+    if (mode !== 'warmth') {
+      overlayMapRef.current.forEach((rec: WarmthOverlayRecord) => rec.overlay.setMap(null));
+      overlayMapRef.current.clear();
+    }
+  }, [mode]);
 
-    if (!map || mode !== 'warmth') return;
+  useEffect(() => {
+    return () => {
+      overlayMapRef.current.forEach((rec: WarmthOverlayRecord) => rec.overlay.setMap(null));
+      overlayMapRef.current.clear();
+    };
+  }, []);
 
-
-
-
-
-
-
-
-
+  useEffect(() => {
+    if (!map || mode !== 'warmth' || !window.kakao?.maps) return;
 
     const compact = level >= 8;
 
-    const bounds = map.getBounds?.();
-    const projection = map.getProjection?.();
-
-
     const validWarmths = warmths.filter((w) => w.text && w.text.trim().length > 0);
-    if (validWarmths.length === 0) return;
+    if (validWarmths.length === 0) {
+      overlayMapRef.current.forEach((rec: WarmthOverlayRecord) => rec.overlay.setMap(null));
+      overlayMapRef.current.clear();
+      return;
+    }
 
+    // 현재 지도 뷰포트 영역(bounds) 가져오기 (오버스캔 0.5 적용으로 화면 주변 말풍선도 유지)
+    const bounds = map.getBounds?.();
+    let inViewWarmths = validWarmths;
+    if (bounds) {
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+      const dLat = (ne.getLat() - sw.getLat()) * 0.5;
+      const dLng = (ne.getLng() - sw.getLng()) * 0.5;
+      const minLat = sw.getLat() - dLat;
+      const maxLat = ne.getLat() + dLat;
+      const minLng = sw.getLng() - dLng;
+      const maxLng = ne.getLng() + dLng;
 
-    let inBoundsList = validWarmths;
-    if (bounds && window.kakao?.maps) {
-      inBoundsList = validWarmths.filter((w) =>
-        bounds.contain(new window.kakao.maps.LatLng(w.lat, w.lng)),
+      inViewWarmths = validWarmths.filter(
+        (w) => w.lat >= minLat && w.lat <= maxLat && w.lng >= minLng && w.lng <= maxLng,
       );
     }
 
-    if (inBoundsList.length === 0) return;
+    // 장소(placeId 또는 좌표) 기준으로 1차 그룹화
+    const placeMap = new Map<string, Warmth[]>();
+    inViewWarmths.forEach((w) => {
+      const key = w.placeId || `${w.lat.toFixed(4)}_${w.lng.toFixed(4)}`;
+      const list = placeMap.get(key) || [];
+      list.push(w);
+      placeMap.set(key, list);
+    });
 
-
-    const getScreenDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-      if (!projection) return 9999;
-      const p1 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat1, lng1));
-      const p2 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat2, lng2));
-      return Math.hypot(p2.x - p1.x, p2.y - p1.y);
-    };
-
-    const getScreenDelta = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-      if (!projection) return { dx: 9999, dy: 9999 };
-      const p1 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat1, lng1));
-      const p2 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat2, lng2));
-      return { dx: Math.abs(p2.x - p1.x), dy: Math.abs(p2.y - p1.y) };
-    };
-
-    const clusters: NoteCluster[] = [];
-    const used = new Set<string>();
-
-    inBoundsList.forEach((w) => {
-      if (used.has(w.id)) return;
-
-      const group: Warmth[] = [w];
-      used.add(w.id);
-
-      inBoundsList.forEach((other) => {
-        if (used.has(other.id)) return;
-
-        const isSamePlace = other.placeId === w.placeId;
-        const delta = getScreenDelta(w.lat, w.lng, other.lat, other.lng);
-
-
-        const cardCollision = compact
-          ? Math.hypot(delta.dx, delta.dy) < 60
-          : delta.dx < 230 && delta.dy < 95;
-
-        if (isSamePlace || cardCollision) {
-          group.push(other);
-          used.add(other.id);
-        }
-      });
-
-      clusters.push({
-        id: `note-cluster-${w.placeId}-${w.id}`,
-        lat: w.lat,
-        lng: w.lng,
-        notes: group,
+    // 장소 단위 클러스터 목록 생성
+    const rawClusters: NoteCluster[] = [];
+    placeMap.forEach((notes, key) => {
+      const first = notes[0];
+      rawClusters.push({
+        id: `note-place-${key}`,
+        placeId: first.placeId,
+        lat: first.lat,
+        lng: first.lng,
+        notes,
       });
     });
 
+    // 줌 레벨에 따른 위경도 클러스터링 거리 임계값
+    // level 4 이하(1km 이하 상세 줌)에서는 클러스터링을 최소화하여 각 장소의 말풍선이 온전히 보이도록 함
+    const geoThreshold = compact ? 0.05 : level <= 4 ? 0.0008 : Math.max(0.002, (level - 2) * 0.002);
 
+    const mergedClusters: NoteCluster[] = [];
+    const visited = new Set<string>();
 
+    // 후기가 많은 장소부터 우선권 부여
+    const sortedRaw = [...rawClusters].sort((a, b) => b.notes.length - a.notes.length);
 
-    const placedBoxes: { x: number; y: number }[] = [];
-    const nonCollidingClusters: NoteCluster[] = [];
+    sortedRaw.forEach((c) => {
+      if (visited.has(c.id)) return;
+      visited.add(c.id);
 
+      const groupNotes = [...c.notes];
 
-    const sortedClusters = [...clusters].sort((a, b) => b.notes.length - a.notes.length);
+      sortedRaw.forEach((other) => {
+        if (visited.has(other.id)) return;
+        const dLat = Math.abs(c.lat - other.lat);
+        const dLng = Math.abs(c.lng - other.lng);
+        const dist = Math.hypot(dLat, dLng);
 
-    sortedClusters.forEach((cluster) => {
-      if (!projection) {
-        nonCollidingClusters.push(cluster);
-        return;
-      }
-      const pt = projection.pointFromCoords(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
-      if (!pt) return;
-
-      const cardW = compact ? 80 : 250;
-      const cardH = compact ? 30 : 95;
-
-      const collides = placedBoxes.some((box) => {
-        return Math.abs(box.x - pt.x) < cardW && Math.abs(box.y - pt.y) < cardH;
-      });
-
-      if (!collides) {
-        placedBoxes.push(pt);
-        nonCollidingClusters.push(cluster);
-      } else {
-
-        const nearest = nonCollidingClusters[0];
-        if (nearest) {
-          cluster.notes.forEach((n) => {
-            if (!nearest.notes.some((existing) => existing.id === n.id)) {
-              nearest.notes.push(n);
+        if (dist < geoThreshold) {
+          visited.add(other.id);
+          other.notes.forEach((n) => {
+            if (!groupNotes.some((ex) => ex.id === n.id)) {
+              groupNotes.push(n);
             }
           });
         }
+      });
+
+      mergedClusters.push({
+        id: c.id,
+        placeId: c.placeId,
+        lat: c.lat,
+        lng: c.lng,
+        notes: groupNotes,
+      });
+    });
+
+    // 화면 내에 노출할 최대 개수 (확대 시 충분히 많이 보여주어 사라짐 방지)
+    const maxClusters = compact ? 20 : level <= 4 ? 30 : 15;
+    const finalClusters = mergedClusters.slice(0, maxClusters);
+
+    const currentClusterKeys = new Set(finalClusters.map((c) => `${c.id}_${compact ? 'compact' : 'full'}`));
+
+    // 화면 영역을 벗어났거나 제거된 클러스터 오버레이 정리
+    overlayMapRef.current.forEach((rec: WarmthOverlayRecord, key: string) => {
+      if (!currentClusterKeys.has(key)) {
+        rec.overlay.setMap(null);
+        overlayMapRef.current.delete(key);
       }
     });
 
-    const maxClusters = compact ? 12 : 5;
-    const finalClusters = nonCollidingClusters.slice(0, maxClusters);
+    // 새 클러스터 오버레이 생성 또는 기존 오버레이 유지
+    finalClusters.forEach((cluster) => {
+      const clusterKey = `${cluster.id}_${compact ? 'compact' : 'full'}`;
+      const existing = overlayMapRef.current.get(clusterKey);
 
+      // 이미 생성되어 있고 후기 개수도 동일하다면 다시 그리지 않고 그대로 유지
+      if (existing && existing.notesCount === cluster.notes.length) {
+        return;
+      }
 
-    const specs: OverlaySpec[] = finalClusters.map((cluster) => {
       let currentIndex = 0;
       const notes = cluster.notes;
 
       const el = document.createElement('div');
       el.className = 'om-warmth-note-wrap';
-
-
-
-
-
 
       if (compact) {
         el.classList.add('is-compact');
@@ -519,22 +532,38 @@ export default function WarmthNotesLayer() {
         el.addEventListener('click', () => {
           const m = useMapStore.getState().map;
           if (!m) return;
-          m.setLevel(6, { animate: true });
+          m.setLevel(4, { animate: true });
           m.panTo(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
         });
 
-        return { lat: cluster.lat, lng: cluster.lng, el, yAnchor: 1.1, zIndex: 24 };
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(cluster.lat, cluster.lng),
+          content: el,
+          yAnchor: 1.1,
+          zIndex: 24,
+        });
+        (el as any).__kakaoOverlay = overlay;
+        overlay.setMap(map);
+
+        if (existing) {
+          existing.overlay.setMap(null);
+        }
+        overlayMapRef.current.set(clusterKey, {
+          overlay,
+          el,
+          clusterKey,
+          notesCount: notes.length,
+        });
+        return;
       }
 
       const openDetailForCurrentNote = () => {
         const currentNote = notes[currentIndex];
         const store = useMapStore.getState();
 
-
         if (store.map && window.kakao?.maps) {
           store.map.panTo(new window.kakao.maps.LatLng(currentNote.lat, currentNote.lng));
         }
-
 
         const matched = store.items.find(
           (it) =>
@@ -544,7 +573,6 @@ export default function WarmthNotesLayer() {
         );
 
         const targetId = matched?.id || currentNote.placeId;
-
 
         if (!matched) {
           const curated = getCuratedPlace(currentNote.placeId, currentNote.placeName);
@@ -563,11 +591,9 @@ export default function WarmthNotesLayer() {
           store.setItems([...store.items, newItem]);
         }
 
-
         store.setSelectedId(targetId);
         store.setDetailId(targetId);
         store.setSheetSnap('full');
-
 
         if (!store.panelOpen) {
           store.setPanelOpen(true);
@@ -605,13 +631,16 @@ export default function WarmthNotesLayer() {
         el.innerHTML = `
           <div class="om-warmth-note-card">
             <div class="om-note-head">
-              <span class="om-note-place">${ICONS.mapPin} ${escapeHtml(note.placeName)}</span>
+              <span class="om-note-place">
+                <span class="om-note-place-icon">${ICONS.mapPin}</span>
+                ${escapeHtml(note.placeName)}
+              </span>
               <span class="om-note-badge ${badgeClass}">${badgeIcon} ${badgeText}</span>
             </div>
 
             <div class="om-note-content-row">
               ${prevBtnHtml}
-              <div class="om-note-body">
+              <div class="om-note-body" style="display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;word-break:break-all;overflow-wrap:anywhere;white-space:normal;line-height:1.5;">
                 ${escapeHtml(cleanText)}
               </div>
               ${nextBtnHtml}
@@ -626,7 +655,6 @@ export default function WarmthNotesLayer() {
             </div>
           </div>
         `;
-
 
         if (notes.length > 1) {
           const prevBtn = el.querySelector('.om-btn-prev');
@@ -645,7 +673,6 @@ export default function WarmthNotesLayer() {
           });
         }
 
-
         const hintBtn = el.querySelector('.om-note-hint-btn');
         hintBtn?.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -654,7 +681,6 @@ export default function WarmthNotesLayer() {
       };
 
       renderCardContent();
-
 
       el.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
@@ -667,14 +693,6 @@ export default function WarmthNotesLayer() {
         if (overlay && typeof overlay.setZIndex === 'function') {
           overlay.setZIndex(z);
         }
-        let parent: HTMLElement | null = el.parentElement;
-        while (parent && parent !== document.body) {
-          if (parent.style && (parent.style.position === 'absolute' || parent.style.zIndex)) {
-            parent.style.zIndex = String(z);
-            break;
-          }
-          parent = parent.parentElement;
-        }
       };
 
       el.addEventListener('mouseenter', () => {
@@ -685,22 +703,29 @@ export default function WarmthNotesLayer() {
         setZIndex(25);
       });
 
-      return {
-        lat: cluster.lat,
-        lng: cluster.lng,
-        el,
+      const overlay = new window.kakao.maps.CustomOverlay({
+        position: new window.kakao.maps.LatLng(cluster.lat, cluster.lng),
+        content: el,
         yAnchor: 1.25,
         zIndex: 25,
-      };
-    });
+      });
+      (el as any).__kakaoOverlay = overlay;
+      overlay.setMap(map);
 
-    const cleanup = paintOverlays(map, specs);
-    return () => {
-      if (cleanup) cleanup();
-    };
-  }, [map, mode, warmths, level, center, isDark]);
+      if (existing) {
+        existing.overlay.setMap(null);
+      }
+      overlayMapRef.current.set(clusterKey, {
+        overlay,
+        el,
+        clusterKey,
+        notesCount: notes.length,
+      });
+    });
+  }, [map, mode, warmths, level, center.lat, center.lng, isDark]);
 
   if (mode !== 'warmth') return null;
 
   return <Global styles={styles} />;
 }
+
