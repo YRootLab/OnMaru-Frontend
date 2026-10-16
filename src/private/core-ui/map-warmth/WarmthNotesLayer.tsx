@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
 import { meok, lightPalette, darkPalette, surface, typographyRole } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
-import { paintOverlays, type OverlaySpec } from '@/features/map/hooks/overlay';
 import { escapeHtml } from '@/features/map/utils/formatters';
 import { mapIconSvg } from '@/features/map/utils/mapIconSvg';
 import { getCuratedPlace } from '@/features/map/data/curatedPlaces';
