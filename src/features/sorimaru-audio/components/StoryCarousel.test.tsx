@@ -4,6 +4,7 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
+import { typographyRole } from '@/design-system/tokens';
 import { StoryCarousel, StoryCarouselSkeleton } from './StoryCarousel';
 
 vi.mock('@gsap/react', () => ({ useGSAP: () => undefined }));
@@ -62,7 +63,7 @@ describe('StoryCarousel typography', () => {
 
     const title = screen.getByRole('heading', { name: LONG_TITLE });
     expect(getComputedStyle(title).webkitLineClamp).toBe('2');
-    expect(getComputedStyle(title).fontSize).toBe('1rem');
+    expect(getComputedStyle(title).fontSize).toBe(typographyRole.body.fontSize);
 
     const card = title.closest('[data-story-card]');
     expect(card).not.toBeNull();
