@@ -9,6 +9,7 @@ export function useVisitReviewFeed(regionCode?: string) {
   const [data, setData] = useState<Warmth[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<unknown>(null);
+  const [reloadNonce, setReloadNonce] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,7 +30,10 @@ export function useVisitReviewFeed(regionCode?: string) {
     return () => {
       cancelled = true;
     };
-  }, [regionCode]);
+  }, [regionCode, reloadNonce]);
 
-  return { data, loading, error };
+  const reload = () => setReloadNonce((n) => n + 1);
+
+  return { data, loading, error, reload };
 }
+
