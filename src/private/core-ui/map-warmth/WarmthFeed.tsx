@@ -12,6 +12,7 @@ import { useVisitReviewFeed } from '@/features/visit-review/presentation/useVisi
 import { useVisitReviewRegions } from '@/features/visit-review/presentation/useVisitReviewRegions';
 import DateScrubber from './DateScrubber';
 import WarmthCard from './WarmthCard';
+import { WarmthFeedSkeletonList } from './WarmthCardSkeleton';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import {
   FeedContainer,
@@ -96,9 +97,12 @@ export default function WarmthFeed() {
   const period = useMapStore((s) => s.warmthPeriod);
   const [selectedRegion, setSelectedRegion] = useState('all');
   const serverRegions = useVisitReviewRegions();
-  const { data: serverWarmths, error: reviewsError } = useVisitReviewFeed(
-    selectedRegion === 'all' ? undefined : selectedRegion,
-  );
+  const {
+    data: serverWarmths,
+    loading: reviewsLoading,
+    error: reviewsError,
+    reload: reloadReviews,
+  } = useVisitReviewFeed(selectedRegion === 'all' ? undefined : selectedRegion);
   const regionOptions = useMemo(
     () => [
       { id: 'all', label: '전국' },
@@ -441,11 +445,33 @@ export default function WarmthFeed() {
 
       <FeedScroll>
         <div ref={feedTopRef} />
-        {reviewsError && filteredReviews.length === 0 ? (
+        {reviewsLoading && allWarmths.length === 0 ? (
+          <WarmthFeedSkeletonList count={3} />
+        ) : reviewsError && filteredReviews.length === 0 ? (
           <OniSearchEmpty
             size="md"
             title="온기 이야기를 불러오지 못했어요"
-            description="잠시 후 다시 시도해주세요."
+            description="네트워크 연결을 확인하거나 다시 시도해 주세요."
+            action={
+              <button
+                type="button"
+                onClick={reloadReviews}
+                style={{
+                  marginTop: 12,
+                  padding: '8px 18px',
+                  borderRadius: 9999,
+                  border: 'none',
+                  background: 'rgba(78, 89, 104, 0.08)',
+                  color: meok[800],
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                다시 시도
+              </button>
+            }
           />
         ) : filteredReviews.length === 0 ? (
           <OniSearchEmpty
