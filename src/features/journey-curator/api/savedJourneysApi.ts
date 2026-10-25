@@ -1,11 +1,14 @@
 import { apiRequest, type ApiRequestOptions } from '@/lib/api/client';
-import type { JourneyBoard, ResourceRef, SavedJourneyDetail } from '../types/exploration.types';
+import type { SavedJourneyDetail } from '../types/exploration.types';
 import type { RunAccepted } from './journeyApi';
 
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
-
-
+export interface SaveJourneyInput {
+  explorationId: string;
+  baseVersion: number;
+  title: string;
+}
 
 
 
@@ -17,7 +20,7 @@ type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
 export interface SavedJourneysRepository {
   list(): Promise<SavedJourneyDetail[]>;
-  create(board: JourneyBoard, pinnedRefs: ResourceRef[], title: string): Promise<SavedJourneyDetail>;
+  create(input: SaveJourneyInput): Promise<SavedJourneyDetail>;
   remove(id: string): Promise<void>;
   resume(id: string, idempotencyKey: string): Promise<RunAccepted>;
 }
@@ -28,10 +31,10 @@ export function createSavedJourneysRepository(request: RequestFn = apiRequest): 
       const res = await request<{ items: SavedJourneyDetail[] }>('/saved-journeys', { method: 'GET', cache: 'no-store' });
       return res.items;
     },
-    create(board, pinnedRefs, title) {
+    create(input) {
       return request<SavedJourneyDetail>('/saved-journeys', {
         method: 'POST',
-        body: { title, board, pinnedRefs },
+        body: { explorationId: input.explorationId, baseVersion: input.baseVersion, title: input.title },
         csrf: true,
       });
     },

@@ -50,8 +50,8 @@ describe('useSavedExplorationStore (FE #95)', () => {
     await useSavedExplorationStore.getState().loadSaved();
     expect(repoMock.list).toHaveBeenCalled();
 
-    await useSavedExplorationStore.getState().saveJourney(board, [], '제목');
-    expect(repoMock.create).toHaveBeenCalledWith(board, [], '제목');
+    await useSavedExplorationStore.getState().saveJourney({ explorationId: 'exp-1', stateVersion: 1, board, pinnedRefs: [], title: '제목' });
+    expect(repoMock.create).toHaveBeenCalledWith({ explorationId: 'exp-1', baseVersion: 1, title: '제목' });
     expect(useSavedExplorationStore.getState().details).toHaveLength(1);
     expect(useSavedExplorationStore.getState().details[0].id).toBe('saved-1');
   });
@@ -61,7 +61,7 @@ describe('useSavedExplorationStore (FE #95)', () => {
     repoMock.create.mockRejectedValue(new Error('network error'));
 
     const { useSavedExplorationStore } = await import('./useSavedExplorationStore');
-    const detail = await useSavedExplorationStore.getState().saveJourney(board, [], '폴백 제목');
+    const detail = await useSavedExplorationStore.getState().saveJourney({ explorationId: null, stateVersion: 0, board, pinnedRefs: [], title: '폴백 제목' });
 
     expect(detail.title).toBe('폴백 제목');
     expect(useSavedExplorationStore.getState().details).toHaveLength(1);
