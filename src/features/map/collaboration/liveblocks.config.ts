@@ -2,6 +2,8 @@ import { createClient } from '@liveblocks/client';
 import { createRoomContext } from '@liveblocks/react';
 import type { LiveList } from '@liveblocks/client';
 
+// ponytail: publicApiKey + unguessable UUID roomId = link-as-secret pattern (MVP).
+// Upgrade to authEndpoint + server-side session validation before prod.
 export const client = createClient({
   publicApiKey: process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY ?? '',
 });

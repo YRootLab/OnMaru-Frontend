@@ -40,6 +40,7 @@ import WarmthNotesLayer from '@/private/core-ui/map-warmth/WarmthNotesLayer';
 import WriteButton from '@/private/core-ui/map-warmth/WriteButton';
 import WarmthLegend from '@/private/core-ui/map-warmth/WarmthLegend';
 import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
+import { ShareCollabButton } from './collaboration/ShareCollabButton';
 import { StampSealAnimation, useStampStore } from '@/features/stamp';
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -563,6 +564,9 @@ export default function MapPage() {
             </FloatingHomeButton>
           )}
           <CategoryChips align="start" />
+          <div style={{ marginLeft: 'auto' }}>
+            <ShareCollabButton />
+          </div>
         </MapChips>
 
         {}
