@@ -17,21 +17,31 @@ export async function POST(req: NextRequest) {
   }
 
   // 2. 세션 쿠키를 Spring 백엔드에 포워딩해 로그인 여부 확인
-  const apiBase = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiBase) {
-    return NextResponse.json({ error: 'server_misconfigured' }, { status: 500 });
+  //    LIVEBLOCKS_SKIP_BACKEND_AUTH=true 이면 백엔드 없이 mock 유저로 통과 (개발 전용)
+  let me: { id: string; displayName: string };
+
+  if (process.env.LIVEBLOCKS_SKIP_BACKEND_AUTH === 'true') {
+    if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({ error: 'mock_not_allowed_in_prod' }, { status: 403 });
+    }
+    me = { id: `dev-${crypto.randomUUID().slice(0, 8)}`, displayName: '개발자' };
+  } else {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiBase) {
+      return NextResponse.json({ error: 'server_misconfigured' }, { status: 500 });
+    }
+
+    const meRes = await fetch(`${apiBase}/api/v1/members/me`, {
+      headers: { cookie: req.headers.get('cookie') ?? '' },
+      cache: 'no-store',
+    });
+
+    if (!meRes.ok) {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+    }
+
+    me = await meRes.json() as { id: string; displayName: string };
   }
-
-  const meRes = await fetch(`${apiBase}/api/v1/members/me`, {
-    headers: { cookie: req.headers.get('cookie') ?? '' },
-    cache: 'no-store',
-  });
-
-  if (!meRes.ok) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  }
-
-  const me = await meRes.json() as { id: string; displayName: string };
 
   // 3. Liveblocks 세션 준비 — userId는 내부 ID, userInfo만 presence에 노출
   const session = liveblocks.prepareSession(me.id, {
