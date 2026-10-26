@@ -77,7 +77,10 @@ export const useSavedExplorationStore = create<SavedExplorationState>((set, get)
     if (!USE_MOCK) {
       try {
         const items = await defaultSavedJourneysRepository.list();
-        set({ details: items, isLoaded: true });
+        const local = readLocal();
+        const serverIds = new Set(items.map((i) => i.id));
+        const merged = [...items, ...local.filter((l) => !serverIds.has(l.id))];
+        set({ details: merged, isLoaded: true });
         return;
       } catch {
 
