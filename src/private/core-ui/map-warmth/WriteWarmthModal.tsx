@@ -441,6 +441,7 @@ export default function WriteWarmthModal({
   const setWarmths = useMapStore((s) => s.setWarmths);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const setIsWarmthWriteOpen = useMapStore((s) => s.setIsWarmthWriteOpen);
+  const map = useMapStore((s) => s.map);
   const { create, loading: isSubmitting, error: createError } = useCreateVisitReview();
 
   const [mounted, setMounted] = useState(false);
@@ -487,15 +488,16 @@ export default function WriteWarmthModal({
     setPlaceQuery(defaultPlace?.name ?? '');
   }, [defaultPlace, isOpen]);
 
-  // 드롭다운 바깥 클릭 닫기
+  // 드롭다운 바깥 클릭 닫기 — click 사용: mousedown은 React 합성 이벤트보다 먼저 발화해
+  // PlaceOption의 onClick이 실행되기 전에 드롭다운을 닫아버리는 문제가 있음
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (placeWrapRef.current && !placeWrapRef.current.contains(e.target as Node)) {
         setIsDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   // 장소 검색 디바운스 (카카오 키워드 검색 — 전국 모든 장소)
@@ -527,15 +529,16 @@ export default function WriteWarmthModal({
   }, [placeQuery, selectedPlace]);
 
   const handleSelectPlace = (item: KakaoPlaceResult) => {
-    setSelectedPlace({
-      id: item.id,
-      name: item.place_name,
-      lat: parseFloat(item.y),
-      lng: parseFloat(item.x),
-    });
+    const lat = parseFloat(item.y);
+    const lng = parseFloat(item.x);
+    setSelectedPlace({ id: item.id, name: item.place_name, lat, lng });
     setPlaceQuery(item.place_name);
     setIsDropdownOpen(false);
     setSearchResults([]);
+    if (map && window.kakao?.maps) {
+      map.panTo(new window.kakao.maps.LatLng(lat, lng));
+      map.setLevel(4, { animate: true });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
