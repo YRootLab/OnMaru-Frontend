@@ -2,10 +2,19 @@ import { createClient } from '@liveblocks/client';
 import { createRoomContext } from '@liveblocks/react';
 import type { LiveList } from '@liveblocks/client';
 
-// ponytail: publicApiKey + unguessable UUID roomId = link-as-secret pattern (MVP).
-// Upgrade to authEndpoint + server-side session validation before prod.
 export const client = createClient({
-  publicApiKey: process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY ?? '',
+  authEndpoint: async (roomId) => {
+    // roomId = "map-collab-<uuid>", 뒤의 UUID만 추출해서 서버에 전송
+    const room = (roomId ?? '').replace(/^map-collab-/, '');
+    const res = await fetch('/api/liveblocks-auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ room }),
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error(`Liveblocks auth failed: ${res.status}`);
+    return res.json();
+  },
 });
 
 export type CollabPin = {
