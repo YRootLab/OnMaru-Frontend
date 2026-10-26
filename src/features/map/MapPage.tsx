@@ -41,6 +41,7 @@ import WriteButton from '@/private/core-ui/map-warmth/WriteButton';
 import WarmthLegend from '@/private/core-ui/map-warmth/WarmthLegend';
 import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
 import { ShareCollabButton } from './collaboration/ShareCollabButton';
+import { CollabPinsOverlay } from './collaboration/CollabPinsOverlay';
 import { StampSealAnimation, useStampStore } from '@/features/stamp';
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -363,6 +364,7 @@ export default function MapPage() {
   const queryCategory = searchParams?.get('category') || null;
   const queryRegionCode = searchParams?.get('regionCode') || null;
   const queryMode = searchParams?.get('mode') || null;
+  const collabRoom = searchParams?.get('room') || null;
   const [infoUrlHydrated, setInfoUrlHydrated] = useState(false);
   const inboundInfoUrlPendingRef = useRef(false);
 
@@ -590,6 +592,7 @@ export default function MapPage() {
 
       {}
       <MapNavRail />
+      {collabRoom && <CollabPinsOverlay />}
 
       {
 }
