@@ -368,23 +368,28 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
   const loading = useMapStore((s) => s.loading);
 
 
-  const curatedSpots = items
-    .filter((item) => Boolean(item.image))
-    .slice(0, 12);
+  const withImage = items.filter((item) => Boolean(item.image));
+  const hanokOrExperience = withImage.filter(
+    (item) => item.category === 'experience' || item.category === 'stay' || isHanok(item),
+  );
+  const others = withImage.filter(
+    (item) => item.category !== 'experience' && item.category !== 'stay' && !isHanok(item),
+  );
+  const curatedSpots = [...hanokOrExperience, ...others].slice(0, 12);
 
 
   if (loading && items.length === 0) {
     return (
-      <Wrapper aria-busy="true" aria-label="추천 한옥 명소 불러오는 중">
+      <Wrapper aria-busy="true" aria-label="근처 한옥·체험 공간 불러오는 중">
         <Header>
           <TitleBox>
-            <Title>추천 한옥 명소</Title>
+            <Title>근처 한옥·체험 공간</Title>
             <SubText>AI 감성 큐레이션</SubText>
           </TitleBox>
         </Header>
 
         <FeedContainer>
-          <Scroller role="region" aria-label="추천 한옥 명소 로딩 중">
+          <Scroller role="region" aria-label="근처 한옥·체험 공간 로딩 중">
             {[1, 2, 3].map((key) => (
               <SkeletonCuratedCard key={key}>
                 <SkeletonPhoto />
@@ -442,7 +447,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
     <Wrapper>
       <Header>
         <TitleBox>
-          <Title>추천 명소</Title>
+          <Title>근처 한옥·체험 공간</Title>
         </TitleBox>
       </Header>
 
@@ -467,7 +472,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2} />
         </FloatingNavBtn>
 
-        <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 명소 목록">
+        <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="근처 한옥·체험 공간 목록">
         {curatedSpots.map((item) => {
           const placeIsHanok = isHanok(item);
           return (
