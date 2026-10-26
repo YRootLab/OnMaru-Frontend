@@ -612,7 +612,6 @@ export default function WriteWarmthModal({
                 placeholder="장소 이름을 검색해보세요 (예: 경기전)"
                 required
               />
-            </PlaceInputWrap>
 
             {isDropdownOpen && (isSearching || searchResults.length > 0) && (
               <PlaceDropdown>
@@ -634,6 +633,7 @@ export default function WriteWarmthModal({
                 )}
               </PlaceDropdown>
             )}
+            </PlaceInputWrap>
           </FormSection>
 
           {}
