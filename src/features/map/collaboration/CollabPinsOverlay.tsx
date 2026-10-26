@@ -146,20 +146,32 @@ export function CollabPinsOverlay() {
       }
     });
 
-    // Add new overlays
+    // Add new overlays — validate each pin before rendering (untrusted shared state)
     pins.forEach((pin) => {
+      if (
+        typeof pin.placeId !== 'string' || !pin.placeId ||
+        typeof pin.placeName !== 'string' || !pin.placeName ||
+        typeof pin.userId !== 'string' || !pin.userId ||
+        !Number.isFinite(pin.lat) || pin.lat < -90 || pin.lat > 90 ||
+        !Number.isFinite(pin.lng) || pin.lng < -180 || pin.lng > 180
+      ) return;
+
       const key = `${pin.placeId}-${pin.userId}`;
       if (overlaysRef.current.has(key)) return;
 
-      const el = buildPinEl(pin);
-      const overlay = new window.kakao.maps.CustomOverlay({
-        position: new window.kakao.maps.LatLng(pin.lat, pin.lng),
-        content: el,
-        yAnchor: 1.0,
-        zIndex: 50,
-      });
-      overlay.setMap(map);
-      overlaysRef.current.set(key, overlay);
+      try {
+        const el = buildPinEl(pin);
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(pin.lat, pin.lng),
+          content: el,
+          yAnchor: 1.0,
+          zIndex: 50,
+        });
+        overlay.setMap(map);
+        overlaysRef.current.set(key, overlay);
+      } catch {
+        // Malformed pin — skip silently
+      }
     });
   }, [map, pins]);
 
