@@ -135,6 +135,7 @@ const ActionRow = styled.div`
 
 export function CollabPinsOverlay() {
   const map = useMapStore((s) => s.map);
+  const mode = useMapStore((s) => s.mode);
   const items = useMapStore((s) => s.items);
   const detailId = useMapStore((s) => s.detailId);
   const { user } = useAuth();
@@ -194,7 +195,7 @@ export function CollabPinsOverlay() {
     };
   }, []);
 
-  if (!map) return null;
+  if (!map || mode !== 'info') return null;
 
   const selectedPlace = detailId ? items.find((i) => i.id === detailId) : null;
   const myUserId = user?.id ?? 'guest';
