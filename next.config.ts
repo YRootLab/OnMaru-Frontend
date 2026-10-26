@@ -17,8 +17,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  productionBrowserSourceMaps: false,
   compiler: {
     emotion: true,
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
   },
   turbopack: {
     root: path.resolve(process.cwd()),

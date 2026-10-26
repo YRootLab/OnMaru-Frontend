@@ -41,6 +41,7 @@ import WriteButton from '@/private/core-ui/map-warmth/WriteButton';
 import WarmthLegend from '@/private/core-ui/map-warmth/WarmthLegend';
 import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
 import { ShareCollabButton } from './collaboration/ShareCollabButton';
+import { CollabSessionBadge } from './collaboration/CollabSessionBadge';
 import { CollabPinsOverlay } from './collaboration/CollabPinsOverlay';
 import { CollabCursorsOverlay } from './collaboration/CollabCursorsOverlay';
 import { CollabParticipants } from './collaboration/CollabParticipants';
@@ -573,7 +574,8 @@ export default function MapPage() {
             </FloatingHomeButton>
           )}
           <CategoryChips align="start" />
-          <div style={{ marginLeft: 'auto' }}>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+            {collabRoom && <CollabSessionBadge />}
             <ShareCollabButton />
           </div>
         </MapChips>
