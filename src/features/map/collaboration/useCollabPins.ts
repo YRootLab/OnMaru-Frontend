@@ -1,6 +1,6 @@
 'use client';
 
-import { useStorage, useMutation } from './liveblocks.config';
+import { useStorage, useMutation } from '@liveblocks/react';
 import type { CollabPin } from './liveblocks.config';
 
 export function useCollabPins() {
