@@ -38,6 +38,8 @@ export default function JourneySaveButton() {
   const { isLoggedIn } = useAuth();
   const board = useJourneyStore((s) => s.explorationBoard);
   const pinnedRefs = useJourneyStore((s) => s.pinnedRefs);
+  const explorationId = useJourneyStore((s) => s.explorationId);
+  const stateVersion = useJourneyStore((s) => s.stateVersion);
 
   const saveJourney = useSavedExplorationStore((s) => s.saveJourney);
   const isSavedFn = useSavedExplorationStore((s) => s.isSaved);
@@ -58,7 +60,7 @@ export default function JourneySaveButton() {
       return;
     }
     if (saved) return;
-    saveJourney(currentBoard, pinnedRefs, currentBoard.title);
+    saveJourney({ explorationId, stateVersion, board: currentBoard, pinnedRefs, title: currentBoard.title });
     toast.success(`'${currentBoard.title}' 여정을 저장했어요!`);
   }
 
