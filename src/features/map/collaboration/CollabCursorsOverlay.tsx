@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useMyPresence, useOthers } from './liveblocks.config';
+import { useMyPresence, useOthers } from '@liveblocks/react';
 import { useMapStore } from '../hooks/useMapStore';
 import { escapeHtml } from '../utils/formatters';
 import { mapIconSvg } from '../utils/mapIconSvg';
