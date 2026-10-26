@@ -7,11 +7,14 @@ import { MapCollabProvider } from '@/features/map/collaboration/MapCollabProvide
 
 const MapPage = dynamic(() => import('@/features/map/MapPage'), { ssr: false });
 
+// NEXT_PUBLIC_LIVEBLOCKS_ENABLED=true 일 때만 협업 모드 활성화
+const COLLAB_ENABLED = process.env.NEXT_PUBLIC_LIVEBLOCKS_ENABLED === 'true';
+
 function MapPageWrapper() {
   const searchParams = useSearchParams();
   const room = searchParams.get('room');
 
-  if (room) {
+  if (room && COLLAB_ENABLED) {
     return (
       <MapCollabProvider roomId={room}>
         <MapPage />

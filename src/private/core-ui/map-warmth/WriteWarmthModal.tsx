@@ -624,6 +624,7 @@ export default function WriteWarmthModal({
                     <PlaceOption
                       key={item.id}
                       type="button"
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={() => handleSelectPlace(item)}
                     >
                       <span>{item.place_name}</span>
