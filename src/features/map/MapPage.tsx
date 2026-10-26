@@ -43,6 +43,7 @@ import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
 import { ShareCollabButton } from './collaboration/ShareCollabButton';
 import { CollabPinsOverlay } from './collaboration/CollabPinsOverlay';
 import { CollabCursorsOverlay } from './collaboration/CollabCursorsOverlay';
+import { CollabParticipants } from './collaboration/CollabParticipants';
 import { StampSealAnimation, useStampStore } from '@/features/stamp';
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -595,6 +596,7 @@ export default function MapPage() {
       <MapNavRail />
       {collabRoom && <CollabPinsOverlay />}
       {collabRoom && <CollabCursorsOverlay />}
+      {collabRoom && <CollabParticipants />}
 
       {
 }

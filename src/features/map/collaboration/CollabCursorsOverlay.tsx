@@ -4,17 +4,27 @@ import { useEffect, useRef } from 'react';
 import { useMyPresence, useOthers } from './liveblocks.config';
 import { useMapStore } from '../hooks/useMapStore';
 import { escapeHtml } from '../utils/formatters';
+import { mapIconSvg } from '../utils/mapIconSvg';
+import { palette } from '@/design-system/tokens';
 
-// Same palette as CollabPinsOverlay
-const CURSOR_COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#10b981', '#f97316'];
+const USER_COLORS = [
+  palette.kobalt[500],
+  palette.danpung[500],
+  palette.juhong[500],
+  palette.jaha[500],
+  palette.cheongrok[600],
+  palette.jangmi[500],
+] as const;
+
 function colorForUser(userId: string) {
   let hash = 0;
   for (const ch of userId) hash = (hash * 31 + ch.charCodeAt(0)) & 0xffff;
-  return CURSOR_COLORS[hash % CURSOR_COLORS.length];
+  return USER_COLORS[hash % USER_COLORS.length];
 }
 
 function buildCursorEl(nickname: string, userId: string): HTMLElement {
   const color = colorForUser(userId);
+  const pinIcon = mapIconSvg('mapPin', 12);
   const el = document.createElement('div');
   el.style.cssText = 'pointer-events: none; user-select: none; position: relative;';
   el.innerHTML = `
@@ -26,13 +36,13 @@ function buildCursorEl(nickname: string, userId: string): HTMLElement {
       color: white;
       font-size: 11px;
       font-weight: 600;
-      padding: 3px 8px 3px 6px;
+      padding: 3px 8px 3px 5px;
       border-radius: 10px;
       white-space: nowrap;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       transform: translate(8px, -50%);
     ">
-      <span style="font-size:10px;">●</span>
+      ${pinIcon}
       ${escapeHtml(nickname)}
     </div>
   `;

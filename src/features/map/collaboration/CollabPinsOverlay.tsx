@@ -8,20 +8,29 @@ import { toast } from 'sonner';
 import { useMapStore } from '../hooks/useMapStore';
 import { useCollabPins } from './useCollabPins';
 import { useAuth } from '@/features/auth';
-import { ringShadow } from '@/design-system/tokens';
+import { ringShadow, palette } from '@/design-system/tokens';
 import { escapeHtml } from '../utils/formatters';
+import { mapIconSvg } from '../utils/mapIconSvg';
 import type { CollabPin } from './liveblocks.config';
 
-// Colors assigned per userId for visual distinction
-const PIN_COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#10b981', '#f97316'];
+const USER_COLORS = [
+  palette.kobalt[500],
+  palette.danpung[500],
+  palette.juhong[500],
+  palette.jaha[500],
+  palette.cheongrok[600],
+  palette.jangmi[500],
+] as const;
+
 function colorForUser(userId: string) {
   let hash = 0;
   for (const ch of userId) hash = (hash * 31 + ch.charCodeAt(0)) & 0xffff;
-  return PIN_COLORS[hash % PIN_COLORS.length];
+  return USER_COLORS[hash % USER_COLORS.length];
 }
 
 function buildPinEl(pin: CollabPin): HTMLElement {
   const color = colorForUser(pin.userId);
+  const pinIcon = mapIconSvg('mapPin', 14);
   const el = document.createElement('div');
   el.style.cssText = `
     position: relative;
@@ -34,25 +43,27 @@ function buildPinEl(pin: CollabPin): HTMLElement {
   `;
   el.innerHTML = `
     <div style="
+      display: flex;
+      align-items: center;
+      gap: 4px;
       background: ${color};
       color: white;
       font-size: 11px;
       font-weight: 700;
-      padding: 4px 8px;
+      padding: 4px 8px 4px 6px;
       border-radius: 10px;
       white-space: nowrap;
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-      max-width: 120px;
+      max-width: 130px;
       overflow: hidden;
       text-overflow: ellipsis;
-    ">${escapeHtml(pin.placeName)}</div>
+    ">${pinIcon}<span style="overflow:hidden;text-overflow:ellipsis">${escapeHtml(pin.placeName)}</span></div>
     <div style="
       width: 0;
       height: 0;
       border-left: 5px solid transparent;
       border-right: 5px solid transparent;
       border-top: 6px solid ${color};
-      margin-top: 0;
     "></div>
   `;
   el.title = `${escapeHtml(pin.placeName)} — ${escapeHtml(pin.userId)}`;
