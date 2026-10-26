@@ -81,6 +81,10 @@
     "vitest": "^4.1.12",
     "yaml": "^2.9.1"
   },
+  "overrides": {
+    "undici": "^7.30.1",
+    "zod": "^4.6.6"
+  },
   "optionalDependencies": {
     "@rolldown/binding-darwin-arm64": "^1.2.7",
     "@rolldown/binding-darwin-x64": "^1.2.7",
