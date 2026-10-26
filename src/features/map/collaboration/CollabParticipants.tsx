@@ -1,7 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { useSelf, useOthers } from './liveblocks.config';
+import { useSelf, useOthers } from '@liveblocks/react';
 import { palette, meok, ringShadow } from '@/design-system/tokens';
 
 const USER_COLORS = [

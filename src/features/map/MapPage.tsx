@@ -44,6 +44,7 @@ import { ShareCollabButton } from './collaboration/ShareCollabButton';
 import { CollabPinsOverlay } from './collaboration/CollabPinsOverlay';
 import { CollabCursorsOverlay } from './collaboration/CollabCursorsOverlay';
 import { CollabParticipants } from './collaboration/CollabParticipants';
+import { useCollabActive } from './collaboration/MapCollabProvider';
 import { StampSealAnimation, useStampStore } from '@/features/stamp';
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -366,8 +367,9 @@ export default function MapPage() {
   const queryCategory = searchParams?.get('category') || null;
   const queryRegionCode = searchParams?.get('regionCode') || null;
   const queryMode = searchParams?.get('mode') || null;
+  const collabActive = useCollabActive();
   const collabRoom =
-    process.env.NEXT_PUBLIC_LIVEBLOCKS_ENABLED === 'true'
+    collabActive && process.env.NEXT_PUBLIC_LIVEBLOCKS_ENABLED === 'true'
       ? searchParams?.get('room') || null
       : null;
   const [infoUrlHydrated, setInfoUrlHydrated] = useState(false);
