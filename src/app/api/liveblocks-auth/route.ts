@@ -3,11 +3,12 @@ import { Liveblocks } from '@liveblocks/node';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-const liveblocks = new Liveblocks({
-  secret: process.env.LIVEBLOCKS_SECRET_KEY ?? '',
-});
-
 export async function POST(req: NextRequest) {
+  const secret = process.env.LIVEBLOCKS_SECRET_KEY;
+  if (!secret) {
+    return NextResponse.json({ error: 'server_misconfigured' }, { status: 500 });
+  }
+  const liveblocks = new Liveblocks({ secret });
   // 1. 요청 바디에서 room ID 추출 및 UUID 검증
   const body = await req.json().catch(() => ({}));
   const room = typeof body.room === 'string' ? body.room : null;
