@@ -66,7 +66,7 @@ function buildPinEl(pin: CollabPin): HTMLElement {
       border-top: 6px solid ${color};
     "></div>
   `;
-  el.title = `${escapeHtml(pin.placeName)} — ${escapeHtml(pin.userId)}`;
+  el.title = escapeHtml(pin.placeName);
   return el;
 }
 
