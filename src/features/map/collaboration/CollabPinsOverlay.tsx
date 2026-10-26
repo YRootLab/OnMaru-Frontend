@@ -5,9 +5,9 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Location01Icon } from '@hugeicons/core-free-icons';
 import { toast } from 'sonner';
+import { useSelf } from '@liveblocks/react';
 import { useMapStore } from '../hooks/useMapStore';
 import { useCollabPins } from './useCollabPins';
-import { useAuth } from '@/features/auth';
 import { ringShadow, palette } from '@/design-system/tokens';
 import { escapeHtml } from '../utils/formatters';
 import { mapIconSvg } from '../utils/mapIconSvg';
@@ -135,9 +135,10 @@ const ActionRow = styled.div`
 
 export function CollabPinsOverlay() {
   const map = useMapStore((s) => s.map);
+  const mode = useMapStore((s) => s.mode);
   const items = useMapStore((s) => s.items);
   const detailId = useMapStore((s) => s.detailId);
-  const { user } = useAuth();
+  const me = useSelf();
   const { pins, addPin, removePin } = useCollabPins();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -146,6 +147,12 @@ export function CollabPinsOverlay() {
   // Sync Liveblocks pins → Kakao CustomOverlay instances
   useEffect(() => {
     if (!map || !pins) return;
+
+    if (mode !== 'info') {
+      overlaysRef.current.forEach((o) => o.setMap(null));
+      overlaysRef.current.clear();
+      return;
+    }
 
     const nextIds = new Set(pins.map((p) => `${p.placeId}-${p.userId}`));
 
@@ -184,7 +191,7 @@ export function CollabPinsOverlay() {
         // Malformed pin — skip silently
       }
     });
-  }, [map, pins]);
+  }, [map, pins, mode]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -194,10 +201,10 @@ export function CollabPinsOverlay() {
     };
   }, []);
 
-  if (!map) return null;
+  if (!map || mode !== 'info') return null;
 
   const selectedPlace = detailId ? items.find((i) => i.id === detailId) : null;
-  const myUserId = user?.id ?? 'guest';
+  const myUserId = me?.presence?.userId ?? 'guest';
   const alreadyPinned = selectedPlace
     ? (pins ?? []).some((p) => p.placeId === selectedPlace.id && p.userId === myUserId)
     : false;

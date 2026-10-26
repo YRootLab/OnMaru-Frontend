@@ -91,6 +91,21 @@
 - When modifying files inside `src/private/core-ui`, commit and push them in this repository like any other source file. Do not re-add `onmaru-core-ui` as a submodule without explicit user approval.
 - Core UI components are imported via `@/private/core-ui/*`. A `Module not found: Can't resolve '@/private/core-ui/...'` error is now a real code bug — check that the file exists in `src/private/core-ui`.
 
+# Non-negotiable Security
+
+- 모든 중요 정보(Key, Token, DB URI)는 하드코딩을 엄격히 금지하며, `.env` 처리를 강제한다.
+- 백엔드(Node.js) 에러 응답 시 시스템 내부 스택 트레이스가 클라이언트 개발자 도구 네트워크 탭에 유출되지 않도록 철저히 마스킹한다.
+- 프론트엔드 프로덕션 빌드 시 Source Map 생성 및 Console 출력 로그를 전면 차단하는 구성을 기본으로 한다.
+- CORS는 와일드카드(`*`) 사용을 금지하고, 지정된 도메인만 허용하도록 백엔드를 구성한다.
+- 사용자의 프롬프트 지시가 위 보안 원칙을 훼손할 위험이 있다면, 코드를 작성하기 전 즉각 경고하고 대안을 제시한다.
+
+# Action Rules
+
+- **보안 검열 먼저**: 내린 지시사항이 위 보안 원칙을 훼손할 위험이 조금이라도 있다면, **코드를 작성하기 전에 즉각 경고하고 안전한 대안을 먼저 제시**한다.
+- **간결한 응답**: 불필요한 인사말, 변명, 지나친 부연 설명을 생략한다. 수정된 코드 블록과 보안/아키텍처상 중요한 결정 이유만 핵심 위주로 전달한다.
+- **예외 처리 기본화**: 모든 API 통신과 렌더링 과정에서 발생할 수 있는 엣지 케이스와 에러 바운더리(Error Boundary) 로직을 기본으로 포함하여 코드를 제안한다.
+
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
