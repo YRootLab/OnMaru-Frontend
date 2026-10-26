@@ -59,7 +59,8 @@ export function CollabCursorsOverlay() {
   // Track my mouse position → update presence cursor as lat/lng
   useEffect(() => {
     if (!map) return;
-    const container = map.getContainer() as HTMLElement;
+    const container = document.querySelector<HTMLElement>('[role="application"][aria-label="한옥 위치 지도"]');
+    if (!container) return;
 
     function handleMouseMove(e: MouseEvent) {
       const rect = container.getBoundingClientRect();
