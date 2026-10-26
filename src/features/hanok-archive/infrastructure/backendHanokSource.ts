@@ -1,7 +1,6 @@
 import { apiGet } from '@/lib/api/client';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 import { STAY_TYPE } from '@/features/hanok-archive/domain/village';
-import { HANOK_ARCHIVE_FALLBACK } from '@/features/hanok-archive/data/hanokArchiveFallback';
 
 export interface BackendHanokItem {
   placeId: string;
@@ -13,6 +12,8 @@ export interface BackendHanokItem {
   tags: string[];
   lat?: number | null;
   lng?: number | null;
+  addr?: string;
+  overview?: string;
 }
 
 interface BackendHanokListResponse {
@@ -36,26 +37,21 @@ export async function fetchBackendHanoks(): Promise<BackendHanokItem[]> {
   return all;
 }
 
-const fallbackById = new Map(
-  HANOK_ARCHIVE_FALLBACK.villages.map((v) => [v.id, v]),
-);
-
 function toVillage(item: BackendHanokItem): Village {
-  const snap = fallbackById.get(item.placeId);
   return {
     id: item.placeId,
     name: item.name,
     rawTitle: item.name,
     region: item.regionName,
-    addr: snap?.addr || '',
-    lat: item.lat ?? snap?.lat ?? null,
-    lng: item.lng ?? snap?.lng ?? null,
+    addr: item.addr ?? '',
+    lat: item.lat ?? null,
+    lng: item.lng ?? null,
     type: item.category === 'HANOK_STAY' ? STAY_TYPE : item.category,
     badges: item.tags,
     image: item.thumbnailUrl,
     hasImage: item.thumbnailUrl !== null,
-    summary: item.summary || snap?.summary || '',
-    overview: snap?.overview || '',
+    summary: item.summary,
+    overview: item.overview ?? '',
   };
 }
 

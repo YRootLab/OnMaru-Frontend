@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { USE_MOCK } from '@/lib/api/client';
 import type { JourneyBoard, ResourceRef, SavedJourneyDetail, SavedJourneySummary } from '../types/exploration.types';
-import { defaultSavedJourneysRepository } from '../api/savedJourneysApi';
+import { defaultSavedJourneysRepository, type SaveJourneyInput } from '../api/savedJourneysApi';
 
 
 
@@ -32,11 +32,19 @@ function toSummary(detail: SavedJourneyDetail): SavedJourneySummary {
   };
 }
 
+export interface SaveJourneyStoreInput {
+  explorationId: string | null;
+  stateVersion: number;
+  board: JourneyBoard;
+  pinnedRefs: ResourceRef[];
+  title: string;
+}
+
 interface SavedExplorationState {
   details: SavedJourneyDetail[];
   isLoaded: boolean;
   loadSaved: () => Promise<void>;
-  saveJourney: (board: JourneyBoard, pinnedRefs: ResourceRef[], title: string) => Promise<SavedJourneyDetail>;
+  saveJourney: (input: SaveJourneyStoreInput) => Promise<SavedJourneyDetail>;
   removeSaved: (id: string) => Promise<void>;
   renameSaved: (id: string, title: string) => void;
   isSaved: (title: string) => boolean;
@@ -69,7 +77,10 @@ export const useSavedExplorationStore = create<SavedExplorationState>((set, get)
     if (!USE_MOCK) {
       try {
         const items = await defaultSavedJourneysRepository.list();
-        set({ details: items, isLoaded: true });
+        const local = readLocal();
+        const serverIds = new Set(items.map((i) => i.id));
+        const merged = [...items, ...local.filter((l) => !serverIds.has(l.id))];
+        set({ details: merged, isLoaded: true });
         return;
       } catch {
 
@@ -78,10 +89,10 @@ export const useSavedExplorationStore = create<SavedExplorationState>((set, get)
     set({ details: readLocal(), isLoaded: true });
   },
 
-  saveJourney: async (board, pinnedRefs, title) => {
-    if (!USE_MOCK) {
+  saveJourney: async ({ explorationId, stateVersion, board, pinnedRefs, title }) => {
+    if (!USE_MOCK && explorationId) {
       try {
-        const detail = await defaultSavedJourneysRepository.create(board, pinnedRefs, title);
+        const detail = await defaultSavedJourneysRepository.create({ explorationId, baseVersion: stateVersion, title });
         set({ details: [detail, ...get().details] });
         return detail;
       } catch {
