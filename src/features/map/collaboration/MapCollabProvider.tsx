@@ -1,9 +1,21 @@
 'use client';
 
-import { useRef, type ReactNode } from 'react';
+import { Component, useRef, type ReactNode } from 'react';
 import { LiveList } from '@liveblocks/client';
 import { RoomProvider } from './liveblocks.config';
 import { useAuth } from '@/features/auth';
+
+// Liveblocks auth 실패 시 맵 자체는 정상 렌더되도록 에러 경계
+class CollabErrorBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
+}
 
 interface Props {
   roomId: string;
@@ -16,19 +28,21 @@ export function MapCollabProvider({ roomId, children }: Props) {
   const sessionIdRef = useRef(crypto.randomUUID());
 
   return (
-    <RoomProvider
-      id={`map-collab-${roomId}`}
-      initialPresence={{
-        cursor: null,
-        userId: sessionIdRef.current,
-        nickname: user?.displayName ?? '게스트',
-        profileImage: null,
-      }}
-      initialStorage={{
-        pins: new LiveList([]),
-      }}
-    >
-      {children}
-    </RoomProvider>
+    <CollabErrorBoundary fallback={children}>
+      <RoomProvider
+        id={`map-collab-${roomId}`}
+        initialPresence={{
+          cursor: null,
+          userId: sessionIdRef.current,
+          nickname: user?.displayName ?? '게스트',
+          profileImage: null,
+        }}
+        initialStorage={{
+          pins: new LiveList([]),
+        }}
+      >
+        {children}
+      </RoomProvider>
+    </CollabErrorBoundary>
   );
 }
