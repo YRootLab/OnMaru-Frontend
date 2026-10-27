@@ -13,6 +13,9 @@ export interface ListInfoPlacesInput {
   regionCode?: string | null;
   cursor?: string | null;
   limit?: number;
+  sort?: 'REGION_NAME' | 'NAME' | 'DISTANCE';
+  lat?: number | null;
+  lng?: number | null;
   signal?: AbortSignal;
   timeoutMs?: number;
 }
@@ -58,6 +61,11 @@ export async function listInfoPlaces(input: ListInfoPlacesInput): Promise<InfoPl
   };
   if (input.regionCode) params.regionCode = input.regionCode;
   if (input.cursor) params.cursor = input.cursor;
+  if (input.sort === 'DISTANCE' && input.lat != null && input.lng != null) {
+    params.sort = 'DISTANCE';
+    params.lat = String(input.lat);
+    params.lng = String(input.lng);
+  }
 
   const page = await apiRequest<InfoPlacePage>('/map/info/places', {
     method: 'GET',

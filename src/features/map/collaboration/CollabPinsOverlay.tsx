@@ -3,9 +3,10 @@
 import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Location01Icon, Cancel01Icon, UserMultiple02Icon } from '@hugeicons/core-free-icons';
+import { Location01Icon, Cancel01Icon, UserMultiple02Icon, Login01Icon } from '@hugeicons/core-free-icons';
 import { toast } from 'sonner';
 import { useSelf } from '@liveblocks/react';
+import { useAuth } from '@/features/auth';
 import { useMapStore } from '../hooks/useMapStore';
 import { useCollabPins } from './useCollabPins';
 import { ringShadow, palette } from '@/design-system/tokens';
@@ -152,6 +153,7 @@ export function CollabPinsOverlay() {
   const viewportItems = useMapStore((s) => s.viewportItems);
   const detailId = useMapStore((s) => s.detailId);
   const me = useSelf();
+  const { isLoggedIn, loginWithKakao } = useAuth();
   const { pins, addPin, removePin } = useCollabPins();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -280,6 +282,15 @@ export function CollabPinsOverlay() {
 
   function handleAddPin() {
     if (!selectedPlace) return;
+    if (!isLoggedIn) {
+      toast('로그인이 필요해요', {
+        icon: <HugeiconsIcon icon={Login01Icon} size={16} strokeWidth={1.8} />,
+        description: '핀 공유는 로그인 후 사용할 수 있어요.',
+        duration: 5000,
+        action: { label: '로그인하기', onClick: loginWithKakao },
+      });
+      return;
+    }
     const pin: CollabPin = {
       placeId: selectedPlace.id,
       placeName: selectedPlace.name,
