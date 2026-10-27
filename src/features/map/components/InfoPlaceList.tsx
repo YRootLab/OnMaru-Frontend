@@ -241,10 +241,14 @@ export default function InfoPlaceList() {
         const requestSnapshotId = store.listSnapshotId;
         store.setIsListLoading(true);
 
+        const requestUserLocation = store.userLocation;
         listInfoPlaces({
           category: requestCategory,
           regionCode: requestRegionCode,
           cursor,
+          ...(requestUserLocation
+            ? { sort: 'DISTANCE', lat: requestUserLocation.lat, lng: requestUserLocation.lng }
+            : {}),
           signal: ctrl.signal,
         })
           .then((page) => {
