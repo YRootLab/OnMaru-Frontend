@@ -65,6 +65,7 @@ export function useInfoMapData(enabled = true) {
   const mode = useMapStore((s) => s.mode);
   const infoCategory = useMapStore((s) => s.infoCategory);
   const infoRegionCode = useMapStore((s) => s.infoRegionCode);
+  const userLocation = useMapStore((s) => s.userLocation);
   const committedViewport = useMapStore((s) => s.committedViewport);
   const infoListReloadNonce = useMapStore((s) => s.infoListReloadNonce);
   const infoViewportReloadNonce = useMapStore((s) => s.infoViewportReloadNonce);
@@ -98,6 +99,7 @@ export function useInfoMapData(enabled = true) {
     listInfoPlaces({
       category: infoCategory,
       regionCode: infoRegionCode,
+      ...(userLocation ? { sort: 'DISTANCE', lat: userLocation.lat, lng: userLocation.lng } : {}),
       signal: ctrl.signal,
       timeoutMs,
     })
@@ -141,7 +143,7 @@ export function useInfoMapData(enabled = true) {
       });
 
     return () => ctrl.abort();
-  }, [enabled, mode, infoCategory, infoRegionCode, infoListReloadNonce]);
+  }, [enabled, mode, infoCategory, infoRegionCode, userLocation?.lat, userLocation?.lng, infoListReloadNonce]);
 
   // ── Viewport ───────────────────────────────────────────────────────────────
   useEffect(() => {
