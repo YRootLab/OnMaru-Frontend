@@ -153,7 +153,7 @@ export function CollabPinsOverlay() {
   const viewportItems = useMapStore((s) => s.viewportItems);
   const detailId = useMapStore((s) => s.detailId);
   const me = useSelf();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, loginWithKakao } = useAuth();
   const { pins, addPin, removePin } = useCollabPins();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -286,7 +286,8 @@ export function CollabPinsOverlay() {
       toast('로그인이 필요해요', {
         icon: <HugeiconsIcon icon={Login01Icon} size={16} strokeWidth={1.8} />,
         description: '핀 공유는 로그인 후 사용할 수 있어요.',
-        duration: 3000,
+        duration: 5000,
+        action: { label: '로그인하기', onClick: loginWithKakao },
       });
       return;
     }
