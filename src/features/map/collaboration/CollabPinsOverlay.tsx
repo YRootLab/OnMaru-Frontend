@@ -28,6 +28,18 @@ function colorForUser(userId: string) {
   return USER_COLORS[hash % USER_COLORS.length];
 }
 
+const PLACE_NAME_MAX = 80;
+
+function isValidPin(pin: CollabPin): boolean {
+  return (
+    typeof pin.placeId === 'string' && pin.placeId.length > 0 &&
+    typeof pin.placeName === 'string' && pin.placeName.length > 0 && pin.placeName.length <= PLACE_NAME_MAX &&
+    typeof pin.userId === 'string' && pin.userId.length > 0 &&
+    Number.isFinite(pin.lat) && pin.lat >= -90 && pin.lat <= 90 &&
+    Number.isFinite(pin.lng) && pin.lng >= -180 && pin.lng <= 180
+  );
+}
+
 function buildPinEl(pin: CollabPin): HTMLElement {
   const color = colorForUser(pin.userId);
   const pinIcon = mapIconSvg('mapPin', 14);
@@ -172,13 +184,7 @@ export function CollabPinsOverlay() {
 
     // Add new overlays — validate each pin before rendering (untrusted shared state)
     pins.forEach((pin) => {
-      if (
-        typeof pin.placeId !== 'string' || !pin.placeId ||
-        typeof pin.placeName !== 'string' || !pin.placeName ||
-        typeof pin.userId !== 'string' || !pin.userId ||
-        !Number.isFinite(pin.lat) || pin.lat < -90 || pin.lat > 90 ||
-        !Number.isFinite(pin.lng) || pin.lng < -180 || pin.lng > 180
-      ) return;
+      if (!isValidPin(pin)) return;
 
       const key = `${pin.placeId}-${pin.userId}`;
       if (overlaysRef.current.has(key)) return;
@@ -200,9 +206,7 @@ export function CollabPinsOverlay() {
 
     // Draw polyline connecting all pins when 2+
     if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
-    const validPins = pins.filter((p) =>
-      Number.isFinite(p.lat) && Number.isFinite(p.lng)
-    );
+    const validPins = pins.filter(isValidPin);
     if (validPins.length >= 2) {
       try {
         const path = validPins.map((p) => new window.kakao.maps.LatLng(p.lat, p.lng));
@@ -234,7 +238,7 @@ export function CollabPinsOverlay() {
 
     for (const pin of pins) {
       const key = `${pin.placeId}-${pin.userId}`;
-      if (!prevPinKeysRef.current.has(key) && pin.userId !== myUserId) {
+      if (!prevPinKeysRef.current.has(key) && pin.userId !== myUserId && isValidPin(pin)) {
         toast(pin.placeName, {
           icon: <HugeiconsIcon icon={UserMultiple02Icon} size={16} strokeWidth={1.8} />,
           description: '함께하는 친구가 핀을 찍었어요!',
