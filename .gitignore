@@ -75,5 +75,7 @@ docs/decisions/.adr-toolkit.lock
 
 new/troubleshooting-notes.md
 
+docs/notes/
+
 *storybook.log
 storybook-static

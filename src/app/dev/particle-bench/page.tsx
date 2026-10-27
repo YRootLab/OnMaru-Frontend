@@ -10,7 +10,6 @@ import { LivePresenceBadge } from '@/features/realtime-presence/presentation/com
 import { WarmthReactionButton } from '@/features/realtime-presence/presentation/components/WarmthReactionButton';
 import {
   type FrameStats,
-  type FxMode,
   type WarmthParticleEvent,
   WarmthParticleCanvas,
 } from '@/features/realtime-presence/presentation/components/WarmthParticleCanvas';
@@ -32,15 +31,9 @@ type Rate = (typeof RATES)[number];
 type MockTransport = IPresenceTransport & MockPresenceTransportScenarios;
 const LOG_MAX = 6;
 
-// ─── URL param helpers ────────────────────────────────────────────────────────
 const PARAM_KEYS: Record<keyof MotionParams, string> = {
-  beeH:             'beeH',
-  meDurationMs:     'meMs',
-  otherDurationMs:  'otherMs',
-  tailRate:         'tailRate',
-  tailParticleSize: 'tailSize',
-  sineAmp:          'sineAmp',
-  startXJitter:     'xJitter',
+  sineAmp:      'sineAmp',
+  startXJitter: 'xJitter',
 };
 
 function readMotionFromParams(params: URLSearchParams): Partial<MotionParams> {
@@ -55,15 +48,14 @@ function readMotionFromParams(params: URLSearchParams): Partial<MotionParams> {
   return out;
 }
 
-function motionToSearchString(fx: FxMode, m: MotionParams): string {
-  const p = new URLSearchParams({ fx });
+function motionToSearchString(m: MotionParams): string {
+  const p = new URLSearchParams();
   for (const [key, urlKey] of Object.entries(PARAM_KEYS) as [keyof MotionParams, string][]) {
     p.set(urlKey, String(m[key]));
   }
   return p.toString();
 }
 
-// ─── Slider row ───────────────────────────────────────────────────────────────
 function SliderRow({
   label, value, min, max, step, onChange,
 }: {
@@ -85,14 +77,12 @@ function SliderRow({
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
 function ParticleBenchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const [rate, setRate] = useState<Rate>(30);
   const [pooling, setPooling] = useState(true);
-  const [fx, setFx] = useState<FxMode>(() => (searchParams.get('fx') === 'bee' ? 'bee' : 'light'));
   const [motion, setMotion] = useState<MotionParams>(() => ({
     ...DEFAULT_MOTION,
     ...readMotionFromParams(searchParams),
@@ -136,7 +126,6 @@ function ParticleBenchPage() {
     });
   }, [transport, addLog]);
 
-  // 자동 파티클
   useEffect(() => {
     const t = setInterval(() => {
       const enqueue = enqueueRef.current;
@@ -180,32 +169,29 @@ function ParticleBenchPage() {
     setTimeout(() => setBatchMsg(''), 3_000);
   }, [addLog]);
 
-  // URL 쿼리 동기화 (debounce 없이, motion은 slider가 완만하게 바뀜)
   useEffect(() => {
-    router.replace(`?${motionToSearchString(fx, motion)}`, { scroll: false });
-  }, [fx, motion]); // eslint-disable-line react-hooks/exhaustive-deps
+    router.replace(`?${motionToSearchString(motion)}`, { scroll: false });
+  }, [motion]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setParam = useCallback((key: keyof MotionParams, value: number) => {
     setMotion((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   const handleCopyJson = useCallback(() => {
-    const json = JSON.stringify({ fx, ...motion }, null, 2);
+    const json = JSON.stringify(motion, null, 2);
     navigator.clipboard.writeText(json).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1_500);
     });
-  }, [fx, motion]);
+  }, [motion]);
 
   const handleReset = useCallback(() => {
     setMotion({ ...DEFAULT_MOTION });
-    setFx('light');
   }, []);
 
   return (
     <div style={{ minHeight: '100dvh', background: '#111', color: '#eee', fontFamily: 'monospace', display: 'flex', flexDirection: 'column' }}>
 
-      {/* 컨트롤 패널 */}
       <div style={{ padding: '12px 16px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', background: '#1a1a1a', borderBottom: '1px solid #333' }}>
         <strong style={{ fontSize: 13 }}>particle-bench</strong>
 
@@ -225,18 +211,6 @@ function ParticleBenchPage() {
           풀링 <span style={{ color: pooling ? '#4caf50' : '#f44336' }}>{pooling ? 'ON' : 'OFF'}</span>
         </label>
 
-        {/* fx 토글 */}
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 3, fontSize: 11 }}>
-          이펙트
-          <div style={{ display: 'flex', gap: 5 }}>
-            {(['light', 'bee'] as FxMode[]).map((mode) => (
-              <button key={mode} onClick={() => setFx(mode)} style={{ padding: '3px 8px', background: fx === mode ? '#f5c842' : '#333', color: fx === mode ? '#111' : '#eee', border: 'none', borderRadius: 3, cursor: 'pointer', fontSize: 11 }}>
-                {mode === 'light' ? '✨ light' : '🐝 bee'}
-              </button>
-            ))}
-          </div>
-        </label>
-
         <button onClick={() => setDebugOpen((v) => !v)} style={{ padding: '3px 8px', background: '#2a2a2a', color: '#aaa', border: '1px solid #444', borderRadius: 3, cursor: 'pointer', fontSize: 11 }}>
           {debugOpen ? '▲ 디버그 패널' : '▼ 디버그 패널'}
         </button>
@@ -252,7 +226,6 @@ function ParticleBenchPage() {
         </div>
       </div>
 
-      {/* 디버그 패널 */}
       {debugOpen && (
         <div style={{ padding: '12px 16px', background: '#141414', borderBottom: '1px solid #2a2a2a', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4 }}>
@@ -266,21 +239,12 @@ function ParticleBenchPage() {
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '6px 20px' }}>
-            <SliderRow label="벌 크기 (px)" value={motion.beeH} {...MOTION_LIMITS.beeH} onChange={(v) => setParam('beeH', v)} />
-            <SliderRow label="me 비행 (ms)" value={motion.meDurationMs} {...MOTION_LIMITS.meDurationMs} onChange={(v) => setParam('meDurationMs', v)} />
-            <SliderRow label="other 비행 (ms)" value={motion.otherDurationMs} {...MOTION_LIMITS.otherDurationMs} onChange={(v) => setParam('otherDurationMs', v)} />
-            <SliderRow label="꼬리 방출량" value={motion.tailRate} {...MOTION_LIMITS.tailRate} onChange={(v) => setParam('tailRate', v)} />
-            <SliderRow label="꼬리 입자 (px)" value={motion.tailParticleSize} {...MOTION_LIMITS.tailParticleSize} onChange={(v) => setParam('tailParticleSize', v)} />
             <SliderRow label="사인 진폭 (px)" value={motion.sineAmp} {...MOTION_LIMITS.sineAmp} onChange={(v) => setParam('sineAmp', v)} />
             <SliderRow label="시작 x 지터 (px)" value={motion.startXJitter} {...MOTION_LIMITS.startXJitter} onChange={(v) => setParam('startXJitter', v)} />
-          </div>
-          <div style={{ fontSize: 10, color: '#3a3a3a', marginTop: 2 }}>
-            light 모드: 벌 크기·꼬리·비행 슬라이더는 bee 모드에서만 유효
           </div>
         </div>
       )}
 
-      {/* 배지 + 반응 버튼 + 시뮬레이션 */}
       <div style={{ padding: '14px 16px', background: '#181818', borderBottom: '1px solid #2a2a2a', display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'flex-start' }}>
         <div>
           <div style={{ fontSize: 10, color: '#555', marginBottom: 6 }}>배지</div>
@@ -314,27 +278,19 @@ function ParticleBenchPage() {
         </div>
       </div>
 
-      {/* 캔버스 영역 */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden', minHeight: 360 }}>
         <div style={{
           position: 'absolute', inset: 0,
-          background: fx === 'light'
-            ? 'linear-gradient(180deg, #f8f6f0 0%, #faf4e8 60%, #f5efe0 100%)'
-            : 'linear-gradient(180deg, #1a0e05 0%, #2d1a0a 60%, #1a0e05 100%)',
-          transition: 'background 0.4s ease',
+          background: 'linear-gradient(180deg, #f8f6f0 0%, #faf4e8 60%, #f5efe0 100%)',
         }} />
         <WarmthParticleCanvas
-          key={`${String(pooling)}-${fx}`}
+          key={String(pooling)}
           onMount={handleMount}
           poolingEnabled={pooling}
-          fx={fx}
           motionParams={motion}
           onOtherBatch={handleOtherBatch}
           style={{ position: 'absolute', inset: 0 }}
         />
-        <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', color: fx === 'light' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.25)', fontSize: 12, pointerEvents: 'none', whiteSpace: 'nowrap' }}>
-          {fx === 'light' ? '✨ light 모드 (흰 배경 확인)' : '🐝 bee 모드'}
-        </div>
       </div>
 
       <div style={{ padding: '10px 16px', fontSize: 10, color: '#555', background: '#1a1a1a', borderTop: '1px solid #333' }}>
