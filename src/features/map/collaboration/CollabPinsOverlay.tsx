@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Location01Icon } from '@hugeicons/core-free-icons';
+import { Location01Icon, Cancel01Icon, UserMultiple02Icon } from '@hugeicons/core-free-icons';
 import { toast } from 'sonner';
 import { useSelf } from '@liveblocks/react';
 import { useMapStore } from '../hooks/useMapStore';
@@ -26,6 +26,18 @@ function colorForUser(userId: string) {
   let hash = 0;
   for (const ch of userId) hash = (hash * 31 + ch.charCodeAt(0)) & 0xffff;
   return USER_COLORS[hash % USER_COLORS.length];
+}
+
+const PLACE_NAME_MAX = 80;
+
+function isValidPin(pin: CollabPin): boolean {
+  return (
+    typeof pin.placeId === 'string' && pin.placeId.length > 0 &&
+    typeof pin.placeName === 'string' && pin.placeName.length > 0 && pin.placeName.length <= PLACE_NAME_MAX &&
+    typeof pin.userId === 'string' && pin.userId.length > 0 &&
+    Number.isFinite(pin.lat) && pin.lat >= -90 && pin.lat <= 90 &&
+    Number.isFinite(pin.lng) && pin.lng >= -180 && pin.lng <= 180
+  );
 }
 
 function buildPinEl(pin: CollabPin): HTMLElement {
@@ -137,20 +149,26 @@ export function CollabPinsOverlay() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
   const items = useMapStore((s) => s.items);
+  const viewportItems = useMapStore((s) => s.viewportItems);
   const detailId = useMapStore((s) => s.detailId);
   const me = useSelf();
   const { pins, addPin, removePin } = useCollabPins();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const overlaysRef = useRef<Map<string, any>>(new Map());
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const polylineRef = useRef<any>(null);
+  const prevPinKeysRef = useRef<Set<string>>(new Set());
+  const initializedRef = useRef(false);
 
-  // Sync Liveblocks pins → Kakao CustomOverlay instances
+  // Sync Liveblocks pins → Kakao CustomOverlay instances + Polyline
   useEffect(() => {
     if (!map || !pins) return;
 
     if (mode !== 'info') {
       overlaysRef.current.forEach((o) => o.setMap(null));
       overlaysRef.current.clear();
+      if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
       return;
     }
 
@@ -166,13 +184,7 @@ export function CollabPinsOverlay() {
 
     // Add new overlays — validate each pin before rendering (untrusted shared state)
     pins.forEach((pin) => {
-      if (
-        typeof pin.placeId !== 'string' || !pin.placeId ||
-        typeof pin.placeName !== 'string' || !pin.placeName ||
-        typeof pin.userId !== 'string' || !pin.userId ||
-        !Number.isFinite(pin.lat) || pin.lat < -90 || pin.lat > 90 ||
-        !Number.isFinite(pin.lng) || pin.lng < -180 || pin.lng > 180
-      ) return;
+      if (!isValidPin(pin)) return;
 
       const key = `${pin.placeId}-${pin.userId}`;
       if (overlaysRef.current.has(key)) return;
@@ -191,19 +203,76 @@ export function CollabPinsOverlay() {
         // Malformed pin — skip silently
       }
     });
+
+    // Draw polyline connecting all pins when 2+
+    if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
+    const validPins = pins.filter(isValidPin);
+    if (validPins.length >= 2) {
+      try {
+        const path = validPins.map((p) => new window.kakao.maps.LatLng(p.lat, p.lng));
+        const polyline = new window.kakao.maps.Polyline({
+          path,
+          strokeWeight: 2,
+          strokeColor: '#4B8BFF',
+          strokeOpacity: 0.6,
+          strokeStyle: 'dash',
+        });
+        polyline.setMap(map);
+        polylineRef.current = polyline;
+      } catch { /* kakao not ready */ }
+    }
   }, [map, pins, mode]);
+
+  // Notify other participants when someone adds a new pin
+  useEffect(() => {
+    if (pins === null) return;
+
+    const myUserId = me?.presence?.userId ?? 'guest';
+    const currentKeys = new Set(pins.map((p) => `${p.placeId}-${p.userId}`));
+
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      prevPinKeysRef.current = currentKeys;
+      return;
+    }
+
+    for (const pin of pins) {
+      const key = `${pin.placeId}-${pin.userId}`;
+      if (!prevPinKeysRef.current.has(key) && pin.userId !== myUserId && isValidPin(pin)) {
+        toast(pin.placeName, {
+          icon: <HugeiconsIcon icon={UserMultiple02Icon} size={16} strokeWidth={1.8} />,
+          description: '함께하는 친구가 핀을 찍었어요!',
+          duration: 3000,
+        });
+      }
+    }
+
+    prevPinKeysRef.current = currentKeys;
+  }, [pins, me?.presence?.userId]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       overlaysRef.current.forEach((o) => o.setMap(null));
       overlaysRef.current.clear();
+      if (polylineRef.current) { polylineRef.current.setMap(null); polylineRef.current = null; }
     };
   }, []);
 
   if (!map || mode !== 'info') return null;
 
-  const selectedPlace = detailId ? items.find((i) => i.id === detailId) : null;
+  // Find selected place from both items (non-info) and viewportItems (info mode)
+  const selectedPlace = detailId ? (() => {
+    const fromItems = items.find((i) => i.id === detailId);
+    if (fromItems) return fromItems;
+
+    const vp = viewportItems.find((v) => v.type === 'PLACE' && v.placeId === detailId);
+    if (vp && vp.placeId && vp.name) {
+      return { id: vp.placeId, name: vp.name, lat: vp.center.lat, lng: vp.center.lng };
+    }
+    return null;
+  })() : null;
+
   const myUserId = me?.presence?.userId ?? 'guest';
   const alreadyPinned = selectedPlace
     ? (pins ?? []).some((p) => p.placeId === selectedPlace.id && p.userId === myUserId)
@@ -219,13 +288,17 @@ export function CollabPinsOverlay() {
       userId: myUserId,
     };
     addPin(pin);
-    toast.success(`'${selectedPlace.name}' 핀을 공유했어요!`);
+    toast.success(`'${selectedPlace.name}' 핀을 공유했어요!`, {
+      icon: <HugeiconsIcon icon={Location01Icon} size={16} strokeWidth={1.8} />,
+    });
   }
 
   function handleRemovePin() {
     if (!selectedPlace) return;
     removePin(selectedPlace.id);
-    toast.info(`핀을 제거했어요.`);
+    toast.info(`핀을 제거했어요.`, {
+      icon: <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.8} />,
+    });
   }
 
   if (!selectedPlace) return null;
