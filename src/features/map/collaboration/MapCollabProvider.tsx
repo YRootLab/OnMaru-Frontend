@@ -57,9 +57,12 @@ interface Props {
 }
 
 export function MapCollabProvider({ roomId, children }: Props) {
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   // Anonymous per-session ID — never expose the real account ID over the wire
   const sessionIdRef = useRef(crypto.randomUUID());
+
+  // 비로그인 상태에서 Liveblocks auth 무한 재시도 방지
+  if (!isLoggedIn) return <>{children}</>;
 
   return (
     <CollabErrorBoundary fallback={children}>

@@ -23,6 +23,7 @@ const Btn = styled.button<{ $copied: boolean }>`
   white-space: nowrap;
   pointer-events: auto;
   transition: background 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
 
   background: ${({ $copied }) => ($copied ? '#2a7a4b' : 'rgba(255,255,255,0.92)')};
   color: ${({ $copied }) => ($copied ? '#fff' : meok[900])};
@@ -39,6 +40,17 @@ const Btn = styled.button<{ $copied: boolean }>`
     color: ${({ $copied }) => ($copied ? '#fff' : '#f0f0f0')};
     border-color: ${({ $copied }) => ($copied ? 'transparent' : 'rgba(255,255,255,0.12)')};
     box-shadow: ${ringShadow.dark.card};
+  }
+
+  @media (max-width: 1023px) {
+    padding: 8px 10px;
+    gap: 0;
+  }
+`;
+
+const BtnLabel = styled.span`
+  @media (max-width: 1023px) {
+    display: none;
   }
 `;
 
@@ -76,7 +88,7 @@ export function ShareCollabButton() {
         size={16}
         strokeWidth={2}
       />
-      <span>{copied ? '링크 복사됨' : '친구 초대'}</span>
+      <BtnLabel>{copied ? '링크 복사됨' : '친구 초대'}</BtnLabel>
     </Btn>
   );
 }

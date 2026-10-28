@@ -16,6 +16,7 @@ const Badge = styled.div`
   letter-spacing: -0.01em;
   white-space: nowrap;
   pointer-events: none;
+  flex-shrink: 0;
   background: rgba(255, 255, 255, 0.92);
   color: ${meok[900]};
   border: 1px solid rgba(0, 0, 0, 0.07);
@@ -28,6 +29,12 @@ const Badge = styled.div`
     color: #f0f0f0;
     border-color: rgba(255, 255, 255, 0.12);
     box-shadow: ${ringShadow.dark.card};
+  }
+`;
+
+const BadgeLabel = styled.span`
+  @media (max-width: 1023px) {
+    display: none;
   }
 `;
 
@@ -44,7 +51,7 @@ export function CollabSessionBadge() {
     <Badge aria-label="공유 지도 세션 중">
       <HugeiconsIcon icon={UserMultiple02Icon} size={14} strokeWidth={2} />
       <Dot />
-      공유된 지도를 보고 있어요
+      <BadgeLabel>공유된 지도를 보고 있어요</BadgeLabel>
     </Badge>
   );
 }
