@@ -13,6 +13,7 @@ function repository(overrides: Partial<VisitReviewRepository>): VisitReviewRepos
     listReviews: vi.fn(),
     listReviewsByPlace: vi.fn(),
     createReview: vi.fn(),
+    createExternalPlaceReview: vi.fn(),
     deleteReview: vi.fn(),
     setLiked: vi.fn(),
     reportReview: vi.fn(),
@@ -33,7 +34,49 @@ const publicReview = {
   createdAt: '2026-09-15T02:00:00Z',
 };
 
+const externalReview = {
+  id: 'review-ext-1',
+  placeId: 'p-ext-18577297',
+  placeName: '경기전 돌담길',
+  lat: 35.815,
+  lng: 127.15,
+  text: '돌담길 따라 산책하기 좋았어요.',
+  likeCount: 0,
+  likedByMe: false,
+  mine: true,
+  createdAt: '2026-10-06T02:00:00Z',
+};
+
 describe('VisitReview use cases', () => {
+  it('creates an external place review via createExternalPlaceReview', async () => {
+    const repo = repository({ createExternalPlaceReview: vi.fn().mockResolvedValue(externalReview) });
+
+    const result = await createVisitReviewWarmth(repo, {
+      place: {
+        provider: 'KAKAO',
+        externalId: '18577297',
+        name: '경기전 돌담길',
+        lat: 35.815,
+        lng: 127.15,
+      },
+      text: '  돌담길 따라 산책하기 좋았어요.  ',
+      mood: '한적',
+      score: 5,
+    });
+
+    expect(repo.createExternalPlaceReview).toHaveBeenCalledWith(
+      {
+        provider: 'KAKAO',
+        externalId: '18577297',
+        name: '경기전 돌담길',
+        lat: 35.815,
+        lng: 127.15,
+      },
+      '돌담길 따라 산책하기 좋았어요.',
+      { mood: '한적', score: 5, tags: [] },
+    );
+    expect(result).toEqual(expect.objectContaining({ id: 'review-ext-1', placeId: 'p-ext-18577297' }));
+  });
   it('loads place reviews from the canonical place endpoint only', async () => {
     const repo = repository({
       listReviewsByPlace: vi.fn().mockResolvedValue({ items: [publicReview], nextCursor: null, hasMore: false }),

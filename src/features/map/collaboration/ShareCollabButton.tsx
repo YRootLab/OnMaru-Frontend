@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { UserAdd01Icon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons';
@@ -22,6 +23,7 @@ const Btn = styled.button<{ $copied: boolean }>`
   white-space: nowrap;
   pointer-events: auto;
   transition: background 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
 
   background: ${({ $copied }) => ($copied ? '#2a7a4b' : 'rgba(255,255,255,0.92)')};
   color: ${({ $copied }) => ($copied ? '#fff' : meok[900])};
@@ -39,24 +41,42 @@ const Btn = styled.button<{ $copied: boolean }>`
     border-color: ${({ $copied }) => ($copied ? 'transparent' : 'rgba(255,255,255,0.12)')};
     box-shadow: ${ringShadow.dark.card};
   }
+
+  @media (max-width: 1023px) {
+    padding: 8px 10px;
+    gap: 0;
+  }
+`;
+
+const BtnLabel = styled.span`
+  @media (max-width: 1023px) {
+    display: none;
+  }
 `;
 
 export function ShareCollabButton() {
   const { isLoggedIn } = useAuth();
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
 
   if (!isLoggedIn) return null;
 
   function handleShare() {
-    const roomId = crypto.randomUUID();
+    // 이미 방에 있으면 현재 URL 재사용, 아니면 새 방 생성 후 URL 교체
+    const params = new URLSearchParams(window.location.search);
+    const existingRoom = params.get('room');
+    const roomId = existingRoom ?? crypto.randomUUID();
     const url = `${window.location.origin}/map?room=${roomId}`;
+
+    if (!existingRoom) {
+      router.replace(`/map?room=${roomId}`);
+    }
 
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
-      toast.success('친구 초대 링크가 복사됐어요!', { description: '링크를 붙여넣어 친구에게 공유하세요.' });
+      toast.success('친구 초대 링크가 복사됐어요!', { description: '친구가 이 링크로 들어오면 같은 지도를 함께 볼 수 있어요. 링크는 72시간 동안 유지돼요.' });
       setTimeout(() => setCopied(false), 2500);
     }).catch(() => {
-      // fallback: select text manually isn't possible here, just show the URL
       toast.info('링크 복사 실패', { description: url });
     });
   }
@@ -68,7 +88,7 @@ export function ShareCollabButton() {
         size={16}
         strokeWidth={2}
       />
-      <span>{copied ? '링크 복사됨' : '친구 초대'}</span>
+      <BtnLabel>{copied ? '링크 복사됨' : '친구 초대'}</BtnLabel>
     </Btn>
   );
 }

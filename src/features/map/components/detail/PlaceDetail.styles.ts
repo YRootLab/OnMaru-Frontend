@@ -780,3 +780,61 @@ export const ErrorBox = styled.div`
   text-align: center;
 `;
 
+export const RelatedSection = styled.section`
+  padding: 16px 16px 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  [data-theme='dark'] & { border-top-color: rgba(255,255,255,0.07); }
+`;
+
+export const RelatedScroller = styled.div`
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+`;
+
+export const RelatedCard = styled.button`
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 120px;
+  padding: 10px 10px 8px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(78, 89, 104, 0.06);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+
+  &:hover { background: rgba(78, 89, 104, 0.12); }
+  &:active { background: rgba(78, 89, 104, 0.18); }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    &:hover { background: rgba(255, 255, 255, 0.1); }
+  }
+`;
+
+export const RelatedCardName = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${meok[900]};
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: keep-all;
+  [data-theme='dark'] & { color: #e8e8e8; }
+`;
+
+export const RelatedCardDist = styled.span`
+  font-size: 11px;
+  color: ${meok[400]};
+  [data-theme='dark'] & { color: ${meok[500]}; }
+`;
+

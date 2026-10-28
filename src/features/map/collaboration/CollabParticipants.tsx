@@ -21,7 +21,7 @@ function colorForUser(userId: string) {
 
 const Panel = styled.div`
   position: absolute;
-  top: 14px;
+  top: 96px;
   right: 14px;
   z-index: 35;
   display: flex;

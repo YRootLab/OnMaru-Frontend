@@ -54,6 +54,25 @@ export function createVisitReviewRepository(
       queryCache.invalidate(`place:${placeId}:`);
       return review;
     },
+    async createExternalPlaceReview(place, text, opts) {
+      const review = await request<VisitReview>('/visit-reviews', {
+        method: 'POST',
+        body: {
+          place,
+          text,
+          mood: opts?.mood,
+          score: opts?.score,
+          tags: opts?.tags ?? [],
+        },
+        csrf: true,
+        idempotencyKey: globalThis.crypto.randomUUID(),
+      });
+      queryCache.invalidate('feed:');
+      if (review.placeId) {
+        queryCache.invalidate(`place:${review.placeId}:`);
+      }
+      return review;
+    },
     async deleteReview(reviewId) {
       await request<void>(`/visit-reviews/${reviewId}`, { method: 'DELETE', csrf: true });
       queryCache.invalidate('feed:');
@@ -133,6 +152,21 @@ export const fixtureVisitReviewRepository: VisitReviewRepository = {
   },
   async createReview(_placeId, text, opts) {
     return { ...fixtureReviews[0], id: `fixture-review-${Date.now()}`, text, ...opts, mine: true, likeCount: 0, likedByMe: false };
+  },
+  async createExternalPlaceReview(place, text, opts) {
+    return {
+      ...fixtureReviews[0],
+      id: `fixture-review-${Date.now()}`,
+      placeId: `p-ext-${place.externalId}`,
+      placeName: place.name,
+      lat: place.lat,
+      lng: place.lng,
+      text,
+      ...opts,
+      mine: true,
+      likeCount: 0,
+      likedByMe: false,
+    };
   },
   async deleteReview() {},
   async setLiked(_reviewId, liked) {
