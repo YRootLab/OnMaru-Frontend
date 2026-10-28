@@ -53,7 +53,7 @@ export function ShareCollabButton() {
 
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
-      toast.success('친구 초대 링크가 복사됐어요!', { description: '링크를 붙여넣어 친구에게 공유하세요.' });
+      toast.success('친구 초대 링크가 복사됐어요!', { description: '이 링크는 24시간 동안 유지돼요. 붙여넣어 친구에게 공유하세요.' });
       setTimeout(() => setCopied(false), 2500);
     }).catch(() => {
       // fallback: select text manually isn't possible here, just show the URL
