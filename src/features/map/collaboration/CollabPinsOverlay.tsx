@@ -282,6 +282,7 @@ export function CollabPinsOverlay() {
 
   function handleAddPin() {
     if (!selectedPlace) return;
+    if (pins === null) return; // storage not yet loaded
     if (!isLoggedIn) {
       toast('로그인이 필요해요', {
         icon: <HugeiconsIcon icon={Login01Icon} size={16} strokeWidth={1.8} />,
@@ -306,6 +307,7 @@ export function CollabPinsOverlay() {
 
   function handleRemovePin() {
     if (!selectedPlace) return;
+    if (pins === null) return;
     removePin(selectedPlace.id);
     toast.info(`핀을 제거했어요.`, {
       icon: <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.8} />,

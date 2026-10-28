@@ -62,7 +62,7 @@ export function ShareCollabButton() {
 
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
-      toast.success('친구 초대 링크가 복사됐어요!', { description: '이 링크는 72시간 동안 유지돼요. 붙여넣어 친구에게 공유하세요.' });
+      toast.success('친구 초대 링크가 복사됐어요!', { description: '친구가 이 링크로 들어오면 같은 지도를 함께 볼 수 있어요. 링크는 72시간 동안 유지돼요.' });
       setTimeout(() => setCopied(false), 2500);
     }).catch(() => {
       toast.info('링크 복사 실패', { description: url });
