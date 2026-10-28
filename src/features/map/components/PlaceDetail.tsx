@@ -12,6 +12,7 @@ import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/features/map/hooks/usePlaceDetail';
 import {
   mapInfoPlaceToItem,
+  mapInfoCategoryToPlaceCategory,
   selectInfoMarkerItems,
 } from '@/features/map/services/infoMarker.service';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
@@ -22,6 +23,7 @@ import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
 import PlaceWarmthSection from '@/private/core-ui/map-warmth/PlaceWarmthSection';
 import ContentTagChips from '@/shared/components/ContentTagChips/ContentTagChips';
 import RoadviewModal from './detail/RoadviewModal';
+import { focusMapOnPlace } from '@/features/map/presentation/mapPlaceFocus';
 import {
   DetailWrapper,
   HeaderBar,
@@ -68,6 +70,10 @@ import {
   SkeletonImg,
   SkeletonLine,
   ErrorBox,
+  RelatedSection,
+  RelatedScroller,
+  RelatedCard,
+  RelatedCardName,
 } from './detail/PlaceDetail.styles';
 import { isHanok } from '@/features/map/utils/isHanok';
 import { EmphasisBadge } from './EmphasisBadge';
@@ -78,6 +84,7 @@ export default function PlaceDetail() {
   const detailId = useMapStore((s) => s.detailId);
   const mode = useMapStore((s) => s.mode);
   const setDetailId = useMapStore((s) => s.setDetailId);
+  const setSelectedId = useMapStore((s) => s.setSelectedId);
   const fromPopularRanking = useMapStore((s) => s.fromPopularRanking);
   const goBackToPopularRanking = useMapStore((s) => s.goBackToPopularRanking);
   const items = useMapStore((s) => s.items);
@@ -85,6 +92,8 @@ export default function PlaceDetail() {
   const viewportItems = useMapStore((s) => s.viewportItems);
   const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
   const warmths = useMapStore((s) => s.warmths);
+  const map = useMapStore((s) => s.map);
+  const panelOpen = useMapStore((s) => s.panelOpen);
 
   const [isRoadviewOpen, setIsRoadviewOpen] = useState(false);
 
@@ -323,6 +332,14 @@ export default function PlaceDetail() {
       countLabel: `머문 온기 ${warmthCount}건`,
     };
   }, [warmthCount, isBusy]);
+
+  const nearbyItems = useMemo(() => {
+    if (!selectedItem?.category) return [];
+    return listItems
+      .filter((item) => item.placeId !== detailId && mapInfoCategoryToPlaceCategory(item.category) === selectedItem.category)
+      .slice(0, 4)
+      .map(mapInfoPlaceToItem);
+  }, [listItems, detailId, selectedItem?.category]);
 
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(detailId || ''));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
@@ -672,6 +689,29 @@ export default function PlaceDetail() {
                   </ToggleMoreBtn>
                 )}
               </OverviewSection>
+            )}
+
+            {nearbyItems.length > 0 && (
+              <RelatedSection>
+                <SectionTitle>관련 위치</SectionTitle>
+                <RelatedScroller>
+                  {nearbyItems.map((item) => (
+                    <RelatedCard
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedId(item.id);
+                        setDetailId(item.id);
+                        if (map && item.lat && item.lng) {
+                          focusMapOnPlace(map, item.lat, item.lng, panelOpen);
+                        }
+                      }}
+                    >
+                      <RelatedCardName>{item.name}</RelatedCardName>
+                    </RelatedCard>
+                  ))}
+                </RelatedScroller>
+              </RelatedSection>
             )}
 
             {detailId && (
