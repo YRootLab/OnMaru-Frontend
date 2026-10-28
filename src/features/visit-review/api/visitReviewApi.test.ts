@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { createVisitReviewRepository } from './visitReviewApi';
+import { createVisitReviewRepository as createApiRepository } from './visitReviewApi';
+import { createVisitReviewRepository as createInfraRepository } from '../infrastructure/visitReviewRepository';
 
-describe('visit review repository', () => {
+const implementations = [
+  { name: 'infrastructure/visitReviewRepository (production factory)', factory: createInfraRepository },
+  { name: 'api/visitReviewApi (legacy factory)', factory: createApiRepository },
+];
+
+describe.each(implementations)('$name', ({ factory }) => {
   it('loads region aggregates before explicit region review bodies', async () => {
     const calls: Array<{ path: string; options: unknown }> = [];
-    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+    const repository = factory((async (path: string, options: unknown) => {
       calls.push({ path, options });
       return { items: [], nextCursor: null, hasMore: false };
     }) as never);
@@ -23,10 +29,9 @@ describe('visit review repository', () => {
     ]);
   });
 
-
   it('loads reviews scoped to a single place (FE #92)', async () => {
     const calls: Array<{ path: string; options: unknown }> = [];
-    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+    const repository = factory((async (path: string, options: unknown) => {
       calls.push({ path, options });
       return { items: [], nextCursor: null, hasMore: false };
     }) as never);
@@ -43,7 +48,7 @@ describe('visit review repository', () => {
 
   it('uses intended like state endpoints instead of toggle', async () => {
     const calls: Array<{ path: string; options: unknown }> = [];
-    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+    const repository = factory((async (path: string, options: unknown) => {
       calls.push({ path, options });
       return { likedByMe: true, likeCount: 1 };
     }) as never);
@@ -59,7 +64,7 @@ describe('visit review repository', () => {
 
   it('adds an idempotency key when creating a review', async () => {
     const calls: Array<{ path: string; options: any }> = [];
-    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+    const repository = factory((async (path: string, options: unknown) => {
       calls.push({ path, options });
       return { id: 'review-1' };
     }) as never);
@@ -78,7 +83,7 @@ describe('visit review repository', () => {
 
   it('posts external place review to /visit-reviews with place payload (Issue #643)', async () => {
     const calls: Array<{ path: string; options: any }> = [];
-    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+    const repository = factory((async (path: string, options: unknown) => {
       calls.push({ path, options });
       return { id: 'review-ext-1', placeId: 'p-ext-18577297' };
     }) as never);
