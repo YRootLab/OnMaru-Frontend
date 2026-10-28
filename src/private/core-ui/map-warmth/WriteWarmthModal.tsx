@@ -11,6 +11,8 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
 import { RAIL_INSET, RAIL_WIDTH } from '@/features/map/components/MapNavRail';
 import type { Warmth } from '@/features/map/types';
+import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
+import { isOnmaruApiError } from '@/lib/api/errors';
 import MoodSelector, { type MoodValue } from './MoodSelector';
 
 type KakaoPlaceResult = {
@@ -550,13 +552,35 @@ export default function WriteWarmthModal({
       return;
     }
 
+    if (!hasAuthenticatedUser()) {
+      showLoginRequiredToast();
+      return;
+    }
+
     try {
-      const created = await create({
-        placeId: selectedPlace.id,
-        text: text.trim(),
-        mood,
-        score,
-      });
+      const isCanonical = selectedPlace.id.startsWith('p-');
+      const created = await create(
+        isCanonical
+          ? {
+              placeId: selectedPlace.id,
+              text: text.trim(),
+              mood,
+              score,
+            }
+          : {
+              place: {
+                provider: 'KAKAO',
+                externalId: selectedPlace.id,
+                name: selectedPlace.name,
+                lat: selectedPlace.lat,
+                lng: selectedPlace.lng,
+              },
+              text: text.trim(),
+              mood,
+              score,
+              tags: [],
+            },
+      );
 
       setWarmths([
         created,
@@ -569,7 +593,11 @@ export default function WriteWarmthModal({
         setText('');
         onClose();
       }, 900);
-    } catch {}
+    } catch (err: unknown) {
+      if (isOnmaruApiError(err) && (err.status === 401 || err.code === 'UNAUTHORIZED')) {
+        showLoginRequiredToast();
+      }
+    }
   };
 
   if (!mounted) return null;
@@ -684,7 +712,9 @@ export default function WriteWarmthModal({
           {(!selectedPlace || Boolean(createError)) && (
             <ErrorText role="alert">
               {createError
-                ? '온기를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'
+                ? isOnmaruApiError(createError) && (createError.status === 401 || createError.code === 'UNAUTHORIZED')
+                  ? '로그인이 필요한 서비스입니다. 로그인 후 다시 시도해 주세요.'
+                  : '온기를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'
                 : '목록에서 장소를 선택해 주세요.'}
             </ErrorText>
           )}

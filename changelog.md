@@ -2,6 +2,14 @@
 
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
+## [Unreleased]
+
+- 카카오 장소 검색 기반 온기(방문 후기) 등록 404 오류 수정:
+  - 백엔드 Issue #643 신규 외부 장소 등록 규격(`POST /api/v1/visit-reviews`) 연동:
+    - 카카오 검색 장소 선택 시 카카오 외부 장소 페이로드(`provider: "KAKAO"`, `externalId`, `name`, `lat`, `lng`)를 신규 엔드포인트로 전송하도록 클린 아키텍처 포트, 유스케이스, 리포지토리 및 모달 UI를 수정했다.
+    - 정규 카탈로그 장소(`p-` 접두사)는 기존 `POST /api/v1/places/{placeId}/visit-reviews` 엔드포인트를 유지하도록 분기 처리했다.
+  - 온기 작성 전 로그인 인증 상태(`hasAuthenticatedUser`) 검사 및 미인증/세션 만료(401) 시 로그인 유도 안내 토스트와 에러 문구 처리를 추가했다.
+
 ## [v0.1.22] - 2026-10-15
 
 - K-마루 탐색(`KCultureDiscovery`) 장소 이미지 응답 형태 대응:

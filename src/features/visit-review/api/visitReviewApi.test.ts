@@ -75,4 +75,45 @@ describe('visit review repository', () => {
       idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/),
     });
   });
+
+  it('posts external place review to /visit-reviews with place payload (Issue #643)', async () => {
+    const calls: Array<{ path: string; options: any }> = [];
+    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+      calls.push({ path, options });
+      return { id: 'review-ext-1', placeId: 'p-ext-18577297' };
+    }) as never);
+
+    await repository.createExternalPlaceReview(
+      {
+        provider: 'KAKAO',
+        externalId: '18577297',
+        name: '경기전 돌담길',
+        lat: 35.815,
+        lng: 127.15,
+      },
+      '돌담길 산책 코스로 최고예요.',
+      { mood: '한적', score: 5, tags: [] },
+    );
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].path).toBe('/visit-reviews');
+    expect(calls[0].options).toMatchObject({
+      method: 'POST',
+      body: {
+        place: {
+          provider: 'KAKAO',
+          externalId: '18577297',
+          name: '경기전 돌담길',
+          lat: 35.815,
+          lng: 127.15,
+        },
+        text: '돌담길 산책 코스로 최고예요.',
+        mood: '한적',
+        score: 5,
+        tags: [],
+      },
+      csrf: true,
+      idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/),
+    });
+  });
 });

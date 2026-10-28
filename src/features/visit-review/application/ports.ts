@@ -2,6 +2,14 @@ import type { VisitReview, VisitReviewPage, VisitReviewRegionItem, VisitReviewRe
 
 export type { VisitReviewReportReason };
 
+export type ExternalPlaceInput = {
+  provider: 'KAKAO';
+  externalId: string;
+  name: string;
+  lat: number;
+  lng: number;
+};
+
 export type VisitReviewRepository = {
   listRegions(parentRegionCode?: string): Promise<{ items: VisitReviewRegionItem[] }>;
   listReviews(input: {
@@ -12,6 +20,11 @@ export type VisitReviewRepository = {
   }): Promise<VisitReviewPage>;
   listReviewsByPlace(placeId: string, input?: { limit?: number; cursor?: string }): Promise<VisitReviewPage>;
   createReview(placeId: string, text: string, opts?: { mood?: '북적' | '한적'; score?: 1 | 2 | 3 | 4 | 5; tags?: string[] }): Promise<VisitReview>;
+  createExternalPlaceReview(
+    place: ExternalPlaceInput,
+    text: string,
+    opts?: { mood?: '북적' | '한적'; score?: 1 | 2 | 3 | 4 | 5; tags?: string[] }
+  ): Promise<VisitReview>;
   deleteReview(reviewId: string): Promise<void>;
   setLiked(reviewId: string, liked: boolean): Promise<{ likedByMe: boolean; likeCount: number }>;
   reportReview(reviewId: string, reason: VisitReviewReportReason, detail?: string): Promise<{ reportId: string; status: string }>;
