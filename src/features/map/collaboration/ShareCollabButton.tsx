@@ -23,6 +23,7 @@ const Btn = styled.button<{ $copied: boolean }>`
   white-space: nowrap;
   pointer-events: auto;
   transition: background 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
 
   background: ${({ $copied }) => ($copied ? '#2a7a4b' : 'rgba(255,255,255,0.92)')};
   color: ${({ $copied }) => ($copied ? '#fff' : meok[900])};
@@ -39,6 +40,17 @@ const Btn = styled.button<{ $copied: boolean }>`
     color: ${({ $copied }) => ($copied ? '#fff' : '#f0f0f0')};
     border-color: ${({ $copied }) => ($copied ? 'transparent' : 'rgba(255,255,255,0.12)')};
     box-shadow: ${ringShadow.dark.card};
+  }
+
+  @media (max-width: 1023px) {
+    padding: 8px 10px;
+    gap: 0;
+  }
+`;
+
+const BtnLabel = styled.span`
+  @media (max-width: 1023px) {
+    display: none;
   }
 `;
 
@@ -62,7 +74,7 @@ export function ShareCollabButton() {
 
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
-      toast.success('친구 초대 링크가 복사됐어요!', { description: '이 링크는 72시간 동안 유지돼요. 붙여넣어 친구에게 공유하세요.' });
+      toast.success('친구 초대 링크가 복사됐어요!', { description: '친구가 이 링크로 들어오면 같은 지도를 함께 볼 수 있어요. 링크는 72시간 동안 유지돼요.' });
       setTimeout(() => setCopied(false), 2500);
     }).catch(() => {
       toast.info('링크 복사 실패', { description: url });
@@ -76,7 +88,7 @@ export function ShareCollabButton() {
         size={16}
         strokeWidth={2}
       />
-      <span>{copied ? '링크 복사됨' : '친구 초대'}</span>
+      <BtnLabel>{copied ? '링크 복사됨' : '친구 초대'}</BtnLabel>
     </Btn>
   );
 }

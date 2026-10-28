@@ -1,5 +1,6 @@
 import { apiRequest, type ApiRequestOptions, USE_MOCK } from '@/lib/api/client';
 import type { CursorPage } from '@/lib/api/cursor';
+import type { ExternalPlaceInput } from '../application/ports';
 import type { VisitReview, VisitReviewPage, VisitReviewRegionItem, VisitReviewReportReason } from './visitReviewContract';
 import { createVisitReviewQueryCache, type VisitReviewQueryCache } from './visitReviewQueryCache';
 
@@ -15,6 +16,11 @@ export type VisitReviewRepository = {
   }): Promise<VisitReviewPage>;
   listReviewsByPlace(placeId: string, input?: { limit?: number; cursor?: string }): Promise<VisitReviewPage>;
   createReview(placeId: string, text: string, opts?: { mood?: '북적' | '한적'; score?: 1 | 2 | 3 | 4 | 5; tags?: string[] }): Promise<VisitReview>;
+  createExternalPlaceReview(
+    place: ExternalPlaceInput,
+    text: string,
+    opts?: { mood?: '북적' | '한적'; score?: 1 | 2 | 3 | 4 | 5; tags?: string[] }
+  ): Promise<VisitReview>;
   deleteReview(reviewId: string): Promise<void>;
   setLiked(reviewId: string, liked: boolean): Promise<{ likedByMe: boolean; likeCount: number }>;
   reportReview(reviewId: string, reason: VisitReviewReportReason, detail?: string): Promise<{ reportId: string; status: string }>;
@@ -66,6 +72,25 @@ export function createVisitReviewRepository(
       });
       queryCache.invalidate('feed:');
       queryCache.invalidate(`place:${placeId}:`);
+      return review;
+    },
+    async createExternalPlaceReview(place, text, opts) {
+      const review = await request<VisitReview>('/visit-reviews', {
+        method: 'POST',
+        body: {
+          place,
+          text,
+          mood: opts?.mood,
+          score: opts?.score,
+          tags: opts?.tags ?? [],
+        },
+        csrf: true,
+        idempotencyKey: globalThis.crypto.randomUUID(),
+      });
+      queryCache.invalidate('feed:');
+      if (review.placeId) {
+        queryCache.invalidate(`place:${review.placeId}:`);
+      }
       return review;
     },
     async deleteReview(reviewId) {
@@ -149,6 +174,21 @@ export const fixtureVisitReviewRepository: VisitReviewRepository = {
   },
   async createReview(_placeId, text, opts) {
     return { ...fixtureReviews[0], id: `fixture-review-${Date.now()}`, text, ...opts, mine: true, likeCount: 0, likedByMe: false };
+  },
+  async createExternalPlaceReview(place, text, opts) {
+    return {
+      ...fixtureReviews[0],
+      id: `fixture-review-${Date.now()}`,
+      placeId: `p-ext-${place.externalId}`,
+      placeName: place.name,
+      lat: place.lat,
+      lng: place.lng,
+      text,
+      ...opts,
+      mine: true,
+      likeCount: 0,
+      likedByMe: false,
+    };
   },
   async deleteReview() {},
   async setLiked(_reviewId, liked) {

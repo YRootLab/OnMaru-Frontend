@@ -628,6 +628,8 @@ export default function MapPage() {
         <MobileChipsScroller>
           <CategoryChips align="start" />
         </MobileChipsScroller>
+        {collabRoom && <CollabSessionBadge />}
+        <ShareCollabButton />
       </MobileTopBar>
 
 

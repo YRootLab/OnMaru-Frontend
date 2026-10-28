@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { createVisitReviewRepository } from './visitReviewApi';
+import { createVisitReviewRepository as createApiRepository } from './visitReviewApi';
+import { createVisitReviewRepository as createInfraRepository } from '../infrastructure/visitReviewRepository';
 
-describe('visit review repository', () => {
+const implementations = [
+  { name: 'infrastructure/visitReviewRepository (production factory)', factory: createInfraRepository },
+  { name: 'api/visitReviewApi (legacy factory)', factory: createApiRepository },
+];
+
+describe.each(implementations)('$name', ({ factory }) => {
   it('loads region aggregates before explicit region review bodies', async () => {
     const calls: Array<{ path: string; options: unknown }> = [];
-    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+    const repository = factory((async (path: string, options: unknown) => {
       calls.push({ path, options });
       return { items: [], nextCursor: null, hasMore: false };
     }) as never);
@@ -23,10 +29,9 @@ describe('visit review repository', () => {
     ]);
   });
 
-
   it('loads reviews scoped to a single place (FE #92)', async () => {
     const calls: Array<{ path: string; options: unknown }> = [];
-    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+    const repository = factory((async (path: string, options: unknown) => {
       calls.push({ path, options });
       return { items: [], nextCursor: null, hasMore: false };
     }) as never);
@@ -43,7 +48,7 @@ describe('visit review repository', () => {
 
   it('uses intended like state endpoints instead of toggle', async () => {
     const calls: Array<{ path: string; options: unknown }> = [];
-    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+    const repository = factory((async (path: string, options: unknown) => {
       calls.push({ path, options });
       return { likedByMe: true, likeCount: 1 };
     }) as never);
@@ -59,7 +64,7 @@ describe('visit review repository', () => {
 
   it('adds an idempotency key when creating a review', async () => {
     const calls: Array<{ path: string; options: any }> = [];
-    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+    const repository = factory((async (path: string, options: unknown) => {
       calls.push({ path, options });
       return { id: 'review-1' };
     }) as never);
@@ -71,6 +76,47 @@ describe('visit review repository', () => {
     expect(calls[0].options).toMatchObject({
       method: 'POST',
       body: { text: '비 오는 날 좋았어요.' },
+      csrf: true,
+      idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/),
+    });
+  });
+
+  it('posts external place review to /visit-reviews with place payload (Issue #643)', async () => {
+    const calls: Array<{ path: string; options: any }> = [];
+    const repository = factory((async (path: string, options: unknown) => {
+      calls.push({ path, options });
+      return { id: 'review-ext-1', placeId: 'p-ext-18577297' };
+    }) as never);
+
+    await repository.createExternalPlaceReview(
+      {
+        provider: 'KAKAO',
+        externalId: '18577297',
+        name: '경기전 돌담길',
+        lat: 35.815,
+        lng: 127.15,
+      },
+      '돌담길 산책 코스로 최고예요.',
+      { mood: '한적', score: 5, tags: [] },
+    );
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].path).toBe('/visit-reviews');
+    expect(calls[0].options).toMatchObject({
+      method: 'POST',
+      body: {
+        place: {
+          provider: 'KAKAO',
+          externalId: '18577297',
+          name: '경기전 돌담길',
+          lat: 35.815,
+          lng: 127.15,
+        },
+        text: '돌담길 산책 코스로 최고예요.',
+        mood: '한적',
+        score: 5,
+        tags: [],
+      },
       csrf: true,
       idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/),
     });
