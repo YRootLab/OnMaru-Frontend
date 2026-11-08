@@ -27,7 +27,7 @@ const shimmerAnim = keyframes`
 `;
 
 const Page = styled.article`
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   max-width: 1140px;
   margin: 0 auto;
   padding-bottom: 80px;
@@ -39,11 +39,11 @@ const Page = styled.article`
   }
 
   @media (max-width: 1024px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
   }
 
   @media (max-width: 640px) {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
   }
 `;
 

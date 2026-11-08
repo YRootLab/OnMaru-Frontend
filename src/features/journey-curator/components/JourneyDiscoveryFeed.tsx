@@ -23,7 +23,7 @@ import {
 } from './homePresentationContracts';
 
 const FeedContainer = styled.div`
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   max-width: 1140px;
   margin: 0 auto;
   padding: 24px 0 80px;
@@ -32,13 +32,13 @@ const FeedContainer = styled.div`
   gap: 120px;
 
   @media (max-width: 1024px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
     padding-bottom: 60px;
     gap: 74px;
   }
 
   @media (max-width: 640px) {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
     gap: 52px;
   }
 `;

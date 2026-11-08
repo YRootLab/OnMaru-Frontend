@@ -173,17 +173,17 @@ const SectionGradientTitle = styled(SharedSectionHeading)``;
 const CenteredContainer = styled.div`
   margin-left: auto;
   margin-right: auto;
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   max-width: 1140px;
   padding-left: 0;
   padding-right: 0;
 
   @media (max-width: 1024px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
   }
 
   @media (max-width: 640px) {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
   }
 `;
 

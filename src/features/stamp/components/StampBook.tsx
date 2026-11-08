@@ -37,7 +37,7 @@ const getStampRotation = (id: string) =>
 
 const Root = styled.div`
   width: 100%;
-  padding: clamp(32px, 4vw, 48px) 0 120px;
+  padding: clamp(32px, 4vw, 48px) clamp(16px, 4vw, 48px) 120px;
   color: ${INK_LIGHT};
   background: ${NIGHT};
   visibility: hidden;

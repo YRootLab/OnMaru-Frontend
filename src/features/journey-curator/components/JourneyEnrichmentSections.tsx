@@ -18,7 +18,7 @@ import type { NearbyAudioStory } from '../types/enrichment.types';
 import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
 
 const Wrap = styled.section`
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   max-width: 1140px;
   margin: 0 auto;
   padding: 8px 0 56px;
@@ -27,11 +27,11 @@ const Wrap = styled.section`
   gap: 48px;
 
   @media (max-width: 1024px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
   }
 
   @media (max-width: 640px) {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
     padding: 4px 0 40px;
     gap: 32px;
   }
