@@ -29,6 +29,8 @@ const Rail = styled.div`
   align-items: flex-start;
   gap: 0;
   overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
   scroll-snap-type: x proximity;
   padding: 6px 4px 14px;
   margin: -4px -4px -14px;

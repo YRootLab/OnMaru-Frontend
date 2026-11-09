@@ -11,13 +11,13 @@ import { transientProps } from '@/design-system/styled';
 import { useJourneyStore } from '../store/useJourneyStore';
 
 const Container = styled.div`
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   max-width: 1140px;
   margin: 0 auto;
   padding: 0 0 48px;
 
   @media (max-width: 1024px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
   }
 
   @media (max-width: 640px) {
@@ -56,6 +56,8 @@ const DayTabsWrap = styled.div`
   gap: 8px;
   margin-bottom: 14px;
   overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
   padding-bottom: 2px;
 `;
 

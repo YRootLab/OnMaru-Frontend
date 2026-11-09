@@ -30,7 +30,7 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 
 const CardContainer = styled.div`
   position: relative;
-  margin: 0 14px;
+  margin: 0 16px;
   padding: 16px 18px;
   border-radius: 18px;
   background: linear-gradient(135deg, ${lightPalette.jangmi[50]} 0%, ${surface.light.card} 100%);
@@ -48,7 +48,7 @@ const CardContainer = styled.div`
 `;
 
 const SectionHeading = styled.h3`
-  margin: 0 14px 12px;
+  margin: 0 16px 12px;
   font-size: 0.9375rem;
   font-weight: 700;
   letter-spacing: -0.02em;

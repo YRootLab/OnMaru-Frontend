@@ -173,17 +173,17 @@ const SectionGradientTitle = styled(SharedSectionHeading)``;
 const CenteredContainer = styled.div`
   margin-left: auto;
   margin-right: auto;
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   max-width: 1140px;
   padding-left: 0;
   padding-right: 0;
 
   @media (max-width: 1024px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
   }
 
   @media (max-width: 640px) {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
   }
 `;
 
@@ -334,7 +334,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const nearbyStories = nearbyOverride ?? initialData?.nearbyStories ?? initialNearbyStories ?? initialPage?.items ?? [];
   const heroStorySets = initialData ? { '추천': initialData.heroStories } : initialHeroStorySets ?? {};
   const [isLocating, setIsLocating] = useState(false);
-  const [locationLabel, setLocationLabel] = useState('기본 위치');
+  const [, setLocationLabel] = useState('기본 위치');
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
 
   const [locationNotice, setLocationNotice] = useState(false);
@@ -557,7 +557,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     </div>
                     <div style={{ display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
                       <span style={{ textAlign: 'right', fontSize: typographyRole.caption.fontSize, lineHeight: '1rem' }}>
-                        <SectionSubText style={{ display: 'block' }}>{locationLabel}</SectionSubText>
                         <SectionStrongText>
                           내 주변 오디오 {nearbyStories.length}개
                         </SectionStrongText>
@@ -568,7 +567,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                         disabled={isLocating}
                       >
                         {isLocating ? '위치 확인 중…' : '내 위치 사용'}
-                        {!isLocating && <span aria-hidden="true" style={{ fontSize: '0.75rem', lineHeight: 1 }}>?</span>}
                       </LocationButton>
                     </div>
                   </NearbyHeader>
