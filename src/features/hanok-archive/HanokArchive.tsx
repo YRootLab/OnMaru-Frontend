@@ -69,17 +69,17 @@ const PageInner = styled.div`
 
 const SectionContainer = styled.div`
   margin: 0 auto;
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   max-width: 1140px;
   padding: ${spacingLayout.sectionGap} 0;
 
   @media (max-width: 1023px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
     padding: ${spacingLayout.sectionGap} 0;
   }
 
   ${mq.mobile} {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
   }
 `;
 
@@ -116,7 +116,7 @@ const ArchiveSection = styled.div`
 const IntroStage = styled.div`
   position: relative;
   overflow: hidden;
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   max-width: 1140px;
   margin: 0 auto;
   border-radius: 24px;
@@ -126,12 +126,12 @@ const IntroStage = styled.div`
   justify-content: center;
 
   @media (max-width: 1023px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
     margin: 0 auto;
   }
 
   ${mq.mobile} {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
     margin: 0 auto;
     border-radius: 18px;
     min-height: 240px;

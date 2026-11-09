@@ -52,13 +52,13 @@ type FilterTab = 'ALL' | 'TIMELINE' | 'EXPLORATION' | 'JOURNEY' | 'SOUND' | 'BOO
 /* -------------------------------------------------------------------------- */
 
 const PageContainer = styled.div`
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   margin: 0 auto;
   padding-top: 104px;
   padding-bottom: 96px;
 
   @media (max-width: 1024px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
     padding-top: 84px;
     padding-bottom: 64px;
   }

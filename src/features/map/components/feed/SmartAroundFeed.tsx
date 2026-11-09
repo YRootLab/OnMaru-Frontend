@@ -77,7 +77,7 @@ interface SmartAroundFeedProps {
 
 const Wrapper = styled.div`
   position: relative;
-  padding: 0 14px;
+  padding: 0 16px;
 
   &:hover .om-feed-floating-btn {
     opacity: 1;

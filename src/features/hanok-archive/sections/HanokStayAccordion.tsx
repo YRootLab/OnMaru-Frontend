@@ -21,6 +21,23 @@ const Section = styled.section`
   position: relative;
 `;
 
+const StayHeaderRow = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 28px;
+`;
+
+const StayHeaderTitle = styled.div`
+  min-width: 0;
+  flex: 1 1 auto;
+
+  & > * {
+    margin-bottom: 0;
+  }
+`;
+
 const FilterToolbar = styled.div`
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -841,7 +858,14 @@ export default function HanokStayAccordion({
 
   return (
     <Section id="hanok-stays" aria-labelledby="stay-heading">
-      <SectionHeader id="stay-heading" title="지역별 한옥 스테이" />
+      <StayHeaderRow>
+        <StayHeaderTitle>
+          <SectionHeader id="stay-heading" title="지역별 한옥 스테이" />
+        </StayHeaderTitle>
+        <ResultCount role="status" aria-live="polite">
+          {resultCountLabel}
+        </ResultCount>
+      </StayHeaderRow>
 
       <FilterToolbar>
         <RegionFilterBar aria-label="한옥 스테이 지역 필터">
@@ -862,9 +886,6 @@ export default function HanokStayAccordion({
             );
           })}
         </RegionFilterBar>
-        <ResultCount role="status" aria-live="polite">
-          {resultCountLabel}
-        </ResultCount>
       </FilterToolbar>
 
       {currentBatch.length > 0 ? (

@@ -16,6 +16,10 @@ const FooterWrapper = styled.footer`
   font-family: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   padding: clamp(36px, 4vw, 52px) clamp(20px, 3.5vw, 48px) clamp(16px, 2vw, 24px);
 
+  /* 모바일 하단 탭바(bottom 12px + 높이 58px)가 푸터를 가리지 않도록 여백 확보 */
+  @media (max-width: 767px) {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
 
   background: linear-gradient(180deg, #faf9f8 0%, #f3f1ee 100%);
   color: ${meok[700]};

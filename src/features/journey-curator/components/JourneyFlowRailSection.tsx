@@ -25,17 +25,17 @@ type ViewMode = 'JOURNEY' | 'MAP' | 'RELATION';
 const VIEW_LABEL: Record<ViewMode, string> = { JOURNEY: '여정', MAP: '지도', RELATION: '연결' };
 
 const Wrap = styled.section`
-  width: min(calc(100% - 40px), 1140px);
+  width: min(calc(100% - 32px), 1140px);
   max-width: 1140px;
   margin: 0 auto;
   padding: 32px 0 8px;
 
   @media (max-width: 1024px) {
-    width: calc(100% - 28px);
+    width: calc(100% - 32px);
   }
 
   @media (max-width: 640px) {
-    width: calc(100% - 24px);
+    width: calc(100% - 32px);
   }
 `;
 
@@ -76,6 +76,8 @@ const DiffRow = styled.div`
   display: flex;
   gap: 20px;
   overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
   padding: 4px 4px 12px;
 `;
 
