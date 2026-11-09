@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased]
 
+## [v0.1.24] - 2026-11-09
+
 - 모바일 좌우 여백을 16px로 통일:
   - 한옥·K-마루·소리마루·저니 큐레이터·지도마루 피드·계절 카드의 페이지 래퍼를 `calc(100% - 32px)`로 맞추고, 수결첩 루트의 좌우 패딩 0을 수정했다.
   - 전국 한옥 도감을 모바일에서 2열로 표시하고, 지역별 한옥 스테이의 결과 개수를 제목 오른쪽으로 옮겼다.
