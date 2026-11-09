@@ -56,6 +56,8 @@ const DayTabsWrap = styled.div`
   gap: 8px;
   margin-bottom: 14px;
   overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
   padding-bottom: 2px;
 `;
 

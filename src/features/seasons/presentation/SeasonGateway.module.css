@@ -22,7 +22,7 @@
 .mark{position:absolute;right:5%;bottom:3%;z-index:1;color:rgba(255,255,255,.24);font-size:clamp(8rem,20vw,22rem);font-weight:650;line-height:.8;letter-spacing:-.14em;white-space:nowrap;pointer-events:none}
 @media(max-width:900px){.gateway{grid-template-columns:42% 58%}.copy{padding:48px 32px}.copy h2{font-size:clamp(2.7rem,5.4vw,5rem)}.lead{font-size:1.18rem}}
 @media(max-width:760px){
-  .gateway{display:flex;flex-direction:column;min-height:0;border-radius:20px;margin:16px auto;width:calc(100% - 28px);box-shadow:0 12px 36px rgba(0,0,0,.35)}
+  .gateway{display:flex;flex-direction:column;min-height:0;border-radius:20px;margin:16px auto;width:calc(100% - 32px);box-shadow:0 12px 36px rgba(0,0,0,.35)}
   .visualLink{order:1;height:240px}
   .visual{height:100%;min-height:240px}
   .copy{order:2;min-height:0;padding:28px 22px 36px}

@@ -76,6 +76,8 @@ const DiffRow = styled.div`
   display: flex;
   gap: 20px;
   overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
   padding: 4px 4px 12px;
 `;
 
