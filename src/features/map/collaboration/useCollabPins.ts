@@ -1,20 +1,13 @@
 'use client';
 
-import { useStorage, useMutation } from '@liveblocks/react';
-import type { CollabPin } from './liveblocks.config';
+import { useCollab } from './MapCollabProvider';
 
 export function useCollabPins() {
-  const pins = useStorage((root) => root.pins);
-
-  const addPin = useMutation(({ storage }, pin: CollabPin) => {
-    storage.get('pins').push(pin);
-  }, []);
-
-  const removePin = useMutation(({ storage }, placeId: string) => {
-    const list = storage.get('pins');
-    const idx = list.findIndex((p) => p.placeId === placeId);
-    if (idx !== -1) list.delete(idx);
-  }, []);
-
-  return { pins, addPin, removePin };
+  const ctx = useCollab();
+  if (!ctx) return { pins: null, addPin: () => {}, removePin: () => {} };
+  return {
+    pins: ctx.pins,
+    addPin: (placeId: string) => ctx.addPin(placeId),
+    removePin: (_placeId: string, pinId: string) => ctx.removePin(pinId),
+  };
 }

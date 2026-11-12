@@ -7,82 +7,80 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { UserAdd01Icon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/auth';
+import { useCollab } from './MapCollabProvider';
+import { mapCollabApi } from './api';
 import { meok, ringShadow } from '@/design-system/tokens';
 
 const Btn = styled.button<{ $copied: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px 8px 10px;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  pointer-events: auto;
-  transition: background 0.15s ease, transform 0.15s ease;
-  flex-shrink: 0;
-
+  display: flex; align-items: center; gap: 6px; padding: 8px 14px 8px 10px;
+  border: none; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600;
+  letter-spacing: -0.01em; white-space: nowrap; pointer-events: auto;
+  transition: background 0.15s ease, transform 0.15s ease; flex-shrink: 0;
   background: ${({ $copied }) => ($copied ? '#2a7a4b' : 'rgba(255,255,255,0.92)')};
   color: ${({ $copied }) => ($copied ? '#fff' : meok[900])};
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid ${({ $copied }) => ($copied ? 'transparent' : 'rgba(0,0,0,0.07)')};
   box-shadow: ${ringShadow.light.card};
-
-  &:hover { transform: scale(1.03); }
-  &:active { transform: scale(0.97); }
-
+  &:hover { transform: scale(1.03); } &:active { transform: scale(0.97); }
   [data-theme='dark'] & {
     background: ${({ $copied }) => ($copied ? '#2a7a4b' : 'rgba(20,24,32,0.92)')};
     color: ${({ $copied }) => ($copied ? '#fff' : '#f0f0f0')};
     border-color: ${({ $copied }) => ($copied ? 'transparent' : 'rgba(255,255,255,0.12)')};
     box-shadow: ${ringShadow.dark.card};
   }
-
-  @media (max-width: 1023px) {
-    padding: 8px 10px;
-    gap: 0;
-  }
+  @media (max-width: 1023px) { padding: 8px 10px; gap: 0; }
 `;
 
-const BtnLabel = styled.span`
-  @media (max-width: 1023px) {
-    display: none;
-  }
-`;
+const BtnLabel = styled.span`@media (max-width: 1023px) { display: none; }`;
 
 export function ShareCollabButton() {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
+  const ctx = useCollab(); // null이면 아직 방 미참여
   const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   if (!isLoggedIn) return null;
 
-  function handleShare() {
-    // 이미 방에 있으면 현재 URL 재사용, 아니면 새 방 생성 후 URL 교체
-    const params = new URLSearchParams(window.location.search);
-    const existingRoom = params.get('room');
-    const roomId = existingRoom ?? crypto.randomUUID();
-    const url = `${window.location.origin}/map?room=${roomId}`;
+  async function handleShare() {
+    if (loading) return;
+    setLoading(true);
+    try {
+      let shareUrl: string;
 
-    if (!existingRoom) {
-      router.replace(`/map?room=${roomId}`);
-    }
+      if (ctx) {
+        // 이미 방 안 — 추가 초대 링크 발급
+        const res = await ctx.createInvite();
+        shareUrl = res.shareUrl;
+      } else {
+        // 새 방 생성
+        const res = await mapCollabApi.createRoom();
+        shareUrl = res.invite.shareUrl;
+        // /map?room={roomId} 로 URL 교체 (페이지 이동 없이)
+        router.replace(`/map?room=${res.room.id}`);
+      }
 
-    navigator.clipboard.writeText(url).then(() => {
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      toast.success('친구 초대 링크가 복사됐어요!', { description: '친구가 이 링크로 들어오면 같은 지도를 함께 볼 수 있어요. 링크는 72시간 동안 유지돼요.' });
+      toast.success('친구 초대 링크가 복사됐어요!', {
+        description: '친구가 이 링크로 들어오면 같은 지도를 함께 볼 수 있어요. 링크는 72시간 동안 유지돼요.',
+      });
       setTimeout(() => setCopied(false), 2500);
-    }).catch(() => {
-      toast.info('링크 복사 실패', { description: url });
-    });
+    } catch {
+      toast.error('링크 생성에 실패했어요. 다시 시도해주세요.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <Btn type="button" onClick={handleShare} $copied={copied} aria-label="친구와 지도 공유하기">
+    <Btn
+      type="button"
+      onClick={handleShare}
+      $copied={copied}
+      disabled={loading}
+      aria-label="친구와 지도 공유하기"
+    >
       <HugeiconsIcon
         icon={copied ? CheckmarkCircle01Icon : UserAdd01Icon}
         size={16}

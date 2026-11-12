@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useMyPresence, useOthers } from '@liveblocks/react';
 import { useMapStore } from '../hooks/useMapStore';
+import { useCollab } from './MapCollabProvider';
 import { escapeHtml } from '../utils/formatters';
 import { mapIconSvg } from '../utils/mapIconSvg';
 import { palette } from '@/design-system/tokens';
@@ -16,34 +16,20 @@ const USER_COLORS = [
   palette.jangmi[500],
 ] as const;
 
-function colorForUser(userId: string) {
+function colorForUser(memberId: string) {
   let hash = 0;
-  for (const ch of userId) hash = (hash * 31 + ch.charCodeAt(0)) & 0xffff;
+  for (const ch of memberId) hash = (hash * 31 + ch.charCodeAt(0)) & 0xffff;
   return USER_COLORS[hash % USER_COLORS.length];
 }
 
-function buildCursorEl(nickname: string, userId: string): HTMLElement {
-  const color = colorForUser(userId);
+function buildCursorEl(displayName: string, memberId: string): HTMLElement {
+  const color = colorForUser(memberId);
   const pinIcon = mapIconSvg('mapPin', 12);
   const el = document.createElement('div');
   el.style.cssText = 'pointer-events: none; user-select: none; position: relative;';
   el.innerHTML = `
-    <div style="
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      background: ${color};
-      color: white;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px 3px 5px;
-      border-radius: 10px;
-      white-space: nowrap;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      transform: translate(8px, -50%);
-    ">
-      ${pinIcon}
-      ${escapeHtml(nickname)}
+    <div style="display:flex;align-items:center;gap:4px;background:${color};color:white;font-size:11px;font-weight:600;padding:3px 8px 3px 5px;border-radius:10px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.2);transform:translate(8px,-50%);">
+      ${pinIcon}${escapeHtml(displayName)}
     </div>
   `;
   return el;
@@ -51,33 +37,27 @@ function buildCursorEl(nickname: string, userId: string): HTMLElement {
 
 export function CollabCursorsOverlay() {
   const map = useMapStore((s) => s.map);
-  const [, updateMyPresence] = useMyPresence();
-  const others = useOthers();
+  const ctx = useCollab();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const overlaysRef = useRef<Map<string, any>>(new Map());
 
-  // Track my mouse position → update presence cursor as lat/lng
+  // 내 마우스 → sendCursor
   useEffect(() => {
-    if (!map) return;
+    if (!map || !ctx) return;
     const container = document.querySelector<HTMLElement>('[role="application"][aria-label="한옥 위치 지도"]');
     if (!container) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
       try {
         const proj = map.getProjection();
-        const coords = proj.coordsFromContainerPoint(new window.kakao.maps.Point(x, y));
-        updateMyPresence({ cursor: { lat: coords.getLat(), lng: coords.getLng() } });
-      } catch {
-        // map not ready
-      }
+        const coords = proj.coordsFromContainerPoint(
+          new window.kakao.maps.Point(e.clientX - rect.left, e.clientY - rect.top),
+        );
+        ctx.sendCursor(coords.getLat(), coords.getLng());
+      } catch { /* map not ready */ }
     };
-
-    const handleMouseLeave = () => {
-      updateMyPresence({ cursor: null });
-    };
+    const handleMouseLeave = () => ctx.sendCursor(null, null);
 
     container.addEventListener('mousemove', handleMouseMove);
     container.addEventListener('mouseleave', handleMouseLeave);
@@ -85,42 +65,30 @@ export function CollabCursorsOverlay() {
       container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [map, updateMyPresence]);
+  }, [map, ctx]);
 
-  // Sync others' cursors → CustomOverlay instances
+  // 다른 멤버 커서 → CustomOverlay
   useEffect(() => {
-    if (!map) return;
-
+    if (!map || !ctx) return;
+    const myId = ctx.myMemberId;
+    const cursors = ctx.cursors.filter((c) => c.memberId !== myId);
     const activeIds = new Set<string>();
 
-    others.forEach(({ presence, id }) => {
-      if (!presence.cursor) {
-        // Cursor left the map — remove overlay if present
-        const existing = overlaysRef.current.get(String(id));
-        if (existing) {
-          existing.setMap(null);
-          overlaysRef.current.delete(String(id));
-        }
+    cursors.forEach(({ memberId, displayName, lat, lng }) => {
+      if (lat === null || lng === null) {
+        const existing = overlaysRef.current.get(memberId);
+        if (existing) { existing.setMap(null); overlaysRef.current.delete(memberId); }
         return;
       }
-
-      const { lat, lng } = presence.cursor;
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      activeIds.add(memberId);
 
-      activeIds.add(String(id));
-      const existing = overlaysRef.current.get(String(id));
-
-      // Sanitise presence strings — untrusted from other clients
-      const nickname = String(presence.nickname || '익명').slice(0, 30);
-      const userId = String(presence.userId || id).slice(0, 64);
-
+      const existing = overlaysRef.current.get(memberId);
       if (existing) {
-        // Update position
         existing.setPosition(new window.kakao.maps.LatLng(lat, lng));
       } else {
-        // Create new overlay
         try {
-          const el = buildCursorEl(nickname, userId);
+          const el = buildCursorEl(displayName.slice(0, 20), memberId);
           const overlay = new window.kakao.maps.CustomOverlay({
             position: new window.kakao.maps.LatLng(lat, lng),
             content: el,
@@ -128,23 +96,16 @@ export function CollabCursorsOverlay() {
             zIndex: 60,
           });
           overlay.setMap(map);
-          overlaysRef.current.set(String(id), overlay);
-        } catch {
-          // skip
-        }
+          overlaysRef.current.set(memberId, overlay);
+        } catch { /* skip */ }
       }
     });
 
-    // Remove overlays for users who left
     overlaysRef.current.forEach((overlay, key) => {
-      if (!activeIds.has(key)) {
-        overlay.setMap(null);
-        overlaysRef.current.delete(key);
-      }
+      if (!activeIds.has(key)) { overlay.setMap(null); overlaysRef.current.delete(key); }
     });
-  }, [map, others]);
+  }, [map, ctx, ctx?.cursors]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       overlaysRef.current.forEach((o) => o.setMap(null));
