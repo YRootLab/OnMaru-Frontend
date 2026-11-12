@@ -34,17 +34,17 @@ describe('resolveKakaoLoginReturnTo (가이드 §1-1 로그인 시작)', () => {
     ).toBe('/map');
   });
 
-  it('falls back to /mypage when login starts from an auth page', () => {
+  it('falls back to home when login starts from an auth page', () => {
     expect(
       resolveKakaoLoginReturnTo({ pathname: '/auth/login', search: '', hasPendingSave: false })
-    ).toBe('/mypage');
+    ).toBe('/');
     expect(
       resolveKakaoLoginReturnTo({
         pathname: '/auth/kakao/callback',
         search: '?auth=failed',
         hasPendingSave: false,
       })
-    ).toBe('/mypage');
+    ).toBe('/');
   });
 
   it('routes to home so the pending journey save can finish after login', () => {

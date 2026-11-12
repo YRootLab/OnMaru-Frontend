@@ -777,7 +777,7 @@ export default function Header() {
 
       {}
       <RightSection $isMapPage={isMapPage}>
-        <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} style={isLoggedIn ? { paddingLeft: 5 } : undefined}>
+        <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} style={isLoggedIn ? { paddingLeft: 5, border: 'none' } : undefined}>
           {isLoggedIn ? (
             <>
               <OniAvatar characterId={user?.characterId} backgroundId={user?.backgroundId} size={24} />

@@ -61,7 +61,7 @@ export function useAuth() {
   // 브라우저를 통째로 보내면 code 교환·세션 발급이 백엔드에서 끝나고
   // `{returnTo}?auth=success|failed`로 돌아온다(useAuthReturn에서 파싱).
   const loginWithKakao = useCallback(() => {
-    let returnTo = '/mypage';
+    let returnTo = '/';
     if (typeof window !== 'undefined') {
       returnTo = resolveKakaoLoginReturnTo({
         pathname: window.location.pathname,

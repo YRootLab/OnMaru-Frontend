@@ -14,8 +14,8 @@ interface ModeOption {
 }
 
 const MODES: ModeOption[] = [
-  { id: 'info', label: '정보', icon: LandmarkIcon },
   { id: 'warmth', label: '온기', icon: FlameIcon },
+  { id: 'info', label: '정보', icon: LandmarkIcon },
 ];
 
 interface ModeToggleProps {
@@ -49,7 +49,7 @@ const SlidingPill = styled.div<{ $activeMode: MapMode; $compact?: boolean }>`
   border-radius: 9px;
   background: #ffffff;
   transform: ${({ $activeMode }) =>
-    $activeMode === 'warmth' ? 'translateX(100%)' : 'translateX(0%)'};
+    $activeMode === 'info' ? 'translateX(100%)' : 'translateX(0%)'};
   transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 1;
   pointer-events: none;

@@ -146,6 +146,8 @@ interface Props {
 const CURSOR_THROTTLE_MS = 100;
 const MAX_RECONNECT_DELAY_MS = 30_000;
 
+const MAX_CONSECUTIVE_FAILURES = 5;
+
 export function MapCollabProvider({ roomId, children }: Props) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const wsRef = useRef<WebSocket | null>(null);
@@ -153,6 +155,8 @@ export function MapCollabProvider({ roomId, children }: Props) {
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const destroyedRef = useRef(false);
   const lastSeqRef = useRef(-1);
+  const resyncingRef = useRef(false);
+  const consecutiveFailuresRef = useRef(0);
 
   // ACK/EVENT 중복 제거: 적용된 seq 추적
   const appliedSeqsRef = useRef(new Set<number>());
@@ -206,7 +210,7 @@ export function MapCollabProvider({ roomId, children }: Props) {
 
       ws.onopen = () => {
         reconnectDelayRef.current = 1000;
-        // lastSeq는 URL query string으로만 전달 (이슈 계약: "?lastSeq=N 또는 RESUME" — OR, 둘 다 아님)
+        consecutiveFailuresRef.current = 0;
       };
 
       ws.onmessage = (ev) => {
@@ -226,9 +230,18 @@ export function MapCollabProvider({ roomId, children }: Props) {
       ws.onclose = (ev) => {
         if (destroyedRef.current) return;
         wsRef.current = null;
+        // RESYNC 진행 중이면 onclose 재연결 건너뜀 (fetchSnapshot → connect가 이미 예약됨)
+        if (resyncingRef.current) return;
         // 4010 = ROOM_CLOSED, don't reconnect
         if (ev.code === 4010) {
           dispatch({ type: 'WS_STATUS', status: 'closed' });
+          return;
+        }
+        // 핸드셰이크 실패(방 만료/권한 없음 등) 반복 시 포기
+        consecutiveFailuresRef.current += 1;
+        if (consecutiveFailuresRef.current >= MAX_CONSECUTIVE_FAILURES) {
+          dispatch({ type: 'WS_STATUS', status: 'error' });
+          toast.error('공유 지도 연결에 실패했어요. 페이지를 새로고침해 주세요.');
           return;
         }
         dispatch({ type: 'WS_STATUS', status: 'reconnecting' });
@@ -304,7 +317,12 @@ export function MapCollabProvider({ roomId, children }: Props) {
         break;
       case 'RESYNC_REQUIRED':
         // GAP 발생 — snapshot 다시 받고 재연결
-        fetchSnapshot().then((seq) => connect(seq));
+        // resyncingRef로 onclose 재연결과의 경합 방지
+        resyncingRef.current = true;
+        fetchSnapshot().then((seq) => {
+          resyncingRef.current = false;
+          connect(seq);
+        });
         break;
     }
   }
