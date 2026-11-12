@@ -271,7 +271,19 @@ export default function MapNavRail() {
           <NavItemLabel>홈</NavItemLabel>
         </NavItemBtn>
 
-        {}
+        <NavItemBtn
+          type="button"
+          $active={isMapActive}
+          onClick={handleSelectInfoMap}
+          aria-label="지도마루"
+          title="지도마루"
+        >
+          <NavItemIcon>
+            <HugeiconsIcon icon={MapIcon} size={19} strokeWidth={2} />
+          </NavItemIcon>
+          <NavItemLabel>지도마루</NavItemLabel>
+        </NavItemBtn>
+
         <NavItemBtn
           type="button"
           $active={false}
@@ -285,7 +297,6 @@ export default function MapNavRail() {
           <NavItemLabel>한옥마루</NavItemLabel>
         </NavItemBtn>
 
-        {}
         <NavItemBtn
           type="button"
           $active={false}
@@ -299,7 +310,6 @@ export default function MapNavRail() {
           <NavItemLabel>K-마루</NavItemLabel>
         </NavItemBtn>
 
-        {}
         <NavItemBtn
           type="button"
           $active={false}
@@ -311,20 +321,6 @@ export default function MapNavRail() {
             <HugeiconsIcon icon={HeadphonesIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>소리마루</NavItemLabel>
-        </NavItemBtn>
-
-        {/* 지도마루 */}
-        <NavItemBtn
-          type="button"
-          $active={isMapActive}
-          onClick={handleSelectInfoMap}
-          aria-label="지도마루"
-          title="지도마루"
-        >
-          <NavItemIcon>
-            <HugeiconsIcon icon={MapIcon} size={19} strokeWidth={2} />
-          </NavItemIcon>
-          <NavItemLabel>지도마루</NavItemLabel>
         </NavItemBtn>
       </NavList>
 
