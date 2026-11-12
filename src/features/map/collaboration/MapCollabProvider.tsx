@@ -206,10 +206,7 @@ export function MapCollabProvider({ roomId, children }: Props) {
 
       ws.onopen = () => {
         reconnectDelayRef.current = 1000;
-        // If reconnecting with lastSeq, send RESUME as well (belt + suspenders)
-        if (connectLastSeq >= 0) {
-          ws.send(JSON.stringify({ v: 1, type: 'RESUME', payload: { lastSeq: connectLastSeq } }));
-        }
+        // lastSeq는 URL query string으로만 전달 (이슈 계약: "?lastSeq=N 또는 RESUME" — OR, 둘 다 아님)
       };
 
       ws.onmessage = (ev) => {

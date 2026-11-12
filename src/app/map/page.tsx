@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { useAuth } from '@/features/auth';
 import { MapCollabProvider } from '@/features/map/collaboration/MapCollabProvider';
 import { mapCollabApi } from '@/features/map/collaboration/api';
 
@@ -14,6 +15,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 function MapPageWrapper() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { isLoggedIn, isLoading: authLoading, loginWithKakao } = useAuth();
   const rawRoom = searchParams.get('room');
   const room = rawRoom && UUID_RE.test(rawRoom) ? rawRoom : null;
   const invite = searchParams.get('invite');
@@ -21,9 +23,20 @@ function MapPageWrapper() {
   const [joining, setJoining] = useState(!!invite);
   const [resolvedRoomId, setResolvedRoomId] = useState<string | null>(room);
 
-  // invite 토큰이 있으면 join API 호출 → roomId로 교체
+  // invite 토큰이 있으면 로그인 확인 후 join API 호출 → roomId로 교체
   useEffect(() => {
     if (!invite) return;
+    if (authLoading) return; // 아직 세션 로딩 중
+
+    if (!isLoggedIn) {
+      toast('로그인이 필요해요', {
+        description: '공유 지도에 참여하려면 먼저 로그인해 주세요.',
+        duration: 5000,
+        action: { label: '로그인하기', onClick: loginWithKakao },
+      });
+      setJoining(false);
+      return;
+    }
 
     mapCollabApi.joinRoom(invite)
       .then((res) => {
@@ -45,6 +58,11 @@ function MapPageWrapper() {
           toast.error('초대 링크가 만료됐거나 유효하지 않아요.');
         } else if (code === 'ROOM_FULL') {
           toast.error('방 인원이 가득 찼어요. (최대 20명)');
+        } else if (code === 'UNAUTHORIZED') {
+          toast('로그인이 필요해요', {
+            description: '공유 지도에 참여하려면 먼저 로그인해 주세요.',
+            action: { label: '로그인하기', onClick: loginWithKakao },
+          });
         } else {
           toast.error('지도 참여에 실패했어요.');
         }
@@ -52,9 +70,9 @@ function MapPageWrapper() {
       })
       .finally(() => setJoining(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invite]);
+  }, [invite, authLoading, isLoggedIn]);
 
-  if (joining) return null;
+  if (joining || (invite && authLoading)) return null;
 
   if (resolvedRoomId) {
     return (

@@ -175,8 +175,9 @@ export function CollabPinsOverlay() {
     return null;
   })() : null;
 
-  const myPin = selectedPlace && pins
-    ? pins.find((p) => p.placeId === selectedPlace.id && p.addedBy === myMemberId)
+  // 이슈 계약: 같은 placeId의 활성 핀은 방에 하나만 존재 (addedBy 무관)
+  const existingPin = selectedPlace && pins
+    ? pins.find((p) => p.placeId === selectedPlace.id)
     : null;
 
   function handleAddPin() {
@@ -197,8 +198,8 @@ export function CollabPinsOverlay() {
   }
 
   function handleRemovePin() {
-    if (!myPin || !ctx) return;
-    ctx.removePin(myPin.pinId);
+    if (!existingPin || !ctx) return;
+    ctx.removePin(existingPin.pinId);
     toast.info('핀을 제거했어요.', {
       icon: <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={1.8} />,
     });
@@ -208,7 +209,7 @@ export function CollabPinsOverlay() {
 
   return (
     <ActionRow>
-      {myPin ? (
+      {existingPin ? (
         <RemoveBtn type="button" onClick={handleRemovePin}>
           <HugeiconsIcon icon={Location01Icon} size={15} strokeWidth={2} />
           핀 취소
