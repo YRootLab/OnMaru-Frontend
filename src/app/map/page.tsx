@@ -9,10 +9,13 @@ import { mapCollabApi } from '@/features/map/collaboration/api';
 
 const MapPage = dynamic(() => import('@/features/map/MapPage'), { ssr: false });
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function MapPageWrapper() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const room = searchParams.get('room');
+  const rawRoom = searchParams.get('room');
+  const room = rawRoom && UUID_RE.test(rawRoom) ? rawRoom : null;
   const invite = searchParams.get('invite');
 
   const [joining, setJoining] = useState(!!invite);
