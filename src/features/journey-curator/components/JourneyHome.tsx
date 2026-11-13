@@ -1,87 +1,59 @@
 'use client';
 
-import React, { useRef } from 'react';
-import styled from '@emotion/styled';
-import { surface } from '@/design-system/tokens';
+import { useCallback, useEffect, useState } from 'react';
+import JourneyChatInterface from '../presentation/JourneyChatInterface';
+import { useJourneyConversation } from '../presentation/hooks/useJourneyConversation';
 
-import { useJourneyStore } from '../store/useJourneyStore';
-import JourneyHeroSearch from './JourneyHeroSearch';
-import JourneyDiscoveryFeed from './JourneyDiscoveryFeed';
-import JourneyFlowRailSection from './JourneyFlowRailSection';
-import JourneyEnrichmentSections from './JourneyEnrichmentSections';
-import JourneyAssemblyLoader from './JourneyAssemblyLoader';
-import HomeBrandAurora from './HomeBrandAurora';
-
-const MainWrapper = styled.main`
-  position: relative;
-  min-height: 100dvh;
-  overflow: hidden;
-  background-color: ${surface.light.card};
-  transition: background-color 0.3s ease;
-
-  [data-theme='dark'] & {
-    background-color: ${surface.dark.app};
-  }
-`;
-
-const Landing = styled.div<{ $centered: boolean }>`
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  ${({ $centered }) =>
-    $centered
-      ? `
-    min-height: 74vh;
-    justify-content: center;
-    padding-top: 40px;
-    padding-bottom: 24px;
-  `
-      : `
-    padding-top: 80px;
-    padding-bottom: 12px;
-  `}
-
-  @media (max-width: 767px) {
-    min-height: 0;
-    justify-content: flex-start;
-    padding-top: ${({ $centered }) => ($centered ? '32px' : '72px')};
-    padding-bottom: 0;
-  }
-`;
-
-const ContentLayer = styled.div`
-  position: relative;
-  z-index: 1;
-`;
+function readExplorationId(): string | null {
+  if (typeof window === 'undefined') return null;
+  return new URLSearchParams(window.location.search).get('exploration');
+}
 
 export default function JourneyHome() {
-  const hasSearched = useJourneyStore((s) => s.hasSearched);
-  const mainRef = useRef<HTMLElement>(null);
-  const searchFormRef = useRef<HTMLFormElement>(null);
-  const moodChipsRef = useRef<HTMLDivElement>(null);
+  const [selectedExplorationId, setSelectedExplorationId] = useState<string | null>(null);
+  const conversation = useJourneyConversation(selectedExplorationId);
+
+  useEffect(() => {
+    const syncFromUrl = () => setSelectedExplorationId(readExplorationId());
+    syncFromUrl();
+    window.addEventListener('popstate', syncFromUrl);
+    return () => window.removeEventListener('popstate', syncFromUrl);
+  }, []);
+
+  const selectConversation = useCallback((explorationId: string | null) => {
+    const url = new URL(window.location.href);
+    if (explorationId) url.searchParams.set('exploration', explorationId);
+    else url.searchParams.delete('exploration');
+    window.history.pushState({}, '', `${url.pathname}${url.search}`);
+    setSelectedExplorationId(explorationId);
+  }, []);
+
+  useEffect(() => {
+    if (!conversation.activeExplorationId || conversation.activeExplorationId === selectedExplorationId) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set('exploration', conversation.activeExplorationId);
+    window.history.replaceState({}, '', `${url.pathname}${url.search}`);
+    setSelectedExplorationId(conversation.activeExplorationId);
+  }, [conversation.activeExplorationId, selectedExplorationId]);
 
   return (
-    <MainWrapper ref={mainRef}>
-      <JourneyAssemblyLoader />
-      <HomeBrandAurora />
-
-      <Landing $centered={!hasSearched}>
-        <JourneyHeroSearch searchFormRef={searchFormRef} moodChipsRef={moodChipsRef} />
-      </Landing>
-
-      {!hasSearched && (
-        <ContentLayer>
-          <JourneyDiscoveryFeed />
-        </ContentLayer>
-      )}
-
-      {hasSearched && (
-        <ContentLayer>
-          <JourneyFlowRailSection />
-          <JourneyEnrichmentSections />
-        </ContentLayer>
-      )}
-    </MainWrapper>
+    <JourneyChatInterface
+      explorations={conversation.explorations}
+      activeExplorationId={conversation.activeExplorationId}
+      turns={conversation.turns}
+      pendingQuery={conversation.pendingQuery}
+      progressMessage={conversation.progress?.message ?? null}
+      loading={conversation.loading}
+      loadingOlder={conversation.loadingOlder}
+      hasOlderTurns={conversation.hasOlderTurns}
+      error={conversation.error}
+      onSelectConversation={selectConversation}
+      onLoadOlder={() => void conversation.loadOlderTurns()}
+      onSend={async (query) => {
+        if (conversation.activeExplorationId) await conversation.sendTurn(query);
+        else await conversation.startConversation(query);
+      }}
+      onCancel={() => conversation.cancelRun()}
+    />
   );
 }

@@ -67,6 +67,7 @@ export function reduceJourneyRunState(
       badgeLabel: badgeFromSnapshot(event.run),
       renderSource: 'snapshot',
       run: event.run,
+      latestSequence: event.run.sequence,
       needsSnapshotRecovery: false,
       connection: {
         ...state.connection,
@@ -76,6 +77,15 @@ export function reduceJourneyRunState(
   }
 
   const frame = event.frame;
+  if (
+    frame.event !== 'reset' &&
+    frame.event !== 'auth_closed' &&
+    state.latestSequence !== null &&
+    frame.data.sequence <= state.latestSequence
+  ) {
+    return state;
+  }
+
   if (frame.event === 'run.stage') {
     return {
       ...state,

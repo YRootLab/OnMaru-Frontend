@@ -114,7 +114,7 @@ function runWithSse(accepted: RunAccepted, set: SetFn, gen: number, timeoutMs = 
     const fetchAndResolve = async () => {
       cleanup();
       try {
-        const snapshot = await defaultJourneyRepository.getExploration(accepted.explorationId);
+        const { snapshot } = await defaultJourneyRepository.getAcceptedSnapshots(accepted);
         if (
           snapshot.latestRun?.runId === accepted.runId &&
           snapshot.latestRun?.status === 'COMPLETED' &&
@@ -137,8 +137,7 @@ function runWithSse(accepted: RunAccepted, set: SetFn, gen: number, timeoutMs = 
 
     const doSubscribe = () => {
       unsubscribe = defaultJourneyRepository.subscribeToRunEvents(
-        accepted.explorationId,
-        accepted.runId,
+        accepted.eventsUrl,
         (frame) => {
           if (gen !== currentGen) { cleanup(); return; }
           if (frame.event === 'run.terminal' || frame.event === 'reset') {

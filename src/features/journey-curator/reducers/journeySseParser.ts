@@ -21,7 +21,7 @@ function requireReplayId(event: string, id?: string): string {
   return id;
 }
 
-export function parseJourneySseFrame(input: RawFrame): JourneySseFrame {
+export function parseJourneySseFrame(input: RawFrame): JourneySseFrame | null {
   const data = parseData(input.data);
 
   switch (input.event) {
@@ -36,6 +36,6 @@ export function parseJourneySseFrame(input: RawFrame): JourneySseFrame {
     case 'auth_closed':
       return { event: 'auth_closed', data: 0 };
     default:
-      throw new Error('Unsupported journey SSE event');
+      return null;
   }
 }
