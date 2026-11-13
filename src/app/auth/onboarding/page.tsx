@@ -22,15 +22,15 @@ const ONBOARDING_KEY = 'onmaru_onboarding_v1';
 
 // open redirect 방지: 같은 오리진 상대 경로만 허용
 function safeNext(raw: string | null): string {
-  if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) return '/mypage';
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) return '/';
   try {
     const base = typeof window !== 'undefined' ? window.location.origin : 'https://www.onmaru.site';
     const u = new URL(raw, base);
-    if (u.origin !== base) return '/mypage';
+    if (u.origin !== base) return '/';
     const out = u.pathname + u.search + u.hash;
-    if (!out.startsWith('/') || out.startsWith('//') || out.startsWith('/\\')) return '/mypage';
+    if (!out.startsWith('/') || out.startsWith('//') || out.startsWith('/\\')) return '/';
     return out;
-  } catch { return '/mypage'; }
+  } catch { return '/'; }
 }
 
 function markOnboardingDone(userId: string) {

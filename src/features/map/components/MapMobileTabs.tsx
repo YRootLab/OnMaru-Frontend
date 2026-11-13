@@ -129,6 +129,21 @@ export default function MapMobileTabs() {
         <span>홈</span>
       </TabLink>
 
+      <TabButton
+        type="button"
+        $active={isMapActive}
+        onClick={() => {
+          setMode('info');
+          if (category === 'bookmark') setCategory(null);
+        }}
+        aria-label="지도마루"
+      >
+        <IconSlot>
+          <HugeiconsIcon icon={MapIcon} size={19} />
+        </IconSlot>
+        <span>지도마루</span>
+      </TabButton>
+
       <TabLink href="/hanok" aria-label="한옥마루">
         <IconSlot>
           <HugeiconsIcon icon={BookOpen01Icon} size={19} />
@@ -149,21 +164,6 @@ export default function MapMobileTabs() {
         </IconSlot>
         <span>소리마루</span>
       </TabLink>
-
-      <TabButton
-        type="button"
-        $active={isMapActive}
-        onClick={() => {
-          setMode('info');
-          if (category === 'bookmark') setCategory(null);
-        }}
-        aria-label="지도마루"
-      >
-        <IconSlot>
-          <HugeiconsIcon icon={MapIcon} size={19} />
-        </IconSlot>
-        <span>지도마루</span>
-      </TabButton>
 
       <TabButton
         type="button"

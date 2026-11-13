@@ -369,10 +369,7 @@ export default function MapPage() {
   const queryRegionCode = searchParams?.get('regionCode') || null;
   const queryMode = searchParams?.get('mode') || null;
   const collabActive = useCollabActive();
-  const collabRoom =
-    collabActive && process.env.NEXT_PUBLIC_LIVEBLOCKS_ENABLED === 'true'
-      ? searchParams?.get('room') || null
-      : null;
+  const collabRoom = collabActive ? (searchParams?.get('room') || null) : null;
   const [infoUrlHydrated, setInfoUrlHydrated] = useState(false);
   const inboundInfoUrlPendingRef = useRef(false);
 
