@@ -119,10 +119,10 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
 
   const tabs = [
     { href: '/', label: '홈', icon: Home01Icon, active: pathname === '/' },
+    { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
     { href: '/hanok', label: '한옥마루', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
     { href: '/discover', label: 'K-마루', icon: Film01Icon, active: pathname.startsWith('/discover') },
     { href: '/sorimaru', label: '소리마루', icon: HeadphonesIcon, active: isSoriMaruPage },
-    { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
     {
       href: isLoggedIn ? '/mypage' : '/auth/login',
       label: isLoggedIn ? '나의 마루' : '로그인',

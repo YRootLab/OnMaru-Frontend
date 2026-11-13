@@ -31,7 +31,7 @@ export function resolveKakaoLoginReturnTo(options: {
   if (!options.pathname.startsWith('/auth/')) {
     return `${options.pathname}${options.search}`;
   }
-  return '/mypage';
+  return '/';
 }
 
 /**
