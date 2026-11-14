@@ -4,6 +4,13 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased]
 
+- Added Korean living-culture paths from the Hanok map home into stay, food, hands-on experience, and traditional-market exploration.
+- Limited the Hanok Culture Walk panel to places identified as Hanok and removed duplicate English copy from the panel.
+- Refined the map cultural-discovery panel into a compact editorial section with vertically ordered places and accessible interaction states.
+
+- 지도마루 정보 모드의 전국 한옥 홈에 문화 발견 패널을 추가했다. 지역과 한옥 생활문화를 소개한 뒤 실제 장소 선택으로 이어지고, 한옥마루의 심화 콘텐츠로 이동할 수 있다.
+- 한국어 문화 맥락과 영어 보조 해설을 함께 제공해 해외 방문자도 장소를 문화적 맥락에서 탐색할 수 있게 했다.
+
 ## [v0.1.24] - 2026-11-09
 
 - 모바일 좌우 여백을 16px로 통일:

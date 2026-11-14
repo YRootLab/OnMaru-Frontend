@@ -1,41 +1,34 @@
 'use client';
+import { useCallback } from 'react';
+import type { Item } from '@/features/map/types';
+import type { CulturalCollectionPath } from '@/features/map/domain/culturalCollection';
+import { CULTURAL_COLLECTIONS } from '@/features/map/infrastructure/culturalCollections.fixture';
+import { selectCulturalCollection } from '@/features/map/application/selectCulturalCollection';
+import { useMapStore } from '@/features/map/hooks/useMapStore';
+import { useInfoMapPresentation } from '@/features/map/presentation/useInfoMapPresentation';
+import { useInfoMapHomeNavigation } from '@/features/map/presentation/useInfoMapHomeNavigation';
+import CulturalDiscoveryCollection from './CulturalDiscoveryCollection';
+interface Props { items: Item[]; loading?: boolean; onPlaceSelect: (place: Item) => void; }
+export default function InfoMapEditorialFeed({ items, loading = false, onPlaceSelect }: Props) {
+  const { isDiscovery, collectionScope } = useInfoMapPresentation();
+  const { captureBeforeNavigation } = useInfoMapHomeNavigation();
+  const collection = selectCulturalCollection(CULTURAL_COLLECTIONS, collectionScope);
+  const handlePathSelect = useCallback((path: CulturalCollectionPath) => {
+    captureBeforeNavigation();
+    const store = useMapStore.getState();
+    store.setInfoCategory(path.category);
+    store.setSearchQuery(path.searchQuery);
+    store.setPanelOpen(true);
+  }, [captureBeforeNavigation]);
 
-import styled from '@emotion/styled';
-import type { Item, MapInfoCategory } from '@/features/map/types';
-import LiveNoticeBanner from './feed/LiveNoticeBanner';
-import SorimaruSpotlightBanner from './feed/SorimaruSpotlightBanner';
-import SmartAroundFeed from './feed/SmartAroundFeed';
-
-const EditorialSections = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  margin-top: 12px;
-  margin-bottom: 20px;
-`;
-
-interface InfoMapEditorialFeedProps {
-  category: MapInfoCategory;
-  regionCode: string | null;
-  items: Item[];
-}
-
-export default function InfoMapEditorialFeed({
-  category,
-  regionCode,
-  items,
-}: InfoMapEditorialFeedProps) {
-  const showDiscovery = category === 'hanok' && regionCode === null;
-
+  if (!isDiscovery || !collection) return null;
   return (
-    <>
-      <LiveNoticeBanner />
-      {showDiscovery && (
-        <EditorialSections aria-label="한옥 지도 추천 콘텐츠">
-          <SorimaruSpotlightBanner />
-          <SmartAroundFeed items={items} />
-        </EditorialSections>
-      )}
-    </>
+    <CulturalDiscoveryCollection
+      collection={collection}
+      places={items}
+      loading={loading}
+      onPlaceSelect={onPlaceSelect}
+      onPathSelect={handlePathSelect}
+    />
   );
 }
