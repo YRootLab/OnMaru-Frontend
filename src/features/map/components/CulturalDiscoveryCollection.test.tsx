@@ -19,6 +19,7 @@ describe('CulturalDiscoveryCollection', () => {
     const onPlaceSelect = vi.fn();
     render(<CulturalDiscoveryCollection collection={collection} places={[place]} loading={false} onPlaceSelect={onPlaceSelect} />);
     expect(screen.getByRole('heading', { name: collection.title.ko })).toBeTruthy();
+    expect(screen.getByText(collection.title.en!).getAttribute('lang')).toBe('en');
     expect(screen.getByText(collection.subtitle.en!)).toBeTruthy();
     expect(screen.getByRole('link', { name: '한옥 문화 더 알아보기' }).getAttribute('href')).toBe('/hanok');
     screen.getByRole('button', { name: place.name }).click();
