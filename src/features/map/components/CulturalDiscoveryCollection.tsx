@@ -10,15 +10,6 @@ const Section = styled.section`
   border-bottom: 1px solid #e5e5e3;
 `;
 
-const Eyebrow = styled.p`
-  margin: 0 0 5px;
-  color: #64748b;
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  line-height: 1.4;
-`;
-
 const Title = styled.h2`
   margin: 0;
   color: #1f2937;
@@ -85,11 +76,12 @@ const HanokLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 36px;
-  margin-top: 10px;
-  color: #475569;
-  font-size: 0.8125rem;
-  font-weight: 700;
+  margin: 0 0 5px;
+  color: #64748b;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
   text-decoration: underline;
   text-decoration-color: #94a3b8;
   text-decoration-thickness: 1px;
@@ -130,7 +122,7 @@ export default function CulturalDiscoveryCollection({ collection, places, loadin
 
   return (
     <Section aria-busy={loading}>
-      <Eyebrow>HANOK CULTURE WALK</Eyebrow>
+      <HanokLink href="/hanok">HANOK CULTURE WALK</HanokLink>
       <Title>{collection.title.ko}</Title>
       <Subtitle>{collection.subtitle.ko}</Subtitle>
       <Places>
@@ -140,7 +132,6 @@ export default function CulturalDiscoveryCollection({ collection, places, loadin
           </PlaceButton>
         ))}
       </Places>
-      <HanokLink href="/hanok">한옥 문화 더 알아보기</HanokLink>
     </Section>
   );
 }

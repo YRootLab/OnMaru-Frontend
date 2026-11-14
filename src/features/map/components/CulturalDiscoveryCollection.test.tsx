@@ -21,8 +21,7 @@ describe('CulturalDiscoveryCollection', () => {
     render(<CulturalDiscoveryCollection collection={collection} places={[place, unrelatedPlace]} loading={false} onPlaceSelect={onPlaceSelect} />);
     expect(screen.getByRole('heading', { name: collection.title.ko })).toBeTruthy();
     expect(screen.queryByText(collection.title.en!)).toBeNull();
-    expect(screen.getByText('HANOK CULTURE WALK')).toBeTruthy();
-    expect(screen.getByRole('link', { name: '한옥 문화 더 알아보기' }).getAttribute('href')).toBe('/hanok');
+    expect(screen.getByRole('link', { name: 'HANOK CULTURE WALK' }).getAttribute('href')).toBe('/hanok');
     screen.getByRole('button', { name: place.name }).click();
     expect(onPlaceSelect).toHaveBeenCalledWith(place);
     expect(screen.queryByRole('button', { name: unrelatedPlace.name })).toBeNull();
