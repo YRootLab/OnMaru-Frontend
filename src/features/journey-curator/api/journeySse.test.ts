@@ -65,7 +65,7 @@ describe('journey repository actions/SSE (FE #93)', () => {
     const createEventSource: JourneyEventSourceFactory = () => fake as unknown as EventSource;
 
     const received: JourneySseFrame[] = [];
-    const unsubscribe = repository.subscribeToRunEvents('exp-1', 'run-1', (frame) => received.push(frame), {
+    const unsubscribe = repository.subscribeToRunEvents('https://journey.example.test/events/run-1', (frame) => received.push(frame), {
       createEventSource,
     });
 
@@ -86,7 +86,7 @@ describe('journey repository actions/SSE (FE #93)', () => {
     const createEventSource: JourneyEventSourceFactory = () => fake as unknown as EventSource;
     const onError = vi.fn();
 
-    repository.subscribeToRunEvents('exp-1', 'run-1', () => {}, { createEventSource, onError });
+    repository.subscribeToRunEvents('https://journey.example.test/events/run-1', () => {}, { createEventSource, onError });
 
     fake.emit('run.stage', { lastEventId: '1', data: 'not json' });
 
