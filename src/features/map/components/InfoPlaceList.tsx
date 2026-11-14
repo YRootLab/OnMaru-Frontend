@@ -323,9 +323,9 @@ export default function InfoPlaceList() {
       )}
 
       <InfoMapEditorialFeed
-        category={infoCategory}
-        regionCode={infoRegionCode}
         items={editorialItems}
+        loading={isListLoading}
+        onPlaceSelect={handleSelect}
       />
 
       <StickyHeader>

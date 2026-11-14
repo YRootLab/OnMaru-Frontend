@@ -65,26 +65,25 @@ describe('InfoPlaceList', () => {
     render(<InfoPlaceList />);
 
     expect(screen.getByText('한옥 공간·체험 23,675곳')).toBeTruthy();
-    expect(screen.getByText('유지되는 한옥')).toBeTruthy();
+    expect(screen.getAllByText('유지되는 한옥')).toHaveLength(2);
   });
 
-  it('shows the editorial discovery modules above the canonical HANOK list', () => {
+  it('shows the cultural discovery panel above the canonical HANOK list', () => {
     render(<InfoPlaceList />);
 
-    expect(screen.getByText('실시간 한옥 소식')).toBeTruthy();
-    expect(screen.queryByText('축제·기획전')).toBeNull();
-    expect(screen.getByText('이번 주 소리마루')).toBeTruthy();
-    expect(screen.getByText('추천 한옥 명소')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: '동네에서 만나는 한옥 문화' })).toBeTruthy();
+    expect(screen.getByText('Discover how living Hanok culture connects places, people, and everyday neighborhoods.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: '한옥 문화 더 알아보기' }).getAttribute('href')).toBe('/hanok');
     expect(screen.getByText('한옥 공간·체험 23,675곳')).toBeTruthy();
-    expect(screen.getByText('유지되는 한옥')).toBeTruthy();
+    expect(screen.getAllByText('유지되는 한옥')).toHaveLength(2);
   });
 
   it('places the count heading immediately before the actual place list', () => {
     render(<InfoPlaceList />);
 
-    const editorial = screen.getByText('추천 한옥 명소');
+    const editorial = screen.getByRole('heading', { name: '동네에서 만나는 한옥 문화' });
     const countHeading = screen.getByText('한옥 공간·체험 23,675곳');
-    const firstPlace = screen.getByText('유지되는 한옥');
+    const firstPlace = screen.getAllByText('유지되는 한옥')[1];
 
     expect(editorial.compareDocumentPosition(countHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(countHeading.compareDocumentPosition(firstPlace) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -126,7 +125,7 @@ describe('InfoPlaceList', () => {
 
     render(<InfoPlaceList />);
 
-    expect(screen.getByText('유지되는 한옥')).toBeTruthy();
+    expect(screen.getAllByText('유지되는 한옥')).toHaveLength(2);
     expect(screen.getByRole('button', { name: '다시 시도' })).toBeTruthy();
   });
 

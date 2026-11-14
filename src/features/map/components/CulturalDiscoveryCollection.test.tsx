@@ -1,0 +1,27 @@
+// @vitest-environment jsdom
+
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import CulturalDiscoveryCollection from './CulturalDiscoveryCollection';
+
+const collection = {
+  id: 'hanok-neighborhoods',
+  scope: 'hanok-home' as const,
+  title: { ko: '동네 이야기', en: 'Stories in the neighborhood' },
+  subtitle: { ko: '동네의 이야기를 발견하세요.', en: 'Discover how Hanok culture connects this neighborhood.' },
+  provenance: 'OnMaru editorial collection',
+  placeRefs: [{ placeId: 'p-1' }],
+};
+const place = { id: 'p-1', name: '북촌 한옥', category: 'spot' as const, lat: 37.58, lng: 126.98, addr: '서울', image: null, tel: null, dist: null };
+
+describe('CulturalDiscoveryCollection', () => {
+  it('renders title before cultural context and uses supplied place selection', () => {
+    const onPlaceSelect = vi.fn();
+    render(<CulturalDiscoveryCollection collection={collection} places={[place]} loading={false} onPlaceSelect={onPlaceSelect} />);
+    expect(screen.getByRole('heading', { name: collection.title.ko })).toBeTruthy();
+    expect(screen.getByText(collection.subtitle.en!)).toBeTruthy();
+    expect(screen.getByRole('link', { name: '한옥 문화 더 알아보기' }).getAttribute('href')).toBe('/hanok');
+    screen.getByRole('button', { name: place.name }).click();
+    expect(onPlaceSelect).toHaveBeenCalledWith(place);
+  });
+});

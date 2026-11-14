@@ -1,41 +1,13 @@
 'use client';
-
-import styled from '@emotion/styled';
-import type { Item, MapInfoCategory } from '@/features/map/types';
-import LiveNoticeBanner from './feed/LiveNoticeBanner';
-import SorimaruSpotlightBanner from './feed/SorimaruSpotlightBanner';
-import SmartAroundFeed from './feed/SmartAroundFeed';
-
-const EditorialSections = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  margin-top: 12px;
-  margin-bottom: 20px;
-`;
-
-interface InfoMapEditorialFeedProps {
-  category: MapInfoCategory;
-  regionCode: string | null;
-  items: Item[];
-}
-
-export default function InfoMapEditorialFeed({
-  category,
-  regionCode,
-  items,
-}: InfoMapEditorialFeedProps) {
-  const showDiscovery = category === 'hanok' && regionCode === null;
-
-  return (
-    <>
-      <LiveNoticeBanner />
-      {showDiscovery && (
-        <EditorialSections aria-label="한옥 지도 추천 콘텐츠">
-          <SorimaruSpotlightBanner />
-          <SmartAroundFeed items={items} />
-        </EditorialSections>
-      )}
-    </>
-  );
+import type { Item } from '@/features/map/types';
+import { CULTURAL_COLLECTIONS } from '@/features/map/infrastructure/culturalCollections.fixture';
+import { selectCulturalCollection } from '@/features/map/application/selectCulturalCollection';
+import { useInfoMapPresentation } from '@/features/map/presentation/useInfoMapPresentation';
+import CulturalDiscoveryCollection from './CulturalDiscoveryCollection';
+interface Props { items: Item[]; loading?: boolean; onPlaceSelect: (place: Item) => void; }
+export default function InfoMapEditorialFeed({ items, loading = false, onPlaceSelect }: Props) {
+  const { isDiscovery, collectionScope } = useInfoMapPresentation();
+  const collection = selectCulturalCollection(CULTURAL_COLLECTIONS, collectionScope);
+  if (!isDiscovery || !collection) return null;
+  return <CulturalDiscoveryCollection collection={collection} places={items} loading={loading} onPlaceSelect={onPlaceSelect} />;
 }
