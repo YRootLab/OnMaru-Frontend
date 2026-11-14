@@ -12,17 +12,19 @@ const collection = {
   provenance: 'OnMaru editorial collection',
   placeRefs: [{ placeId: 'p-1' }],
 };
-const place = { id: 'p-1', name: '북촌 한옥', category: 'spot' as const, lat: 37.58, lng: 126.98, addr: '서울', image: null, tel: null, dist: null };
+const place = { id: 'p-1', name: '북촌 한옥', category: 'spot' as const, lat: 37.58, lng: 126.98, addr: '서울', image: null, tel: null, dist: null, isTraditional: true };
+const unrelatedPlace = { id: 'p-2', name: '일반 카페', category: 'cafe' as const, lat: 37.58, lng: 126.98, addr: '서울', image: null, tel: null, dist: null, isTraditional: false };
 
 describe('CulturalDiscoveryCollection', () => {
   it('renders title before cultural context and uses supplied place selection', () => {
     const onPlaceSelect = vi.fn();
-    render(<CulturalDiscoveryCollection collection={collection} places={[place]} loading={false} onPlaceSelect={onPlaceSelect} />);
+    render(<CulturalDiscoveryCollection collection={collection} places={[place, unrelatedPlace]} loading={false} onPlaceSelect={onPlaceSelect} />);
     expect(screen.getByRole('heading', { name: collection.title.ko })).toBeTruthy();
-    expect(screen.getByText(collection.title.en!).getAttribute('lang')).toBe('en');
-    expect(screen.getByText(collection.subtitle.en!)).toBeTruthy();
+    expect(screen.queryByText(collection.title.en!)).toBeNull();
+    expect(screen.getByText('HANOK CULTURE WALK')).toBeTruthy();
     expect(screen.getByRole('link', { name: '한옥 문화 더 알아보기' }).getAttribute('href')).toBe('/hanok');
     screen.getByRole('button', { name: place.name }).click();
     expect(onPlaceSelect).toHaveBeenCalledWith(place);
+    expect(screen.queryByRole('button', { name: unrelatedPlace.name })).toBeNull();
   });
 });

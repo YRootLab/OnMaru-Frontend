@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getInfoPlaceMarkerPresentation, selectInfoMarkerItems } from './infoMarker.service';
+import { getInfoPlaceMarkerPresentation, mapInfoPlaceToItem, selectInfoMarkerItems } from './infoMarker.service';
 import type { ViewportItem } from '../types';
 
 const placeItem: ViewportItem = {
@@ -34,6 +34,22 @@ describe('selectInfoMarkerItems', () => {
     expect(selectInfoMarkerItems('PLACE', [aggregate, placeItem])).toEqual([
       expect.objectContaining({ id: 'canonical-1', name: '한옥 장소', lat: 37.5, lng: 127 }),
     ]);
+  });
+});
+
+describe('mapInfoPlaceToItem', () => {
+  it('preserves the Hanok category as the traditional-place signal', () => {
+    const place = {
+      placeId: 'hanok-1',
+      name: 'Hanok place',
+      category: 'HANOK',
+      coordinates: { lat: 37.5, lng: 127 },
+      region: { regionCode: '11', name: 'Seoul' },
+      thumbnailUrl: null,
+      summary: '',
+    };
+
+    expect(mapInfoPlaceToItem(place).isTraditional).toBe(true);
   });
 });
 

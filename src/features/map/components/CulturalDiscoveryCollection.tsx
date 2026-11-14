@@ -10,20 +10,13 @@ const Section = styled.section`
   border-bottom: 1px solid #e5e5e3;
 `;
 
-const KoreanCopy = styled.span`
-  display: block;
-
-  [lang^='en'] & {
-    display: none;
-  }
-`;
-
-const EnglishCopy = styled.span`
-  display: none;
-
-  [lang^='en'] & {
-    display: block;
-  }
+const Eyebrow = styled.p`
+  margin: 0 0 5px;
+  color: #64748b;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
 `;
 
 const Title = styled.h2`
@@ -97,18 +90,20 @@ const HanokLink = styled.a`
   color: #475569;
   font-size: 0.8125rem;
   font-weight: 700;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: #94a3b8;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
 
   &::after {
-    content: '→';
+    content: '\\2197';
     font-size: 0.95rem;
     transition: transform 150ms ease;
   }
 
   &:hover {
     color: #1f2937;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    text-decoration-color: currentColor;
   }
 
   &:hover::after {
@@ -130,19 +125,14 @@ interface Props {
 
 export default function CulturalDiscoveryCollection({ collection, places, loading, onPlaceSelect }: Props) {
   const referenced = collection.placeRefs.length === 0
-    ? places.slice(0, 3)
+    ? places.filter((place) => place.isTraditional)
     : places.filter((place) => collection.placeRefs.some((ref) => ref.placeId === place.id));
 
   return (
     <Section aria-busy={loading}>
-      <Title>
-        <KoreanCopy>{collection.title.ko}</KoreanCopy>
-        <EnglishCopy lang="en">{collection.title.en}</EnglishCopy>
-      </Title>
-      <Subtitle>
-        <KoreanCopy>{collection.subtitle.ko}</KoreanCopy>
-        <EnglishCopy lang="en">{collection.subtitle.en}</EnglishCopy>
-      </Subtitle>
+      <Eyebrow>HANOK CULTURE WALK</Eyebrow>
+      <Title>{collection.title.ko}</Title>
+      <Subtitle>{collection.subtitle.ko}</Subtitle>
       <Places>
         {referenced.map((place) => (
           <PlaceButton key={place.id} type="button" aria-label={place.name} onClick={() => onPlaceSelect(place)}>
@@ -150,10 +140,7 @@ export default function CulturalDiscoveryCollection({ collection, places, loadin
           </PlaceButton>
         ))}
       </Places>
-      <HanokLink href="/hanok">
-        <KoreanCopy>한옥 문화 더 알아보기</KoreanCopy>
-        <EnglishCopy lang="en">Explore Hanok culture</EnglishCopy>
-      </HanokLink>
+      <HanokLink href="/hanok">한옥 문화 더 알아보기</HanokLink>
     </Section>
   );
 }
