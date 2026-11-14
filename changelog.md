@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased]
 
+- Added Korean living-culture paths from the Hanok map home into stay, food, hands-on experience, and traditional-market exploration.
 - Limited the Hanok Culture Walk panel to places identified as Hanok and removed duplicate English copy from the panel.
 - Refined the map cultural-discovery panel into a compact editorial section with vertically ordered places and accessible interaction states.
 

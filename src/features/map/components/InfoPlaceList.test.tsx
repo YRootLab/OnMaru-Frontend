@@ -71,17 +71,19 @@ describe('InfoPlaceList', () => {
   it('shows the cultural discovery panel above the canonical HANOK list', () => {
     render(<InfoPlaceList />);
 
-    expect(screen.getByRole('heading', { name: '동네에서 만나는 한옥 문화' })).toBeTruthy();
-    expect(screen.getByText('Discover how living Hanok culture connects places, people, and everyday neighborhoods.')).toBeTruthy();
-    expect(screen.getByRole('link', { name: '한옥 문화 더 알아보기' }).getAttribute('href')).toBe('/hanok');
+    expect(screen.getByRole('heading', { name: '한옥에서 시작하는 한국의 하루' })).toBeTruthy();
+    expect(screen.getByText('한옥의 마당에서 시작해 지역의 맛과 손으로 만드는 경험까지 이어가 보세요.')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'HANOK CULTURE WALK' }).getAttribute('href')).toBe('/hanok');
     expect(screen.getByText('한옥 공간·체험 23,675곳')).toBeTruthy();
     expect(screen.getAllByText('유지되는 한옥')).toHaveLength(2);
+    fireEvent.click(screen.getByRole('button', { name: '지역을 맛보다' }));
+    expect(useMapStore.getState()).toMatchObject({ infoCategory: 'food', searchQuery: '향토음식' });
   });
 
   it('places the count heading immediately before the actual place list', () => {
     render(<InfoPlaceList />);
 
-    const editorial = screen.getByRole('heading', { name: '동네에서 만나는 한옥 문화' });
+    const editorial = screen.getByRole('heading', { name: '한옥에서 시작하는 한국의 하루' });
     const countHeading = screen.getByText('한옥 공간·체험 23,675곳');
     const firstPlace = screen.getAllByText('유지되는 한옥')[1];
 

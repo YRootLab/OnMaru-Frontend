@@ -1,3 +1,5 @@
+import type { MapInfoCategory } from '@/features/map/domain/infoCategory';
+
 export type CulturalCollectionScope = 'hanok-home' | 'region-home' | 'utility';
 
 export interface LocalizedText {
@@ -9,6 +11,13 @@ export interface CulturalCollectionPlaceRef {
   placeId: string;
 }
 
+export interface CulturalCollectionPath {
+  id: string;
+  label: string;
+  category: MapInfoCategory;
+  searchQuery: string;
+}
+
 export interface CulturalCollection {
   id: string;
   scope: CulturalCollectionScope;
@@ -16,6 +25,7 @@ export interface CulturalCollection {
   subtitle: LocalizedText;
   provenance: string;
   placeRefs: CulturalCollectionPlaceRef[];
+  paths?: CulturalCollectionPath[];
 }
 
 export function validateCulturalCollections(collections: readonly CulturalCollection[]): void {
