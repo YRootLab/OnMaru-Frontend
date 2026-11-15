@@ -11,6 +11,7 @@ import { getJourneyStageMessage } from '../../domain/journeyConversation';
 import { conversationHttpRepository } from '../../infrastructure/conversationHttpRepository';
 import type { RunAccepted } from '../../api/journeyApi';
 import type { JourneyRunSnapshot, JourneySseFrame } from '../../api/journeyContract';
+import { generateUUID } from '@/lib/uuid';
 
 type ConversationProgress = {
   runId: string;
@@ -18,13 +19,7 @@ type ConversationProgress = {
   message: string;
 } | null;
 
-function createUuid(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
-    const random = Math.floor(Math.random() * 16);
-    return (character === 'x' ? random : (random & 0x3) | 0x8).toString(16);
-  });
-}
+const createUuid = generateUUID;
 
 function isActiveRun(run: JourneyRunSnapshot | null): boolean {
   return run?.status === 'QUEUED' || run?.status === 'RUNNING';
