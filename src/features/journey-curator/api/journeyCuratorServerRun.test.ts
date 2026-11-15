@@ -23,6 +23,7 @@ describe('runJourneyCurator', () => {
         engine: 'BASELINE',
         degradedReason: null,
         stage: null,
+        sequence: 1,
         outcome: 'INITIAL_BOARD',
         clarification: null,
         retryAfterMs: 0,
@@ -41,6 +42,7 @@ describe('runJourneyCurator', () => {
         execution: null,
       }),
       cancelRun: vi.fn(),
+      getAcceptedSnapshots: vi.fn(),
       applyAction: vi.fn(),
       subscribeToRunEvents: vi.fn(),
     };

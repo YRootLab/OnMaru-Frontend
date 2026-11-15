@@ -7,6 +7,7 @@ import { defaultJourneyRepository, type RunAccepted, type ExplorationSnapshot } 
 import { fetchExplorationBoard } from '../api/explorationApi';
 import { isOnmaruApiError } from '@/lib/api/errors';
 import { USE_MOCK } from '@/lib/api/client';
+import { generateUUID } from '@/lib/uuid';
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -114,7 +115,7 @@ function runWithSse(accepted: RunAccepted, set: SetFn, gen: number, timeoutMs = 
     const fetchAndResolve = async () => {
       cleanup();
       try {
-        const snapshot = await defaultJourneyRepository.getExploration(accepted.explorationId);
+        const { snapshot } = await defaultJourneyRepository.getAcceptedSnapshots(accepted);
         if (
           snapshot.latestRun?.runId === accepted.runId &&
           snapshot.latestRun?.status === 'COMPLETED' &&
@@ -137,8 +138,7 @@ function runWithSse(accepted: RunAccepted, set: SetFn, gen: number, timeoutMs = 
 
     const doSubscribe = () => {
       unsubscribe = defaultJourneyRepository.subscribeToRunEvents(
-        accepted.explorationId,
-        accepted.runId,
+        accepted.eventsUrl,
         (frame) => {
           if (gen !== currentGen) { cleanup(); return; }
           if (frame.event === 'run.terminal' || frame.event === 'reset') {
@@ -178,7 +178,7 @@ async function runInitialExploration(query: string, set: SetFn, gen: number) {
     try {
       const accepted = await defaultJourneyRepository.start({
         query,
-        idempotencyKey: `journey-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        idempotencyKey: generateUUID(),
       });
       if (gen !== currentGen) return;
       set({ explorationId: accepted.explorationId, runId: accepted.runId });
@@ -318,8 +318,8 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
           explorationId,
           query: prompt,
           baseVersion: stateVersion,
-          clientTurnId: `turn-${Date.now()}`,
-          idempotencyKey: `turn-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          clientTurnId: generateUUID(),
+          idempotencyKey: generateUUID(),
         });
 
         const snapshot = await runWithSse(accepted, set, currentGen);

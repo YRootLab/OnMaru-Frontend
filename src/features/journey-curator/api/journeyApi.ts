@@ -1,13 +1,13 @@
-import { apiRequest, getApiV1BaseUrl, type ApiRequestOptions, USE_MOCK } from '@/lib/api/client';
+import { apiRequest, type ApiRequestOptions, USE_MOCK } from '@/lib/api/client';
 import type { BentoJourneyPlan } from '../types/journey.types';
 import { JOURNEY_PLANS } from '../data/curatedJourneys';
-import type { JourneyRunSnapshot, JourneySseFrame } from './journeyContract';
+import type { JourneyRunSnapshot, JourneySchemaVersion, JourneySseFrame } from './journeyContract';
 import { parseJourneySseFrame } from '../reducers/journeySseParser';
 
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
 export type RunAccepted = {
-  schemaVersion: '1.2';
+  schemaVersion: JourneySchemaVersion;
   explorationId: string;
   runId: string;
   stateVersion: number;
@@ -70,6 +70,7 @@ export type JourneyRepository = {
   }): Promise<RunAccepted>;
   getExploration(explorationId: string): Promise<ExplorationSnapshot>;
   getRun(explorationId: string, runId: string): Promise<JourneyRunSnapshot>;
+  getAcceptedSnapshots(accepted: RunAccepted): Promise<{ run: JourneyRunSnapshot; snapshot: ExplorationSnapshot }>;
   cancelRun(explorationId: string, runId: string): Promise<JourneyRunSnapshot>;
 
   applyAction(input: ApplyActionInput): Promise<ExplorationSnapshot>;
@@ -78,8 +79,7 @@ export type JourneyRepository = {
 
 
   subscribeToRunEvents(
-    explorationId: string,
-    runId: string,
+    eventsUrl: string,
     onEvent: (frame: JourneySseFrame) => void,
     options?: { onError?: (error: unknown) => void; createEventSource?: JourneyEventSourceFactory },
   ): () => void;
@@ -124,6 +124,13 @@ export function createJourneyRepository(request: RequestFn = apiRequest): Journe
         cache: 'no-store',
       });
     },
+    async getAcceptedSnapshots(accepted) {
+      const [run, snapshot] = await Promise.all([
+        request<JourneyRunSnapshot>(accepted.runUrl, { method: 'GET', cache: 'no-store', rootPath: true }),
+        request<ExplorationSnapshot>(accepted.snapshotUrl, { method: 'GET', cache: 'no-store', rootPath: true }),
+      ]);
+      return { run, snapshot };
+    },
     cancelRun(explorationId, runId) {
       return request<JourneyRunSnapshot>(`/explorations/${explorationId}/runs/${runId}/cancel`, {
         method: 'POST',
@@ -143,17 +150,17 @@ export function createJourneyRepository(request: RequestFn = apiRequest): Journe
         idempotencyKey: input.idempotencyKey,
       });
     },
-    subscribeToRunEvents(explorationId, runId, onEvent, options) {
-      const url = `${getApiV1BaseUrl()}/explorations/${explorationId}/runs/${runId}/events`;
+    subscribeToRunEvents(eventsUrl, onEvent, options) {
       const createEventSource = options?.createEventSource ?? ((u) => new EventSource(u, { withCredentials: true }));
-      const source = createEventSource(url);
+      const source = createEventSource(eventsUrl);
 
       const eventNames = ['run.stage', 'run.terminal', 'heartbeat', 'reset', 'auth_closed'] as const;
       const listeners = eventNames.map((eventName) => {
         const listener = (event: Event) => {
           const messageEvent = event as MessageEvent<string>;
           try {
-            onEvent(parseJourneySseFrame({ id: messageEvent.lastEventId, event: eventName, data: messageEvent.data }));
+            const frame = parseJourneySseFrame({ id: messageEvent.lastEventId, event: eventName, data: messageEvent.data });
+            if (frame) onEvent(frame);
           } catch (err) {
             options?.onError?.(err);
           }
@@ -181,6 +188,7 @@ const fixtureRun: JourneyRunSnapshot = {
   engine: 'BASELINE',
   degradedReason: 'AI_SERVICE_UNAVAILABLE',
   stage: null,
+  sequence: 1,
   outcome: 'INITIAL_BOARD',
   clarification: null,
   retryAfterMs: 0,
@@ -224,13 +232,16 @@ export const fixtureJourneyRepository: JourneyRepository = {
   async getRun() {
     return fixtureRun;
   },
+  async getAcceptedSnapshots() {
+    return { run: fixtureRun, snapshot: await this.getExploration('fixture-exploration') };
+  },
   async cancelRun() {
     return { ...fixtureRun, status: 'CANCELLED', outcome: null };
   },
   async applyAction() {
     return this.getExploration('fixture-exploration');
   },
-  subscribeToRunEvents(_expId, _runId, onEvent) {
+  subscribeToRunEvents(_eventsUrl, onEvent) {
     const timer = setTimeout(() => {
       onEvent({
         id: '1',

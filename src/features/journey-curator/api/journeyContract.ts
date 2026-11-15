@@ -1,7 +1,13 @@
-export type JourneySchemaVersion = '1.2';
+export type JourneySchemaVersion = '1.2' | '1.3';
 
 export type JourneyRunStatus = 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
-export type JourneyRunStage = 'INTERPRETING' | 'RETRIEVING' | 'VALIDATING' | 'PERSISTING';
+export type JourneyRunStage =
+  | 'INTERPRETING'
+  | 'RETRIEVING'
+  | 'SELECTING_EVIDENCE'
+  | 'GENERATING'
+  | 'VALIDATING'
+  | 'PERSISTING';
 export type JourneyRunEngine = 'LLM' | 'BASELINE';
 export type JourneyDegradedReason =
   | 'AI_QUOTA_EXCEEDED'
@@ -25,6 +31,7 @@ export type JourneyRunSnapshot = {
   engine: JourneyRunEngine;
   degradedReason: JourneyDegradedReason | null;
   stage: JourneyRunStage | null;
+  sequence: number;
   outcome: JourneyRunOutcome | null;
   clarification: JourneyClarification | null;
   retryAfterMs: number;

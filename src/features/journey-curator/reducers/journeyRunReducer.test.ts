@@ -7,6 +7,38 @@ import {
 } from './journeyRunReducer';
 
 describe('journey run reducer', () => {
+  it('ignores duplicate and out-of-order replay events', () => {
+    const newer = parseJourneySseFrame({
+      id: '2',
+      event: 'run.stage',
+      data: JSON.stringify({ schemaVersion: '1.3', runId: '00000000-0000-4000-8000-0000-000000000001', sequence: 2, status: 'RUNNING', stage: 'GENERATING' }),
+    });
+    const older = parseJourneySseFrame({
+      id: '1',
+      event: 'run.stage',
+      data: JSON.stringify({ schemaVersion: '1.3', runId: '00000000-0000-4000-8000-0000-000000000001', sequence: 1, status: 'RUNNING', stage: 'RETRIEVING' }),
+    });
+
+    expect(newer).not.toBeNull();
+    expect(older).not.toBeNull();
+
+    const afterNewer = reduceJourneyRunState(createInitialJourneyRunState(), { type: 'sse-frame', frame: newer! });
+    const afterOlder = reduceJourneyRunState(afterNewer, { type: 'sse-frame', frame: older! });
+
+    expect(afterOlder).toBe(afterNewer);
+    expect(afterOlder.latestSequence).toBe(2);
+  });
+
+  it('ignores an unsupported SSE event without interrupting the run', () => {
+    const frame = parseJourneySseFrame({
+      id: '3',
+      event: 'run.future_event',
+      data: JSON.stringify({ schemaVersion: '1.3', runId: '00000000-0000-4000-8000-0000-000000000002' }),
+    });
+
+    expect(frame).toBeNull();
+  });
+
   it('parses terminal frames without treating them as renderable board data', () => {
     const frame = parseJourneySseFrame({
       id: '2',
@@ -20,7 +52,7 @@ describe('journey run reducer', () => {
       }),
     });
 
-    const state = reduceJourneyRunState(createInitialJourneyRunState(), { type: 'sse-frame', frame });
+    const state = reduceJourneyRunState(createInitialJourneyRunState(), { type: 'sse-frame', frame: frame! });
 
     expect(state.connection.status).toBe('terminal');
     expect(state.renderSource).toBe('snapshot');
@@ -33,7 +65,7 @@ describe('journey run reducer', () => {
       data: JSON.stringify({ schemaVersion: '1.2', runId: '00000000-0000-4000-8000-000000000002' }),
     });
 
-    const state = reduceJourneyRunState(createInitialJourneyRunState(), { type: 'sse-frame', frame });
+    const state = reduceJourneyRunState(createInitialJourneyRunState(), { type: 'sse-frame', frame: frame! });
 
     expect(state.connection.status).toBe('reset');
     expect(shouldRecoverJourneySnapshot(state)).toBe(true);
@@ -49,6 +81,7 @@ describe('journey run reducer', () => {
         engine: 'BASELINE',
         degradedReason: 'AI_TIMEOUT',
         stage: null,
+        sequence: 1,
         outcome: 'INITIAL_BOARD',
         clarification: null,
         retryAfterMs: 0,
