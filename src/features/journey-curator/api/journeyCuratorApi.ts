@@ -1,6 +1,7 @@
 import type { BentoJourneyPlan, MoodId } from '../types/journey.types';
 import { matchJourneyPlan } from '../data/curatedJourneys';
 import { defaultJourneyRepository, type JourneyRepository, type RunAccepted } from './journeyApi';
+import { generateUUID } from '@/lib/uuid';
 
 export interface CurateJourneyParams {
   query: string;
@@ -21,8 +22,7 @@ type RunJourneyOptions = {
 };
 
 function createIdempotencyKey(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
-  return `journey-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  return generateUUID();
 }
 
 async function readAcceptedSnapshot(
