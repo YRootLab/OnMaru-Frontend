@@ -75,7 +75,7 @@ const SpeechBubble = styled.div`
   white-space: nowrap;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255,255,255,0.15);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  /* PNG ?? ?? ??(? 40px)?? ??? ??? ??? ?? ?? */
+  /* PNG 상단 투명 여백(약 40px)만큼 당겨서 캐릭터 머리에 바짝 붙임 */
   margin-bottom: -36px;
   animation: bubbleFloat 3s ease-in-out infinite;
 
@@ -207,19 +207,19 @@ export default function LoginPage() {
   return (
     <PageWrapper>
       <LoginCard>
-        {/* ?? ?? ?? 3D ?? + ?? */}
+        {/* 균형 잡힌 한옥 3D 무대 + 온이 */}
         <WelcomeStage>
-          {/* ??? 3D ?? ?? */}
+          {/* 뒤편의 한옥 이미지 */}
           <HanokImage src="/hanok.png" alt="" width={1000} height={400} fetchPriority="high" />
 
-          {/* ?? ??? + ?? ??? ?? ? ??? */}
+          {/* 온이 캐릭터 + 온이 정수리 바로 위 말풍선 */}
           <OniContainer>
-            <SpeechBubble>???? ?? ? ????!</SpeechBubble>
+            <SpeechBubble>온마루에 오신 걸 환영해요!</SpeechBubble>
             <OniVideoWrap>
               {isApple || oniVideoError ? (
-                <img src="/images/character/Oni_hi.png" alt="??? ??? ??" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <img src="/images/character/Oni_hi.png" alt="온마루 캐릭터 온이" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               ) : (
-                <video autoPlay loop muted playsInline preload="auto" aria-label="??? ??? ??" onError={() => setOniVideoError(true)}>
+                <video autoPlay loop muted playsInline preload="auto" aria-label="온마루 캐릭터 온이" onError={() => setOniVideoError(true)}>
                   <source src="/videos/Oni_hi.webm" type="video/webm" onError={() => setOniVideoError(true)} />
                 </video>
               )}
@@ -229,15 +229,15 @@ export default function LoginPage() {
 
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <p style={{ fontSize: '14px', color: c.text.muted, margin: 0, lineHeight: 1.5 }}>
-            ??? ???? ???? ????
+            카카오 계정으로 간편하게 시작하고
             <br />
-            ?? ??? ??? ??? ???.
+            한옥 여정과 소리를 기록해 보세요.
           </p>
         </div>
 
         <KakaoButton type="button" onClick={loginWithKakao}>
           <KakaoBubbleIcon />
-          ???? ????
+          카카오로 시작하기
         </KakaoButton>
 
         {process.env.NODE_ENV !== 'production' && (
@@ -248,7 +248,7 @@ export default function LoginPage() {
               router.push('/mypage');
             }}
           >
-            ? ??? ?? ??? (????? ??)
+            ⚡ 개발용 빠른 로그인 (마이페이지 체험)
           </DevQuickButton>
         )}
       </LoginCard>
