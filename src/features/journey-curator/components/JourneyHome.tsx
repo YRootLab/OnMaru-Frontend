@@ -1,16 +1,20 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { surface } from '@/design-system/tokens';
 
-import { useJourneyStore } from '../store/useJourneyStore';
 import JourneyHeroSearch from './JourneyHeroSearch';
 import JourneyDiscoveryFeed from './JourneyDiscoveryFeed';
-import JourneyFlowRailSection from './JourneyFlowRailSection';
-import JourneyEnrichmentSections from './JourneyEnrichmentSections';
 import JourneyAssemblyLoader from './JourneyAssemblyLoader';
 import HomeBrandAurora from './HomeBrandAurora';
+import JourneyChatPage from '../presentation/JourneyChatPage';
+import { shouldShowJourneyConversation } from './homeConversationMode';
+
+function readExplorationId(): string | null {
+  if (typeof window === 'undefined') return null;
+  return new URLSearchParams(window.location.search).get('exploration');
+}
 
 const MainWrapper = styled.main`
   position: relative;
@@ -56,32 +60,39 @@ const ContentLayer = styled.div`
 `;
 
 export default function JourneyHome() {
-  const hasSearched = useJourneyStore((s) => s.hasSearched);
+  const [explorationId, setExplorationId] = useState<string | null>(null);
   const mainRef = useRef<HTMLElement>(null);
   const searchFormRef = useRef<HTMLFormElement>(null);
   const moodChipsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const syncFromUrl = () => setExplorationId(readExplorationId());
+    syncFromUrl();
+    window.addEventListener('popstate', syncFromUrl);
+    return () => window.removeEventListener('popstate', syncFromUrl);
+  }, []);
+
+  const isConversationMode = shouldShowJourneyConversation({
+    requested: false,
+    explorationId,
+  });
+
+  if (isConversationMode) {
+    return <JourneyChatPage />;
+  }
 
   return (
     <MainWrapper ref={mainRef}>
       <JourneyAssemblyLoader />
       <HomeBrandAurora />
 
-      <Landing $centered={!hasSearched}>
+      <Landing $centered>
         <JourneyHeroSearch searchFormRef={searchFormRef} moodChipsRef={moodChipsRef} />
       </Landing>
 
-      {!hasSearched && (
-        <ContentLayer>
-          <JourneyDiscoveryFeed />
-        </ContentLayer>
-      )}
-
-      {hasSearched && (
-        <ContentLayer>
-          <JourneyFlowRailSection />
-          <JourneyEnrichmentSections />
-        </ContentLayer>
-      )}
+      <ContentLayer>
+        <JourneyDiscoveryFeed />
+      </ContentLayer>
     </MainWrapper>
   );
 }

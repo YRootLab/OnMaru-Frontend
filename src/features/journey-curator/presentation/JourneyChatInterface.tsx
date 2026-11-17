@@ -462,9 +462,9 @@ export default function JourneyChatInterface({
   };
 
   return (
-    <Page>
+    <Page data-chat-surface="conversation">
       <Layout>
-        <Sidebar aria-label="AI 여정 대화 목록">
+        <Sidebar aria-label="여정 대화 목록">
           <NewChatButton type="button" onClick={() => onSelectConversation(null)}>새 대화</NewChatButton>
           <ConversationList>
             {explorations.map((conversation) => (
@@ -483,14 +483,14 @@ export default function JourneyChatInterface({
 
         <Chat>
           <ChatHeader>
-            <Title>AI 여정 대화</Title>
+            <Title>여행을 같이 짜볼까요?</Title>
             <Subtitle>조건을 말해 주시면, 사진과 장소를 보며 함께 여행을 만들어 가요.</Subtitle>
           </ChatHeader>
 
           <Transcript aria-live="polite">
             {hasOlderTurns && <LoadOlderButton type="button" disabled={loadingOlder} onClick={onLoadOlder}>{loadingOlder ? '불러오는 중…' : '이전 대화 더 보기'}</LoadOlderButton>}
             {!activeExplorationId && !pendingQuery && (
-              <Empty>
+              <Empty data-message-role="assistant">
                 <h2>어떤 여행을 함께 만들어 볼까요?</h2>
                 <p>장소, 분위기, 이동 시간처럼 원하는 조건을 편하게 말해 주세요.</p>
                 <SuggestionRow>
@@ -504,7 +504,7 @@ export default function JourneyChatInterface({
             {turns.map((turn) => (
               <div key={turn.turnId}>
                 <MessageGroup $user><Bubble $user>{turn.query}</Bubble></MessageGroup>
-                <MessageGroup><AssistantResponse turn={turn} /></MessageGroup>
+                <MessageGroup data-message-role="assistant"><AssistantResponse turn={turn} /></MessageGroup>
               </div>
             ))}
             {pendingQuery && <MessageGroup $user><Bubble $user>{pendingQuery}</Bubble></MessageGroup>}
