@@ -3,13 +3,23 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import { NearbyLocationDescription } from './NearbyLocationDescription';
 
 afterEach(cleanup);
 
+function renderWithIntl(ui: React.ReactNode) {
+  return render(
+    <NextIntlClientProvider locale="ko" messages={koMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
+
 describe('NearbyLocationDescription', () => {
   it('emphasizes only the nearby radius and national curation in the fallback message', () => {
-    render(
+    renderWithIntl(
       <NearbyLocationDescription message="반경 3km 안에는 아직 등록된 이야기가 없어요. 전국 큐레이션을 보여드릴게요." />,
     );
 
@@ -23,7 +33,7 @@ describe('NearbyLocationDescription', () => {
   });
 
   it('renders other location messages without fallback emphasis', () => {
-    render(
+    renderWithIntl(
       <NearbyLocationDescription message="현재 위치를 확인하고 주변 이야기를 찾는 중이에요." />,
     );
 

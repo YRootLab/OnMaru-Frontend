@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
@@ -326,6 +327,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
   const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
   const hydrateSavedStories = useSorimaruAudioStore((s) => s.hydrateSavedStories);
+  const t = useTranslations('sorimaru.feature');
   const { catalog, initialData, initialError, initialLoading, currentPage, goToPage, retry } = useSorimaruCatalog(
     activeApiService, selectedCategory, undefined, initialPage,
   );
@@ -335,7 +337,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const heroStorySets = initialData ? { '추천': initialData.heroStories } : initialHeroStorySets ?? {};
   const [isLocating, setIsLocating] = useState(false);
   const [, setLocationLabel] = useState('기본 위치');
-  const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
+  const [locationMessage, setLocationMessage] = useState(() => t('locationDefault'));
 
   const [locationNotice, setLocationNotice] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -375,7 +377,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
     [catalog.pages, initialData?.heroStories, initialHeroStorySets, initialPage?.items],
   );
   const apiError = initialError || catalog.error || selectionError
-    ? '소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
+    ? t('apiError')
     : null;
   const totalArchivePages = Math.ceil((currentCatalogPage?.totalCount ?? 0) / 20);
   const handleRailStorySelection = useCallback((summary: SorimaruStorySummary, intent: 'play') => {
@@ -433,14 +435,14 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
 
   const handleLocate = () => {
     if (!navigator.geolocation) {
-      setLocationMessage('이 브라우저에서는 위치 기반 이야기를 사용할 수 없어요.');
+      setLocationMessage(t('locationUnsupported'));
       setLocationNotice(true);
       return;
     }
 
     setIsLocating(true);
     setLocationNotice(false);
-    setLocationMessage('현재 위치를 확인하고 주변 이야기를 찾는 중이에요.');
+    setLocationMessage(t('locationSearching'));
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         const stories = findNearbySorimaruStories(initialData?.archive?.items ?? initialPage?.items ?? [], coords.latitude, coords.longitude);
@@ -448,16 +450,16 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         if (stories.length > 0) {
           setNearbyOverride(stories);
           setLocationLabel('현재 위치 기준, 반경 3km');
-          setLocationMessage(`${stories.length}개의 이야기를 찾았어요. 가까운 장소부터 들려드릴게요.`);
+          setLocationMessage(t('locationFound', { count: stories.length }));
           setLocationNotice(false);
         } else {
-          setLocationMessage('반경 3km 안에는 아직 등록된 이야기가 없어요. 전국 큐레이션을 보여드릴게요.');
+          setLocationMessage(t('locationEmpty'));
           setLocationNotice(true);
         }
         setIsLocating(false);
       },
       () => {
-        setLocationMessage('브라우저 설정 → 위치 → 허용으로 바꾸면 주변 이야기를 들을 수 있어요.');
+        setLocationMessage(t('locationDenied'));
         setLocationNotice(true);
         setIsLocating(false);
       },
@@ -483,7 +485,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
               </ErrorAlertMessage>
               <RetryButton type="button" onClick={retryApiRequests}>
                 <HugeiconsIcon icon={RotateCcwIcon} size={14} aria-hidden="true" />
-                다시 시도
+                {t('retry')}
               </RetryButton>
             </ErrorAlert>
           )}
@@ -505,7 +507,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   <div style={{ paddingTop: '1rem' }}>
                     <SectionGradientTitle
                       headingLevel={3}
-                      title="장면을 따라 걷는 소리"
+                      title={t('editorialTitle')}
                     />
                   </div>
                   <div style={{ marginTop: '0.5rem' }}>
@@ -549,7 +551,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     <div style={{ minWidth: 0 }}>
                       <SectionGradientTitle
                         id="nearby-stories-heading"
-                        title="오늘, 여기에서"
+                        title={t('nearbyTitle')}
                       />
                       <SectionDescription $notice={locationNotice}>
                         <NearbyLocationDescription message={locationMessage} />
@@ -558,7 +560,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     <div style={{ display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
                       <span style={{ textAlign: 'right', fontSize: typographyRole.caption.fontSize, lineHeight: '1rem' }}>
                         <SectionStrongText>
-                          내 주변 오디오 {nearbyStories.length}개
+                          {t('nearbyCount', { count: nearbyStories.length })}
                         </SectionStrongText>
                       </span>
                       <LocationButton
@@ -566,7 +568,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                         onClick={handleLocate}
                         disabled={isLocating}
                       >
-                        {isLocating ? '위치 확인 중…' : '내 위치 사용'}
+                        {isLocating ? t('locating') : t('useMyLocation')}
                       </LocationButton>
                     </div>
                   </NearbyHeader>
@@ -588,10 +590,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   <div style={{ marginBottom: '0.75rem' }}>
                     <SectionGradientTitle
                       id="archive-heading"
-                      title="소리로 만나는 한국"
+                      title={t('archiveTitle')}
                     />
                     <SectionDescription>
-                      처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.
+                      {t('archiveDesc')}
                     </SectionDescription>
                   </div>
 

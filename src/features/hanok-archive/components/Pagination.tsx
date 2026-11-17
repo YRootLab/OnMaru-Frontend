@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { meok, typographyRole } from '@/design-system/tokens';
 
@@ -76,6 +77,7 @@ export default function Pagination({
   totalPages,
   onPageChange,
 }: PaginationProps) {
+  const t = useTranslations('hanok.pagination');
   if (totalPages <= 1) return null;
 
   const getPages = () => {
@@ -100,14 +102,14 @@ export default function Pagination({
   };
 
   return (
-    <Wrapper role="navigation" aria-label="페이지 이동">
+    <Wrapper role="navigation" aria-label={t('navAriaLabel')}>
       <PageBtn
         $disabled={currentPage === 1}
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        aria-label="이전 페이지"
+        aria-label={t('prevPage')}
       >
-        ‹ 이전
+        {t('prev')}
       </PageBtn>
 
       {getPages().map((p, idx) =>
@@ -129,9 +131,9 @@ export default function Pagination({
         $disabled={currentPage === totalPages}
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        aria-label="다음 페이지"
+        aria-label={t('nextPage')}
       >
-        다음 ›
+        {t('next')}
       </PageBtn>
     </Wrapper>
   );

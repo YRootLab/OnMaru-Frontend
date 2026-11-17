@@ -33,13 +33,13 @@ export default async function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body>
-        <Script
+        <script
           id="theme-mode-init"
           nonce={nonce}
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var s=localStorage.getItem('onmaru-color-mode');var h=new Date().getHours();var t=h>=7&&h<19?'light':'dark';var m=(s==='dark'||s==='light')?s:t;document.documentElement.setAttribute('data-theme',m);}catch(e){}})();`,
           }}
+          suppressHydrationWarning
         />
         {/* Google Tag Manager */}
         <Script

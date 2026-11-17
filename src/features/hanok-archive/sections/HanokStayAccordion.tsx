@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
@@ -773,8 +774,16 @@ export default function HanokStayAccordion({
   onSelectVillage,
   onSelectStay,
 }: HanokStayAccordionProps) {
+  const tStay = useTranslations('hanok.stay');
+  const tCommon = useTranslations('hanok.common');
+  const tRegionDisplay = useTranslations('hanok.regionDisplay');
   const reduceMotion = useReducedMotion();
   const [selectedRegion, setSelectedRegion] = useState('전체');
+
+  const getRegionDisplay = (reg: string) => {
+    if (reg === '전체') return tCommon('regionAll');
+    return tRegionDisplay.has(reg as any) ? tRegionDisplay(reg as any) : reg;
+  };
   const [activeIndex, setActiveIndex] = useState(0);
   const [page, setPage] = useState(0);
   const [pageDirection, setPageDirection] = useState<StayPageDirection>(1);
@@ -837,8 +846,11 @@ export default function HanokStayAccordion({
     [regionFilteredStays, page],
   );
   const resultCountLabel = selectedRegion === '전체'
-    ? `전국 ${allStays.length}곳`
-    : `${selectedRegion} ${regionFilteredStays.length}곳`;
+    ? tStay('resultCountAll', { count: allStays.length })
+    : tStay('resultCountRegion', {
+        region: getRegionDisplay(selectedRegion),
+        count: regionFilteredStays.length,
+      });
 
   const handleRegionSelect = (reg: string) => {
     setSelectedRegion(reg);
@@ -860,7 +872,7 @@ export default function HanokStayAccordion({
     <Section id="hanok-stays" aria-labelledby="stay-heading">
       <StayHeaderRow>
         <StayHeaderTitle>
-          <SectionHeader id="stay-heading" title="지역별 한옥 스테이" />
+          <SectionHeader id="stay-heading" title={tStay('sectionTitle')} />
         </StayHeaderTitle>
         <ResultCount role="status" aria-live="polite">
           {resultCountLabel}
@@ -868,20 +880,21 @@ export default function HanokStayAccordion({
       </StayHeaderRow>
 
       <FilterToolbar>
-        <RegionFilterBar aria-label="한옥 스테이 지역 필터">
+        <RegionFilterBar aria-label={tStay('regionFilterAriaLabel')}>
           {regionTabs.map((reg) => {
             const count = countByRegion[reg] ?? 0;
             const isActive = selectedRegion === reg;
+            const regLabel = getRegionDisplay(reg);
             return (
               <RegionFilterChip
                 key={reg}
                 $active={isActive}
                 $empty={count === 0}
                 onClick={() => handleRegionSelect(reg)}
-                aria-label={`${reg} ${count}곳`}
+                aria-label={tStay('regionChipAriaLabel', { region: regLabel, count })}
                 aria-pressed={isActive}
               >
-                {reg}
+                {regLabel}
               </RegionFilterChip>
             );
           })}
@@ -963,7 +976,7 @@ export default function HanokStayAccordion({
 
                         <BottomActionRow>
                           <ActiveIconButton
-                            aria-label="한옥 숙소"
+                            aria-label={tStay('hanokStayAriaLabel')}
                             onClick={(e) => {
                               e.stopPropagation();
                               if (onSelectStay) onSelectStay(item);
@@ -980,7 +993,7 @@ export default function HanokStayAccordion({
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              예약 정보 확인하기 <HugeiconsIcon icon={ExternalLinkIcon} size={13} strokeWidth={2} />
+                              {tStay('checkBooking')} <HugeiconsIcon icon={ExternalLinkIcon} size={13} strokeWidth={2} />
                             </DirectBookingBtn>
                             {(onSelectStay || onSelectVillage) && (
                               <DetailActionBtn
@@ -990,7 +1003,7 @@ export default function HanokStayAccordion({
                                   else if (onSelectVillage) onSelectVillage(item);
                                 }}
                               >
-                                숙소 상세 <HugeiconsIcon icon={ArrowRight01Icon} size={13} strokeWidth={2} />
+                                {tStay('stayDetail')} <HugeiconsIcon icon={ArrowRight01Icon} size={13} strokeWidth={2} />
                               </DetailActionBtn>
                             )}
                           </ActionGroup>
@@ -1008,20 +1021,20 @@ export default function HanokStayAccordion({
           <PaginationControls data-testid="stay-pagination-controls">
             <PageNavigationButton
               type="button"
-              aria-label="이전 스테이 페이지"
+              aria-label={tStay('prevPage')}
               disabled={page === 0}
               onClick={() => handlePageChange(-1)}
             >
               <HugeiconsIcon icon={ArrowLeft01Icon} size={18} strokeWidth={2} />
             </PageNavigationButton>
 
-            <PageCounter data-testid="stay-page-counter" aria-label="스테이 페이지">
+            <PageCounter data-testid="stay-page-counter" aria-label={tStay('pageCounter')}>
               {page + 1} / {maxPages}
             </PageCounter>
 
             <PageNavigationButton
               type="button"
-              aria-label="다음 스테이 페이지"
+              aria-label={tStay('nextPage')}
               disabled={page === maxPages - 1}
               onClick={() => handlePageChange(1)}
             >
@@ -1033,19 +1046,17 @@ export default function HanokStayAccordion({
         <EmptyState role="status" aria-live="polite">
           {selectedRegion === '전체' ? (
             <>
-              <EmptyHeadline>아직 기록된 한옥 스테이가 없습니다</EmptyHeadline>
-              <EmptyHint>잠시 후 다시 확인해 주세요.</EmptyHint>
+              <EmptyHeadline>{tStay('emptyAllTitle')}</EmptyHeadline>
+              <EmptyHint>{tStay('emptyAllHint')}</EmptyHint>
             </>
           ) : (
             <>
-              <EmptyHeadline>{selectedRegion}에는 아직 묵어갈 한옥이 없습니다</EmptyHeadline>
-              <EmptyHint>
-                이 지역은 아직 모으는 중이에요.
-                <br />
-                다른 지역의 한옥 스테이부터 둘러보시겠어요?
+              <EmptyHeadline>{tStay('emptyRegionTitle', { region: getRegionDisplay(selectedRegion) })}</EmptyHeadline>
+              <EmptyHint style={{ whiteSpace: 'pre-line' }}>
+                {tStay('emptyRegionHint')}
               </EmptyHint>
               <EmptyAction type="button" onClick={() => handleRegionSelect('전체')}>
-                전국 한옥 스테이 {allStays.length}곳 보기
+                {tStay('viewAllStays', { count: allStays.length })}
               </EmptyAction>
             </>
           )}

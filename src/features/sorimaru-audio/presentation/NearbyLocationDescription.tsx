@@ -1,4 +1,7 @@
+'use client';
+
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { meok, palette } from '@/design-system/tokens';
 
 const NEARBY_FALLBACK_MESSAGE =
@@ -26,16 +29,18 @@ interface NearbyLocationDescriptionProps {
 }
 
 export function NearbyLocationDescription({ message }: NearbyLocationDescriptionProps) {
-  if (message !== NEARBY_FALLBACK_MESSAGE) {
+  const t = useTranslations('sorimaru.nearby');
+
+  if (message !== NEARBY_FALLBACK_MESSAGE && message !== t('fallbackFull')) {
     return <NeutralText data-tone="neutral">{message}</NeutralText>;
   }
 
   return (
     <NeutralText data-tone="neutral">
-      <Emphasis data-emphasis="nearby-radius">반경 3km</Emphasis>
-      {' 안에는 아직 등록된 이야기가 없어요. '}
-      <Emphasis data-emphasis="national-curation">전국 큐레이션</Emphasis>
-      {'을 보여드릴게요.'}
+      <Emphasis data-emphasis="nearby-radius">{t('radius')}</Emphasis>
+      {t('noStoriesInRadius')}
+      <Emphasis data-emphasis="national-curation">{t('nationalCuration')}</Emphasis>
+      {t('showNational')}
     </NeutralText>
   );
 }

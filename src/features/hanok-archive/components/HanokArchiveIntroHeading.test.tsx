@@ -3,13 +3,19 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import HanokArchiveIntroHeading from './HanokArchiveIntroHeading';
 
 afterEach(cleanup);
 
 describe('HanokArchiveIntroHeading', () => {
   it('uses the shared section scale with a primary-color title accent and gray context', () => {
-    render(<HanokArchiveIntroHeading total={322} />);
+    render(
+      <NextIntlClientProvider locale="ko" messages={koMessages}>
+        <HanokArchiveIntroHeading total={322} />
+      </NextIntlClientProvider>,
+    );
 
     const kicker = screen.getByText('사라지기 전에 기록한다 · 전국 322곳');
     const title = screen.getByRole('heading', {

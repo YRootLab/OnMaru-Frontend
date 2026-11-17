@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Bookmark01Icon, Cancel01Icon, Car01Icon, ChevronLeftIcon, ChevronRightIcon, Clock01Icon, Coffee01Icon, ExternalLinkIcon, Flower01Icon, GlobeIcon, Home01Icon, Image02Icon, Layers01Icon, Leaf01Icon, MapPinIcon, Navigation01Icon, PhoneIcon, SnowflakeIcon, SparklesIcon, SproutIcon, WindIcon, ZoomInIcon } from '@hugeicons/core-free-icons'
@@ -91,7 +92,7 @@ function cleanTourApiHtml(str?: string | null): string {
     .trim();
 }
 
-function extractHomepageUrl(homepageHtml?: string | null): { url: string | null; label: string } {
+function extractHomepageUrl(homepageHtml?: string | null, fallbackLabel: string = '공식 예약처 바로가기'): { url: string | null; label: string } {
   if (!homepageHtml) return { url: null, label: '' };
   const hrefMatch = homepageHtml.match(/href=["']([^"']+)["']/i);
   if (hrefMatch && hrefMatch[1]) {
@@ -100,7 +101,7 @@ function extractHomepageUrl(homepageHtml?: string | null): { url: string | null;
       const parsed = new URL(rawUrl);
       return { url: rawUrl, label: parsed.hostname.replace(/^www\./, '') };
     } catch {
-      return { url: rawUrl, label: '공식 예약처 바로가기' };
+      return { url: rawUrl, label: fallbackLabel };
     }
   }
   return { url: null, label: '' };
@@ -115,6 +116,8 @@ function getBookingUrl(item: Village): string {
 }
 
 export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailModalProps) {
+  const tStay = useTranslations('hanok.stay');
+  const tCommon = useTranslations('hanok.common');
   const detailData = useStayDetail(stay.id);
   const [activeImageIdx, setActiveImageIdx] = useState<number | null>(null);
   const [zoomedImageIdx, setZoomedImageIdx] = useState<number | null>(null);
@@ -165,7 +168,10 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
     return stay.hasImage ? stay.image : galleryImages[0] || null;
   }, [activeImageIdx, galleryImages, stay]);
 
-  const homepageInfo = useMemo(() => extractHomepageUrl(detailData?.homepage), [detailData]);
+  const homepageInfo = useMemo(
+    () => extractHomepageUrl(detailData?.homepage, tStay('officialBookingSite')),
+    [detailData, tStay]
+  );
   const seasonTags = useMemo(() => inferSeasonTags(stay), [stay]);
 
   const kakaoMapUrl = stay.lat && stay.lng
@@ -189,7 +195,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
           transition={isMobile ? livelyBottomSheetSpring : livelyModalSpring}
           onClick={(e) => e.stopPropagation()}
         >
-          <CloseBtn onClick={onClose} aria-label="닫기">
+          <CloseBtn onClick={onClose} aria-label={tCommon('close')}>
             <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} />
           </CloseBtn>
 
@@ -197,7 +203,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
           {}
           <ImageHero $bg={currentHeroImage}>
             <HeroContent>
-              <HeroRegion>{stay.region} · 고즈넉한 하룻밤</HeroRegion>
+              <HeroRegion>{stay.region} · {tStay('heroSubtitle')}</HeroRegion>
               <HeroTitle>{stay.name}</HeroTitle>
             </HeroContent>
 
@@ -205,9 +211,9 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               <HeroZoomBadge
                 type="button"
                 onClick={() => setZoomedImageIdx(activeImageIdx ?? 0)}
-                title="사진 크게 보기"
+                title={tCommon('zoomPhoto')}
               >
-                <HugeiconsIcon icon={ZoomInIcon} size={13} strokeWidth={2} /> 사진 크게 보기
+                <HugeiconsIcon icon={ZoomInIcon} size={13} strokeWidth={2} /> {tCommon('zoomPhoto')}
               </HeroZoomBadge>
             )}
           </ImageHero>
@@ -215,7 +221,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
           <Body>
             {}
             <MetaRow>
-              <TypeBadge>한옥스테이</TypeBadge>
+              <TypeBadge>{tStay('hanokStayType')}</TypeBadge>
               <AddrText>
                 <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} style={{ display: 'inline', marginRight: 4 }} />
                 {stay.addr}
@@ -231,11 +237,11 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 <HugeiconsIcon icon={Home01Icon} size={12} strokeWidth={2} />
                 {detailData?.roomtype
                   ? cleanTourApiHtml(detailData.roomtype).split('/')[0].trim()
-                  : '전통 한옥'}
+                  : tStay('traditionalHanok')}
               </InsightBadge>
               <InsightBadge $color="#7c5c2e">
                 <HugeiconsIcon icon={Layers01Icon} size={12} strokeWidth={2} />
-                온돌 마루
+                {tStay('ondolMaru')}
               </InsightBadge>
               {seasonTags.map((tag) => (
                 <InsightBadge key={tag} $color="#2e7d5e">
@@ -250,12 +256,12 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               <NoteHeader>
                 <HeaderBadge>
                   <HugeiconsIcon icon={SparklesIcon} size={16} color="var(--color-action-secondary)" />
-                  <span>숙소 소개</span>
+                  <span>{tStay('stayIntro')}</span>
                 </HeaderBadge>
               </NoteHeader>
               <StoryContainer $isExpanded={true}>
                 <StoryParagraph>
-                  {stayIntroText || '한옥의 온돌과 마루에서 사계절 정취를 느끼며 머물 수 있는 곳이에요.'}
+                  {stayIntroText || tStay('stayIntroDefault')}
                 </StoryParagraph>
               </StoryContainer>
             </CuratorsNoteSection>
@@ -265,24 +271,24 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               href={kakaoMapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`${stay.name} 카카오맵에서 보기`}
+              aria-label={`${stay.name} ${tCommon('viewOnKakaoMap')}`}
             >
               <MapDotGrid aria-hidden="true" />
               <MapPreviewContent>
                 <MapPreviewLabel>
-                  <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} /> 위치
+                  <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} /> {tCommon('location')}
                 </MapPreviewLabel>
                 <MapPreviewName>{stay.name}</MapPreviewName>
                 <MapPreviewAddr>{stay.addr}</MapPreviewAddr>
               </MapPreviewContent>
               <MapPreviewAction>
-                카카오맵으로 보기 <HugeiconsIcon icon={ChevronRightIcon} size={14} strokeWidth={2.5} />
+                {tCommon('viewOnKakaoMap')} <HugeiconsIcon icon={ChevronRightIcon} size={14} strokeWidth={2.5} />
               </MapPreviewAction>
             </MapPreviewCard>
 
             {}
             <SectionTitle>
-              <HugeiconsIcon icon={SparklesIcon} size={16} strokeWidth={2} /> 이용 안내
+              <HugeiconsIcon icon={SparklesIcon} size={16} strokeWidth={2} /> {tStay('usageGuide')}
             </SectionTitle>
             <InfoGrid>
               <InfoCard>
@@ -290,11 +296,14 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={Clock01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>입실 · 퇴실</InfoLabel>
+                  <InfoLabel>{tStay('checkInOut')}</InfoLabel>
                   <InfoVal>
                     {detailData?.checkin || detailData?.checkout
-                      ? `입실 ${detailData.checkin || '15:00'} · 퇴실 ${detailData.checkout || '11:00'}`
-                      : '입실 15:00 이후 · 퇴실 11:00 이전'}
+                      ? tStay('checkInOutValue', {
+                          checkin: detailData.checkin || '15:00',
+                          checkout: detailData.checkout || '11:00',
+                        })
+                      : tStay('checkInOutDefault')}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -304,11 +313,11 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={Home01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>객실 구조</InfoLabel>
+                  <InfoLabel>{tStay('roomStructure')}</InfoLabel>
                   <InfoVal>
                     {detailData?.roomtype
                       ? `${cleanTourApiHtml(detailData.roomtype)}${detailData?.roomcount ? ` (${cleanTourApiHtml(detailData.roomcount)})` : ''}`
-                      : '전통 온돌방 · 대청마루 · 독채/별채'}
+                      : tStay('roomDefault')}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -318,9 +327,9 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={Car01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>주차</InfoLabel>
+                  <InfoLabel>{tStay('parking')}</InfoLabel>
                   <InfoVal>
-                    {cleanTourApiHtml(detailData?.parking) || '숙소 전용 또는 인근 주차 가능'}
+                    {cleanTourApiHtml(detailData?.parking) || tStay('parkingDefault')}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -330,10 +339,9 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={Coffee01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>편의시설</InfoLabel>
+                  <InfoLabel>{tStay('amenities')}</InfoLabel>
                   <InfoVal>
-                    {cleanTourApiHtml(detailData?.subfacility) ||
-                      `${detailData?.barbecue ? '바비큐 가능 · ' : ''}전통차 다도 체험 · 정원 마당 · Wi-Fi`}
+                    {cleanTourApiHtml(detailData?.subfacility) || tStay('amenitiesDefault')}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -343,9 +351,9 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={PhoneIcon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>문의 전화</InfoLabel>
+                  <InfoLabel>{tStay('contactPhone')}</InfoLabel>
                   <InfoVal>
-                    {cleanTourApiHtml(detailData?.tel) || '사전 온라인 예약 및 유선 문의'}
+                    {cleanTourApiHtml(detailData?.tel) || tStay('contactDefault')}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -355,7 +363,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={GlobeIcon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>예약 링크</InfoLabel>
+                  <InfoLabel>{tStay('bookingLink')}</InfoLabel>
                   <InfoVal>
                     {homepageInfo.url ? (
                       <a href={homepageInfo.url} target="_blank" rel="noopener noreferrer">
@@ -363,7 +371,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                       </a>
                     ) : (
                       <a href={getBookingUrl(stay)} target="_blank" rel="noopener noreferrer">
-                        예약 정보 확인하기 <HugeiconsIcon icon={ExternalLinkIcon} size={12} style={{ display: 'inline' }} />
+                        {tStay('checkBooking')} <HugeiconsIcon icon={ExternalLinkIcon} size={12} style={{ display: 'inline' }} />
                       </a>
                     )}
                   </InfoVal>
@@ -376,7 +384,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             {galleryImages.length > 1 && (
               <GallerySection>
                 <SectionTitle>
-                  <HugeiconsIcon icon={Image02Icon} size={16} strokeWidth={2} /> 숙소 사진 ({galleryImages.length}장)
+                  <HugeiconsIcon icon={Image02Icon} size={16} strokeWidth={2} /> {tStay('stayPhotos', { count: galleryImages.length })}
                 </SectionTitle>
                 <GalleryGrid>
                   {galleryImages.map((img, idx) => (
@@ -388,10 +396,10 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                         setActiveImageIdx(idx);
                         setZoomedImageIdx(idx);
                       }}
-                      title="사진 크게 보기"
+                      title={tCommon('zoomPhoto')}
                     >
                       { }
-                      <img src={img} alt={`${stay.name} 사진 ${idx + 1}`} loading="lazy" />
+                      <img src={img} alt={tStay('photoAlt', { name: stay.name, index: idx + 1 })} loading="lazy" />
                     </GalleryThumb>
                   ))}
                 </GalleryGrid>
@@ -405,7 +413,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                예약 정보 확인하기 <HugeiconsIcon icon={ExternalLinkIcon} size={15} strokeWidth={2} />
+                {tStay('checkBooking')} <HugeiconsIcon icon={ExternalLinkIcon} size={15} strokeWidth={2} />
               </DirectBookingButton>
 
               <MapGuideBtn
@@ -413,17 +421,17 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <HugeiconsIcon icon={Navigation01Icon} size={14} strokeWidth={2} /> 길찾기
+                <HugeiconsIcon icon={Navigation01Icon} size={14} strokeWidth={2} /> {tCommon('directions')}
               </MapGuideBtn>
 
               <BookmarkActionBtn
                 type="button"
                 $bookmarked={bookmarked}
                 onClick={handleBookmarkToggle}
-                title={bookmarked ? '저장 목록에서 제거' : '숙소 저장'}
+                title={bookmarked ? tStay('removeFromSaved') : tStay('saveStay')}
               >
                 <HugeiconsIcon icon={Bookmark01Icon} size={15} strokeWidth={2} fill={bookmarked ? 'currentColor' : 'none'} />
-                {bookmarked ? '저장됨' : '저장하기'}
+                {bookmarked ? tCommon('saved') : tCommon('save')}
               </BookmarkActionBtn>
             </ActionRow>
           </Body>
@@ -443,7 +451,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
           <LightboxCloseBtn
             type="button"
             onClick={() => setZoomedImageIdx(null)}
-            aria-label="사진 닫기"
+            aria-label={tCommon('closePhoto')}
           >
             <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2.5} />
           </LightboxCloseBtn>
@@ -458,7 +466,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   prev !== null ? (prev - 1 + galleryImages.length) % galleryImages.length : 0
                 );
               }}
-              aria-label="이전 사진"
+              aria-label={tCommon('prevPhoto')}
             >
               <HugeiconsIcon icon={ChevronLeftIcon} size={24} strokeWidth={2.5} />
             </LightboxNavBtn>
@@ -468,7 +476,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             { }
             <LightboxImg
               src={galleryImages[zoomedImageIdx]}
-              alt={`${stay.name} 확대 사진`}
+              alt={tStay('enlargedPhoto', { name: stay.name })}
             />
           </LightboxImageWrapper>
 
@@ -482,7 +490,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   prev !== null ? (prev + 1) % galleryImages.length : 0
                 );
               }}
-              aria-label="다음 사진"
+              aria-label={tCommon('nextPhoto')}
             >
               <HugeiconsIcon icon={ChevronRightIcon} size={24} strokeWidth={2.5} />
             </LightboxNavBtn>

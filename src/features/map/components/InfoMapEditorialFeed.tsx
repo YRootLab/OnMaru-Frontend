@@ -1,6 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import type { Item, MapInfoCategory } from '@/features/map/types';
 import LiveNoticeBanner from './feed/LiveNoticeBanner';
 import SorimaruSpotlightBanner from './feed/SorimaruSpotlightBanner';
@@ -25,13 +26,14 @@ export default function InfoMapEditorialFeed({
   regionCode,
   items,
 }: InfoMapEditorialFeedProps) {
+  const t = useTranslations('map.editorial');
   const showDiscovery = category === 'hanok' && regionCode === null;
 
   return (
     <>
       <LiveNoticeBanner />
       {showDiscovery && (
-        <EditorialSections aria-label="한옥 지도 추천 콘텐츠">
+        <EditorialSections aria-label={t('ariaLabel')}>
           <SorimaruSpotlightBanner />
           <SmartAroundFeed items={items} />
         </EditorialSections>

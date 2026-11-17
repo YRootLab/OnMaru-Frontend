@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, Search01Icon, Clock01Icon, PauseIcon, PlayIcon } from '@hugeicons/core-free-icons'
@@ -330,6 +331,8 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
   onClose,
   allStories,
 }) => {
+  const t = useTranslations('sorimaru.modal');
+  const tData = useTranslations('sorimaru.categoryData');
   const currentStory = useSorimaruAudioStore((s) => s.currentStory);
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
   const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
@@ -337,6 +340,19 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
 
   const [activeCat, setActiveCat] = useState<SorimaruCategory>('전체');
   const [modalSearch, setModalSearch] = useState<string>('');
+
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case '전체': return tData('all');
+      case '한옥과 고택': return tData('hanokLabel');
+      case '전통 시장': return tData('marketLabel');
+      case '마을과 골목': return tData('villageLabel');
+      case '궁궐과 역사': return tData('palaceLabel');
+      case '소리와 문화': return tData('soundLabel');
+      case '자연과 숲길': return tData('natureLabel');
+      default: return cat;
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -375,13 +391,13 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
         <ModalHeader>
           <div>
             <HeaderBadge>
-              COMPLETE AUDIO COLLECTION
+              {t('headerBadge')}
             </HeaderBadge>
             <HeaderTitle>
-              소리마루 이야기 전체보기
+              {t('title')}
             </HeaderTitle>
           </div>
-          <CloseButton onClick={onClose} aria-label="닫기">
+          <CloseButton onClick={onClose} aria-label={t('close')}>
             <HugeiconsIcon icon={Cancel01Icon} size={22} strokeWidth={2} />
           </CloseButton>
         </ModalHeader>
@@ -398,7 +414,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                   isSelected={isSel}
                   onClick={() => setActiveCat(cat)}
                 >
-                  {cat}
+                  {getCategoryLabel(cat)}
                 </ChipButton>
               );
             })}
@@ -410,7 +426,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
               type="text"
               value={modalSearch}
               onChange={(e) => setModalSearch(e.target.value)}
-              placeholder="이야기 제목이나 장소로 검색해 보세요"
+              placeholder={t('searchPlaceholder')}
             />
             <SearchIconWrapper>
               <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={2} />
@@ -424,8 +440,8 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
             <div data-theme="dark">
             <OniSearchEmpty
               size="sm"
-              title={modalSearch.trim() ? `'${modalSearch}' 검색 결과가 없어요` : '찾으시는 이야기가 없어요'}
-              description={modalSearch.trim() ? '다른 제목이나 지역명으로 검색해 보세요.' : '등록된 이야기가 아직 없어요.'}
+              title={modalSearch.trim() ? t('searchNoResult', { query: modalSearch.trim() }) : t('noStories')}
+              description={modalSearch.trim() ? t('searchNoResultDesc') : t('noStoriesDesc')}
               action={
                 modalSearch.trim() ? (
                   <button
@@ -441,7 +457,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                       cursor: 'pointer',
                     }}
                   >
-                    검색어 지우기
+                    {t('clearSearch')}
                   </button>
                 ) : undefined
               }
@@ -478,7 +494,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                       </StoryTitle>
                       <StoryDesc>
                         <span className="loc">{story.region.name || story.title}</span>
-                        <span className="spk">온마루 도슨트</span>
+                        <span className="spk">{t('docent')}</span>
                       </StoryDesc>
                     </CardInfo>
                   </CardLeft>
@@ -489,7 +505,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                       e.stopPropagation();
                       handlePlayStory(story);
                     }}
-                    aria-label={isThisPlaying ? '일시정지' : '재생'}
+                    aria-label={isThisPlaying ? t('pause') : t('play')}
                   >
                     {isThisPlaying ? (
                       <HugeiconsIcon icon={PauseIcon} size={16} strokeWidth={2} />

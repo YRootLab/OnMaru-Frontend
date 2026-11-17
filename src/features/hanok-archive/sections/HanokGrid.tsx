@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { meok, surface, typographyRole, spacingLayout, mq } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import FilterBar, { type VillageTypeFilter } from '@/features/hanok-archive/components/FilterBar';
@@ -123,9 +124,7 @@ export default function HanokGrid({
   initialFilters,
   externalRegion,
 }: HanokGridProps) {
-
-
-
+  const t = useTranslations('hanok.grid');
   const [state, setState] = useState<HanokFilterState>(initialFilters);
 
 
@@ -167,8 +166,8 @@ export default function HanokGrid({
     <Section id="grid" aria-labelledby="grid-heading">
       <SectionHeader
         id="grid-heading"
-        title="전국 한옥 도감"
-        subtitle={`${filteredCount}곳의 기록`}
+        title={t('sectionTitle')}
+        subtitle={t('recordCount', { count: filteredCount })}
       />
 
       <FilterBar
@@ -222,17 +221,17 @@ export default function HanokGrid({
             size="lg"
             title={
               state.query
-                ? `'${state.query}' 검색 결과가 없어요`
-                : '조건에 맞는 한옥을 찾지 못했어요'
+                ? t('noSearchResult', { query: state.query })
+                : t('noFilterResult')
             }
             description={
               state.query
-                ? '단어의 철자가 정확한지 확인하시거나, 다른 검색어로 다시 검색해 보세요.'
-                : '선택하신 필터 조건에 해당하는 한옥 마을이 없어요.'
+                ? t('noSearchHint')
+                : t('noFilterHint')
             }
             action={
               <ResetAll type="button" onClick={() => setState(EMPTY_STATE)}>
-                조건 모두 지우기
+                {t('resetAll')}
               </ResetAll>
             }
           />

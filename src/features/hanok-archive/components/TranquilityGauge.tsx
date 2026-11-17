@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Activity01Icon, Clock01Icon, ShieldCheckIcon, SparklesIcon } from '@hugeicons/core-free-icons'
@@ -14,13 +15,15 @@ interface TranquilityGaugeProps {
 }
 
 export default function TranquilityGauge({ data, loading }: TranquilityGaugeProps) {
+  const t = useTranslations('hanok.tranquility');
+
   if (loading) {
     return (
       <Container>
         <HeaderRow>
           <BadgeBox>
             <HugeiconsIcon icon={Activity01Icon} size={14} color={palette.juhong[500]} />
-            <BadgeText>관광 빅데이터 실시간 분석 중...</BadgeText>
+            <BadgeText>{t('analyzing')}</BadgeText>
           </BadgeBox>
         </HeaderRow>
       </Container>
@@ -34,9 +37,9 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
       <HeaderRow>
         <BadgeBox>
           <HugeiconsIcon icon={Activity01Icon} size={14} color={palette.juhong[500]} />
-          <BadgeText>한국관광공사 DataLab 실시간 고즈넉 지수</BadgeText>
+          <BadgeText>{t('badge')}</BadgeText>
         </BadgeBox>
-        <DistrictTag>{data.district} 권역</DistrictTag>
+        <DistrictTag>{t('district', { district: data.district })}</DistrictTag>
       </HeaderRow>
 
       <MainRow>
@@ -64,7 +67,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
       <InfoCardsRow>
         <InfoPill>
           <HugeiconsIcon icon={Clock01Icon} size={13} color={palette.hwanggeum[700]} />
-          <PillLabel>추천 골든타임:</PillLabel>
+          <PillLabel>{t('goldenTime')}</PillLabel>
           <PillVal>{data.goldenHour}</PillVal>
         </InfoPill>
       </InfoCardsRow>

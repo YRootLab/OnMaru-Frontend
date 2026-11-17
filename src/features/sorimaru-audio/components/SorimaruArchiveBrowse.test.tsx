@@ -3,6 +3,8 @@
 import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { typographyRole } from '@/design-system/tokens';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
@@ -36,12 +38,20 @@ const story: SorimaruStorySummary = {
   savedByMe: false,
 };
 
+function renderWithIntl(ui: React.ReactNode) {
+  return render(
+    <NextIntlClientProvider locale="ko" messages={koMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
+
 afterEach(cleanup);
 
 describe('SorimaruArchiveBrowse request states', () => {
   it('shows a retryable server state instead of filter-empty guidance on failure', () => {
     const onRetry = vi.fn();
-    render(
+    renderWithIntl(
       <SorimaruArchiveBrowse
         stories={[]}
         isLoading={false}
@@ -57,7 +67,7 @@ describe('SorimaruArchiveBrowse request states', () => {
   });
 
   it('keeps filter-empty guidance after a successful empty response', () => {
-    render(<SorimaruArchiveBrowse stories={[]} isLoading={false} />);
+    renderWithIntl(<SorimaruArchiveBrowse stories={[]} isLoading={false} />);
     expect(screen.getByText('조건에 맞는 이야기가 아직 없어요')).toBeTruthy();
     expect(screen.queryByText('잠시 연결이 불안정해요')).toBeNull();
   });
@@ -65,7 +75,7 @@ describe('SorimaruArchiveBrowse request states', () => {
 
 describe('SorimaruArchiveBrowse typography', () => {
   it('reserves a readable two-line title inside each story card', () => {
-    render(<SorimaruArchiveBrowse stories={[story]} isLoading={false} />);
+    renderWithIntl(<SorimaruArchiveBrowse stories={[story]} isLoading={false} />);
 
     const title = screen.getByRole('heading', { name: LONG_TITLE });
     expect(getComputedStyle(title).webkitLineClamp).toBe('2');
@@ -77,7 +87,7 @@ describe('SorimaruArchiveBrowse typography', () => {
   });
 
   it('reserves the loaded card height and two title rows in its skeleton', () => {
-    render(<SorimaruArchiveBrowse stories={[]} isLoading />);
+    renderWithIntl(<SorimaruArchiveBrowse stories={[]} isLoading />);
 
     const skeletonCard = document.querySelector('[data-skeleton-archive-card]');
     expect(skeletonCard).not.toBeNull();

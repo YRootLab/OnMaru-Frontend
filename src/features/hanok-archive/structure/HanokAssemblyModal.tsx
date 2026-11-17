@@ -20,6 +20,7 @@
 
 import { useLayoutEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 
 import { meok, lightPalette, surface, typographyRole } from '@/design-system/tokens';
 import { ASSEMBLY_RANGE } from './constants';
@@ -233,10 +234,11 @@ export default function HanokAssemblyModal({ onClose, initialStage }: HanokAssem
     return () => cancelAnimationFrame(frame);
   }, [initialStage]);
 
+  const t = useTranslations('hanok.structure');
   const activeIndex = Math.max(0, activeStageOf(local));
 
   return (
-    <StructureModal title="한옥 7단계 조립" onClose={onClose}>
+    <StructureModal title={t('assemblyModalTitle')} onClose={onClose}>
       <Body>
         <Scroller ref={scrollerRef} onScroll={readProgress}>
           <Stage>
@@ -246,7 +248,7 @@ export default function HanokAssemblyModal({ onClose, initialStage }: HanokAssem
 
             <HanokAssemblyPanel local={local} />
 
-            {local < 0.01 && <ScrollHint>스크롤을 내려 한옥을 세워보세요</ScrollHint>}
+            {local < 0.01 && <ScrollHint>{t('scrollHint')}</ScrollHint>}
 
             <Controls>
               {STAGES.map((stage, i) => (

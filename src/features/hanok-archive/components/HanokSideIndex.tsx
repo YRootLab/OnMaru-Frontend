@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { meok, lightPalette, typographyRole } from '@/design-system/tokens';
 import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReveal';
 
@@ -12,10 +13,10 @@ import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReve
 
 
 const SIDE_INDEX_SECTIONS = [
-  { id: HANOK_REVEAL_SECTIONS.structure, label: '3D 구조 & 일조' },
-  { id: HANOK_REVEAL_SECTIONS.grid, label: '전국 한옥 도감' },
-  { id: HANOK_REVEAL_SECTIONS.stay, label: '지역별 한옥 스테이' },
-  { id: HANOK_REVEAL_SECTIONS.map, label: '전국 공간 지도' },
+  { id: HANOK_REVEAL_SECTIONS.structure, key: 'structure3D' },
+  { id: HANOK_REVEAL_SECTIONS.grid, key: 'nationwideDogam' },
+  { id: HANOK_REVEAL_SECTIONS.stay, key: 'regionalStay' },
+  { id: HANOK_REVEAL_SECTIONS.map, key: 'nationwideMap' },
 ] as const;
 
 const Rail = styled.nav<{ $visible: boolean }>`
@@ -85,6 +86,7 @@ const IndexDash = styled.span<{ $active: boolean }>`
 
 
 export default function HanokSideIndex() {
+  const t = useTranslations('hanok.nav');
   const [activeId, setActiveId] = useState<string>(SIDE_INDEX_SECTIONS[0].id);
   const [visible, setVisible] = useState(false);
   const intersectingRef = useRef<Set<string>>(new Set());
@@ -132,7 +134,7 @@ export default function HanokSideIndex() {
   };
 
   return (
-    <Rail aria-label="한옥 이야기 챕터 목차" $visible={visible}>
+    <Rail aria-label={t('chapterIndex')} $visible={visible}>
       {SIDE_INDEX_SECTIONS.map((section) => {
         const active = section.id === activeId;
         return (
@@ -144,7 +146,7 @@ export default function HanokSideIndex() {
             onClick={() => scrollTo(section.id)}
           >
             <IndexDash $active={active} />
-            {section.label}
+            {t(section.key)}
           </IndexItem>
         );
       })}

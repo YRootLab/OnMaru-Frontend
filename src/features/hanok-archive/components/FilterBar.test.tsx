@@ -3,6 +3,8 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import FilterBar from './FilterBar';
 
 vi.mock('framer-motion', () => ({
@@ -14,17 +16,19 @@ afterEach(cleanup);
 describe('FilterBar region select', () => {
   it('keeps a compact width and reserves symmetric space around its chevron', () => {
     render(
-      <FilterBar
-        villages={[]}
-        query=""
-        region="전체"
-        activeType="전체"
-        activeBadges={[]}
-        onQueryChange={vi.fn()}
-        onRegionChange={vi.fn()}
-        onTypeChange={vi.fn()}
-        onBadgeToggle={vi.fn()}
-      />,
+      <NextIntlClientProvider locale="ko" messages={koMessages}>
+        <FilterBar
+          villages={[]}
+          query=""
+          region="전체"
+          activeType="전체"
+          activeBadges={[]}
+          onQueryChange={vi.fn()}
+          onRegionChange={vi.fn()}
+          onTypeChange={vi.fn()}
+          onBadgeToggle={vi.fn()}
+        />
+      </NextIntlClientProvider>,
     );
 
     const select = screen.getByRole('combobox', { name: '지역 선택' });

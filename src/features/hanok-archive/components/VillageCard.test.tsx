@@ -3,6 +3,8 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import type { Village } from '@/features/hanok-archive/types';
 import { typographyRole } from '@/design-system/tokens';
 import VillageCard from './VillageCard';
@@ -22,6 +24,23 @@ const village: Village = {
   overview: '',
 };
 
+function renderCard(ui: React.ReactElement) {
+  const result = render(
+    <NextIntlClientProvider locale="ko" messages={koMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+  return {
+    ...result,
+    rerender: (nextUi: React.ReactElement) =>
+      result.rerender(
+        <NextIntlClientProvider locale="ko" messages={koMessages}>
+          {nextUi}
+        </NextIntlClientProvider>,
+      ),
+  };
+}
+
 afterEach(() => {
   cleanup();
   delete document.documentElement.dataset.theme;
@@ -29,7 +48,7 @@ afterEach(() => {
 
 describe('VillageCard', () => {
   it('groups the Korean category and docent tags in the image top-left tag area', () => {
-    render(<VillageCard village={{ ...village, name: '경복궁' }} onClick={vi.fn()} />);
+    renderCard(<VillageCard village={{ ...village, name: '경복궁' }} onClick={vi.fn()} />);
 
     const tagArea = screen.getByLabelText('한옥 태그');
     expect(tagArea.textContent).toContain('한옥');
@@ -39,7 +58,7 @@ describe('VillageCard', () => {
   });
 
   it('keeps the complete title available while limiting it to two visual lines', () => {
-    render(<VillageCard village={village} onClick={vi.fn()} />);
+    renderCard(<VillageCard village={village} onClick={vi.fn()} />);
 
     const title = screen.getByRole('heading', { level: 3, name: village.name });
     expect(title.textContent).toBe(village.name);
@@ -47,7 +66,7 @@ describe('VillageCard', () => {
   });
 
   it('exposes reveal layers and a card target for grid-level pointer lighting', () => {
-    render(<VillageCard village={village} onClick={vi.fn()} />);
+    renderCard(<VillageCard village={village} onClick={vi.fn()} />);
 
     const card = screen.getByRole('button', { name: `${village.name} 자세히 보기` });
     expect(card.getAttribute('data-reveal-card')).not.toBeNull();
@@ -57,7 +76,7 @@ describe('VillageCard', () => {
   });
 
   it('uses theme-tuned white reveals in light and dark modes', () => {
-    const { rerender } = render(<VillageCard village={village} onClick={vi.fn()} />);
+    const { rerender } = renderCard(<VillageCard village={village} onClick={vi.fn()} />);
     const spotlight = screen.getByTestId('village-card-spotlight');
     const lightReveal = getComputedStyle(spotlight).getPropertyValue('--spotlight-background');
 
@@ -71,7 +90,7 @@ describe('VillageCard', () => {
   });
 
   it('keeps the light-mode highlight restrained without a dark contrast wash', () => {
-    render(<VillageCard village={village} onClick={vi.fn()} />);
+    renderCard(<VillageCard village={village} onClick={vi.fn()} />);
     const spotlight = screen.getByTestId('village-card-spotlight');
     const glassLens = screen.getByTestId('village-card-glass-lens');
     const style = getComputedStyle(spotlight);
@@ -92,7 +111,7 @@ describe('VillageCard', () => {
   });
 
   it('keeps the light reveal edge thin but longer without changing the dark edge', () => {
-    const { rerender } = render(<VillageCard village={village} onClick={vi.fn()} />);
+    const { rerender } = renderCard(<VillageCard village={village} onClick={vi.fn()} />);
     const edge = screen.getByTestId('village-card-spotlight-edge');
 
     expect(getComputedStyle(edge).getPropertyValue('--spotlight-edge-width')).toBe('1.2px');

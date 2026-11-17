@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { SectionId } from '@/features/hanok-archive/types';
 import { lightPalette, meok, typographyRole } from '@/design-system/tokens';
 
@@ -86,10 +87,10 @@ const HamburgerBtn = styled.button`
   }
 `;
 
-const MENU_ITEMS: { label: string; href: string; section: SectionId }[] = [
-  { label: '한옥 둘러보기', href: '#grid', section: 'grid' },
-  { label: '한옥 지도', href: '#map', section: 'map' },
-  { label: '이달의 추천', href: '#monthly', section: 'monthly' },
+const MENU_ITEMS: { key: 'browseHanok' | 'hanokMap' | 'monthlyPick'; href: string; section: SectionId }[] = [
+  { key: 'browseHanok', href: '#grid', section: 'grid' },
+  { key: 'hanokMap', href: '#map', section: 'map' },
+  { key: 'monthlyPick', href: '#monthly', section: 'monthly' },
 ];
 
 interface ArchiveNavProps {
@@ -97,8 +98,9 @@ interface ArchiveNavProps {
 }
 
 export default function ArchiveNav({ activeSection }: ArchiveNavProps) {
+  const t = useTranslations('hanok.nav');
   return (
-    <Nav aria-label="페이지 내 이동">
+    <Nav aria-label={t('inPageNav')}>
       <a
         href="#grid"
         style={{
@@ -120,26 +122,26 @@ export default function ArchiveNav({ activeSection }: ArchiveNavProps) {
           (e.target as HTMLAnchorElement).style.height = '1px';
         }}
       >
-        본문으로 바로가기
+        {t('skipToContent')}
       </a>
 
-      <LogoLink href="/">온마루</LogoLink>
+      <LogoLink href="/">{t('onmaru')}</LogoLink>
 
       <MenuList role="list">
-        {MENU_ITEMS.map(({ label, href, section }) => (
+        {MENU_ITEMS.map(({ key, href, section }) => (
           <MenuItem key={section}>
             <MenuAnchor
               href={href}
               $active={activeSection === section}
               aria-current={activeSection === section ? 'true' : undefined}
             >
-              {label}
+              {t(key)}
             </MenuAnchor>
           </MenuItem>
         ))}
       </MenuList>
 
-      <HamburgerBtn aria-label="메뉴 열기" aria-expanded="false">
+      <HamburgerBtn aria-label={t('openMenu')} aria-expanded="false">
         <span />
         <span />
         <span />

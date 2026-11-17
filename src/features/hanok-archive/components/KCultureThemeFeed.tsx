@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
@@ -509,11 +510,11 @@ const ViewAllLink = styled.button`
 `;
 
 
-const MEDIA_FILTERS: { key: 'all' | ScreenHanokMediaType; label: string }[] = [
-  { key: 'all',     label: '전체' },
-  { key: 'K_DRAMA', label: '드라마' },
-  { key: 'CINEMA',  label: '영화' },
-  { key: 'KPOP',    label: 'K-POP' },
+const MEDIA_FILTERS: { key: 'all' | ScreenHanokMediaType }[] = [
+  { key: 'all' },
+  { key: 'K_DRAMA' },
+  { key: 'CINEMA' },
+  { key: 'KPOP' },
 ];
 
 export interface KCultureThemeFeedProps {
@@ -522,6 +523,7 @@ export interface KCultureThemeFeedProps {
 
 
 export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedProps) {
+  const tKculture = useTranslations('hanok.kculture');
   const [activeFilter, setActiveFilter] = useState<'all' | ScreenHanokMediaType>('all');
   const { items, isLoading, isFirstLoad, toggleSave } = useKCultureThemes({
     mediaType: activeFilter === 'all' ? undefined : activeFilter,
@@ -529,6 +531,12 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
 
   const [heroIdx, setHeroIdx] = useState(0);
 
+  const filterLabelMap: Record<string, string> = {
+    all: tKculture('filterAll'),
+    K_DRAMA: tKculture('filterDrama'),
+    CINEMA: tKculture('filterCinema'),
+    KPOP: tKculture('filterKpop'),
+  };
 
   const handleFilter = (key: 'all' | ScreenHanokMediaType) => {
     setActiveFilter(key);
@@ -556,10 +564,10 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
 
   return (
     <KCultureSection aria-labelledby="screen-hanok-heading">
-      <SectionHeader id="screen-hanok-heading" title="스크린 속 한옥" />
+      <SectionHeader id="screen-hanok-heading" title={tKculture('sectionTitle')} />
 
-      <FilterRow role="group" aria-label="K-콘텐츠 유형 선택">
-        {MEDIA_FILTERS.map(({ key, label }) => (
+      <FilterRow role="group" aria-label={tKculture('filterAriaLabel')}>
+        {MEDIA_FILTERS.map(({ key }) => (
           <FilterChip
             key={key}
             type="button"
@@ -568,7 +576,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
             onClick={() => handleFilter(key)}
           >
             {key !== 'all' && getMediaIcon(key, 13)}
-            {label}
+            {filterLabelMap[key] ?? key}
           </FilterChip>
         ))}
       </FilterRow>
@@ -596,7 +604,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
 
       {}
       {!isLoading && items.length === 0 && (
-        <EmptyNote>이 카테고리엔 아직 콘텐츠가 없어요. 다른 카테고리를 골라보세요.</EmptyNote>
+        <EmptyNote>{tKculture('emptyCategory')}</EmptyNote>
       )}
 
       {}
@@ -631,7 +639,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                     <SaveBtn
                       type="button"
                       $saved={hero.savedByMe}
-                      aria-label={hero.savedByMe ? '찜 해제' : '찜하기'}
+                      aria-label={hero.savedByMe ? tKculture('unsave') : tKculture('doSave')}
                       onClick={(e) => { e.stopPropagation(); toggleSave(hero.placeId); }}
                     >
                       <HugeiconsIcon icon={HeartIcon} size={16} fill={hero.savedByMe ? '#ef4444' : 'none'} strokeWidth={hero.savedByMe ? 0 : 2} />
@@ -663,7 +671,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                         onClick={(e) => e.stopPropagation()}
                       >
                         <HugeiconsIcon icon={ExternalLinkIcon} size={11} />
-                        <span>{hero.sourceTitle || '출처 보기'}</span>
+                        <span>{hero.sourceTitle || tKculture('sourceView')}</span>
                       </HeroSourceLink>
                     )}
                   </HeroBody>
@@ -713,7 +721,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                   type="button"
                   $disabled={clampedIdx === 0}
                   disabled={clampedIdx === 0}
-                  aria-label="이전 항목"
+                  aria-label={tKculture('prevItem')}
                   onClick={() => navigate(-1)}
                 >
                   <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2.5} />
@@ -725,14 +733,14 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                   type="button"
                   $disabled={clampedIdx === items.length - 1}
                   disabled={clampedIdx === items.length - 1}
-                  aria-label="다음 항목"
+                  aria-label={tKculture('nextItem')}
                   onClick={() => navigate(1)}
                 >
                   <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2.5} />
                 </NavBtn>
               </NavBtnGroup>
               <ViewAllLink type="button" onClick={() => setHeroIdx(0)}>
-                처음으로
+                {tKculture('goToFirst')}
               </ViewAllLink>
             </NavRow>
           )}

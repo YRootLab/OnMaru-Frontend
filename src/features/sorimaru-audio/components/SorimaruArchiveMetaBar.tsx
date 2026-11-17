@@ -2,6 +2,7 @@
 
 import React, { FormEvent, useId, useState } from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Search01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
@@ -202,12 +203,22 @@ const ResetBtn = styled.button`
 `;
 
 export const SorimaruArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount }) => {
+  const t = useTranslations('sorimaru.metaBar');
+  const tData = useTranslations('sorimaru.categoryData');
   const selectedCategory = useSorimaruAudioStore((state) => state.selectedCategory);
   const searchQuery = useSorimaruAudioStore((state) => state.searchQuery);
   const setSearchQuery = useSorimaruAudioStore((state) => state.setSearchQuery);
   const setSelectedCategory = useSorimaruAudioStore((state) => state.setSelectedCategory);
   const [draft, setDraft] = useState(searchQuery);
   const searchId = useId();
+
+  const getLabelFor = (apiCategory: string) => {
+    if (!apiCategory || apiCategory === '전체') return t('allStories');
+    const item = SORIMARU_THEME_CATEGORIES.find((c) => c.apiCategory === apiCategory);
+    if (!item) return apiCategory;
+    const key = `${item.id}Label`;
+    return (tData as any).has(key) ? tData(key as any) : item.label;
+  };
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -226,20 +237,20 @@ export const SorimaruArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCoun
   return (
     <BarWrapper>
       <MetaInfoGroup>
-        <FilterChip>{labelFor(selectedCategory)}</FilterChip>
+        <FilterChip>{getLabelFor(selectedCategory)}</FilterChip>
         {searchQuery && (
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: meok[700] }}>
-            “<strong style={{ fontWeight: 600, color: meok[900] }}>{searchQuery}</strong>” 검색 결과
+            {t('searchResult', { query: searchQuery })}
           </span>
         )}
         <span style={{ flexShrink: 0, color: meok[500] }}>
-          {(totalCount ?? resultCount).toLocaleString()}개
+          {t('countSuffix', { count: (totalCount ?? resultCount).toLocaleString() })}
         </span>
       </MetaInfoGroup>
 
       <SearchForm onSubmit={submit}>
         <label htmlFor={searchId} style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
-          오디오 이야기 검색
+          {t('searchLabel')}
         </label>
 
         <InputWrapper>
@@ -249,20 +260,20 @@ export const SorimaruArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCoun
             id={searchId}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
-            placeholder="장소 또는 키워드 검색"
+            placeholder={t('searchPlaceholder')}
           />
           {draft && (
-            <ClearBtn type="button" onClick={() => setDraft('')} aria-label="검색어 지우기">
+            <ClearBtn type="button" onClick={() => setDraft('')} aria-label={t('clearSearch')}>
               <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} />
             </ClearBtn>
           )}
         </InputWrapper>
         <SubmitBtn type="submit">
-          검색
+          {t('submit')}
         </SubmitBtn>
         {hasFilter && (
           <ResetBtn type="button" onClick={reset}>
-            초기화
+            {t('reset')}
           </ResetBtn>
         )}
       </SearchForm>
