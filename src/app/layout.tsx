@@ -42,7 +42,7 @@ export default async function RootLayout({
           suppressHydrationWarning
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {/* Google Tag Manager */}
         <Script
           id="google-tag-manager"
