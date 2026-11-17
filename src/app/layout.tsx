@@ -32,7 +32,7 @@ export default async function RootLayout({
   const nonce = (await headers()).get('x-nonce') ?? '';
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body>
+      <head>
         <script
           id="theme-mode-init"
           nonce={nonce}
@@ -41,6 +41,8 @@ export default async function RootLayout({
           }}
           suppressHydrationWarning
         />
+      </head>
+      <body>
         {/* Google Tag Manager */}
         <Script
           id="google-tag-manager"
