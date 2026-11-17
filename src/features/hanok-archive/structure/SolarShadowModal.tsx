@@ -10,6 +10,7 @@
 import { useCallback, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
+import { useTranslations } from 'next-intl';
 
 import { surface } from '@/design-system/tokens';
 import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
@@ -170,6 +171,7 @@ const Loading = styled.div<{ $ready: boolean }>`
 `;
 
 export default function SolarShadowModal({ onClose }: { onClose: () => void }) {
+  const t = useTranslations('hanok.structure');
   const [ready, setReady] = useState(false);
   const [videoError, setVideoError] = useState(false);
   const [season, setSeason] = useState<string | null>(null);
@@ -178,7 +180,7 @@ export default function SolarShadowModal({ onClose }: { onClose: () => void }) {
   const onReady = useCallback(() => setReady(true), []);
 
   return (
-    <StructureModal title="절기에 따른 처마 그림자" onClose={onClose}>
+    <StructureModal title={t('solarModalTitle')} onClose={onClose}>
       <Body>
         <Atmosphere data-season={season ?? undefined} aria-hidden="true">
           {SEASONS.map((item) => (
@@ -207,7 +209,7 @@ export default function SolarShadowModal({ onClose }: { onClose: () => void }) {
               <source src="/videos/Oni_loading.webm" type="video/webm" onError={() => setVideoError(true)} />
             </video>
           )}
-          <span>한옥 모형을 불러오고 있어요</span>
+          <span>{t('modelLoading')}</span>
         </Loading>
       </Body>
     </StructureModal>

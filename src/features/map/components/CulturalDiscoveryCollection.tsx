@@ -1,6 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import type { CulturalCollection, CulturalCollectionPath } from '@/features/map/domain/culturalCollection';
 import type { Item } from '@/features/map/types';
 
@@ -150,12 +151,13 @@ interface Props {
 }
 
 export default function CulturalDiscoveryCollection({ collection, places, loading, onPlaceSelect, onPathSelect }: Props) {
+  const t = useTranslations('map.editorial');
   const referenced = collection.placeRefs.length === 0
     ? places.filter((place) => place.isTraditional)
     : places.filter((place) => collection.placeRefs.some((ref) => ref.placeId === place.id));
 
   return (
-    <Section aria-busy={loading}>
+    <Section aria-busy={loading} aria-label={t('ariaLabel')}>
       <HanokLink href="/hanok">HANOK CULTURE WALK</HanokLink>
       <Title>{collection.title.ko}</Title>
       <Subtitle>{collection.subtitle.ko}</Subtitle>

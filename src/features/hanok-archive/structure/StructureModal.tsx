@@ -8,6 +8,7 @@
 
 
 import { useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon } from '@hugeicons/core-free-icons'
@@ -90,6 +91,7 @@ interface StructureModalProps {
 }
 
 export default function StructureModal({ title, onClose, children }: StructureModalProps) {
+  const t = useTranslations('hanok.structure');
   const shellRef = useRef<HTMLDivElement | null>(null);
 
 
@@ -125,7 +127,7 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     >
       <Shell ref={shellRef} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
         <CloseButton type="button" onClick={onClose}>
-          닫기 <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} aria-hidden="true" />
+          {t('close')} <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} aria-hidden="true" />
         </CloseButton>
 
         {children}

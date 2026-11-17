@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { HeadphonesIcon, PlayIcon, PauseIcon, RotateCcwIcon, FileTextIcon, ChevronDownIcon, ChevronUpIcon } from '@hugeicons/core-free-icons'
@@ -14,6 +15,7 @@ interface HanokAudioPlayerProps {
 }
 
 export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlayerProps) {
+  const tAudio = useTranslations('hanok.audio');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -84,13 +86,13 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
       <HeaderRow>
         <BadgeBox>
           <HugeiconsIcon icon={HeadphonesIcon} size={14} />
-          <BadgeText>한국관광공사 Sorimaru 오디오 도슨트</BadgeText>
+          <BadgeText>{tAudio('badge')}</BadgeText>
         </BadgeBox>
-        <QualityTag>공식 해설 음원</QualityTag>
+        <QualityTag>{tAudio('qualityTag')}</QualityTag>
       </HeaderRow>
 
       <StoryTitleBox>
-        <StoryTitle>{currentStory.audioTitle || `${hanokName} 공간 해설`}</StoryTitle>
+        <StoryTitle>{currentStory.audioTitle || tAudio('spaceNarration', { name: hanokName })}</StoryTitle>
         {stories.length > 1 && (
           <SelectorSelect
             value={currentIndex}
@@ -107,7 +109,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 
       {}
       <PlayerControls>
-        <PlayBtn onClick={togglePlay} aria-label={isPlaying ? '일시정지' : '재생'}>
+        <PlayBtn onClick={togglePlay} aria-label={isPlaying ? tAudio('pause') : tAudio('play')}>
           {isPlaying ? <HugeiconsIcon icon={PauseIcon} size={17} fill="currentColor" /> : <HugeiconsIcon icon={PlayIcon} size={17} fill="currentColor" />}
         </PlayBtn>
 
@@ -125,7 +127,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 
         <TimeDisplay>{formatSeconds(duration)}</TimeDisplay>
 
-        <SecondaryBtn onClick={handleRestart} title="처음부터 다시 듣기">
+        <SecondaryBtn onClick={handleRestart} title={tAudio('restart')}>
           <HugeiconsIcon icon={RotateCcwIcon} size={15} />
         </SecondaryBtn>
       </PlayerControls>
@@ -136,7 +138,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
           <ScriptToggleBtn onClick={() => setShowScript(!showScript)}>
             <ScriptToggleLeft>
               <HugeiconsIcon icon={FileTextIcon} size={14} />
-              <span>도슨트 낭독 대본 보기</span>
+              <span>{tAudio('viewScript')}</span>
             </ScriptToggleLeft>
             {showScript ? <HugeiconsIcon icon={ChevronUpIcon} size={16} /> : <HugeiconsIcon icon={ChevronDownIcon} size={16} />}
           </ScriptToggleBtn>

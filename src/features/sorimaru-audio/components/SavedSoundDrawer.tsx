@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { HeartIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
@@ -174,6 +175,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
   savedStories,
   onRemoveBookmark,
 }) => {
+  const t = useTranslations('sorimaru.saved');
   const [isOpen, setIsOpen] = useState(false);
   const currentStory = useSorimaruAudioStore((state) => state.currentStory);
   const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
@@ -202,10 +204,10 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
       <FloatingOpenButton
         type="button"
         onClick={() => setIsOpen(true)}
-        aria-label={`마음 담아둔 소리 ${savedStories.length}개 열기`}
+        aria-label={t('openLabel', { count: savedStories.length })}
       >
         <HugeiconsIcon icon={HeartIcon} size={14} strokeWidth={2} fill="currentColor" style={{ color: palette.cheongrok[500] }} />
-        마음 담아둔 소리
+        {t('title')}
         <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums', fontSize: typographyRole.caption.fontSize, color: meok[700] }}>
           {savedStories.length}
         </span>
@@ -217,11 +219,11 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
             style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', justifyContent: 'flex-end' }}
             role="dialog"
             aria-modal="true"
-            aria-label="마음 담아둔 소리 보관함"
+            aria-label={t('drawerLabel')}
           >
             <DrawerBackdrop
               type="button"
-              aria-label="보관함 닫기"
+              aria-label={t('closeDrawer')}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -236,30 +238,30 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
             >
               <DrawerHeader>
                 <div>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: palette.cheongrok[500] }}>다시 듣고 싶은 장면</p>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: palette.cheongrok[500] }}>{t('subtitle')}</p>
                   <h2 style={{ marginTop: '0.25rem', fontFamily: 'var(--font-hanok)', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.045em' }}>
-                    마음 담아둔 소리
+                    {t('title')}
                   </h2>
                 </div>
                 <CloseButton
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  aria-label="보관함 닫기"
+                  aria-label={t('closeDrawer')}
                 >
                   <HugeiconsIcon icon={Cancel01Icon} size={22} strokeWidth={2} />
                 </CloseButton>
               </DrawerHeader>
 
               <DrawerSubText style={{ marginTop: '1rem' }}>
-                좋아하는 이야기를 이곳에 모아두면 다음 방문에도 이어서 들을 수 있어요.
+                {t('description')}
               </DrawerSubText>
 
               <ScrollList>
                 {savedStories.length === 0 ? (
                   <div style={{ padding: '4rem 0', textAlign: 'center', fontSize: '0.75rem', lineHeight: '1.5rem', color: meok[700] }}>
-                    담아둔 소리가 아직 없어요.
+                    {t('emptyTitle')}
                     <br />
-                    이야기 옆 하트를 누르면 담을 수 있어요.
+                    {t('emptyDesc')}
                   </div>
                 ) : (
                   savedStories.map((story, index) => {
@@ -277,7 +279,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                         </ThumbBox>
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: typographyRole.caption.fontSize, color: palette.juhong[500] }}>
-                            {story.region.name || '소리의 장소'}
+                            {story.region.name || t('placeFallback')}
                           </p>
                           <button
                             type="button"
@@ -297,14 +299,14 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                               onClick={() => handlePlay(story)}
                               style={{ fontSize: typographyRole.caption.fontSize, fontWeight: 600, color: palette.juhong[500], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
-                              {isCurrentPlaying ? '잠시 멈추기' : '이야기 듣기'}
+                              {isCurrentPlaying ? t('playPause') : t('playStart')}
                             </button>
                             <button
                               type="button"
                               onClick={() => onRemoveBookmark(story.storyId)}
                               style={{ fontSize: typographyRole.caption.fontSize, color: meok[700], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
-                              담기 해제
+                              {t('removeBookmark')}
                             </button>
                           </div>
                         </div>
@@ -315,7 +317,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
               </ScrollList>
 
               <p style={{ paddingTop: '1rem', fontSize: typographyRole.caption.fontSize, color: meok[700], borderTop: '1px solid rgba(33, 30, 25, 0.08)' }}>
-                이 기기에만 저장돼요.
+                {t('deviceOnly')}
               </p>
             </DrawerAside>
           </div>

@@ -3,7 +3,17 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import HanokInteractiveMapFrame from './HanokInteractiveMapFrame';
+
+function renderMap(ui: React.ReactElement) {
+  return render(
+    <NextIntlClientProvider locale="ko" messages={koMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
 
 vi.mock('next/script', () => ({
   default: (props: { onReady?: () => void }) => (
@@ -54,7 +64,7 @@ describe('HanokInteractiveMapFrame', () => {
   });
 
   it('creates the Kakao map when the SDK is ready', async () => {
-    render(<HanokInteractiveMapFrame villages={[]} />);
+    renderMap(<HanokInteractiveMapFrame villages={[]} />);
 
     fireEvent.click(screen.getByTestId('kakao-sdk'));
 
@@ -64,7 +74,7 @@ describe('HanokInteractiveMapFrame', () => {
 
   it('replaces indefinite loading with a friendly error after 25 seconds', () => {
     vi.useFakeTimers();
-    render(<HanokInteractiveMapFrame villages={[]} />);
+    renderMap(<HanokInteractiveMapFrame villages={[]} />);
 
     act(() => vi.advanceTimersByTime(24_999));
     expect(screen.queryByText('지도를 지금 불러올 수 없어요. 잠시 후 다시 시도해 주세요.')).toBeNull();

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette, typographyRole } from '@/design-system/tokens';
@@ -147,6 +148,7 @@ interface HanokHeroProps {
 }
 
 export default function HanokHero({ villages, onSelectVillage }: HanokHeroProps) {
+  const t = useTranslations('hanok.hero');
   const featured = React.useMemo(() => {
     return [...villages]
       .filter((v) => v.hasImage && v.image)
@@ -180,7 +182,7 @@ export default function HanokHero({ villages, onSelectVillage }: HanokHeroProps)
       <ContentOverlay>
         <EyebrowBadge>
           <span className="stamp" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            <HugeiconsIcon icon={SparklesIcon} size={13} strokeWidth={2} /> 온마루 스페셜 큐레이션
+            <HugeiconsIcon icon={SparklesIcon} size={13} strokeWidth={2} /> {t('specialCuration')}
           </span>
           <span>{current.region} · {filterLabel(current.type)}</span>
         </EyebrowBadge>
@@ -195,13 +197,13 @@ export default function HanokHero({ villages, onSelectVillage }: HanokHeroProps)
                 key={item.id}
                 $active={i === index}
                 onClick={() => setIndex(i)}
-                aria-label={`추천 한옥 ${i + 1}번째로 이동`}
+                aria-label={t('goToSlide', { number: i + 1 })}
               />
             ))}
           </Indicators>
 
           <DetailBtn onClick={() => onSelectVillage(current)}>
-            자세히 보기 <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+            {t('viewDetail')} <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </DetailBtn>
         </ControlsRow>
       </ContentOverlay>

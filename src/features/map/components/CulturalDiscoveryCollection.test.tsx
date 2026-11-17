@@ -2,6 +2,11 @@
 
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => `translated:${key}`,
+}));
+
 import CulturalDiscoveryCollection from './CulturalDiscoveryCollection';
 
 const collection = {

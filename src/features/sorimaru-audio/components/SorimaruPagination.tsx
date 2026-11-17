@@ -2,8 +2,9 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
+import { useTranslations } from 'next-intl';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons';
 import { meok } from '@/design-system/tokens';
 
 interface SorimaruPaginationProps {
@@ -106,13 +107,13 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
   onPageChange,
   isLoading = false,
 }) => {
+  const t = useTranslations('sorimaru.pagination');
 
   if (totalPages <= 1) return null;
 
   const handlePageClick = (page: number) => {
     if (page === currentPage || isLoading) return;
     onPageChange(page);
-
 
     const target = document.getElementById('sorimaru-archive');
     if (target) {
@@ -122,19 +123,19 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
   };
 
   return (
-    <PaginationContainer aria-label="오디오 아카이브 페이지 이동">
+    <PaginationContainer aria-label={t('navLabel')}>
       <NavPillGroup>
         <ArrowButton
           type="button"
           onClick={() => handlePageClick(currentPage - 1)}
           disabled={currentPage <= 1 || isLoading}
-          aria-label="이전 페이지"
+          aria-label={t('prevPage')}
         >
           <HugeiconsIcon icon={ChevronLeftIcon} size={15} />
-          <span>이전</span>
+          <span>{t('prev')}</span>
         </ArrowButton>
 
-        <PageStatus aria-current="page" aria-label={`${totalPages}페이지 중 ${currentPage}페이지`}>
+        <PageStatus aria-current="page" aria-label={t('pageStatus', { total: totalPages, current: currentPage })}>
           {currentPage} / {totalPages}
         </PageStatus>
 
@@ -142,12 +143,12 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
           type="button"
           onClick={() => handlePageClick(currentPage + 1)}
           disabled={currentPage >= totalPages || isLoading}
-          aria-label="다음 페이지"
+          aria-label={t('nextPage')}
         >
-          <span>다음</span>
+          <span>{t('next')}</span>
           <HugeiconsIcon icon={ChevronRightIcon} size={15} />
         </ArrowButton>
       </NavPillGroup>
     </PaginationContainer>
   );
-};
+};

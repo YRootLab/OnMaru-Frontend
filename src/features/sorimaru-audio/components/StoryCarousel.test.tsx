@@ -3,6 +3,8 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { typographyRole } from '@/design-system/tokens';
 import { StoryCarousel, StoryCarouselSkeleton } from './StoryCarousel';
@@ -40,6 +42,14 @@ const story: SorimaruStorySummary = {
   savedByMe: false,
 };
 
+function renderWithIntl(ui: React.ReactNode) {
+  return render(
+    <NextIntlClientProvider locale="ko" messages={koMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
+
 beforeAll(() => {
   vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
     callback(0);
@@ -52,14 +62,14 @@ afterEach(cleanup);
 
 describe('StoryCarousel typography', () => {
   it('always renders white edge fades independently from initial rail measurement', () => {
-    render(<StoryCarousel stories={[story]} />);
+    renderWithIntl(<StoryCarousel stories={[story]} />);
 
     expect(screen.getByTestId('nearby-rail-leading-fade')).toBeTruthy();
     expect(screen.getByTestId('nearby-rail-trailing-fade')).toBeTruthy();
   });
 
   it('reserves a readable two-line title inside the nearby card', () => {
-    render(<StoryCarousel stories={[story]} />);
+    renderWithIntl(<StoryCarousel stories={[story]} />);
 
     const title = screen.getByRole('heading', { name: LONG_TITLE });
     expect(getComputedStyle(title).webkitLineClamp).toBe('2');
@@ -71,7 +81,7 @@ describe('StoryCarousel typography', () => {
   });
 
   it('reserves the loaded card height and two title rows in its skeleton', () => {
-    render(<StoryCarouselSkeleton />);
+    renderWithIntl(<StoryCarouselSkeleton />);
 
     const skeletonCard = document.querySelector('[data-skeleton-story-card]');
     expect(skeletonCard).not.toBeNull();

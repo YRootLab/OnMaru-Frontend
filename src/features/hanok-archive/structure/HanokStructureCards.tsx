@@ -16,6 +16,7 @@ import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowUpRight01Icon, Layers01Icon, SunMediumIcon } from '@hugeicons/core-free-icons'
+import { useTranslations } from 'next-intl';
 
 import { meok, palette, lightPalette, surface, ringShadow, typographyRole, spacingLayout } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
@@ -320,6 +321,7 @@ const MoreLink = styled.div<{ $color: string }>`
 `;
 
 export default function HanokStructureCards() {
+  const t = useTranslations('hanok.structure');
   const [open, setOpen] = useState<OpenModal>(null);
   const close = () => setOpen(null);
 
@@ -328,7 +330,7 @@ export default function HanokStructureCards() {
       <div>
         <SectionHeader
           id="structure-heading"
-          title="한옥은 왜 이렇게 생겼을까"
+          title={t('sectionTitle')}
         />
       </div>
       <div>
@@ -342,12 +344,13 @@ export default function HanokStructureCards() {
               hidden: { opacity: 0, y: 20 },
               visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
             }}
+            style={{ position: 'relative' }}
           >
         <CardContainer
           type="button"
           onClick={() => setOpen('shadow')}
           $accentColor={palette.hwanggeum[500]}
-          aria-label="처마 그림자 시뮬레이션 열기"
+          aria-label={t('sunlightAria')}
         >
           <PreviewCanvas $bg="rgba(255, 184, 0, 0.07)" aria-hidden="true">
             <video
@@ -368,22 +371,22 @@ export default function HanokStructureCards() {
             >
               <source src="/videos/Oni_standing.mp4" type="video/mp4" />
             </video>
-            <PreviewBadge>하지 77° ➔ 동지 29°</PreviewBadge>
+            <PreviewBadge>{t('sunlightBadge')}</PreviewBadge>
           </PreviewCanvas>
 
           <CardBody>
-            <CardTitle>처마는 왜 여름엔 그늘을, 겨울엔 볕을 줄까</CardTitle>
+            <CardTitle>{t('sunlightTitle')}</CardTitle>
             <SectionLabel $color={lightPalette.hwanggeum[700]}>
-              <HugeiconsIcon icon={SunMediumIcon} size={14} /> 자연의 빛과 일조 과학
+              <HugeiconsIcon icon={SunMediumIcon} size={14} /> {t('sunlightTopic')}
             </SectionLabel>
             <CardDesc>
-              봄·여름·가을·겨울 24절기를 슬라이더로 옮겨 보세요.
+              {t('sunlightDesc1')}
               <br />
-              남중고도(29°~77°) 변화에 따라 처마 밑으로 드리우는 그림자가 실제 건축 비율로 시시각각 변화합니다.
+              {t('sunlightDesc2')}
             </CardDesc>
 
             <MoreLink $color={lightPalette.hwanggeum[700]}>
-              <span>3D로 보기</span>
+              <span>{t('view3D')}</span>
               <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} />
             </MoreLink>
           </CardBody>
@@ -405,7 +408,7 @@ export default function HanokStructureCards() {
           type="button"
           onClick={() => setOpen('assembly')}
           $accentColor={palette.juhong[500]}
-          aria-label="7단계 부재 조립 열기"
+          aria-label={t('assemblyAria')}
         >
           <PreviewCanvas $bg="rgba(217, 64, 0, 0.06)" aria-hidden="true">
             <video
@@ -426,22 +429,22 @@ export default function HanokStructureCards() {
             >
               <source src="/videos/Oni_touch.mp4" type="video/mp4" />
             </video>
-            <PreviewBadge>기단에서 기와까지 7단계</PreviewBadge>
+            <PreviewBadge>{t('assemblyBadge')}</PreviewBadge>
           </PreviewCanvas>
 
           <CardBody>
-            <CardTitle>쇠못 하나 없이, 한옥은 어떻게 일곱 켜로 설까</CardTitle>
+            <CardTitle>{t('assemblyTitle')}</CardTitle>
             <SectionLabel $color={lightPalette.juhong[700]}>
-              <HugeiconsIcon icon={Layers01Icon} size={14} /> 못 없는 맞춤과 결구의 미학
+              <HugeiconsIcon icon={Layers01Icon} size={14} /> {t('assemblyTopic')}
             </SectionLabel>
             <CardDesc>
-              기단부터 지붕까지 한 켜씩 세워 보세요.
+              {t('assemblyDesc1')}
               <br />
-              사개맞춤과 장부맞춤으로 서로를 꽉 물어주어 지진과 비바람에도 흔들리지 않는 전통 목조 결구의 정수를 경험합니다.
+              {t('assemblyDesc2')}
             </CardDesc>
 
             <MoreLink $color={lightPalette.juhong[700]}>
-              <span>3D로 보기</span>
+              <span>{t('view3D')}</span>
               <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} />
             </MoreLink>
           </CardBody>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import { palette, meok, ringShadow } from '@/design-system/tokens';
@@ -87,6 +88,8 @@ const ThemePillButton = styled.button<{ $selected: boolean }>`
 
 
 export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = () => {
+  const tCategory = useTranslations('sorimaru.category');
+  const tData = useTranslations('sorimaru.categoryData');
   const selectedCategory = useSorimaruAudioStore((s) => s.selectedCategory);
   const setSelectedCategory = useSorimaruAudioStore((s) => s.setSelectedCategory);
   const setSearchQuery = useSorimaruAudioStore((s) => s.setSearchQuery);
@@ -94,7 +97,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = () => {
   return (
     <FilterContainer>
       {}
-      <ScrollRail as="nav" aria-label="오디오 이야기 주제">
+      <ScrollRail as="nav" aria-label={tCategory('navLabel')}>
         <ThemePillButton
           type="button"
           onClick={() => {
@@ -103,10 +106,14 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = () => {
           }}
           $selected={selectedCategory === '전체'}
         >
-          전체 보기
+          {tCategory('allLabel')}
         </ThemePillButton>
         {SORIMARU_THEME_CATEGORIES.map((theme) => {
           const isSelected = selectedCategory === theme.apiCategory;
+          const labelKey = `${theme.id}Label`;
+          const descKey = `${theme.id}Desc`;
+          const label = (tData as any).has(labelKey) ? tData(labelKey as any) : theme.label;
+          const desc = (tData as any).has(descKey) ? tData(descKey as any) : theme.description;
           return (
             <ThemePillButton
               key={theme.id}
@@ -115,10 +122,10 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = () => {
                 setSelectedCategory(theme.apiCategory);
                 setSearchQuery('');
               }}
-              title={theme.description}
+              title={desc}
               $selected={isSelected}
             >
-              {theme.label}
+              {label}
             </ThemePillButton>
           );
         })}

@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PlayIcon, MapPinIcon, Layers01Icon, GridViewIcon } from '@hugeicons/core-free-icons'
@@ -125,8 +126,9 @@ const SkeletonGrid = styled.div`
 `;
 
 function ArchiveSkeleton() {
+  const t = useTranslations('sorimaru.archive');
   return (
-    <SkeletonGrid aria-busy="true" aria-label="이야기를 불러오는 중이에요">
+    <SkeletonGrid aria-busy="true" aria-label={t('skeletonLabel')}>
       {Array.from({ length: 6 }, (_, index) => (
         <div
           key={index}
@@ -384,6 +386,7 @@ interface StoryRowProps {
 }
 
 function StoryRow({ story, index }: StoryRowProps) {
+  const t = useTranslations('sorimaru.archive');
   const currentStory = useSorimaruAudioStore((state) => state.currentStory);
   const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
   const selectAndLoadStory = useSorimaruAudioStore((state) => state.selectAndLoadStory);
@@ -418,7 +421,7 @@ function StoryRow({ story, index }: StoryRowProps) {
           <PlayIconBtn
             type="button"
             onClick={togglePlayback}
-            aria-label={`${story.title} ${isThisPlaying ? '일시정지' : '재생'}`}
+            aria-label={`${story.title} ${isThisPlaying ? t('pause') : t('play')}`}
           >
             {isThisPlaying ? (
               <span style={{ display: 'flex', height: 12, alignItems: 'flex-end', gap: 2 }} aria-hidden="true">
@@ -544,6 +547,7 @@ const PlaceCountBadge = styled.span`
 `;
 
 function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; startIndex: number }) {
+  const t = useTranslations('sorimaru.archive');
   return (
     <PlaceGroupContainer>
       <PlaceGroupHeader>
@@ -551,7 +555,7 @@ function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; star
           <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2.2} color={palette.cheongrok[500]} style={{ flexShrink: 0 }} />
           <PlaceGroupTitle>{group.label}</PlaceGroupTitle>
         </PlaceHeaderLeft>
-        <PlaceCountBadge>{group.stories.length}개의 소리</PlaceCountBadge>
+        <PlaceCountBadge>{t('placeCount', { count: group.stories.length })}</PlaceCountBadge>
       </PlaceGroupHeader>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {group.stories.map((story, index) => (
@@ -609,6 +613,7 @@ const ViewSegmentBtn = styled.button<{ $active: boolean }>`
 `;
 
 export function SorimaruArchiveBrowse({ stories, isLoading, error = null, onRetry }: SorimaruArchiveBrowseProps) {
+  const t = useTranslations('sorimaru.archive');
   const [view, setView] = useState<ArchiveView>('stories');
   const groups = useMemo(() => groupSorimaruStoriesByPlace(stories), [stories]);
 
@@ -623,7 +628,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading, error = null, onRetr
           justifyContent: 'space-between',
         }}
       >
-        <ViewSegmentControl role="tablist" aria-label="아카이브 표시 방식">
+        <ViewSegmentControl role="tablist" aria-label={t('viewTabsLabel')}>
           <ViewSegmentBtn
             type="button"
             role="tab"
@@ -632,7 +637,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading, error = null, onRetr
             $active={view === 'stories'}
           >
             <HugeiconsIcon icon={GridViewIcon} size={13} />
-            이야기별
+            {t('viewStories')}
           </ViewSegmentBtn>
           <ViewSegmentBtn
             type="button"
@@ -642,13 +647,13 @@ export function SorimaruArchiveBrowse({ stories, isLoading, error = null, onRetr
             $active={view === 'places'}
           >
             <HugeiconsIcon icon={Layers01Icon} size={13} />
-            장소별
+            {t('viewPlaces')}
           </ViewSegmentBtn>
         </ViewSegmentControl>
 
         {view === 'places' && (
           <span style={{ fontSize: typographyRole.caption.fontSize, fontWeight: 500, color: meok[500] }}>
-            현재 결과 기준
+            {t('currentResults')}
           </span>
         )}
       </div>
@@ -660,8 +665,8 @@ export function SorimaruArchiveBrowse({ stories, isLoading, error = null, onRetr
       ) : stories.length === 0 ? (
         <OniSearchEmpty
           size="md"
-          title="조건에 맞는 이야기가 아직 없어요"
-          description="다른 카테고리를 선택하거나 검색어를 변경해 보세요."
+          title={t('emptyTitle')}
+          description={t('emptyDesc')}
         />
       ) : view === 'stories' ? (
         <div

@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, ChevronDownIcon, RotateCcwIcon, Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons'
@@ -393,6 +394,20 @@ export default function FilterBar({
   onBadgeToggle,
   onResetBadges,
 }: FilterBarProps) {
+  const tFilter = useTranslations('hanok.filter');
+  const tCommon = useTranslations('hanok.common');
+  const tLabels = useTranslations('hanok.filterLabels');
+  const tRegion = useTranslations('hanok.regionDisplay');
+
+  const getRegionName = (r: string) => {
+    if (r === '전체') return tCommon('regionAllDisplay');
+    return (tRegion as any).has(r) ? tRegion(r as any) : r;
+  };
+
+  const getTypeLabel = (t: string) => {
+    return (tLabels as any).has(t) ? tLabels(t as any) : filterLabel(t);
+  };
+
   const MAJOR_BADGES = useMemo(
     () => [
       '세계유산',
@@ -473,11 +488,11 @@ export default function FilterBar({
             type="search"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="한옥 이름이나 지역을 검색해 보세요 (예: 북촌, 안동)"
-            aria-label="한옥 검색"
+            placeholder={tFilter('searchPlaceholder')}
+            aria-label={tFilter('searchAriaLabel')}
           />
           {query && (
-            <ClearButton type="button" onClick={() => onQueryChange('')} aria-label="검색어 지우기">
+            <ClearButton type="button" onClick={() => onQueryChange('')} aria-label={tFilter('clearSearch')}>
               <HugeiconsIcon icon={Cancel01Icon} size={13} strokeWidth={2.5} />
             </ClearButton>
           )}
@@ -485,7 +500,7 @@ export default function FilterBar({
 
         <RegionSelectControl data-testid="region-select-control">
           <RegionSelectValue aria-hidden="true">
-            {region === '전체' ? '전국' : region}
+            {getRegionName(region)}
           </RegionSelectValue>
           <RegionSelectChevron data-testid="region-select-chevron" aria-hidden="true">
             <HugeiconsIcon icon={ChevronDownIcon} size={16} strokeWidth={2} />
@@ -493,12 +508,12 @@ export default function FilterBar({
           <RegionSelect
             value={region}
             onChange={(e) => onRegionChange(e.target.value)}
-            aria-label="지역 선택"
+            aria-label={tFilter('regionSelectAriaLabel')}
           >
-            <option value="전체">전국</option>
+            <option value="전체">{tCommon('regionAllDisplay')}</option>
             {regions.map((r) => (
               <option key={r} value={r}>
-                {r}
+                {getRegionName(r)}
               </option>
             ))}
           </RegionSelect>
@@ -509,7 +524,7 @@ export default function FilterBar({
       {availableTypes.length >= MIN_TYPES_TO_SHOW + 1 && (
       <SegmentScrollWrapper>
         <SegmentScrollContainer>
-          <SegmentControl role="group" aria-label="한옥 유형 선택">
+          <SegmentControl role="group" aria-label={tFilter('typeSelectAriaLabel')}>
             {availableTypes.map((t) => {
               const isActive = activeType === t;
               return (
@@ -525,7 +540,7 @@ export default function FilterBar({
                       transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                     />
                   )}
-                  <SegmentLabel>{filterLabel(t)}</SegmentLabel>
+                  <SegmentLabel>{getTypeLabel(t)}</SegmentLabel>
                 </Segment>
               );
             })}
@@ -544,6 +559,7 @@ export default function FilterBar({
           <BadgeList>
             {allBadges.map((b) => {
               const isActive = activeBadges.includes(b);
+              const label = getTypeLabel(b);
               return (
                 <BadgeChip
                   key={b}
@@ -551,9 +567,9 @@ export default function FilterBar({
                   $variant={getBadgeVariant(b)}
                   onClick={() => onBadgeToggle(b)}
                   aria-pressed={isActive}
-                  aria-label={`${filterLabel(b)} ${badgeCounts.get(b)}곳`}
+                  aria-label={tFilter('badgeAriaLabel', { label, count: badgeCounts.get(b) ?? 0 })}
                 >
-                  #{filterLabel(b)}
+                  #{label}
                   <BadgeCount>{badgeCounts.get(b)}</BadgeCount>
                 </BadgeChip>
               );
@@ -561,7 +577,7 @@ export default function FilterBar({
           </BadgeList>
           {activeBadges.length > 0 && (
             <ResetBtn onClick={onResetBadges || (() => activeBadges.forEach((b) => onBadgeToggle(b)))}>
-              <HugeiconsIcon icon={RotateCcwIcon} size={12} strokeWidth={2} /> 선택 초기화
+              <HugeiconsIcon icon={RotateCcwIcon} size={12} strokeWidth={2} /> {tFilter('resetBadges')}
             </ResetBtn>
           )}
         </BadgeContainer>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -132,6 +133,7 @@ const CtaButton = styled(Link, {
 `;
 
 export default function HanokManifestoCta() {
+  const t = useTranslations('hanok.manifesto');
   const shouldReduceMotion = useReducedMotion();
 
   // 하이드레이션 불일치 없이 페이지 진입 시마다 4개 테마 중 1개를 랜덤 선택
@@ -217,7 +219,7 @@ export default function HanokManifestoCta() {
   };
 
   return (
-    <Section id="cta" aria-label="온마루 한옥 매니페스토">
+    <Section id="cta" aria-label={t('sectionAriaLabel')}>
       <Container>
 
         <ManifestoParagraph
@@ -257,10 +259,10 @@ export default function HanokManifestoCta() {
           variants={buttonVariants}
         >
           <CtaButton href="/map" $primary>
-            전국 지도 보기 <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
+            {t('viewMap')} <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
           </CtaButton>
           <CtaButton href="#hanok-stays">
-            한옥 스테이 둘러보기 <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
+            {t('browseStays')} <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
           </CtaButton>
         </ButtonRow>
       </Container>
