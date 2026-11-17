@@ -35,9 +35,8 @@ describe('map localization', () => {
   it('localizes the editorial discovery landmark', () => {
     render(
       <InfoMapEditorialFeed
-        category="hanok"
-        regionCode={null}
         items={[]}
+        onPlaceSelect={vi.fn()}
       />,
     );
 

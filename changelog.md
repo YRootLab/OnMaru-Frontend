@@ -4,6 +4,18 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased]
 
+## [v0.1.25] - 2026-11-15
+
+- AI 여정 요청 시 Idempotency-Key UUID v4 규격 적용:
+  - 여정 생성 요청(`POST /api/v1/explorations`), 턴 추가(`POST /api/v1/explorations/{id}/turns`), 관리자 API 등에서 전송하는 `Idempotency-Key` 헤더를 RFC 4122 v4 UUID(8-4-4-4-12) 형식으로 표준화.
+  - 백엔드 `400 VALIDATION_ERROR` ('Idempotency-Key must be a UUID') 오류로 인해 여정 AI 생성이 중단되던 문제 해결.
+  - `clientTurnId` 역시 UUID 형식으로 일원화.
+- Added Korean living-culture paths from the Hanok map home into stay, food, hands-on experience, and traditional-market exploration.
+- Limited the Hanok Culture Walk panel to places identified as Hanok and removed duplicate English copy from the panel.
+- Refined the map cultural-discovery panel into a compact editorial section with vertically ordered places and accessible interaction states.
+- 지도마루 정보 모드의 전국 한옥 홈에 문화 발견 패널을 추가했다. 지역과 한옥 생활문화를 소개한 뒤 실제 장소 선택으로 이어지고, 한옥마루의 심화 콘텐츠로 이동할 수 있다.
+- 한국어 문화 맥락과 영어 보조 해설을 함께 제공해 해외 방문자도 장소를 문화적 맥락에서 탐색할 수 있게 했다.
+
 ## [v0.1.24] - 2026-11-09
 
 - 모바일 좌우 여백을 16px로 통일:

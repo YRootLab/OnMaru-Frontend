@@ -4,11 +4,9 @@
  */
 
 import { apiRequest, USE_MOCK } from '@/lib/api/client';
+import { generateUUID } from '@/lib/uuid';
 
-function newIdempotencyKey(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
+const newIdempotencyKey = generateUUID;
 import {
   mockDashboardStats,
   mockRecentReviews,

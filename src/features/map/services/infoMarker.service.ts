@@ -18,6 +18,11 @@ export function mapInfoCategoryToPlaceCategory(category?: string): PlaceCategory
   return 'spot';
 }
 
+function isHanokInfoCategory(category?: string): boolean {
+  const normalized = category?.toUpperCase() ?? '';
+  return normalized.includes('HANOK') || category?.includes('한옥') === true;
+}
+
 export function mapInfoPlaceToItem(place: InfoPlaceItem): Item {
   return {
     id: place.placeId,
@@ -29,6 +34,7 @@ export function mapInfoPlaceToItem(place: InfoPlaceItem): Item {
     image: place.thumbnailUrl,
     tel: null,
     dist: null,
+    isTraditional: isHanokInfoCategory(place.category),
     savedByMe: place.savedByMe,
   };
 }

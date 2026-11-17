@@ -1,34 +1,182 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
+import type { CulturalCollection, CulturalCollectionPath } from '@/features/map/domain/culturalCollection';
 import type { Item } from '@/features/map/types';
 
 const Section = styled.section`
-  margin: 12px 14px 20px;
-  padding: 18px;
-  border-radius: 16px;
-  background: #f5f5f4;
+  margin: 16px 14px 20px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid #e5e5e3;
 `;
-const Eyebrow = styled.p`margin: 0; color: #596873; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;`;
-const Title = styled.h2`margin: 7px 0 0; font-size: 1.1rem;`;
-const Subtitle = styled.p`margin: 8px 0 0; color: #525252; line-height: 1.5;`;
-const EnglishContext = styled.p`margin: 6px 0 14px; color: #737373; font-size: 0.78rem; line-height: 1.5;`;
-const Places = styled.div`display: flex; gap: 8px; overflow-x: auto;`;
-const PlaceButton = styled.button`min-width: 132px; min-height: 44px; border: 0; border-radius: 10px; background: #fff; text-align: left; padding: 10px; cursor: pointer;`;
-const HanokLink = styled.a`display: inline-flex; align-items: center; min-height: 44px; margin-top: 12px; border-radius: 999px; background: #1f2937; color: #fff; padding: 0 14px; font-size: 0.86rem; font-weight: 700; text-decoration: none;`;
+
+const Title = styled.h2`
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.0625rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.4;
+`;
+
+const Subtitle = styled.p`
+  margin: 7px 0 14px;
+  color: #656565;
+  font-size: 0.875rem;
+  line-height: 1.55;
+`;
+
+const Paths = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 14px;
+`;
+
+const PathButton = styled.button`
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #e5e5e3;
+  border-radius: 9px;
+  background: #f8f8f7;
+  color: #475569;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #b8b8b4;
+    background: #fff;
+    color: #1f2937;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #475569;
+    outline-offset: 2px;
+  }
+`;
+
+const Places = styled.div`
+  display: grid;
+  gap: 6px;
+`;
+
+const PlaceButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 12px 11px 14px;
+  border: 1px solid #e5e5e3;
+  border-radius: 12px;
+  background: #fff;
+  color: #303030;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-align: left;
+  transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+  cursor: pointer;
+
+  &::after {
+    color: #8a8a88;
+    content: '↗';
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  &:hover {
+    border-color: #b8b8b4;
+    background: #f8f8f7;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #475569;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+`;
+
+const HanokLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 5px;
+  color: #64748b;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-decoration: underline;
+  text-decoration-color: #94a3b8;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+
+  &::after {
+    content: '\\2197';
+    font-size: 0.95rem;
+    transition: transform 150ms ease;
+  }
+
+  &:hover {
+    color: #1f2937;
+    text-decoration-color: currentColor;
+  }
+
+  &:hover::after {
+    transform: translateX(2px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #475569;
+    outline-offset: 3px;
+  }
+`;
 
 interface Props {
+  collection: CulturalCollection;
   places: Item[];
+  loading: boolean;
   onPlaceSelect: (place: Item) => void;
+  onPathSelect: (path: CulturalCollectionPath) => void;
 }
 
-export default function CulturalDiscoveryCollection({ places, onPlaceSelect }: Props) {
-  return <Section aria-label="한옥 문화 발견">
-    <Eyebrow>HANOK CULTURE WALK</Eyebrow>
-    <Title>동네에서 만나는 한옥 문화</Title>
-    <Subtitle>한옥 공간이 오늘의 동네와 어떻게 이어지는지 발견해 보세요.</Subtitle>
-    <EnglishContext lang="en">Discover how living Hanok culture connects places, people, and everyday neighborhoods.</EnglishContext>
-    <Places>{places.slice(0, 3).map((place) => <PlaceButton key={place.id} type="button" aria-label={place.name} onClick={() => onPlaceSelect(place)}>{place.name}</PlaceButton>)}</Places>
-    <HanokLink href="/hanok">한옥 문화 더 알아보기</HanokLink>
-  </Section>;
+export default function CulturalDiscoveryCollection({ collection, places, loading, onPlaceSelect, onPathSelect }: Props) {
+  const t = useTranslations('map.editorial');
+  const referenced = collection.placeRefs.length === 0
+    ? places.filter((place) => place.isTraditional)
+    : places.filter((place) => collection.placeRefs.some((ref) => ref.placeId === place.id));
+
+  return (
+    <Section aria-busy={loading} aria-label={t('ariaLabel')}>
+      <HanokLink href="/hanok">HANOK CULTURE WALK</HanokLink>
+      <Title>{collection.title.ko}</Title>
+      <Subtitle>{collection.subtitle.ko}</Subtitle>
+      {collection.paths && collection.paths.length > 0 && (
+        <Paths aria-label="한국 생활문화 탐색">
+          {collection.paths.map((path) => (
+            <PathButton key={path.id} type="button" onClick={() => onPathSelect(path)}>
+              {path.label}
+            </PathButton>
+          ))}
+        </Paths>
+      )}
+      <Places>
+        {referenced.map((place) => (
+          <PlaceButton key={place.id} type="button" aria-label={place.name} onClick={() => onPlaceSelect(place)}>
+            {place.name}
+          </PlaceButton>
+        ))}
+      </Places>
+    </Section>
+  );
 }
