@@ -9,6 +9,10 @@ const { listInfoPlaces } = vi.hoisted(() => ({ listInfoPlaces: vi.fn() }));
 
 vi.mock('../services/infoMap.service', () => ({ listInfoPlaces }));
 
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 vi.mock('./PlaceListItem', () => ({
   PlaceListItem: ({ item }: { item: { name: string } }) => <li>{item.name}</li>,
 }));
