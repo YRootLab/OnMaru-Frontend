@@ -43,8 +43,10 @@ export function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Bypass locale routing for admin and api routes
-  const isExcluded = pathname.startsWith('/api') || pathname.startsWith('/admin') || pathname.startsWith('/_next');
+  // Public assets (for example `/anchae.glb`) must retain their root URL;
+  // locale-rewriting them turns model and media requests into 404s.
+  const isPublicAsset = /\/[^/]+\.[^/]+$/.test(pathname);
+  const isExcluded = pathname.startsWith('/api') || pathname.startsWith('/admin') || pathname.startsWith('/_next') || isPublicAsset;
 
   const reqHeaders = new Headers(request.headers);
   reqHeaders.set('x-nonce', nonce);
