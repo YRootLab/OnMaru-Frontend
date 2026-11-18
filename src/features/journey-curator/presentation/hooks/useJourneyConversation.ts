@@ -61,7 +61,9 @@ export function useJourneyConversation(
   const activeIdRef = useRef(activeExplorationId);
   const acceptedRef = useRef<RunAccepted | null>(null);
   const latestSequenceRef = useRef(0);
-  const recoveringRef = useRef(false);
+  const recoveringRunIdsRef = useRef(new Set<string>());
+  const selectionVersionRef = useRef(0);
+  const requestInFlightRef = useRef(false);
 
   const closeStream = useCallback(() => {
     unsubscribeRef.current?.();
@@ -80,6 +82,7 @@ export function useJourneyConversation(
       ...current,
       activeExplorationId: explorationId,
       loading: !options?.preserveTurns,
+      loadingOlder: false,
       error: null,
     }));
 
@@ -115,8 +118,8 @@ export function useJourneyConversation(
   }, [repository]);
 
   const recoverAcceptedRun = useCallback(async (accepted: RunAccepted) => {
-    if (recoveringRef.current) return;
-    recoveringRef.current = true;
+    if (recoveringRunIdsRef.current.has(accepted.runId)) return;
+    recoveringRunIdsRef.current.add(accepted.runId);
     closeStream();
 
     try {
@@ -173,33 +176,43 @@ export function useJourneyConversation(
         setState((current) => ({ ...current, error: '여정 상태를 복구하지 못했어요. 잠시 후 다시 시도해 주세요.' }));
       }
     } finally {
-      recoveringRef.current = false;
+      recoveringRunIdsRef.current.delete(accepted.runId);
     }
   }, [closeStream, loadConversation, refreshSidebar, repository]);
 
   const beginRun = useCallback(async (accepted: RunAccepted) => {
     acceptedRef.current = accepted;
+    if (activeIdRef.current !== accepted.explorationId) selectionVersionRef.current += 1;
     activeIdRef.current = accepted.explorationId;
     setState((current) => ({ ...current, activeExplorationId: accepted.explorationId }));
     await recoverAcceptedRun(accepted);
   }, [recoverAcceptedRun]);
 
-  const startConversation = useCallback(async (query: string) => {
+  const startConversation = useCallback(async (query: string): Promise<string | null> => {
     const trimmed = query.trim();
-    if (!trimmed) return;
+    if (!trimmed || requestInFlightRef.current) return null;
+    const selectionVersion = selectionVersionRef.current;
+    requestInFlightRef.current = true;
     setState((current) => ({ ...current, pendingQuery: trimmed, error: null }));
     try {
       const accepted = await repository.createExploration({ query: trimmed, idempotencyKey: createUuid() });
+      if (selectionVersion !== selectionVersionRef.current) return null;
       await beginRun(accepted);
+      return accepted.explorationId;
     } catch {
-      setState((current) => ({ ...current, pendingQuery: null, error: '여정을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.' }));
+      if (selectionVersion === selectionVersionRef.current) setState((current) => ({ ...current, pendingQuery: null, error: '여정을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.' }));
+      return null;
+    } finally {
+      requestInFlightRef.current = false;
     }
   }, [beginRun, repository]);
 
-  const sendTurn = useCallback(async (query: string) => {
+  const sendTurn = useCallback(async (query: string, clarificationAnswer?: { clarificationId: string; choiceId: string | null; text: string | null }) => {
     const trimmed = query.trim();
     const snapshot = state.snapshot;
-    if (!trimmed || !snapshot || isActiveRun(snapshot.latestRun)) return;
+    if (!trimmed || !snapshot || isActiveRun(snapshot.latestRun) || requestInFlightRef.current) return;
+    const selectionVersion = selectionVersionRef.current;
+    requestInFlightRef.current = true;
     setState((current) => ({ ...current, pendingQuery: trimmed, error: null }));
     try {
       const accepted = await repository.createTurn({
@@ -207,20 +220,25 @@ export function useJourneyConversation(
         query: trimmed,
         baseVersion: snapshot.stateVersion,
         clientTurnId: createUuid(),
+        clarificationAnswer,
         idempotencyKey: createUuid(),
       });
-      await beginRun(accepted);
+      if (selectionVersion === selectionVersionRef.current) await beginRun(accepted);
     } catch {
-      setState((current) => ({ ...current, pendingQuery: null, error: '질문을 보내지 못했어요. 잠시 후 다시 시도해 주세요.' }));
+      if (selectionVersion === selectionVersionRef.current) setState((current) => ({ ...current, pendingQuery: null, error: '질문을 보내지 못했어요. 잠시 후 다시 시도해 주세요.' }));
+    } finally {
+      requestInFlightRef.current = false;
     }
   }, [beginRun, repository, state.snapshot]);
 
   const loadOlderTurns = useCallback(async () => {
     const explorationId = state.activeExplorationId;
     if (!explorationId || state.loadingOlder || !state.hasOlderTurns) return;
+    const version = loadVersionRef.current;
     setState((current) => ({ ...current, loadingOlder: true }));
     try {
       const page = await repository.listTurns({ explorationId, limit: 20, cursor: state.olderCursor ?? undefined });
+      if (version !== loadVersionRef.current || activeIdRef.current !== explorationId) return;
       setState((current) => ({
         ...current,
         turns: [...page.items].reverse().concat(current.turns),
@@ -229,6 +247,7 @@ export function useJourneyConversation(
         loadingOlder: false,
       }));
     } catch {
+      if (version !== loadVersionRef.current || activeIdRef.current !== explorationId) return;
       setState((current) => ({ ...current, loadingOlder: false, error: '이전 대화를 불러오지 못했어요.' }));
     }
   }, [repository, state.activeExplorationId, state.hasOlderTurns, state.loadingOlder]);
@@ -246,6 +265,10 @@ export function useJourneyConversation(
     }
   }, [loadConversation, recoverAcceptedRun, repository, state.snapshot]);
 
+  const recoverCurrentRun = useCallback(async () => {
+    if (acceptedRef.current) await recoverAcceptedRun(acceptedRef.current);
+  }, [recoverAcceptedRun]);
+
   useEffect(() => {
     void refreshSidebar().catch(() => {
       setState((current) => ({ ...current, loading: false, error: '대화 목록을 불러오지 못했어요.' }));
@@ -254,6 +277,7 @@ export function useJourneyConversation(
 
   useEffect(() => {
     if (activeExplorationId && activeExplorationId === activeIdRef.current) return;
+    selectionVersionRef.current += 1;
     closeStream();
     acceptedRef.current = null;
     if (!activeExplorationId) {
@@ -265,6 +289,12 @@ export function useJourneyConversation(
     return closeStream;
   }, [activeExplorationId, closeStream, loadConversation]);
 
+  useEffect(() => {
+    const accepted = acceptedRef.current;
+    const run = state.snapshot?.latestRun;
+    if (accepted && run && isActiveRun(run) && accepted.explorationId === state.activeExplorationId && accepted.runId === run.runId) void recoverAcceptedRun(accepted);
+  }, [recoverAcceptedRun, state.activeExplorationId, state.snapshot?.latestRun?.runId, state.snapshot?.latestRun?.status]);
+
   useEffect(() => () => closeStream(), [closeStream]);
 
   return {
@@ -274,6 +304,7 @@ export function useJourneyConversation(
     sendTurn,
     loadOlderTurns,
     cancelRun,
+    recoverCurrentRun,
     refreshSidebar,
   };
 }

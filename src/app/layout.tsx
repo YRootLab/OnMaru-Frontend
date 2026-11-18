@@ -12,6 +12,8 @@ import PageContainer from '@/shared/components/Layout/PageContainer'
 // import { HanokPresenceOverlay } from '@/features/realtime-presence/presentation/components/HanokPresenceOverlay'
 // import { ROOM_ID_HANOK_ARCHIVE } from '@/features/realtime-presence/domain/presence.rooms'
 
+import { ThemeModeScript } from './ThemeModeScript'
+
 export const viewport: Viewport = {
   viewportFit: 'cover',
 }
@@ -32,15 +34,8 @@ export default async function RootLayout({
   const nonce = (await headers()).get('x-nonce') ?? '';
   return (
     <html lang="ko" suppressHydrationWarning>
-      <body>
-        <script
-          id="theme-mode-init"
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('onmaru-color-mode');var h=new Date().getHours();var t=h>=7&&h<19?'light':'dark';var m=(s==='dark'||s==='light')?s:t;document.documentElement.setAttribute('data-theme',m);}catch(e){}})();`,
-          }}
-          suppressHydrationWarning
-        />
+      <body suppressHydrationWarning>
+        <ThemeModeScript nonce={nonce} />
         {/* Google Tag Manager */}
         <Script
           id="google-tag-manager"

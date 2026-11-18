@@ -1,4 +1,4 @@
-import { apiRequest, type ApiRequestOptions, USE_MOCK } from '@/lib/api/client';
+import { apiRequest, getApiRootBaseUrl, type ApiRequestOptions, USE_MOCK } from '@/lib/api/client';
 import type { BentoJourneyPlan } from '../types/journey.types';
 import { JOURNEY_PLANS } from '../data/curatedJourneys';
 import type { JourneyRunSnapshot, JourneySchemaVersion, JourneySseFrame } from './journeyContract';
@@ -57,6 +57,11 @@ export type ApplyActionInput = {
 
 
 export type JourneyEventSourceFactory = (url: string) => EventSource;
+
+export function resolveJourneyEventsUrl(eventsUrl: string, apiRoot = getApiRootBaseUrl()): string {
+  if (/^[a-z][a-z\d+.-]*:/i.test(eventsUrl) || eventsUrl.startsWith('//') || !apiRoot) return eventsUrl;
+  return `${apiRoot.replace(/\/+$/, '')}/${eventsUrl.replace(/^\/+/, '')}`;
+}
 
 export type JourneyRepository = {
   start(input: StartJourneyInput): Promise<RunAccepted>;
@@ -152,7 +157,7 @@ export function createJourneyRepository(request: RequestFn = apiRequest): Journe
     },
     subscribeToRunEvents(eventsUrl, onEvent, options) {
       const createEventSource = options?.createEventSource ?? ((u) => new EventSource(u, { withCredentials: true }));
-      const source = createEventSource(eventsUrl);
+      const source = createEventSource(resolveJourneyEventsUrl(eventsUrl));
 
       const eventNames = ['run.stage', 'run.terminal', 'heartbeat', 'reset', 'auth_closed'] as const;
       const listeners = eventNames.map((eventName) => {
