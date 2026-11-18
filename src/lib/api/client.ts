@@ -215,7 +215,7 @@ async function request<T>(
 
     const handlerKey = `${method} ${normalizedPath.split('?')[0]}`;
     const handler = mockHandlers.get(handlerKey) || mockHandlers.get(normalizedPath.split('?')[0]);
-    if (handler) {
+    if (typeof handler === 'function') {
       return handler(params, body);
     }
 
