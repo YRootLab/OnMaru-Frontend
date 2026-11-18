@@ -41,7 +41,7 @@ export function middleware(request: NextRequest) {
     "upgrade-insecure-requests",
   ].join('; ');
 
-  const { pathname, search } = request.nextUrl;
+  const { pathname } = request.nextUrl;
 
   // Bypass locale routing for admin and api routes
   const isExcluded = pathname.startsWith('/api') || pathname.startsWith('/admin') || pathname.startsWith('/_next');
