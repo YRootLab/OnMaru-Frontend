@@ -3,6 +3,8 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
 import type { SorimaruStoryPage } from '../domain/sorimaruStory';
 import { useSorimaruAudioStore } from '../store/useSorimaruAudioStore';
@@ -79,6 +81,14 @@ const repository = (pages: SorimaruStoryPage[] = []): SorimaruRepository => ({
   getRecommendations: vi.fn(),
 });
 
+function renderWithIntl(ui: React.ReactNode) {
+  return render(
+    <NextIntlClientProvider locale="ko" messages={koMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
+
 describe('SorimaruAudioFeature archive count', () => {
   it('replaces the current archive cards with skeletons while the next page is loading', async () => {
     let resolveNextPage!: (page: SorimaruStoryPage) => void;
@@ -88,7 +98,7 @@ describe('SorimaruAudioFeature archive count', () => {
     const api = repository();
     vi.mocked(api.listStories).mockReset().mockReturnValue(nextPagePromise);
 
-    render(<SorimaruAudioFeature apiService={api} initialPage={initialPage} />);
+    renderWithIntl(<SorimaruAudioFeature apiService={api} initialPage={initialPage} />);
     expect((await screen.findByTestId('archive-loading-state')).textContent).toBe('loaded');
 
     fireEvent.click(screen.getByRole('button', { name: '다음 페이지' }));
@@ -111,7 +121,7 @@ describe('SorimaruAudioFeature archive count', () => {
     };
     const api = repository([nextPage]);
 
-    render(<SorimaruAudioFeature apiService={api} initialPage={initialPage} />);
+    renderWithIntl(<SorimaruAudioFeature apiService={api} initialPage={initialPage} />);
     fireEvent.click(screen.getByRole('button', { name: '다음 페이지' }));
     await screen.findByText('2 / 1184');
 
@@ -120,7 +130,7 @@ describe('SorimaruAudioFeature archive count', () => {
   });
 
   it('shows the filtered backend total instead of the current page length', async () => {
-    render(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
+    renderWithIntl(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
 
     expect(await screen.findByText('23,675개')).toBeTruthy();
     expect(screen.getByText('1 / 1184')).toBeTruthy();
@@ -136,7 +146,7 @@ describe('SorimaruAudioFeature archive count', () => {
     ['자연과 숲길', 'NATURE_TRAILS'],
   ])('requests %s with the fixed backend code %s', async (label, category) => {
     const api = repository([{ ...initialPage, totalCount: 42 }]);
-    render(<SorimaruAudioFeature apiService={api} initialPage={initialPage} />);
+    renderWithIntl(<SorimaruAudioFeature apiService={api} initialPage={initialPage} />);
 
     expect(await screen.findByText('23,675개')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: label }));
@@ -148,14 +158,14 @@ describe('SorimaruAudioFeature archive count', () => {
   });
 
   it('does not render region chips in the theme tab list', async () => {
-    render(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
+    renderWithIntl(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
 
     expect(await screen.findByText('23,675개')).toBeTruthy();
     expect(screen.queryByRole('button', { name: '경주' })).toBeNull();
   });
 
   it('shows the filtered current-page count while a keyword search is active', async () => {
-    render(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
+    renderWithIntl(<SorimaruAudioFeature apiService={repository()} initialPage={initialPage} />);
     expect(await screen.findByText('23,675개')).toBeTruthy();
 
     act(() => useSorimaruAudioStore.getState().setSearchQuery('첫'));

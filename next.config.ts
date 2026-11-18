@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 import path from "path";
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
 function resolveKakaoMapKey(env: Record<string, string | undefined>): string | undefined {
   const key = env.NEXT_PUBLIC_KAKAO_MAP_KEY?.trim() || env.KAKAO_MAP_KEY?.trim();
   return key || undefined;
@@ -44,4 +48,5 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
+

@@ -3,6 +3,8 @@
 import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import { SorimaruRequestErrorState } from './SorimaruRequestErrorState';
 
 afterEach(cleanup);
@@ -10,7 +12,11 @@ afterEach(cleanup);
 describe('SorimaruRequestErrorState', () => {
   it('shows calm server guidance and delegates retry', () => {
     const onRetry = vi.fn();
-    const { container } = render(<SorimaruRequestErrorState onRetry={onRetry} />);
+    const { container } = render(
+      <NextIntlClientProvider locale="ko" messages={koMessages}>
+        <SorimaruRequestErrorState onRetry={onRetry} />
+      </NextIntlClientProvider>,
+    );
 
     expect(screen.getByText('잠시 연결이 불안정해요')).toBeTruthy();
     expect(screen.getByText('이야기를 불러오는 데 시간이 걸리고 있어요. 잠시 후 다시 시도해 주세요.')).toBeTruthy();

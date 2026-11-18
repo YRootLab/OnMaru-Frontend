@@ -8,6 +8,17 @@ import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sori
 import { SorimaruDependencyProvider } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
 import { SorimaruEditorialRail } from './SorimaruEditorialRail';
 
+vi.mock('next-intl', () => ({
+  useTranslations: (ns: string) => (key: string) => {
+    const map: Record<string, string> = {
+      'sorimaru.error:title': '잠시 연결이 불안정해요',
+      'sorimaru.error:description': '네트워크 상태를 확인하고 다시 시도해 주세요.',
+      'sorimaru.error:retry': '다시 시도',
+    };
+    return map[`${ns}:${key}`] ?? key;
+  },
+}));
+
 vi.mock('gsap', () => ({
   default: {
     set: vi.fn(),

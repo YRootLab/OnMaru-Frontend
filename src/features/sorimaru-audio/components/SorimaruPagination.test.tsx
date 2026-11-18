@@ -3,13 +3,23 @@
 import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { NextIntlClientProvider } from 'next-intl';
+import koMessages from '../../../../messages/ko.json';
 import { SorimaruPagination } from './SorimaruPagination';
 
 afterEach(cleanup);
 
+function renderPagination(ui: React.ReactNode) {
+  return render(
+    <NextIntlClientProvider locale="ko" messages={koMessages}>
+      {ui}
+    </NextIntlClientProvider>,
+  );
+}
+
 describe('SorimaruPagination', () => {
   it('shows a stable current and total page count without speculative page buttons', () => {
-    render(
+    renderPagination(
       <SorimaruPagination
         currentPage={1}
         totalPages={184}
@@ -23,7 +33,7 @@ describe('SorimaruPagination', () => {
 
   it('moves only through the cursor-compatible previous and next controls', () => {
     const onPageChange = vi.fn();
-    render(
+    renderPagination(
       <SorimaruPagination
         currentPage={4}
         totalPages={184}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { useMapStore } from '../hooks/useMapStore';
 import { distanceInMeters } from '../utils/geo';
 
@@ -58,6 +59,7 @@ function buildNaviLinks(ordered: JourneyPlace[]): { app: string; web: string } {
 }
 
 export default function JourneyOverlay() {
+  const t = useTranslations('map.journey');
   const map = useMapStore((s) => s.map);
   const journeyPlaces = useMapStore((s) => s.journeyPlaces);
   const userLocation = useMapStore((s) => s.userLocation);
@@ -130,7 +132,7 @@ export default function JourneyOverlay() {
     >
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 11, color: '#4e5968', marginBottom: 2 }}>
-          {ordered.length}곳 코스 · 총 {totalKm}km
+          {t('summary', { count: ordered.length, distance: totalKm })}
         </div>
         <div
           style={{
@@ -165,12 +167,12 @@ export default function JourneyOverlay() {
           whiteSpace: 'nowrap',
         }}
       >
-        길찾기
+        {t('navigate')}
       </a>
       <button
         type="button"
         onClick={clearJourney}
-        aria-label="코스 초기화"
+        aria-label={t('reset')}
         style={{
           flexShrink: 0,
           width: 26,

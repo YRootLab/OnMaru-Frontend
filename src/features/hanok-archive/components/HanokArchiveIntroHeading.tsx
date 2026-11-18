@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { lightPalette, meok, typographyRole } from '@/design-system/tokens';
 
@@ -54,10 +55,14 @@ interface HanokArchiveIntroHeadingProps {
 }
 
 export default function HanokArchiveIntroHeading({ total }: HanokArchiveIntroHeadingProps) {
+  const t = useTranslations('hanok.intro');
   return (
     <>
-      <Kicker>사라지기 전에 기록한다 · 전국 {total}곳</Kicker>
-      <Title><Accent>지금 한옥</Accent>은 어디에 남아&nbsp;있을까?</Title>
+      <Kicker>{t('kicker', { total })}</Kicker>
+      <Title>
+        <Accent>{t('titleMain')}</Accent>
+        {t('titleSuffix')}
+      </Title>
     </>
   );
 }

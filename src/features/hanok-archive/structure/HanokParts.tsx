@@ -24,6 +24,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 
 import { meok, palette, lightPalette, typographyRole } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
@@ -202,15 +203,15 @@ function emphasize(text: string) {
 }
 
 export default function HanokParts() {
-
+  const t = useTranslations('hanok.structure');
   const [openStage, setOpenStage] = useState<number | null>(null);
 
   return (
     <Section aria-labelledby="hanok-parts-heading">
       <SectionHeader
         id="hanok-parts-heading"
-        title="일곱 켜, 이름과 하는 일"
-        subtitle="항목을 누르면 3D 구조를 자세히 볼 수 있어요"
+        title={t('partsTitle')}
+        subtitle={t('partsSubtitle')}
       />
 
       <List>
@@ -224,7 +225,7 @@ export default function HanokParts() {
               </Name>
               <Desc>{emphasize(stage.desc)}</Desc>
               <Cue>
-                {stage.nameKo} 세우는 것 보기 <span aria-hidden="true">→</span>
+                {t('seeStage', { name: stage.nameKo })} <span aria-hidden="true">→</span>
               </Cue>
             </Row>
           </Item>

@@ -903,7 +903,9 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!guardAuth()) return;
-    submitSearch();
+    const query = currentQuery.trim();
+    if (!query) return;
+    router.push(`/journey?query=${encodeURIComponent(query)}`);
   };
 
   const handleRefineClick = (text: string) => {
@@ -1039,7 +1041,12 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
                 key={mood.id}
                 type="button"
                 $active={isActive}
-                onClick={() => { if (guardAuth()) selectMood(mood.id); }}
+                onClick={() => {
+                  if (guardAuth()) {
+                    const query = mood.query || mood.label;
+                    router.push(`/journey?query=${encodeURIComponent(query)}`);
+                  }
+                }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>{getMoodIcon(mood.id)}</span>
                 <span>{mood.label}</span>

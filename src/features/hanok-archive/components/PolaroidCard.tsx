@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
@@ -244,12 +245,14 @@ export default function PolaroidCard({
   isImageLoading = false,
   enableTape = true,
 }: PolaroidCardProps) {
+  const tCard = useTranslations('hanok.card');
+  const tCommon = useTranslations('hanok.common');
   const rotate = ROTATIONS[index % ROTATIONS.length];
   const showTape = enableTape && index % 2 === 0;
   const tapeLeft = index % 4 < 2;
 
-  const regionName = village.region || '한옥';
-  const handText = customHandText || `고즈넉한 ${regionName}에서`;
+  const regionName = village.region || tCard('fallbackRegion');
+  const handText = customHandText || tCard('handwritingDefault', { region: regionName });
 
   return (
     <Wrapper
@@ -258,7 +261,7 @@ export default function PolaroidCard({
       onClick={() => onClick?.(village)}
       role="button"
       tabIndex={0}
-      aria-label={`${village.name} 자세히 보기`}
+      aria-label={tCard('viewDetailAriaLabel', { name: village.name })}
       initial={{ opacity: 0, y: 40, rotate }}
       whileInView={{ opacity: 1, y: 0, rotate }}
       viewport={{ once: true, margin: '-40px' }}
@@ -315,7 +318,7 @@ export default function PolaroidCard({
           </OutsideBadges>
 
           <DetailButton>
-            자세히 보기 <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+            {tCommon('viewDetail')} <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </DetailButton>
         </OutsideMeta>
       )}

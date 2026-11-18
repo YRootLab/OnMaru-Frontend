@@ -1,5 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const LOCALES = ['ko', 'en', 'ja', 'zh'];
+const DEFAULT_LOCALE = 'ko';
+
+function getLocale(request: NextRequest): string {
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
+  if (cookieLocale && LOCALES.includes(cookieLocale)) {
+    return cookieLocale;
+  }
+  const acceptLang = request.headers.get('accept-language');
+  if (acceptLang) {
+    const preferred = acceptLang.split(',')[0].trim().substring(0, 2).toLowerCase();
+    if (LOCALES.includes(preferred)) {
+      return preferred;
+    }
+  }
+  return DEFAULT_LOCALE;
+}
+
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const usesStagingApi = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '') === 'https://staging-api.onmaru.site';
@@ -23,12 +41,38 @@ export function middleware(request: NextRequest) {
     "upgrade-insecure-requests",
   ].join('; ');
 
+  const { pathname } = request.nextUrl;
+
+  // Public assets (for example `/anchae.glb`) must retain their root URL;
+  // locale-rewriting them turns model and media requests into 404s.
+  const isPublicAsset = /\/[^/]+\.[^/]+$/.test(pathname);
+  const isExcluded = pathname.startsWith('/api') || pathname.startsWith('/admin') || pathname.startsWith('/_next') || isPublicAsset;
+
   const reqHeaders = new Headers(request.headers);
   reqHeaders.set('x-nonce', nonce);
   reqHeaders.set('Content-Security-Policy', csp);
 
-  const response = NextResponse.next({ request: { headers: reqHeaders } });
+  let response: NextResponse;
+
+  if (isExcluded) {
+    response = NextResponse.next({ request: { headers: reqHeaders } });
+  } else {
+    const pathnameHasLocale = LOCALES.some(
+      (loc) => pathname === `/${loc}` || pathname.startsWith(`/${loc}/`),
+    );
+
+    if (pathnameHasLocale) {
+      response = NextResponse.next({ request: { headers: reqHeaders } });
+    } else {
+      const locale = getLocale(request);
+      const url = request.nextUrl.clone();
+      url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
+      response = NextResponse.rewrite(url, { request: { headers: reqHeaders } });
+    }
+  }
+
   response.headers.set('Content-Security-Policy', csp);
+  response.headers.set('x-nonce', nonce);
 
   return response;
 }
@@ -44,3 +88,4 @@ export const config = {
     },
   ],
 };
+

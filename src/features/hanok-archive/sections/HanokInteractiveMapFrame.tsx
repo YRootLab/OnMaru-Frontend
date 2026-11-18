@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import Script from 'next/script';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -509,22 +510,32 @@ export default function HanokInteractiveMapFrame({
   const mapResourcesRef = useRef<KakaoResourceScope | null>(null);
   const markerResourcesRef = useRef<KakaoResourceScope | null>(null);
 
+  const tMap = useTranslations('hanok.map');
+  const tCommon = useTranslations('hanok.common');
+  const tRegionDisplay = useTranslations('hanok.regionDisplay');
+  const tFilterLabels = useTranslations('hanok.filterLabels');
+
+  const getRegionDisplay = (reg: string) => {
+    if (reg === '전체') return tCommon('regionAllDisplay');
+    return tRegionDisplay.has(reg as any) ? tRegionDisplay(reg as any) : reg;
+  };
+
   const [selectedRegion, setSelectedRegion] = useState('전체');
   const [isLoaded, setIsLoaded] = useState(false);
   const [isStoryExpanded, setIsStoryExpanded] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(() => kakaoAppKey
     ? null
-    : 'NEXT_PUBLIC_KAKAO_MAP_KEY 환경 변수가 없습니다. 개발 서버(npm run dev)를 재시작해 보세요.');
+    : tMap('envMissing'));
 
   useEffect(() => {
     if (isLoaded || errorMessage) return;
 
     const timeout = window.setTimeout(() => {
-      setErrorMessage('지도를 지금 불러올 수 없어요. 잠시 후 다시 시도해 주세요.');
+      setErrorMessage(tMap('loadTimeout'));
     }, MAP_LOAD_TIMEOUT_MS);
 
     return () => window.clearTimeout(timeout);
-  }, [errorMessage, isLoaded]);
+  }, [errorMessage, isLoaded, tMap]);
 
   const validVillages = useMemo(
     () => villages.filter((v) => typeof v.lat === 'number' && typeof v.lng === 'number'),
@@ -614,9 +625,9 @@ export default function HanokInteractiveMapFrame({
       });
     } catch (err: unknown) {
       console.error('[KakaoMap] Map initialization error:', err);
-      setErrorMessage('지도를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+      setErrorMessage(tMap('loadFailed'));
     }
-  }, [fitKoreaBounds, validVillages]);
+  }, [fitKoreaBounds, validVillages, tMap]);
 
 
   useEffect(() => {
@@ -814,9 +825,7 @@ export default function HanokInteractiveMapFrame({
           src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoAppKey}&autoload=false&libraries=services,clusterer`}
           onReady={initMap}
           onError={() => {
-            setErrorMessage(
-              '지도를 지금 불러올 수 없어요. 잠시 후 다시 시도해 주세요.'
-            );
+            setErrorMessage(tMap('loadTimeout'));
           }}
         />
       )}
@@ -826,13 +835,13 @@ export default function HanokInteractiveMapFrame({
           <HugeiconsIcon icon={AlertCircleIcon} size={24} strokeWidth={2} />
           <div>{errorMessage}</div>
           <ErrorSubtext>
-            네트워크 상태를 확인한 뒤 페이지를 새로고침해 주세요.
+            {tMap('networkHint')}
           </ErrorSubtext>
         </MapLoadingState>
       ) : !isLoaded ? (
         <MapLoadingState>
           <HugeiconsIcon icon={MapPinIcon} size={22} strokeWidth={2} />
-          지도를 불러오는 중입니다…
+          {tMap('loading')}
         </MapLoadingState>
       ) : null}
 
@@ -848,7 +857,7 @@ export default function HanokInteractiveMapFrame({
               $active={isActive}
               onClick={() => handleRegionClick(r)}
             >
-              {r}
+              {getRegionDisplay(r)}
             </RegionChip>
           );
         })}
@@ -865,19 +874,23 @@ export default function HanokInteractiveMapFrame({
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
             <PanelHeaderRow>
-              <PanelSubHeader>한옥 이야기</PanelSubHeader>
+              <PanelSubHeader>{tMap('storyTitle')}</PanelSubHeader>
               <CollapseBtn onClick={() => setIsStoryExpanded(false)}>
                 <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
               </CollapseBtn>
             </PanelHeaderRow>
 
             <PanelTitle>
-              {selectedRegion === '전체' ? '전국 한옥' : `${selectedRegion} 한옥`}
+              {selectedRegion === '전체'
+                ? tMap('allHanok')
+                : tMap('regionHanok', { region: getRegionDisplay(selectedRegion) })}
             </PanelTitle>
-            <PanelCountBadge>{regionVillages.length}곳</PanelCountBadge>
+            <PanelCountBadge>{tMap('placeCount', { count: regionVillages.length })}</PanelCountBadge>
 
             <PanelDesc>
-              {REGION_STORIES[selectedRegion] || REGION_STORIES['전체']}
+              {tMap.has(`regionStory_${selectedRegion}` as any)
+                ? tMap(`regionStory_${selectedRegion}` as any)
+                : tMap('regionStory_전체')}
             </PanelDesc>
 
             <MiniCardList>
@@ -892,7 +905,7 @@ export default function HanokInteractiveMapFrame({
                   <MiniInfo>
                     <MiniTitle>{v.name}</MiniTitle>
                     <MiniMeta>
-                      {v.region} · {filterLabel(v.type)}
+                      {v.region} · {tFilterLabels.has(v.type as any) ? tFilterLabels(v.type as any) : filterLabel(v.type)}
                     </MiniMeta>
                   </MiniInfo>
                 </MiniCard>
@@ -908,7 +921,9 @@ export default function HanokInteractiveMapFrame({
             onClick={() => setIsStoryExpanded(true)}
           >
             <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} style={{ color: JUHONG_PRIMARY }} />
-            <span>한옥 이야기 ({regionVillages.length}곳)</span>
+            <span>
+              {tMap('storyTitle')} ({tMap('placeCount', { count: regionVillages.length })})
+            </span>
             <HugeiconsIcon icon={ChevronRightIcon} size={15} strokeWidth={2} />
           </CollapsedPillBtn>
         )}

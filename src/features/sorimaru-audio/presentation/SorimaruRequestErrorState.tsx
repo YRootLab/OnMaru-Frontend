@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { RotateCcwIcon } from '@hugeicons/core-free-icons';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
@@ -41,6 +42,7 @@ export interface SorimaruRequestErrorStateProps {
 }
 
 export function SorimaruRequestErrorState({ onRetry, compact = false }: SorimaruRequestErrorStateProps) {
+  const t = useTranslations('sorimaru.error');
   return (
     <OniSearchEmpty
       size={compact ? 'sm' : 'md'}
@@ -48,12 +50,12 @@ export function SorimaruRequestErrorState({ onRetry, compact = false }: Sorimaru
       role="alert"
       videoSrc=""
       imageSrc="/images/character/Oni_server_error.png"
-      title="잠시 연결이 불안정해요"
-      description="이야기를 불러오는 데 시간이 걸리고 있어요. 잠시 후 다시 시도해 주세요."
+      title={t('title')}
+      description={t('description')}
       action={(
         <RetryButton type="button" onClick={onRetry}>
           <HugeiconsIcon icon={RotateCcwIcon} size={14} aria-hidden="true" />
-          다시 시도
+          {t('retry')}
         </RetryButton>
       )}
     />

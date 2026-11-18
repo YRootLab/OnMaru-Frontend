@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, palette, typographyRole } from '@/design-system/tokens';
@@ -365,7 +366,11 @@ interface VillageCardProps {
 }
 
 export default function VillageCard({ village, onClick }: VillageCardProps) {
-  const typeLabel = filterLabel(village.type);
+  const tCard = useTranslations('hanok.card');
+  const tLabels = useTranslations('hanok.filterLabels');
+  const typeLabel = tLabels.has(village.type as any)
+    ? tLabels(village.type as any)
+    : filterLabel(village.type);
   const isDocentAvailable =
     village.type !== '한옥스테이' &&
     (HAS_DOCENT_TYPES.includes(village.type) ||
@@ -378,7 +383,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       onClick={() => onClick?.(village)}
       role="button"
       tabIndex={0}
-      aria-label={`${village.name} 자세히 보기`}
+      aria-label={tCard('viewDetailAriaLabel', { name: village.name })}
       whileTap={{ scale: 0.985 }}
       transition={{ type: 'spring', stiffness: 350, damping: 24 }}
       onKeyDown={(e) => {
@@ -394,12 +399,12 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
         <SpotlightLayer data-testid="village-card-spotlight" aria-hidden="true" />
         <GlassLens data-testid="village-card-glass-lens" aria-hidden="true" />
 
-        <TopBadgeRow aria-label={`${typeLabel} 태그`}>
+        <TopBadgeRow aria-label={tCard('badgeAriaLabel', { type: typeLabel })}>
           <TypeBadge>{typeLabel}</TypeBadge>
           {isDocentAvailable && (
             <DocentTag>
               <HugeiconsIcon icon={HeadphonesIcon} size={11} color={palette.jangmi[500]} />
-              <span>소리마루 도슨트</span>
+              <span>{tCard('sorimaruDocent')}</span>
             </DocentTag>
           )}
         </TopBadgeRow>

@@ -13,6 +13,7 @@ import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sori
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
 import { palette, meok, surface, typographyRole } from '@/design-system/tokens';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
+import { useTranslations } from 'next-intl';
 
 interface StoryCarouselProps {
   stories: SorimaruStorySummary[];
@@ -24,9 +25,9 @@ import { useSorimaruImage, getSorimaruFallbackImage } from '@/features/sorimaru-
 
 gsap.registerPlugin(ScrollTrigger);
 
-function formatDuration(story: SorimaruStorySummary): string {
+function formatDuration(story: SorimaruStorySummary, fallback = '오디오'): string {
   const seconds = story.durationSeconds;
-  return Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '오디오';
+  return Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : fallback;
 }
 
 const dominantColorCache = new Map<string, string>();
@@ -320,6 +321,7 @@ interface NearbyStoryCardProps {
 }
 
 const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isPlaying, onSelect }) => {
+  const t = useTranslations('sorimaru.carousel');
   const imageSrc = useSorimaruImage(story);
   const [isHovered, setIsHovered] = useState(false);
   const [accentColor, setAccentColor] = useState(() => dominantColorCache.get(imageSrc) || '#e5e5e3');
@@ -386,20 +388,20 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             <MiniCategoryTag>
               {story.category}
             </MiniCategoryTag>
-            <LocationSpan title={story.region.name || '대한민국 문화유산'}>
-              {story.region.name || '대한민국 문화유산'}
+            <LocationSpan title={story.region.name || t('defaultRegion')}>
+              {story.region.name || t('defaultRegion')}
             </LocationSpan>
           </CategoryLocationRow>
 
-          <ExcerptText>장소에 머무는 시간을 오디오로 만나보세요.</ExcerptText>
+          <ExcerptText>{t('excerpt')}</ExcerptText>
         </div>
 
         <CardBottomMeta>
           <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: meok[700] }}>
-            {formatDuration(story)}
+            {formatDuration(story, t('audio'))}
           </span>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500, color: meok[500] }}>
-            온마루 도슨트
+            {t('docent')}
           </span>
         </CardBottomMeta>
       </CardInfoCol>
@@ -448,11 +450,13 @@ const SkeletonThumbnail = styled(SkeletonBox)`
   }
 `;
 
-export const StoryCarouselSkeleton: React.FC = () => (
-  <div aria-label="주변 오디오 로딩 중" style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
-    <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '0.75rem 1.5rem 2rem', scrollbarWidth: 'none' }}>
-      {[1, 2, 3].map((id) => (
-        <SkeletonStoryCard
+export const StoryCarouselSkeleton: React.FC = () => {
+  const t = useTranslations('sorimaru.carousel');
+  return (
+    <div aria-label={t('loadingAria')} style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '0.75rem 1.5rem 2rem', scrollbarWidth: 'none' }}>
+        {[1, 2, 3].map((id) => (
+          <SkeletonStoryCard
           key={id}
           data-skeleton-story-card
         >
@@ -478,7 +482,8 @@ export const StoryCarouselSkeleton: React.FC = () => (
       ))}
     </div>
   </div>
-);
+  );
+};
 
 const CarouselOuter = styled.div`
   position: relative;
@@ -615,6 +620,7 @@ const CounterContainer = styled.div`
 `;
 
 export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading, onSelectStory }) => {
+  const t = useTranslations('sorimaru.carousel');
   const railRef = useRef<HTMLDivElement | null>(null);
   const [railIndicator, setRailIndicator] = useState({ left: 0, width: 100, index: 1 });
   const [isDragging, setIsDragging] = useState(false);
@@ -803,8 +809,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
       <div style={{ borderRadius: '1rem', padding: '1rem 1.25rem', textAlign: 'center' }}>
         <OniSearchEmpty
           size="sm"
-          title="주변에 들을 수 있는 이야기가 없어요"
-          description="위치를 허용하면 가까운 한옥의 소리부터 들려드릴게요."
+          title={t('emptyTitle')}
+          description={t('emptyDesc')}
           compact
         />
       </div>
@@ -812,12 +818,12 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
   }
 
   return (
-    <CarouselOuter aria-label="주변 오디오 목록">
+    <CarouselOuter aria-label={t('listAria')}>
       <div style={{ position: 'relative' }}>
         <ScrollTrack
           ref={railRef}
           tabIndex={0}
-          aria-label="주변 오디오 목록을 좌우로 살펴보기"
+          aria-label={t('scrollAria')}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUpOrLeave}
@@ -851,7 +857,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
         {railIndicator.left > 0.5 && (
           <FloatingNavBtn
             type="button"
-            aria-label="이전 주변 오디오 보기"
+            aria-label={t('prevAria')}
             onClick={() => moveRail(-1)}
             $side="left"
           >
@@ -861,7 +867,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
           <FloatingNavBtn
             type="button"
-            aria-label="다음 주변 오디오 보기"
+            aria-label={t('nextAria')}
             onClick={() => moveRail(1)}
             $side="right"
           >

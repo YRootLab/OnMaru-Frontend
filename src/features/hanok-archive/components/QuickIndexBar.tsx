@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { meok, palette, typographyRole } from '@/design-system/tokens';
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -84,6 +85,7 @@ interface QuickIndexBarProps {
 }
 
 export default function QuickIndexBar({ className }: QuickIndexBarProps) {
+  const t = useTranslations('hanok.quickIndex');
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -92,25 +94,25 @@ export default function QuickIndexBar({ className }: QuickIndexBarProps) {
   };
 
   return (
-    <IndexContainer className={className} aria-label="한옥마루 주요 메뉴 바로가기">
+    <IndexContainer className={className} aria-label={t('ariaLabel')}>
       <IndexChip type="button" onClick={() => scrollTo('grid')}>
         <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} color={palette.juhong[500]} />
-        <span>전국 한옥 도감</span>
+        <span>{t('dogam')}</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('hanok-stays')}>
         <HugeiconsIcon icon={Home01Icon} size={15} strokeWidth={2} color="var(--color-action-secondary)" />
-        <span>지역별 한옥 스테이</span>
+        <span>{t('stay')}</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('structure')}>
         <HugeiconsIcon icon={Sun01Icon} size={15} strokeWidth={2} color={palette.hwanggeum[500]} />
-        <span>3D 구조와 처마 일조</span>
+        <span>{t('structure')}</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('map')}>
         <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2} color={palette.cheongrok[500]} />
-        <span>전국 한옥 지도</span>
+        <span>{t('map')}</span>
       </IndexChip>
     </IndexContainer>
   );

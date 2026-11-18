@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { HeadphonesIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
@@ -14,28 +15,25 @@ interface SoriMaruBridgeCardProps {
   hanokName: string;
 }
 
-
-
-
-
-
 export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridgeCardProps) {
   const router = useRouter();
+  const tBridge = useTranslations('hanok.bridge');
 
   if (!stories || stories.length === 0) return null;
 
   const primaryStory = stories[0];
 
   const handleNavigateToSoriMaru = () => {
-
-
     router.push(`/sorimaru?stid=${encodeURIComponent(primaryStory.storyId)}`);
   };
 
-  const formatSeconds = (sec: number) => {
+  const formatDuration = (sec: number) => {
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
-    return `${m}분 ${s > 0 ? `${s}초` : ''}`;
+    if (s > 0) {
+      return tBridge('durationMinutesSeconds', { min: m, sec: s });
+    }
+    return tBridge('durationMinutes', { min: m });
   };
 
   return (
@@ -43,27 +41,26 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
       <HeaderRow>
         <BadgeBox>
           <HugeiconsIcon icon={HeadphonesIcon} size={13} />
-          <span>소리마루 도슨트 연계</span>
+          <span>{tBridge('badge')}</span>
         </BadgeBox>
-        <OfficialTag>소리마루 공식 도슨트 음원</OfficialTag>
+        <OfficialTag>{tBridge('officialTag')}</OfficialTag>
       </HeaderRow>
 
       <ContentBody>
         <StoryTitle>
-          {primaryStory.audioTitle || `${hanokName} 건축 공간 해설`}
+          {primaryStory.audioTitle || tBridge('defaultTitle', { name: hanokName })}
         </StoryTitle>
         <GuideDesc>
           {primaryStory.durationSeconds > 0 && (
-            <DurationText>약 {formatSeconds(primaryStory.durationSeconds)} 소요 · </DurationText>
+            <DurationText>{formatDuration(primaryStory.durationSeconds)}</DurationText>
           )}
-          이 건축물의 역사와 공간 이야기는 <strong>‘소리마루’</strong>에서 들을 수 있어요.{' '}
-          고음질 음원에 대본까지 함께 볼 수 있습니다.
+          {tBridge('desc')}
         </GuideDesc>
       </ContentBody>
 
       <ActionRow>
         <ListenInSoriMaruBtn type="button" onClick={handleNavigateToSoriMaru}>
-          <span>소리마루에서 도슨트 듣기</span>
+          <span>{tBridge('listenBtn')}</span>
           <HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={2.2} />
         </ListenInSoriMaruBtn>
       </ActionRow>
