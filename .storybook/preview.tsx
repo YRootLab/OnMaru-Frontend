@@ -1,14 +1,18 @@
 import type { Preview } from '@storybook/nextjs-vite';
 import React from 'react';
+import { NextIntlClientProvider } from 'next-intl';
 import '../src/app/globals.css';
 import { OnmaruThemeProvider } from '../src/design-system/ThemeProvider';
+import koMessages from '../messages/ko.json';
 
 const preview: Preview = {
   decorators: [
     (Story) => (
-      <OnmaruThemeProvider defaultMode="light">
-        <Story />
-      </OnmaruThemeProvider>
+      <NextIntlClientProvider locale="ko" messages={koMessages}>
+        <OnmaruThemeProvider defaultMode="light">
+          <Story />
+        </OnmaruThemeProvider>
+      </NextIntlClientProvider>
     ),
   ],
   parameters: {
