@@ -195,12 +195,13 @@ const PlaceInputWrap = styled.div`
 const PlaceInputIcon = styled.div`
   position: absolute;
   left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  height: 42px;
   display: flex;
   align-items: center;
   color: ${meok[500]};
   pointer-events: none;
+  z-index: 1;
 `;
 
 const PlaceInput = styled.input`
@@ -242,17 +243,23 @@ const PlaceInput = styled.input`
 `;
 
 const PlaceDropdown = styled.div`
-  margin-top: 6px;
-  max-height: 140px;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  max-height: 180px;
   overflow-y: auto;
   border-radius: 12px;
-  background: #fafbfc;
-
+  background: #ffffff;
+  box-shadow: ${ringShadow.light.card};
+  border: 1px solid rgba(0, 0, 0, 0.06);
   padding: 4px;
 
   [data-theme='dark'] & {
-    background: ${surface.dark.app};
-    border: none;
+    background: ${surface.dark.card};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 
