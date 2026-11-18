@@ -22,9 +22,17 @@ describe('Sorimaru media policy', () => {
     expect(response.headers.get('Content-Security-Policy')).toContain('media-src \'self\' blob: https://sfj608538-sfj608538.ktcdn.co.kr https://samplelib.com');
   });
 
-  it('does not locale-rewrite public 3D model assets', () => {
+  it('redirects requests without locale prefix to localized path', () => {
+    const response = middleware(new NextRequest('http://localhost:3000/map'));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toBe('http://localhost:3000/ko/map');
+  });
+
+  it('does not redirect public 3D model assets', () => {
     const response = middleware(new NextRequest('http://localhost:3000/anchae.glb'));
 
-    expect(response.headers.get('x-middleware-rewrite')).toBeNull();
+    expect(response.status).toBe(200);
+    expect(response.headers.get('location')).toBeNull();
   });
 });

@@ -13,7 +13,13 @@ export default defineConfig({
       test: {
         exclude: ['node_modules', '.worktrees/**', '.next/**', 'e2e/**'],
         alias: {
-          '@': path.resolve(__dirname, './src')
+          '@': path.resolve(__dirname, './src'),
+          'next/navigation': path.resolve(__dirname, './node_modules/next/navigation.js')
+        },
+        server: {
+          deps: {
+            inline: ['next-intl']
+          }
         }
       }
     }, {
