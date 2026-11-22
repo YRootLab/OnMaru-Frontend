@@ -7,11 +7,11 @@ import {
   Bookmark01Icon,
   Copy01Icon,
   Search01Icon,
-  StarIcon,
   ThumbsDownIcon,
   ThumbsUpIcon,
 } from '@hugeicons/core-free-icons';
 import { surface } from '@/design-system/tokens';
+import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { ExplorationSummary, ExplorationTurn } from '../domain/conversation';
 import type { JourneyBoard, PlaceResource } from '../types/exploration.types';
 
@@ -556,18 +556,6 @@ const ResultMetaRow = styled.div`
   }
 `;
 
-const RatingTag = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-weight: 600;
-  color: #1a1a1a;
-
-  [data-theme='dark'] & {
-    color: #f5f5f5;
-  }
-`;
-
 const ResultPlaceSummary = styled.p`
   margin: 4px 0 0;
   font-size: 13px;
@@ -647,21 +635,37 @@ const ActionIconButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
-const CopiedBadge = styled.span`
+const NoImagePlaceholder = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f1ef;
+  color: #888;
+  font-size: 13px;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    color: rgba(216, 229, 255, 0.5);
+  }
+`;
+
+const CopiedBadge = styled.span<{ $error?: boolean }>`
   position: absolute;
   top: -24px;
   left: 50%;
   transform: translateX(-50%);
   padding: 2px 6px;
   border-radius: 4px;
-  background: #1a1a1a;
+  background: ${({ $error }) => ($error ? '#D32F2F' : '#1a1a1a')};
   color: #fff;
   font-size: 11px;
   white-space: nowrap;
 
   [data-theme='dark'] & {
-    background: #fff;
-    color: #1a1a1a;
+    background: ${({ $error }) => ($error ? '#F44336' : '#fff')};
+    color: ${({ $error }) => ($error ? '#fff' : '#1a1a1a')};
   }
 `;
 
@@ -935,10 +939,86 @@ function findPlaces(board: JourneyBoard | null): PlaceResource[] {
   return board?.resources.filter((resource): resource is PlaceResource => resource.ref.type === 'PLACE') ?? [];
 }
 
+function ResultPlaceCardItem({ place }: { place: PlaceResource }) {
+  const isBookmarked = useBookmarkStore((s) => s.isBookmarked(place.ref.id));
+  const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
+
+  const handleOpenMap = () => {
+    const params = new URLSearchParams();
+    if (place.ref.id) params.set('id', place.ref.id);
+    if (place.title) params.set('title', place.title);
+    if (place.location?.latitude != null) params.set('lat', String(place.location.latitude));
+    if (place.location?.longitude != null) params.set('lng', String(place.location.longitude));
+    if (place.category) params.set('category', place.category);
+    if (place.image?.url) params.set('image', place.image.url);
+    window.open(`/map?${params.toString()}`, '_blank');
+  };
+
+  const handleToggleBookmark = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleBookmark({
+      id: place.ref.id,
+      name: place.title,
+      category: place.category,
+      image: place.image?.url,
+      lat: place.location?.latitude,
+      lng: place.location?.longitude,
+    });
+  };
+
+  const imageAlt = place.image?.alt || place.title;
+
+  return (
+    <ResultPlaceCard tabIndex={0}>
+      <ResultImageArea>
+        {place.image?.url ? (
+          <img src={place.image.url} alt={imageAlt} />
+        ) : (
+          <NoImagePlaceholder>
+            <span>등록된 사진이 없어요.</span>
+          </NoImagePlaceholder>
+        )}
+        <QuickActionOverlay>
+          <QuickCircleButton
+            type="button"
+            aria-label={`${place.title} 지도에서 보기`}
+            title="지도에서 보기"
+            onClick={handleOpenMap}
+          >
+            <HugeiconsIcon icon={Search01Icon} size={16} />
+          </QuickCircleButton>
+          <QuickCircleButton
+            type="button"
+            aria-label={`${place.title} ${isBookmarked ? '저장 해제' : '저장하기'}`}
+            title={isBookmarked ? '저장됨' : '저장하기'}
+            className={isBookmarked ? 'saved' : ''}
+            onClick={handleToggleBookmark}
+          >
+            <HugeiconsIcon icon={Bookmark01Icon} size={16} fill={isBookmarked ? 'currentColor' : 'none'} />
+          </QuickCircleButton>
+        </QuickActionOverlay>
+      </ResultImageArea>
+      <ResultCardBody>
+        <ResultPlaceTitle>{place.title}</ResultPlaceTitle>
+        <ResultMetaRow>
+          <span>{place.category}</span>
+          {place.regionRef?.id && (
+            <>
+              <span>·</span>
+              <span>{place.regionRef.id}</span>
+            </>
+          )}
+        </ResultMetaRow>
+        {place.summary && <ResultPlaceSummary>{place.summary}</ResultPlaceSummary>}
+      </ResultCardBody>
+    </ResultPlaceCard>
+  );
+}
+
 function AssistantResponse({ turn }: { turn: ExplorationTurn }) {
   const { response } = turn;
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
   if (response.status === 'PENDING') return null;
   if (response.status === 'CANCELLED') return <Bubble>요청이 취소되었어요.</Bubble>;
@@ -949,66 +1029,28 @@ function AssistantResponse({ turn }: { turn: ExplorationTurn }) {
   const textSummary = response.summary ?? (response.board ? response.board.querySummary : '여행 결과를 준비했어요.');
 
   const handleCopy = async () => {
+    setCopyStatus('idle');
     try {
+      if (!navigator?.clipboard?.writeText) {
+        throw new Error('Clipboard API unavailable');
+      }
       await navigator.clipboard.writeText(textSummary);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setCopyStatus('copied');
+      setTimeout(() => setCopyStatus('idle'), 1500);
     } catch {
-      // fallback
+      setCopyStatus('error');
+      setTimeout(() => setCopyStatus('idle'), 2500);
     }
   };
 
   return (
     <ResponseContainer>
-      {/* 3번째 결과 카드: 사진, 퀵 액션, 장소명, 카테고리/지역/평점, 요약 */}
+      {/* 3번째 결과 카드: 사진, 퀵 액션, 장소명, 카테고리/지역, 요약 */}
       {places.length > 0 && (
         <PlacesScroll aria-label="추천 장소">
-          {places.map((place, idx) => {
-            const imageUrl = place.image?.url || SEARCH_PREVIEWS[idx % SEARCH_PREVIEWS.length].url;
-            return (
-              <ResultPlaceCard key={place.ref.id || idx} tabIndex={0}>
-                <ResultImageArea>
-                  <img src={imageUrl} alt={place.image?.alt || place.title} />
-                  <QuickActionOverlay>
-                    <QuickCircleButton
-                      type="button"
-                      aria-label={`${place.title} 지도에서 보기`}
-                      title="지도에서 보기"
-                      onClick={() => {
-                        window.open(`/map?query=${encodeURIComponent(place.title)}`, '_blank');
-                      }}
-                    >
-                      <HugeiconsIcon icon={Search01Icon} size={16} />
-                    </QuickCircleButton>
-                    <QuickCircleButton
-                      type="button"
-                      aria-label={`${place.title} 저장하기`}
-                      title="저장하기"
-                      onClick={(e) => {
-                        e.currentTarget.classList.toggle('saved');
-                      }}
-                    >
-                      <HugeiconsIcon icon={Bookmark01Icon} size={16} />
-                    </QuickCircleButton>
-                  </QuickActionOverlay>
-                </ResultImageArea>
-                <ResultCardBody>
-                  <ResultPlaceTitle>{place.title}</ResultPlaceTitle>
-                  <ResultMetaRow>
-                    <span>{place.category}</span>
-                    <span>·</span>
-                    <span>{place.regionRef.id}</span>
-                    <span>·</span>
-                    <RatingTag>
-                      <HugeiconsIcon icon={StarIcon} size={13} fill="#FEDC00" color="#FEDC00" />
-                      <span>4.9</span>
-                    </RatingTag>
-                  </ResultMetaRow>
-                  {place.summary && <ResultPlaceSummary>{place.summary}</ResultPlaceSummary>}
-                </ResultCardBody>
-              </ResultPlaceCard>
-            );
-          })}
+          {places.map((place, idx) => (
+            <ResultPlaceCardItem key={place.ref.id || idx} place={place} />
+          ))}
         </PlacesScroll>
       )}
 
@@ -1039,12 +1081,13 @@ function AssistantResponse({ turn }: { turn: ExplorationTurn }) {
           </ActionIconButton>
           <ActionIconButton
             type="button"
-            aria-label="답변 복사하기"
+            aria-label={copyStatus === 'error' ? '복사 실패' : '답변 복사하기'}
             title="복사"
             onClick={handleCopy}
           >
             <HugeiconsIcon icon={Copy01Icon} size={16} />
-            {copied && <CopiedBadge>복사됨</CopiedBadge>}
+            {copyStatus === 'copied' && <CopiedBadge role="status">복사됨</CopiedBadge>}
+            {copyStatus === 'error' && <CopiedBadge $error role="alert">복사 실패</CopiedBadge>}
           </ActionIconButton>
         </ActionRow>
       </NarrativeBubble>

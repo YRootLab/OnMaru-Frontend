@@ -486,9 +486,15 @@ export default function WriteWarmthModal({
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const placeWrapRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
@@ -500,12 +506,63 @@ export default function WriteWarmthModal({
 
   useEffect(() => {
     if (!isOpen) return;
+
+    let previousFocusedElement: HTMLElement | null = null;
+
+    if (isMobile) {
+      previousFocusedElement = document.activeElement as HTMLElement | null;
+      const panel = panelRef.current;
+      if (panel) {
+        const focusables = panel.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length > 0) {
+          focusables[0].focus();
+        } else {
+          panel.focus();
+        }
+      }
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (!isMobile || e.key !== 'Tab') return;
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      const focusables = panel.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (isMobile && previousFocusedElement) {
+        previousFocusedElement.focus();
+      }
+    };
+  }, [isOpen, isMobile, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -639,6 +696,7 @@ export default function WriteWarmthModal({
             aria-hidden="true"
           />
           <PanelContainer
+            ref={panelRef}
             key="warmth-write-panel"
             $panelOpen={panelOpen}
             initial={{ opacity: 0, x: -20, scale: 0.98 }}
@@ -646,7 +704,9 @@ export default function WriteWarmthModal({
             exit={{ opacity: 0, x: -20, scale: 0.98 }}
             transition={{ duration: 0.28, ease: [0.19, 1.15, 0.22, 1] }}
             role="dialog"
+            aria-modal={isMobile ? 'true' : undefined}
             aria-label="온기 한 줄 남기기"
+            tabIndex={-1}
           >
           <ModalHeader>
             <ModalTitle>
