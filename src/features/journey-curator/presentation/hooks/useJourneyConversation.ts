@@ -77,6 +77,9 @@ export function useJourneyConversation(
 
   const loadConversation = useCallback(async (explorationId: string, options?: { preserveTurns?: boolean }) => {
     const version = ++loadVersionRef.current;
+    if (activeIdRef.current !== explorationId) {
+      selectionVersionRef.current += 1;
+    }
     activeIdRef.current = explorationId;
     setState((current) => ({
       ...current,
@@ -88,12 +91,7 @@ export function useJourneyConversation(
 
     try {
       const snapshotPromise = repository.getExploration(explorationId);
-      const turnPagePromise = repository.listTurns({ explorationId, limit: 20 }).catch(() => ({
-        schemaVersion: '1.3',
-        items: [] as ExplorationTurn[],
-        nextCursor: null,
-        hasMore: false,
-      }));
+      const turnPagePromise = repository.listTurns({ explorationId, limit: 20 });
 
       const [snapshot, turnPage] = await Promise.all([snapshotPromise, turnPagePromise]);
       if (version !== loadVersionRef.current || activeIdRef.current !== explorationId) return;

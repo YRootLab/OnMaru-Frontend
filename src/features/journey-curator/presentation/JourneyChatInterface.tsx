@@ -861,11 +861,149 @@ const QuickChipButton = styled.button`
 `;
 
 const Composer = styled.form`
+  position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 9999px;
+  padding: 6px 8px 6px 22px;
+  border: 1.5px solid rgba(255, 85, 0, 0.32);
+  box-shadow:
+    0 0 0 1px rgba(255, 85, 0, 0.12),
+    0 4px 20px -2px rgba(255, 85, 0, 0.14),
+    0 12px 36px -4px rgba(255, 136, 64, 0.18);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
+
+  @keyframes chatAmbientGlow {
+    0% {
+      background-position: 0% 50%;
+      filter: blur(14px);
+      transform: scale(0.99);
+      opacity: 0.72;
+    }
+    50% {
+      background-position: 100% 50%;
+      filter: blur(18px);
+      transform: scale(1.01);
+      opacity: 0.9;
+    }
+    100% {
+      background-position: 0% 50%;
+      filter: blur(14px);
+      transform: scale(0.99);
+      opacity: 0.72;
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 85, 0, 0.28) 0%,
+      rgba(255, 136, 64, 0.2) 35%,
+      rgba(255, 60, 0, 0.14) 70%,
+      rgba(255, 106, 16, 0.26) 100%
+    );
+    background-size: 250% 250%;
+    filter: blur(14px);
+    opacity: 0.75;
+    pointer-events: none;
+    animation: chatAmbientGlow 7s ease-in-out infinite;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+    z-index: -2;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 9999px;
+    background: radial-gradient(
+      180px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(255, 85, 0, 0.44) 0%,
+      rgba(255, 136, 64, 0.22) 40%,
+      transparent 75%
+    );
+    filter: blur(10px);
+    opacity: var(--mouse-active, 0);
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: -1;
+  }
+
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 1;
+    filter: blur(18px);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(22, 28, 40, 0.82);
+    border: 1.5px solid rgba(255, 106, 16, 0.4);
+    box-shadow:
+      0 0 0 1px rgba(255, 106, 16, 0.2),
+      0 8px 32px 0 rgba(0, 0, 0, 0.45),
+      0 0 24px rgba(255, 106, 16, 0.18);
+
+    &::before {
+      background: linear-gradient(
+        120deg,
+        rgba(255, 106, 16, 0.35) 0%,
+        rgba(255, 136, 64, 0.22) 35%,
+        rgba(255, 60, 0, 0.16) 70%,
+        rgba(255, 106, 16, 0.32) 100%
+      );
+      background-size: 250% 250%;
+      filter: blur(16px);
+      opacity: 0.85;
+      animation: chatAmbientGlow 7s ease-in-out infinite;
+    }
+
+    &::after {
+      background: radial-gradient(
+        180px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(255, 106, 16, 0.5) 0%,
+        rgba(255, 136, 64, 0.26) 40%,
+        transparent 75%
+      );
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before {
+      animation: none;
+    }
+  }
+
+  &:focus-within {
+    transform: translateY(-2px);
+    border-color: #FF5500;
+    box-shadow:
+      0 0 0 2px rgba(255, 85, 0, 0.35),
+      0 0 28px rgba(255, 85, 0, 0.26),
+      0 14px 40px rgba(255, 136, 64, 0.24);
+
+    [data-theme='dark'] & {
+      border-color: #FF6A10;
+      box-shadow:
+        0 0 0 2px rgba(255, 106, 16, 0.45),
+        0 0 32px rgba(255, 106, 16, 0.35),
+        0 14px 44px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  @media (max-width: 640px) {
+    padding: 5px 6px 5px 16px;
+    gap: 8px;
+  }
 `;
 
 const ComposerNotice = styled.p`
@@ -880,199 +1018,88 @@ const ComposerNotice = styled.p`
   }
 `;
 
-const InputWrapper = styled.div`
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  border-radius: 24px;
-
-  @keyframes chatAmbientGlow {
-    0% {
-      background-position: 0% 50%;
-      filter: blur(12px);
-      transform: scale(0.99);
-      opacity: 0.68;
-    }
-    50% {
-      background-position: 100% 50%;
-      filter: blur(16px);
-      transform: scale(1.01);
-      opacity: 0.88;
-    }
-    100% {
-      background-position: 0% 50%;
-      filter: blur(12px);
-      transform: scale(0.99);
-      opacity: 0.68;
-    }
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border-radius: 28px;
-    background: linear-gradient(
-      120deg,
-      rgba(255, 85, 0, 0.26) 0%,
-      rgba(255, 136, 64, 0.18) 35%,
-      rgba(255, 60, 0, 0.12) 70%,
-      rgba(255, 106, 16, 0.24) 100%
-    );
-    background-size: 250% 250%;
-    filter: blur(12px);
-    opacity: 0.7;
-    pointer-events: none;
-    animation: chatAmbientGlow 7s ease-in-out infinite;
-    transition: opacity 0.3s ease, filter 0.3s ease;
-    z-index: 0;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 26px;
-    background: radial-gradient(
-      140px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(255, 85, 0, 0.44) 0%,
-      rgba(255, 136, 64, 0.2) 40%,
-      transparent 75%
-    );
-    filter: blur(8px);
-    opacity: var(--mouse-active, 0);
-    pointer-events: none;
-    transition: opacity 0.25s ease;
-    z-index: 0;
-  }
-
-  &:hover::before,
-  &:focus-within::before {
-    opacity: 0.95;
-    filter: blur(16px);
-  }
-
-  [data-theme='dark'] & {
-    &::before {
-      background: linear-gradient(
-        120deg,
-        rgba(255, 106, 16, 0.32) 0%,
-        rgba(255, 136, 64, 0.2) 35%,
-        rgba(255, 60, 0, 0.15) 70%,
-        rgba(255, 106, 16, 0.3) 100%
-      );
-      background-size: 250% 250%;
-      filter: blur(14px);
-      opacity: 0.8;
-      animation: chatAmbientGlow 7s ease-in-out infinite;
-    }
-
-    &::after {
-      background: radial-gradient(
-        140px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        rgba(255, 106, 16, 0.48) 0%,
-        rgba(255, 136, 64, 0.24) 40%,
-        transparent 75%
-      );
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    &::before {
-      animation: none;
-    }
-  }
-`;
-
 const Input = styled.input`
-  position: relative;
-  z-index: 1;
+  flex: 1;
   min-width: 0;
-  width: 100%;
-  height: 48px;
-  padding: 0 18px;
-  border: 1.5px solid rgba(255, 85, 0, 0.32);
-  border-radius: 24px;
-  background: #fff;
-  color: inherit;
-  font: inherit;
+  border: none;
+  background: transparent;
+  outline: none;
+  caret-color: #FF5500;
+  font-family: inherit;
   font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  padding: 10px 0;
   box-sizing: border-box;
-  box-shadow:
-    0 0 0 1px rgba(255, 85, 0, 0.08),
-    0 2px 12px rgba(255, 85, 0, 0.1);
-  transition: all 0.2s ease;
 
-  &:hover {
-    border-color: rgba(255, 85, 0, 0.5);
-    box-shadow:
-      0 0 0 1px rgba(255, 85, 0, 0.18),
-      0 4px 16px rgba(255, 85, 0, 0.16);
-  }
-
-  &:focus {
-    outline: none;
-    border-color: #FF5500;
-    box-shadow:
-      0 0 0 2px rgba(255, 85, 0, 0.35),
-      0 0 18px rgba(255, 85, 0, 0.22),
-      0 6px 20px rgba(255, 136, 64, 0.18);
+  &::placeholder {
+    color: #8c8c88;
   }
 
   [data-theme='dark'] & {
-    background: ${surface.dark.surface};
-    border-color: rgba(255, 106, 16, 0.4);
     color: #f5f5f5;
-    box-shadow:
-      0 0 0 1px rgba(255, 106, 16, 0.12),
-      0 2px 14px rgba(255, 106, 16, 0.14);
+    caret-color: #FF6A10;
 
-    &:hover {
-      border-color: rgba(255, 106, 16, 0.6);
-      box-shadow:
-        0 0 0 1px rgba(255, 106, 16, 0.22),
-        0 4px 18px rgba(255, 106, 16, 0.18);
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
     }
+  }
 
-    &:focus {
-      border-color: #FF6A10;
-      box-shadow:
-        0 0 0 2px rgba(255, 106, 16, 0.45),
-        0 0 22px rgba(255, 106, 16, 0.28),
-        0 6px 24px rgba(0, 0, 0, 0.5);
-    }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 `;
 
 const SendButton = styled.button`
   flex-shrink: 0;
-  height: 48px;
-  padding: 0 20px;
+  height: 40px;
+  padding: 0 18px;
   border: 0;
-  border-radius: 24px;
+  border-radius: 9999px;
   background: #FF5500;
   color: #fff;
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
   box-sizing: border-box;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 4px 14px 0 rgba(255, 85, 0, 0.38);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
-  &:hover { background: #E64C00; }
-  &:active { transform: scale(0.98); }
-  &:disabled { cursor: not-allowed; opacity: 0.45; }
+  &:hover:not(:disabled) {
+    background: #E64C00;
+    transform: scale(1.04);
+    box-shadow: 0 6px 18px 0 rgba(255, 85, 0, 0.48);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: none;
+  }
 
   [data-theme='dark'] & {
     background: #FF6A10;
-    &:hover { background: #FF8840; }
+
+    &:hover:not(:disabled) {
+      background: #E65A00;
+    }
+  }
+
+  @media (max-width: 640px) {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 12px;
   }
 `;
 
-function findPlaces(board: JourneyBoard | null): PlaceResource[] {
+export function findPlaces(board: JourneyBoard | null): PlaceResource[] {
   if (!board) return [];
 
   // 1) Direct PlaceResource from board.resources
@@ -1410,27 +1437,26 @@ export default function JourneyChatInterface({
                 ))}
               </QuickChipsRow>
 
-              <Composer onSubmit={submit}>
-                <InputWrapper
-                  onMouseMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-                    e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-                    e.currentTarget.style.setProperty('--mouse-active', '1');
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.setProperty('--mouse-active', '0');
-                  }}
-                >
-                  <Input
-                    ref={inputRef}
-                    value={draft}
-                    onChange={(event) => setDraft(event.target.value)}
-                    placeholder="여행 조건을 이어서 물어보세요"
-                    aria-label="여행 질문"
-                    disabled={isRunning}
-                  />
-                </InputWrapper>
+              <Composer
+                onSubmit={submit}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                  e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                  e.currentTarget.style.setProperty('--mouse-active', '1');
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.setProperty('--mouse-active', '0');
+                }}
+              >
+                <Input
+                  ref={inputRef}
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  placeholder="여행 조건을 이어서 물어보세요"
+                  aria-label="여행 질문"
+                  disabled={isRunning}
+                />
                 {isRunning ? (
                   <SendButton type="button" onClick={() => void onCancel()}>취소</SendButton>
                 ) : (

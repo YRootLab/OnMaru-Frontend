@@ -215,7 +215,7 @@ export const fixtureConversationRepository: ConversationRepository = {
     const items = mockTurns.get(input.explorationId) ?? [initialFixtureTurn];
     return {
       schemaVersion: '1.3',
-      items: [...items],
+      items: [...items].reverse(),
       nextCursor: null,
       hasMore: false,
     };
