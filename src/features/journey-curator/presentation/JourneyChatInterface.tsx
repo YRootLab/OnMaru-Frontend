@@ -48,7 +48,7 @@ const Page = styled.main`
 `;
 
 const Layout = styled.div`
-  width: min(1240px, 100%);
+  width: min(calc(100% - 40px), 1140px);
   min-height: calc(100dvh - 92px);
   margin: 0 auto;
   display: grid;
@@ -66,6 +66,7 @@ const Layout = styled.div`
   }
 
   @media (max-width: 720px) {
+    width: 100%;
     grid-template-columns: 1fr;
     min-height: calc(100dvh - 68px);
     border-radius: 0;
@@ -379,7 +380,7 @@ const SearchingStatusRow = styled.div`
 `;
 
 const ResponseContainer = styled.div`
-  width: min(840px, 100%);
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
