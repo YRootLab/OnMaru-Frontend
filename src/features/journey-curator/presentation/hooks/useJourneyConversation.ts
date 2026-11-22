@@ -114,7 +114,7 @@ export function useJourneyConversation(
             response: {
               status: (snapshot.latestRun?.status as any) ?? 'COMPLETED',
               outcome: snapshot.latestRun?.outcome ?? 'INITIAL_BOARD',
-              summary: snapshot.board.querySummary,
+              summary: snapshot.board.querySummary || `${initialQuery}에 어울리는 추천 여정 코스예요.`,
               board: snapshot.board,
               proposal: snapshot.pendingProposal,
               clarification: snapshot.latestRun?.clarification ?? null,

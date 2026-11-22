@@ -931,7 +931,63 @@ const SendButton = styled.button`
 `;
 
 function findPlaces(board: JourneyBoard | null): PlaceResource[] {
-  return board?.resources.filter((resource): resource is PlaceResource => resource.ref.type === 'PLACE') ?? [];
+  if (!board) return [];
+
+  // 1) Direct PlaceResource from board.resources
+  if (Array.isArray(board.resources) && board.resources.length > 0) {
+    const places = board.resources.filter((resource): resource is PlaceResource => resource?.ref?.type === 'PLACE');
+    if (places.length > 0) return places;
+  }
+
+  // 2) Fallback: candidate references resolved from resources or containing place
+  if (Array.isArray(board.candidates) && board.candidates.length > 0) {
+    const candidatePlaces = board.candidates
+      .map((c) => {
+        if ((c as any).place) return (c as any).place as PlaceResource;
+        if (Array.isArray(board.resources)) {
+          return board.resources.find(
+            (r): r is PlaceResource => r?.ref?.type === 'PLACE' && r?.ref?.id === c.placeRef?.id,
+          );
+        }
+        return undefined;
+      })
+      .filter((p): p is PlaceResource => Boolean(p));
+    if (candidatePlaces.length > 0) return candidatePlaces;
+  }
+
+  // 3) Fallback: BentoJourneyPlan structure (hanokCard + routeCard)
+  const bento = board as any;
+  const fallbackPlaces: PlaceResource[] = [];
+  if (bento.hanokCard) {
+    fallbackPlaces.push({
+      ref: { type: 'PLACE', id: 'place-hanok-primary' },
+      title: bento.hanokCard.title || '추천 한옥',
+      category: '전통 한옥',
+      regionRef: { type: 'REGION', id: 'region-default' },
+      summary: bento.hanokCard.architecturalPoint || bento.hanokCard.location || '고즈넉한 정취의 전통 한옥',
+      image: bento.hanokCard.imageUrl ? { url: bento.hanokCard.imageUrl, alt: bento.hanokCard.title || '추천 한옥', sourceName: '온마루 아카이브' } : null,
+      location: { latitude: 37.5818, longitude: 126.9682, accuracy: 'APPROXIMATE' },
+      sourceRefs: [],
+      unavailableFields: [],
+    });
+  }
+  if (Array.isArray(bento.routeCard?.stops)) {
+    bento.routeCard.stops.forEach((stop: any, idx: number) => {
+      fallbackPlaces.push({
+        ref: { type: 'PLACE', id: `place-stop-${idx + 1}` },
+        title: stop.name,
+        category: stop.category || '명소',
+        regionRef: { type: 'REGION', id: 'region-default' },
+        summary: stop.description || `${stop.time || ''} 방문 코스`.trim(),
+        image: null,
+        location: { latitude: 37.58 + (idx + 1) * 0.001, longitude: 126.968 + (idx + 1) * 0.001, accuracy: 'APPROXIMATE' },
+        sourceRefs: [],
+        unavailableFields: [],
+      });
+    });
+  }
+
+  return fallbackPlaces;
 }
 
 function ResultPlaceCardItem({ place }: { place: PlaceResource }) {
@@ -1021,7 +1077,12 @@ function AssistantResponse({ turn }: { turn: ExplorationTurn }) {
   if (response.outcome === 'NO_RESULTS') return <Bubble>{response.summary ?? '조건에 맞는 여행 결과를 찾지 못했어요.'}</Bubble>;
 
   const places = findPlaces(response.board);
-  const textSummary = response.summary ?? (response.board ? response.board.querySummary : '여행 결과를 준비했어요.');
+  const textSummary =
+    response.summary ||
+    response.board?.querySummary ||
+    (response.board as any)?.tagline ||
+    (response.board as any)?.title ||
+    '조건에 맞는 맞춤 한옥 여정 코스를 준비했어요. 마음에 드는 장소를 둘러보세요.';
 
   const handleCopy = async () => {
     setCopyStatus('idle');

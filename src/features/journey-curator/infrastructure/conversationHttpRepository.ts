@@ -11,7 +11,13 @@ import type { RunAccepted } from '../api/journeyApi';
 import type { JourneyRunSnapshot, JourneySseFrame } from '../api/journeyContract';
 import { parseJourneySseFrame } from '../reducers/journeySseParser';
 import { resolveJourneyEventsUrl } from '../api/journeyApi';
-import { JOURNEY_PLANS } from '../data/curatedJourneys';
+import type { JourneyBoard } from '../types/exploration.types';
+import {
+  JOURNEY_BOARD_INITIAL,
+  PLACE_YISANG,
+  PLACE_SUSEONGDONG,
+  PLACE_TONGIN,
+} from '../data/seochonExplorationFixtures';
 
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
@@ -119,8 +125,40 @@ const fixtureAccepted: RunAccepted = {
   schemaVersion: '1.3', explorationId: 'fixture-exploration', runId: fixtureRun.runId, stateVersion: 1,
   runUrl: '/api/v1/explorations/fixture-exploration/runs/fixture-run', eventsUrl: '/api/v1/explorations/fixture-exploration/runs/fixture-run/events', snapshotUrl: '/api/v1/explorations/fixture-exploration',
 };
+const richFixtureBoard: JourneyBoard = {
+  ...JOURNEY_BOARD_INITIAL,
+  querySummary: '서울 서촌 · 고즈넉한 한옥과 한적한 골목 산책 코스',
+  resources: [
+    {
+      ...PLACE_YISANG,
+      image: {
+        url: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80',
+        alt: '이상의 집',
+        sourceName: '온마루 아카이브',
+      },
+    },
+    {
+      ...PLACE_SUSEONGDONG,
+      image: {
+        url: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+        alt: '수성동계곡',
+        sourceName: '온마루 아카이브',
+      },
+    },
+    {
+      ...PLACE_TONGIN,
+      image: {
+        url: 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=800&q=80',
+        alt: '통인시장',
+        sourceName: '온마루 아카이브',
+      },
+    },
+    ...JOURNEY_BOARD_INITIAL.resources.filter((r) => r.ref.type !== 'PLACE'),
+  ],
+};
+
 const fixtureSnapshot: ConversationSnapshot = {
-  schemaVersion: '1.3', explorationId: fixtureAccepted.explorationId, stateVersion: 1, board: JOURNEY_PLANS.quiet as any,
+  schemaVersion: '1.3', explorationId: fixtureAccepted.explorationId, stateVersion: 1, board: richFixtureBoard,
   pinnedRefs: [], excludedRefs: [], unavailableRefs: [], latestRun: fixtureRun, pendingProposal: null, updatedAt: fixtureRun.createdAt,
 };
 
@@ -132,8 +170,8 @@ const initialFixtureTurn: ExplorationTurn = {
   response: {
     status: 'COMPLETED',
     outcome: 'INITIAL_BOARD',
-    summary: JOURNEY_PLANS.quiet.querySummary,
-    board: JOURNEY_PLANS.quiet as any,
+    summary: richFixtureBoard.querySummary,
+    board: richFixtureBoard,
     proposal: null,
     clarification: null,
     error: null,
@@ -195,12 +233,12 @@ export const fixtureConversationRepository: ConversationRepository = {
       eventsUrl: `/api/v1/explorations/${id}/runs/${runId}/events`,
       snapshotUrl: `/api/v1/explorations/${id}`,
     };
-    const board = JOURNEY_PLANS.quiet;
+    const board = richFixtureBoard;
     const snapshot: ConversationSnapshot = {
       schemaVersion: '1.3',
       explorationId: id,
       stateVersion: 1,
-      board: board as any,
+      board,
       pinnedRefs: [],
       excludedRefs: [],
       unavailableRefs: [],
@@ -216,8 +254,8 @@ export const fixtureConversationRepository: ConversationRepository = {
       response: {
         status: 'COMPLETED',
         outcome: 'INITIAL_BOARD',
-        summary: board.querySummary,
-        board: board as any,
+        summary: `${input.query}에 어울리는 서촌 일대 맞춤 한옥 여행 코스를 준비했어요.`,
+        board,
         proposal: null,
         clarification: null,
         error: null,
@@ -257,8 +295,8 @@ export const fixtureConversationRepository: ConversationRepository = {
       response: {
         status: 'COMPLETED',
         outcome: 'PROPOSAL',
-        summary: `${input.query}에 맞춰 준비한 여행 정보예요.`,
-        board: JOURNEY_PLANS.quiet as any,
+        summary: `${input.query} 요청에 맞춰 새로운 장소를 추가하여 추천 일정을 보완했어요.`,
+        board: richFixtureBoard,
         proposal: null,
         clarification: null,
         error: null,
