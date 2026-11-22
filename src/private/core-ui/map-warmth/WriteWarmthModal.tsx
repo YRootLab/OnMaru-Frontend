@@ -39,7 +39,19 @@ interface WriteWarmthModalProps {
 const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;
 
+const MobileBackdrop = styled(motion.div)`
+  display: none;
 
+  @media (max-width: 1023px) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+`;
 
 const PanelContainer = styled(motion.aside)<{ $panelOpen: boolean }>`
   position: fixed;
@@ -51,7 +63,7 @@ const PanelContainer = styled(motion.aside)<{ $panelOpen: boolean }>`
       : `${RAIL_INSET + RAIL_WIDTH + RAIL_INSET}px`};
   width: ${PANEL_WIDTH}px;
   height: calc(100vh - ${RAIL_INSET * 2}px);
-  z-index: 40;
+  z-index: 120;
   display: flex;
   flex-direction: column;
   padding: 24px;
@@ -77,12 +89,15 @@ const PanelContainer = styled(motion.aside)<{ $panelOpen: boolean }>`
   }
 
   @media (max-width: 1023px) {
-    top: 12px;
-    bottom: 12px;
+    top: max(12px, env(safe-area-inset-top));
+    bottom: max(12px, env(safe-area-inset-bottom));
     left: 12px;
     right: 12px;
     width: auto;
     height: auto;
+    padding: 20px 16px 16px;
+    border-radius: 20px;
+    z-index: 120;
   }
 `;
 
@@ -407,6 +422,7 @@ const SubmitBtn = styled.button`
   width: 100%;
   height: 48px;
   margin-top: 8px;
+  flex-shrink: 0;
 
   border-radius: 14px;
   background: ${palette.juhong[500]};
@@ -612,16 +628,26 @@ export default function WriteWarmthModal({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <PanelContainer
-          key="warmth-write-panel"
-          $panelOpen={panelOpen}
-          initial={{ opacity: 0, x: -20, scale: 0.98 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          exit={{ opacity: 0, x: -20, scale: 0.98 }}
-          transition={{ duration: 0.28, ease: [0.19, 1.15, 0.22, 1] }}
-          role="dialog"
-          aria-label="온기 한 줄 남기기"
-        >
+        <>
+          <MobileBackdrop
+            key="warmth-write-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+            aria-hidden="true"
+          />
+          <PanelContainer
+            key="warmth-write-panel"
+            $panelOpen={panelOpen}
+            initial={{ opacity: 0, x: -20, scale: 0.98 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -20, scale: 0.98 }}
+            transition={{ duration: 0.28, ease: [0.19, 1.15, 0.22, 1] }}
+            role="dialog"
+            aria-label="온기 한 줄 남기기"
+          >
           <ModalHeader>
             <ModalTitle>
               <HugeiconsIcon icon={FlameIcon} size={20} strokeWidth={2} color={palette.juhong[500]} />
@@ -738,6 +764,7 @@ export default function WriteWarmthModal({
           </SubmitBtn>
         </ModalForm>
       </PanelContainer>
+    </>
     )}
   </AnimatePresence>,
   document.body
