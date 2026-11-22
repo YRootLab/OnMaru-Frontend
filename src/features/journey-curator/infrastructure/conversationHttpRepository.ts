@@ -3,6 +3,8 @@ import type { ConversationRepository } from '../application/conversationReposito
 import type {
   ConversationSnapshot,
   ExplorationPage,
+  ExplorationSummary,
+  ExplorationTurn,
   ExplorationTurnPage,
 } from '../domain/conversation';
 import type { RunAccepted } from '../api/journeyApi';
@@ -121,15 +123,167 @@ const fixtureSnapshot: ConversationSnapshot = {
   schemaVersion: '1.3', explorationId: fixtureAccepted.explorationId, stateVersion: 1, board: JOURNEY_PLANS.quiet as any,
   pinnedRefs: [], excludedRefs: [], unavailableRefs: [], latestRun: fixtureRun, pendingProposal: null, updatedAt: fixtureRun.createdAt,
 };
+
+const initialFixtureTurn: ExplorationTurn = {
+  turnId: 'fixture-turn-1',
+  query: '비 오는 날 조용한 서울 산책 코스 알려줘',
+  createdAt: fixtureRun.createdAt,
+  runId: fixtureRun.runId,
+  response: {
+    status: 'COMPLETED',
+    outcome: 'INITIAL_BOARD',
+    summary: JOURNEY_PLANS.quiet.querySummary,
+    board: JOURNEY_PLANS.quiet as any,
+    proposal: null,
+    clarification: null,
+    error: null,
+  },
+};
+
+const mockExplorations: ExplorationSummary[] = [
+  {
+    explorationId: fixtureAccepted.explorationId,
+    title: '고요한 한옥 산책',
+    lastUserQueryPreview: '비 오는 날 조용한 서울 산책',
+    latestRunStatus: fixtureRun.status,
+    candidateCount: 5,
+    pinnedCount: 0,
+    updatedAt: fixtureSnapshot.updatedAt,
+  },
+];
+
+const mockTurns = new Map<string, ExplorationTurn[]>([
+  [fixtureAccepted.explorationId, [initialFixtureTurn]],
+]);
+
+const mockSnapshots = new Map<string, ConversationSnapshot>([
+  [fixtureAccepted.explorationId, fixtureSnapshot],
+]);
+
 export const fixtureConversationRepository: ConversationRepository = {
-  async listExplorations() { return { schemaVersion: '1.3', items: [{ explorationId: fixtureAccepted.explorationId, title: '고요한 한옥 산책', lastUserQueryPreview: '한옥 산책', latestRunStatus: fixtureRun.status, candidateCount: 0, pinnedCount: 0, updatedAt: fixtureSnapshot.updatedAt }], totalCount: 1, nextCursor: null, hasMore: false }; },
-  async getExploration() { return fixtureSnapshot; },
-  async listTurns() { return { schemaVersion: '1.3', items: [], nextCursor: null, hasMore: false }; },
-  async createExploration() { return fixtureAccepted; },
-  async createTurn() { return fixtureAccepted; },
-  async getAcceptedSnapshots() { return { run: fixtureRun, snapshot: fixtureSnapshot }; },
-  subscribeToRunEvents(_eventsUrl, onEvent) { const timer = setTimeout(() => onEvent({ id: '1', event: 'run.terminal', data: { schemaVersion: '1.3', runId: fixtureRun.runId, sequence: 1, status: 'COMPLETED', outcome: 'INITIAL_BOARD' } }), 0); return () => clearTimeout(timer); },
+  async listExplorations() {
+    return {
+      schemaVersion: '1.3',
+      items: [...mockExplorations],
+      totalCount: mockExplorations.length,
+      nextCursor: null,
+      hasMore: false,
+    };
+  },
+  async getExploration(explorationId) {
+    return mockSnapshots.get(explorationId) ?? fixtureSnapshot;
+  },
+  async listTurns(input) {
+    const items = mockTurns.get(input.explorationId) ?? [initialFixtureTurn];
+    return {
+      schemaVersion: '1.3',
+      items: [...items],
+      nextCursor: null,
+      hasMore: false,
+    };
+  },
+  async createExploration(input) {
+    const id = `exp-${Date.now()}`;
+    const runId = `run-${Date.now()}`;
+    const now = new Date().toISOString();
+    const accepted: RunAccepted = {
+      schemaVersion: '1.3',
+      explorationId: id,
+      runId,
+      stateVersion: 1,
+      runUrl: `/api/v1/explorations/${id}/runs/${runId}`,
+      eventsUrl: `/api/v1/explorations/${id}/runs/${runId}/events`,
+      snapshotUrl: `/api/v1/explorations/${id}`,
+    };
+    const board = JOURNEY_PLANS.quiet;
+    const snapshot: ConversationSnapshot = {
+      schemaVersion: '1.3',
+      explorationId: id,
+      stateVersion: 1,
+      board: board as any,
+      pinnedRefs: [],
+      excludedRefs: [],
+      unavailableRefs: [],
+      latestRun: { ...fixtureRun, runId, createdAt: now, startedAt: now, deadlineAt: now },
+      pendingProposal: null,
+      updatedAt: now,
+    };
+    const turn: ExplorationTurn = {
+      turnId: `turn-${Date.now()}`,
+      query: input.query,
+      createdAt: now,
+      runId,
+      response: {
+        status: 'COMPLETED',
+        outcome: 'INITIAL_BOARD',
+        summary: board.querySummary,
+        board: board as any,
+        proposal: null,
+        clarification: null,
+        error: null,
+      },
+    };
+    mockExplorations.unshift({
+      explorationId: id,
+      title: input.query.slice(0, 16),
+      lastUserQueryPreview: input.query,
+      latestRunStatus: 'COMPLETED',
+      candidateCount: 5,
+      pinnedCount: 0,
+      updatedAt: now,
+    });
+    mockSnapshots.set(id, snapshot);
+    mockTurns.set(id, [turn]);
+    return accepted;
+  },
+  async createTurn(input) {
+    const id = input.explorationId;
+    const runId = `run-${Date.now()}`;
+    const now = new Date().toISOString();
+    const accepted: RunAccepted = {
+      schemaVersion: '1.3',
+      explorationId: id,
+      runId,
+      stateVersion: 2,
+      runUrl: `/api/v1/explorations/${id}/runs/${runId}`,
+      eventsUrl: `/api/v1/explorations/${id}/runs/${runId}/events`,
+      snapshotUrl: `/api/v1/explorations/${id}`,
+    };
+    const turn: ExplorationTurn = {
+      turnId: `turn-${Date.now()}`,
+      query: input.query,
+      createdAt: now,
+      runId,
+      response: {
+        status: 'COMPLETED',
+        outcome: 'PROPOSAL',
+        summary: `${input.query}에 맞춰 준비한 여행 정보예요.`,
+        board: JOURNEY_PLANS.quiet as any,
+        proposal: null,
+        clarification: null,
+        error: null,
+      },
+    };
+    const existing = mockTurns.get(id) || [];
+    mockTurns.set(id, [...existing, turn]);
+    return accepted;
+  },
+  async getAcceptedSnapshots(accepted) {
+    return {
+      run: fixtureRun,
+      snapshot: mockSnapshots.get(accepted.explorationId) ?? fixtureSnapshot,
+    };
+  },
+  subscribeToRunEvents(_eventsUrl, onEvent) {
+    const timer = setTimeout(() => onEvent({ id: '1', event: 'run.terminal', data: { schemaVersion: '1.3', runId: fixtureRun.runId, sequence: 1, status: 'COMPLETED', outcome: 'INITIAL_BOARD' } }), 0);
+    return () => clearTimeout(timer);
+  },
   async cancelRun() { return { ...fixtureRun, status: 'CANCELLED', outcome: null }; },
-  async deleteExploration() {},
+  async deleteExploration(input) {
+    const idx = mockExplorations.findIndex((e) => e.explorationId === input.explorationId);
+    if (idx !== -1) mockExplorations.splice(idx, 1);
+    mockTurns.delete(input.explorationId);
+    mockSnapshots.delete(input.explorationId);
+  },
 };
 export const conversationHttpRepository = USE_MOCK ? fixtureConversationRepository : createConversationHttpRepository();

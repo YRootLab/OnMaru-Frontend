@@ -160,22 +160,17 @@ const ConversationButton = styled.button<{ $active: boolean }>`
   text-align: left;
   cursor: pointer;
   transition: background 0.12s ease;
-  ${({ $active }) => $active ? 'border-left: 3px solid #FF5500; padding-left: 9px;' : ''}
 
   &:hover { background: ${({ $active }) => ($active ? '#FFF1E8' : '#e5e5e3')}; }
 
   [data-theme='dark'] & {
     background: ${({ $active }) => ($active ? 'rgba(255, 106, 16, 0.16)' : 'transparent')};
-    ${({ $active }) => $active ? 'border-left-color: #FF6A10;' : ''}
     &:hover { background: ${({ $active }) => ($active ? 'rgba(255, 106, 16, 0.16)' : 'rgba(255, 255, 255, 0.06)')}; }
   }
 
   @media (max-width: 720px) {
     width: 190px;
     flex: 0 0 190px;
-    border-left: 0;
-    padding-left: 12px;
-    ${({ $active }) => $active ? 'border-bottom: 2px solid #FF5500;' : ''}
   }
 `;
 
