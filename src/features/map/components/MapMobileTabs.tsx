@@ -122,11 +122,25 @@ export default function MapMobileTabs() {
 
   return (
     <Nav aria-label="지도 탐색">
-      <TabLink href="/" aria-label="홈으로 이동">
+      <TabLink href="/sorimaru" aria-label="소리마루">
+        <IconSlot>
+          <HugeiconsIcon icon={HeadphonesIcon} size={19} />
+        </IconSlot>
+        <span>소리마루</span>
+      </TabLink>
+
+      <TabLink href="/hanok" aria-label="한옥마루">
+        <IconSlot>
+          <HugeiconsIcon icon={BookOpen01Icon} size={19} />
+        </IconSlot>
+        <span>한옥마루</span>
+      </TabLink>
+
+      <TabLink href="/" aria-label="AI홈마루로 이동">
         <IconSlot>
           <HugeiconsIcon icon={Home01Icon} size={19} />
         </IconSlot>
-        <span>홈</span>
+        <span>AI홈마루</span>
       </TabLink>
 
       <TabButton
@@ -144,25 +158,11 @@ export default function MapMobileTabs() {
         <span>지도마루</span>
       </TabButton>
 
-      <TabLink href="/hanok" aria-label="한옥마루">
-        <IconSlot>
-          <HugeiconsIcon icon={BookOpen01Icon} size={19} />
-        </IconSlot>
-        <span>한옥마루</span>
-      </TabLink>
-
       <TabLink href="/discover" aria-label="K-마루">
         <IconSlot>
           <HugeiconsIcon icon={Film01Icon} size={19} />
         </IconSlot>
         <span>K-마루</span>
-      </TabLink>
-
-      <TabLink href="/sorimaru" aria-label="소리마루">
-        <IconSlot>
-          <HugeiconsIcon icon={HeadphonesIcon} size={19} />
-        </IconSlot>
-        <span>소리마루</span>
       </TabLink>
 
       <TabButton

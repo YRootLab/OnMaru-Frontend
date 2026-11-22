@@ -3,13 +3,21 @@ import type { ConversationRepository } from '../application/conversationReposito
 import type {
   ConversationSnapshot,
   ExplorationPage,
+  ExplorationSummary,
+  ExplorationTurn,
   ExplorationTurnPage,
 } from '../domain/conversation';
 import type { RunAccepted } from '../api/journeyApi';
 import type { JourneyRunSnapshot, JourneySseFrame } from '../api/journeyContract';
 import { parseJourneySseFrame } from '../reducers/journeySseParser';
 import { resolveJourneyEventsUrl } from '../api/journeyApi';
-import { JOURNEY_PLANS } from '../data/curatedJourneys';
+import type { JourneyBoard } from '../types/exploration.types';
+import {
+  JOURNEY_BOARD_INITIAL,
+  PLACE_YISANG,
+  PLACE_SUSEONGDONG,
+  PLACE_TONGIN,
+} from '../data/seochonExplorationFixtures';
 
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
@@ -117,19 +125,203 @@ const fixtureAccepted: RunAccepted = {
   schemaVersion: '1.3', explorationId: 'fixture-exploration', runId: fixtureRun.runId, stateVersion: 1,
   runUrl: '/api/v1/explorations/fixture-exploration/runs/fixture-run', eventsUrl: '/api/v1/explorations/fixture-exploration/runs/fixture-run/events', snapshotUrl: '/api/v1/explorations/fixture-exploration',
 };
+const richFixtureBoard: JourneyBoard = {
+  ...JOURNEY_BOARD_INITIAL,
+  querySummary: '서울 서촌 · 고즈넉한 한옥과 한적한 골목 산책 코스',
+  resources: [
+    {
+      ...PLACE_YISANG,
+      image: {
+        url: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80',
+        alt: '이상의 집',
+        sourceName: '온마루 아카이브',
+      },
+    },
+    {
+      ...PLACE_SUSEONGDONG,
+      image: {
+        url: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=800&q=80',
+        alt: '수성동계곡',
+        sourceName: '온마루 아카이브',
+      },
+    },
+    {
+      ...PLACE_TONGIN,
+      image: {
+        url: 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=800&q=80',
+        alt: '통인시장',
+        sourceName: '온마루 아카이브',
+      },
+    },
+    ...JOURNEY_BOARD_INITIAL.resources.filter((r) => r.ref.type !== 'PLACE'),
+  ],
+};
+
 const fixtureSnapshot: ConversationSnapshot = {
-  schemaVersion: '1.3', explorationId: fixtureAccepted.explorationId, stateVersion: 1, board: JOURNEY_PLANS.quiet as any,
+  schemaVersion: '1.3', explorationId: fixtureAccepted.explorationId, stateVersion: 1, board: richFixtureBoard,
   pinnedRefs: [], excludedRefs: [], unavailableRefs: [], latestRun: fixtureRun, pendingProposal: null, updatedAt: fixtureRun.createdAt,
 };
+
+const initialFixtureTurn: ExplorationTurn = {
+  turnId: 'fixture-turn-1',
+  query: '비 오는 날 조용한 서울 산책 코스 알려줘',
+  createdAt: fixtureRun.createdAt,
+  runId: fixtureRun.runId,
+  response: {
+    status: 'COMPLETED',
+    outcome: 'INITIAL_BOARD',
+    summary: richFixtureBoard.querySummary,
+    board: richFixtureBoard,
+    proposal: null,
+    clarification: null,
+    error: null,
+  },
+};
+
+const mockExplorations: ExplorationSummary[] = [
+  {
+    explorationId: fixtureAccepted.explorationId,
+    title: '고요한 한옥 산책',
+    lastUserQueryPreview: '비 오는 날 조용한 서울 산책',
+    latestRunStatus: fixtureRun.status,
+    candidateCount: 5,
+    pinnedCount: 0,
+    updatedAt: fixtureSnapshot.updatedAt,
+  },
+];
+
+const mockTurns = new Map<string, ExplorationTurn[]>([
+  [fixtureAccepted.explorationId, [initialFixtureTurn]],
+]);
+
+const mockSnapshots = new Map<string, ConversationSnapshot>([
+  [fixtureAccepted.explorationId, fixtureSnapshot],
+]);
+
 export const fixtureConversationRepository: ConversationRepository = {
-  async listExplorations() { return { schemaVersion: '1.3', items: [{ explorationId: fixtureAccepted.explorationId, title: '고요한 한옥 산책', lastUserQueryPreview: '한옥 산책', latestRunStatus: fixtureRun.status, candidateCount: 0, pinnedCount: 0, updatedAt: fixtureSnapshot.updatedAt }], totalCount: 1, nextCursor: null, hasMore: false }; },
-  async getExploration() { return fixtureSnapshot; },
-  async listTurns() { return { schemaVersion: '1.3', items: [], nextCursor: null, hasMore: false }; },
-  async createExploration() { return fixtureAccepted; },
-  async createTurn() { return fixtureAccepted; },
-  async getAcceptedSnapshots() { return { run: fixtureRun, snapshot: fixtureSnapshot }; },
-  subscribeToRunEvents(_eventsUrl, onEvent) { const timer = setTimeout(() => onEvent({ id: '1', event: 'run.terminal', data: { schemaVersion: '1.3', runId: fixtureRun.runId, sequence: 1, status: 'COMPLETED', outcome: 'INITIAL_BOARD' } }), 0); return () => clearTimeout(timer); },
+  async listExplorations() {
+    return {
+      schemaVersion: '1.3',
+      items: [...mockExplorations],
+      totalCount: mockExplorations.length,
+      nextCursor: null,
+      hasMore: false,
+    };
+  },
+  async getExploration(explorationId) {
+    return mockSnapshots.get(explorationId) ?? fixtureSnapshot;
+  },
+  async listTurns(input) {
+    const items = mockTurns.get(input.explorationId) ?? [initialFixtureTurn];
+    return {
+      schemaVersion: '1.3',
+      items: [...items].reverse(),
+      nextCursor: null,
+      hasMore: false,
+    };
+  },
+  async createExploration(input) {
+    const id = `exp-${Date.now()}`;
+    const runId = `run-${Date.now()}`;
+    const now = new Date().toISOString();
+    const accepted: RunAccepted = {
+      schemaVersion: '1.3',
+      explorationId: id,
+      runId,
+      stateVersion: 1,
+      runUrl: `/api/v1/explorations/${id}/runs/${runId}`,
+      eventsUrl: `/api/v1/explorations/${id}/runs/${runId}/events`,
+      snapshotUrl: `/api/v1/explorations/${id}`,
+    };
+    const board = richFixtureBoard;
+    const snapshot: ConversationSnapshot = {
+      schemaVersion: '1.3',
+      explorationId: id,
+      stateVersion: 1,
+      board,
+      pinnedRefs: [],
+      excludedRefs: [],
+      unavailableRefs: [],
+      latestRun: { ...fixtureRun, runId, createdAt: now, startedAt: now, deadlineAt: now },
+      pendingProposal: null,
+      updatedAt: now,
+    };
+    const turn: ExplorationTurn = {
+      turnId: `turn-${Date.now()}`,
+      query: input.query,
+      createdAt: now,
+      runId,
+      response: {
+        status: 'COMPLETED',
+        outcome: 'INITIAL_BOARD',
+        summary: `${input.query}에 어울리는 서촌 일대 맞춤 한옥 여행 코스를 준비했어요.`,
+        board,
+        proposal: null,
+        clarification: null,
+        error: null,
+      },
+    };
+    mockExplorations.unshift({
+      explorationId: id,
+      title: input.query.slice(0, 16),
+      lastUserQueryPreview: input.query,
+      latestRunStatus: 'COMPLETED',
+      candidateCount: 5,
+      pinnedCount: 0,
+      updatedAt: now,
+    });
+    mockSnapshots.set(id, snapshot);
+    mockTurns.set(id, [turn]);
+    return accepted;
+  },
+  async createTurn(input) {
+    const id = input.explorationId;
+    const runId = `run-${Date.now()}`;
+    const now = new Date().toISOString();
+    const accepted: RunAccepted = {
+      schemaVersion: '1.3',
+      explorationId: id,
+      runId,
+      stateVersion: 2,
+      runUrl: `/api/v1/explorations/${id}/runs/${runId}`,
+      eventsUrl: `/api/v1/explorations/${id}/runs/${runId}/events`,
+      snapshotUrl: `/api/v1/explorations/${id}`,
+    };
+    const turn: ExplorationTurn = {
+      turnId: `turn-${Date.now()}`,
+      query: input.query,
+      createdAt: now,
+      runId,
+      response: {
+        status: 'COMPLETED',
+        outcome: 'PROPOSAL',
+        summary: `${input.query} 요청에 맞춰 새로운 장소를 추가하여 추천 일정을 보완했어요.`,
+        board: richFixtureBoard,
+        proposal: null,
+        clarification: null,
+        error: null,
+      },
+    };
+    const existing = mockTurns.get(id) || [];
+    mockTurns.set(id, [...existing, turn]);
+    return accepted;
+  },
+  async getAcceptedSnapshots(accepted) {
+    return {
+      run: fixtureRun,
+      snapshot: mockSnapshots.get(accepted.explorationId) ?? fixtureSnapshot,
+    };
+  },
+  subscribeToRunEvents(_eventsUrl, onEvent) {
+    const timer = setTimeout(() => onEvent({ id: '1', event: 'run.terminal', data: { schemaVersion: '1.3', runId: fixtureRun.runId, sequence: 1, status: 'COMPLETED', outcome: 'INITIAL_BOARD' } }), 0);
+    return () => clearTimeout(timer);
+  },
   async cancelRun() { return { ...fixtureRun, status: 'CANCELLED', outcome: null }; },
-  async deleteExploration() {},
+  async deleteExploration(input) {
+    const idx = mockExplorations.findIndex((e) => e.explorationId === input.explorationId);
+    if (idx !== -1) mockExplorations.splice(idx, 1);
+    mockTurns.delete(input.explorationId);
+    mockSnapshots.delete(input.explorationId);
+  },
 };
 export const conversationHttpRepository = USE_MOCK ? fixtureConversationRepository : createConversationHttpRepository();

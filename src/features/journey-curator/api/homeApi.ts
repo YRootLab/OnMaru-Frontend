@@ -1,9 +1,10 @@
 import { apiRequest, type ApiRequestOptions } from '@/lib/api/client';
+import type { JourneySchemaVersion } from './journeyContract';
 
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
 export type HomeCursorPage<T> = {
-  schemaVersion: '1.2';
+  schemaVersion: JourneySchemaVersion;
   items: T[];
   nextCursor: string | null;
   hasMore: boolean;

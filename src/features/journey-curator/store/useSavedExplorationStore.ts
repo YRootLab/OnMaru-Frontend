@@ -92,7 +92,7 @@ export const useSavedExplorationStore = create<SavedExplorationState>((set, get)
   saveJourney: async ({ explorationId, stateVersion, board, pinnedRefs, title }) => {
     if (!USE_MOCK && explorationId) {
       try {
-        const detail = await defaultSavedJourneysRepository.create({ explorationId, baseVersion: stateVersion, title });
+        const detail = await defaultSavedJourneysRepository.create({ explorationId, baseVersion: stateVersion, title, idempotencyKey: crypto.randomUUID() });
         set({ details: [detail, ...get().details] });
         return detail;
       } catch {
