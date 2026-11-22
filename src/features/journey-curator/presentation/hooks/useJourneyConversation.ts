@@ -156,7 +156,7 @@ export function useJourneyConversation(
       const { run, snapshot } = await repository.getAcceptedSnapshots(accepted);
       if (activeIdRef.current !== accepted.explorationId) return;
 
-      latestSequenceRef.current = run.sequence;
+      latestSequenceRef.current = run.sequence ?? latestSequenceRef.current;
       setState((current) => ({
         ...current,
         snapshot,

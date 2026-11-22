@@ -13,7 +13,8 @@ export type JourneyDegradedReason =
   | 'AI_QUOTA_EXCEEDED'
   | 'AI_TIMEOUT'
   | 'AI_INVALID_RESPONSE'
-  | 'AI_SERVICE_UNAVAILABLE';
+  | 'AI_SERVICE_UNAVAILABLE'
+  | 'SAFETY_BLOCKED';
 export type JourneyRunOutcome = 'INITIAL_BOARD' | 'PROPOSAL' | 'CLARIFICATION_REQUIRED' | 'NO_RESULTS';
 
 export type JourneyClarification = {
@@ -31,7 +32,7 @@ export type JourneyRunSnapshot = {
   engine: JourneyRunEngine;
   degradedReason: JourneyDegradedReason | null;
   stage: JourneyRunStage | null;
-  sequence: number;
+  sequence: number | null;
   outcome: JourneyRunOutcome | null;
   clarification: JourneyClarification | null;
   retryAfterMs: number;

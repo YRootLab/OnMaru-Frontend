@@ -8,6 +8,7 @@ export interface SaveJourneyInput {
   explorationId: string;
   baseVersion: number;
   title: string;
+  idempotencyKey: string;
 }
 
 
@@ -36,6 +37,7 @@ export function createSavedJourneysRepository(request: RequestFn = apiRequest): 
         method: 'POST',
         body: { explorationId: input.explorationId, baseVersion: input.baseVersion, title: input.title },
         csrf: true,
+        idempotencyKey: input.idempotencyKey,
       });
     },
     remove(id) {

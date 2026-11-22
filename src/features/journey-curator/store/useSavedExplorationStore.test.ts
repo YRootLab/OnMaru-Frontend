@@ -51,7 +51,7 @@ describe('useSavedExplorationStore (FE #95)', () => {
     expect(repoMock.list).toHaveBeenCalled();
 
     await useSavedExplorationStore.getState().saveJourney({ explorationId: 'exp-1', stateVersion: 1, board, pinnedRefs: [], title: '제목' });
-    expect(repoMock.create).toHaveBeenCalledWith({ explorationId: 'exp-1', baseVersion: 1, title: '제목' });
+    expect(repoMock.create).toHaveBeenCalledWith(expect.objectContaining({ explorationId: 'exp-1', baseVersion: 1, title: '제목' }));
     expect(useSavedExplorationStore.getState().details).toHaveLength(1);
     expect(useSavedExplorationStore.getState().details[0].id).toBe('saved-1');
   });

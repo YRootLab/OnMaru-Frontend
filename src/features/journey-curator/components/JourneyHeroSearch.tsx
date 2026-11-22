@@ -511,23 +511,83 @@ const SearchForm = styled.form<{ $compact?: boolean }>`
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 9999px;
   padding: ${({ $compact }) => ($compact ? '6px 8px 6px 20px' : '8px 10px 8px 24px')};
-  border: none;
-  box-shadow: ${ringShadow.light.input};
+  border: 1.5px solid rgba(255, 85, 0, 0.32);
+  box-shadow:
+    0 0 0 1px rgba(255, 85, 0, 0.12),
+    0 4px 20px -2px rgba(255, 85, 0, 0.14),
+    0 12px 36px -4px rgba(255, 136, 64, 0.18);
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 85, 0, 0.22) 0%,
+      rgba(255, 136, 64, 0.16) 50%,
+      rgba(255, 85, 0, 0.06) 100%
+    );
+    filter: blur(14px);
+    opacity: 0.75;
+    pointer-events: none;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+    z-index: -1;
+  }
+
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 1;
+    filter: blur(18px);
+    background: linear-gradient(
+      135deg,
+      rgba(255, 85, 0, 0.32) 0%,
+      rgba(255, 136, 64, 0.22) 50%,
+      rgba(255, 85, 0, 0.12) 100%
+    );
+  }
+
   [data-theme='dark'] & {
-    background: rgba(22, 28, 40, 0.78);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: rgba(22, 28, 40, 0.82);
+    border: 1.5px solid rgba(255, 106, 16, 0.4);
+    box-shadow:
+      0 0 0 1px rgba(255, 106, 16, 0.2),
+      0 8px 32px 0 rgba(0, 0, 0, 0.45),
+      0 0 24px rgba(255, 106, 16, 0.18);
+
+    &::before {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 106, 16, 0.28) 0%,
+        rgba(255, 136, 64, 0.18) 50%,
+        rgba(255, 106, 16, 0.08) 100%
+      );
+      filter: blur(16px);
+      opacity: 0.85;
+    }
   }
 
   &:focus-within {
     transform: translateY(-2px);
+    border-color: #FF5500;
+    box-shadow:
+      0 0 0 2px rgba(255, 85, 0, 0.35),
+      0 0 28px rgba(255, 85, 0, 0.26),
+      0 14px 40px rgba(255, 136, 64, 0.24);
+
+    [data-theme='dark'] & {
+      border-color: #FF6A10;
+      box-shadow:
+        0 0 0 2px rgba(255, 106, 16, 0.45),
+        0 0 32px rgba(255, 106, 16, 0.35),
+        0 14px 44px rgba(0, 0, 0, 0.6);
+    }
   }
 
   @media (max-width: 640px) {

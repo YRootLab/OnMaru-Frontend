@@ -67,7 +67,7 @@ export function reduceJourneyRunState(
       badgeLabel: badgeFromSnapshot(event.run),
       renderSource: 'snapshot',
       run: event.run,
-      latestSequence: event.run.sequence,
+      latestSequence: event.run.sequence ?? state.latestSequence,
       needsSnapshotRecovery: false,
       connection: {
         ...state.connection,
