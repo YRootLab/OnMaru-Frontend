@@ -52,7 +52,7 @@ const Layout = styled.div`
   min-height: calc(100dvh - 92px);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 230px minmax(0, 1fr);
   overflow: hidden;
   border: 1px solid #e5e5e3;
   border-radius: 24px;
@@ -102,18 +102,25 @@ const Sidebar = styled.aside`
 `;
 
 const NewChatButton = styled.button`
-  margin: 16px;
-  padding: 11px 14px;
+  margin: 12px 12px 6px;
+  padding: 8px 12px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #FF5500;
   color: #fff;
   font: inherit;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
 
   &:hover { background: #E64C00; }
+  &:active { transform: scale(0.98); }
 
   [data-theme='dark'] & {
     background: #FF6A10;
@@ -122,6 +129,8 @@ const NewChatButton = styled.button`
 
   @media (max-width: 720px) {
     margin: 0;
+    height: 34px;
+    padding: 0 12px;
     white-space: nowrap;
   }
 `;
@@ -206,7 +215,7 @@ const Chat = styled.section`
 `;
 
 const ChatHeader = styled.header`
-  padding: 24px 24px 20px;
+  padding: 16px 24px 14px;
   border-bottom: 1px solid #ededeb;
   background: linear-gradient(180deg, rgba(255, 85, 0, 0.03) 0%, transparent 100%);
 
@@ -214,20 +223,30 @@ const ChatHeader = styled.header`
     border-color: rgba(255, 255, 255, 0.08);
     background: linear-gradient(180deg, rgba(255, 106, 16, 0.06) 0%, transparent 100%);
   }
+
+  @media (max-width: 720px) {
+    padding: 14px 16px 12px;
+  }
 `;
 
 const Title = styled.h1`
   margin: 0;
-  font-size: clamp(20px, 2.6vw, 28px);
+  font-size: 18px;
   font-weight: 700;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: #1a1a1a;
+
+  [data-theme='dark'] & {
+    color: #f5f5f5;
+  }
 `;
 
 const Subtitle = styled.p`
-  margin: 5px 0 0;
+  margin: 3px 0 0;
   color: #737373;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12.5px;
+  line-height: 1.45;
 
   [data-theme='dark'] & {
     color: rgba(216, 229, 255, 0.65);
@@ -658,21 +677,20 @@ const Source = styled.p`
 `;
 
 const Empty = styled.div`
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 56px 24px;
+  max-width: 460px;
+  margin: 16px auto;
+  padding: 24px 20px;
   color: #5f5f5f;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100%;
 
   h2 {
-    margin: 0 0 8px;
+    margin: 0 0 6px;
     color: #202124;
-    font-size: clamp(22px, 2.6vw, 28px);
+    font-size: 19px;
     font-weight: 700;
     letter-spacing: -0.02em;
 
@@ -682,23 +700,23 @@ const Empty = styled.div`
   p {
     margin: 0;
     color: #737373;
-    font-size: 15px;
-    line-height: 1.6;
+    font-size: 13.5px;
+    line-height: 1.5;
   }
 
-  [data-theme='dark'] & { color: rgba(255, 255, 255, 0.5); }
+  [data-theme='dark'] & { color: rgba(216, 229, 255, 0.65); }
 `;
 
 const EmptyIcon = styled.div`
-  width: 72px;
-  height: 72px;
-  margin-bottom: 20px;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 14px;
   border-radius: 50%;
   background: linear-gradient(135deg, #FFF1E8 0%, #FFD9C0 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: 24px;
 
   [data-theme='dark'] & {
     background: linear-gradient(135deg, rgba(255, 106, 16, 0.2) 0%, rgba(255, 136, 64, 0.1) 100%);
@@ -709,18 +727,18 @@ const SuggestionRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
-  margin-top: 24px;
+  gap: 8px;
+  margin-top: 18px;
 `;
 
 const Suggestion = styled.button`
-  padding: 10px 16px;
+  padding: 7px 13px;
   border: 1px solid #FFD9C0;
   border-radius: 999px;
   background: #FFF9F6;
   color: #CC4300;
   font: inherit;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
