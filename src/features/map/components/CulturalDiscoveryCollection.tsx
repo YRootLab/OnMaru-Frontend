@@ -70,18 +70,18 @@ const PlaceButton = styled.button`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  min-height: 48px;
-  padding: 11px 12px 11px 14px;
-  border: 1px solid #e5e5e3;
+  min-height: 46px;
+  padding: 11px 14px;
+  border: none;
   border-radius: 12px;
-  background: #fff;
+  background: #f8f8f7;
   color: #303030;
   font: inherit;
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: -0.015em;
   text-align: left;
-  transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+  transition: background-color 150ms ease, transform 150ms ease;
   cursor: pointer;
 
   &::after {
@@ -92,8 +92,18 @@ const PlaceButton = styled.button`
   }
 
   &:hover {
-    border-color: #b8b8b4;
-    background: #f8f8f7;
+    background: #ededeb;
+    color: #1f2937;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e5e5e3;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: #ffffff;
+    }
   }
 
   &:focus-visible {
@@ -142,19 +152,30 @@ const HanokLink = styled.a`
   }
 `;
 
+const DEFAULT_MAX_PLACES = 4;
+
 interface Props {
   collection: CulturalCollection;
   places: Item[];
   loading: boolean;
+  maxPlaces?: number;
   onPlaceSelect: (place: Item) => void;
   onPathSelect: (path: CulturalCollectionPath) => void;
 }
 
-export default function CulturalDiscoveryCollection({ collection, places, loading, onPlaceSelect, onPathSelect }: Props) {
+export default function CulturalDiscoveryCollection({
+  collection,
+  places,
+  loading,
+  maxPlaces = DEFAULT_MAX_PLACES,
+  onPlaceSelect,
+  onPathSelect,
+}: Props) {
   const t = useTranslations('map.editorial');
-  const referenced = collection.placeRefs.length === 0
+  const allReferenced = collection.placeRefs.length === 0
     ? places.filter((place) => place.isTraditional)
     : places.filter((place) => collection.placeRefs.some((ref) => ref.placeId === place.id));
+  const referenced = allReferenced.slice(0, maxPlaces);
 
   return (
     <Section aria-busy={loading} aria-label={t('ariaLabel')}>

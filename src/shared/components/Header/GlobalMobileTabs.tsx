@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BookOpen01Icon, Film01Icon, HeadphonesIcon, Home01Icon, MapIcon, SearchAreaIcon, UserIcon } from '@hugeicons/core-free-icons'

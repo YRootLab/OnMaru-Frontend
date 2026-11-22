@@ -5,7 +5,12 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Header from './Header';
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/' }));
+vi.mock('@/i18n/navigation', () => ({
+  Link: ({ children, href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...props}>{children}</a>
+  ),
+  usePathname: () => '/',
+}));
 vi.mock('@/design-system/ThemeProvider', () => ({ useOnmaruTheme: () => ({ theme: 'light' }) }));
 vi.mock('@/features/auth', () => ({
   useAuth: () => ({

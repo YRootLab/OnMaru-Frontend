@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useSyncExternalStore } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'

@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { routing } from '@/i18n/routing'
+import Header from '@/shared/components/Header'
+import Footer from '@/shared/components/Footer'
+import PageContainer from '@/shared/components/Layout/PageContainer'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -38,7 +41,11 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale}>
-      {children}
+      <Header />
+      <PageContainer>
+        {children}
+      </PageContainer>
+      <Footer />
     </NextIntlClientProvider>
   );
 }

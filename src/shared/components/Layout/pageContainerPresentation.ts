@@ -16,6 +16,7 @@ export function getPageContainerPresentation(pathname: string): PageContainerPre
     pathname.startsWith('/mypage') ||
     pathname.startsWith('/stamps') ||
     pathname.startsWith('/discover') ||
+    pathname.startsWith('/journey') ||
     pathname.startsWith('/admin');
 
   return {
