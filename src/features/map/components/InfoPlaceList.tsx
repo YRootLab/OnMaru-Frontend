@@ -300,7 +300,7 @@ export default function InfoPlaceList() {
   };
 
   const categoryLabel = infoCategory === 'hanok'
-    ? '한옥 공간·체험'
+    ? '전통 문화 공간'
     : CATEGORY_LABELS[infoCategory] ?? '장소';
   const headerTitle = isListLoading && listItems.length === 0
     ? `${categoryLabel} 목록`
