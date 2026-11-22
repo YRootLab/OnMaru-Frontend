@@ -67,7 +67,7 @@ export function middleware(request: NextRequest) {
       const locale = getLocale(request);
       const url = request.nextUrl.clone();
       url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
-      response = NextResponse.rewrite(url, { request: { headers: reqHeaders } });
+      response = NextResponse.redirect(url);
     }
   }
 

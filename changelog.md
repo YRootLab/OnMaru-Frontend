@@ -4,6 +4,18 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased]
 
+- Next.js 국제화(`next-intl`) 컨텍스트 및 레이아웃 구조 개선:
+  - `RootLayout`(`src/app/layout.tsx`)에서 `Header`, `PageContainer`, `Footer`를 `[locale]/layout.tsx` 내부(`NextIntlClientProvider`)로 이동하여 클라이언트 네비게이션 시 `No intl context found` 런타임 오류 해결.
+  - `PageContainer`에서 `@/i18n/navigation`의 `usePathname`을 사용하여 로케일 프리픽스 제거 후 경로 일치 검사하도록 개선.
+  - `pageContainerPresentation.ts`의 `isFullBleed` 대상에 `/journey`를 추가하여 이중 여백 및 불필요한 레이아웃 래핑 방지.
+- AI 여정 대화(`/journey`) 검색 및 카드 인터페이스 개선:
+  - 검색 대기 중 3×2 후보 장소 썸네일 탐색 그리드와 4점 다이아몬드 스파클 로딩 인디케이터(`Looking into this for you`) 추가.
+  - 결과 장소 카드를 4:3 비율의 대형 이미지, 돋보기·북마크 원형 퀵 액션 버튼, 별점(★ 4.9), 카테고리/지역 정보가 포함된 구조로 개편.
+  - 답변 하단에 자연어 설명 문단 및 좋아요/아쉬워요 피드백 버튼, 답변 복사(Copy) 액션 바 추가.
+  - 검색창 바로 위에 추천 질문 키워드 칩(`QuickChipsRow`)을 배치하여 클릭 시 입력창으로 해당 키워드가 자동 입력되도록 지원.
+  - 타이틀 앞 주황색 세로 바 가상요소를 제거하고 다크 모드 토큰을 남색 계열(`surface.dark.app`, `surface.dark.card`, `surface.dark.surface`)로 전면 동기화.
+  - 데스크톱 카드 레이아웃의 기본 좌우 여백(`padding: 68px 20px 24px`, `max-width: 1240px`) 유지.
+
 ## [v0.1.25] - 2026-11-15
 
 - AI 여정 요청 시 Idempotency-Key UUID v4 규격 적용:

@@ -46,4 +46,36 @@ describe('CulturalDiscoveryCollection', () => {
     screen.getByRole('button', { name: '지역을 맛보다' }).click();
     expect(onPathSelect).toHaveBeenCalledWith(collection.paths[1]);
   });
+
+  it('limits the number of rendered places to 4 by default', () => {
+    const emptyRefsCollection = { ...collection, placeRefs: [] };
+    const manyPlaces = Array.from({ length: 8 }, (_, i) => ({
+      id: `p-${i}`,
+      name: `한옥 장소 ${i + 1}`,
+      category: 'spot' as const,
+      lat: 37.58,
+      lng: 126.98,
+      addr: '서울',
+      image: null,
+      tel: null,
+      dist: null,
+      isTraditional: true,
+    }));
+
+    render(
+      <CulturalDiscoveryCollection
+        collection={emptyRefsCollection}
+        places={manyPlaces}
+        loading={false}
+        onPlaceSelect={vi.fn()}
+        onPathSelect={vi.fn()}
+      />,
+    );
+
+    const placeButtons = screen.getAllByRole('button', { name: /^한옥 장소/ });
+    expect(placeButtons).toHaveLength(4);
+    expect(screen.getByRole('button', { name: '한옥 장소 1' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: '한옥 장소 4' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: '한옥 장소 5' })).toBeNull();
+  });
 });

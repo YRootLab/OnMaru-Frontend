@@ -39,7 +39,19 @@ interface WriteWarmthModalProps {
 const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;
 
+const MobileBackdrop = styled(motion.div)`
+  display: none;
 
+  @media (max-width: 1023px) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 110;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+`;
 
 const PanelContainer = styled(motion.aside)<{ $panelOpen: boolean }>`
   position: fixed;
@@ -51,7 +63,7 @@ const PanelContainer = styled(motion.aside)<{ $panelOpen: boolean }>`
       : `${RAIL_INSET + RAIL_WIDTH + RAIL_INSET}px`};
   width: ${PANEL_WIDTH}px;
   height: calc(100vh - ${RAIL_INSET * 2}px);
-  z-index: 40;
+  z-index: 120;
   display: flex;
   flex-direction: column;
   padding: 24px;
@@ -77,12 +89,15 @@ const PanelContainer = styled(motion.aside)<{ $panelOpen: boolean }>`
   }
 
   @media (max-width: 1023px) {
-    top: 12px;
-    bottom: 12px;
+    top: max(12px, env(safe-area-inset-top));
+    bottom: max(12px, env(safe-area-inset-bottom));
     left: 12px;
     right: 12px;
     width: auto;
     height: auto;
+    padding: 20px 16px 16px;
+    border-radius: 20px;
+    z-index: 120;
   }
 `;
 
@@ -195,12 +210,13 @@ const PlaceInputWrap = styled.div`
 const PlaceInputIcon = styled.div`
   position: absolute;
   left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  height: 42px;
   display: flex;
   align-items: center;
   color: ${meok[500]};
   pointer-events: none;
+  z-index: 1;
 `;
 
 const PlaceInput = styled.input`
@@ -242,17 +258,23 @@ const PlaceInput = styled.input`
 `;
 
 const PlaceDropdown = styled.div`
-  margin-top: 6px;
-  max-height: 140px;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  max-height: 180px;
   overflow-y: auto;
   border-radius: 12px;
-  background: #fafbfc;
-
+  background: #ffffff;
+  box-shadow: ${ringShadow.light.card};
+  border: 1px solid rgba(0, 0, 0, 0.06);
   padding: 4px;
 
   [data-theme='dark'] & {
-    background: ${surface.dark.app};
-    border: none;
+    background: ${surface.dark.card};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 
@@ -400,6 +422,7 @@ const SubmitBtn = styled.button`
   width: 100%;
   height: 48px;
   margin-top: 8px;
+  flex-shrink: 0;
 
   border-radius: 14px;
   background: ${palette.juhong[500]};
@@ -463,9 +486,15 @@ export default function WriteWarmthModal({
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const placeWrapRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
@@ -477,12 +506,63 @@ export default function WriteWarmthModal({
 
   useEffect(() => {
     if (!isOpen) return;
+
+    let previousFocusedElement: HTMLElement | null = null;
+
+    if (isMobile) {
+      previousFocusedElement = document.activeElement as HTMLElement | null;
+      const panel = panelRef.current;
+      if (panel) {
+        const focusables = panel.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length > 0) {
+          focusables[0].focus();
+        } else {
+          panel.focus();
+        }
+      }
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+
+      if (!isMobile || e.key !== 'Tab') return;
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      const focusables = panel.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (isMobile && previousFocusedElement) {
+        previousFocusedElement.focus();
+      }
+    };
+  }, [isOpen, isMobile, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -605,16 +685,29 @@ export default function WriteWarmthModal({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <PanelContainer
-          key="warmth-write-panel"
-          $panelOpen={panelOpen}
-          initial={{ opacity: 0, x: -20, scale: 0.98 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          exit={{ opacity: 0, x: -20, scale: 0.98 }}
-          transition={{ duration: 0.28, ease: [0.19, 1.15, 0.22, 1] }}
-          role="dialog"
-          aria-label="온기 한 줄 남기기"
-        >
+        <>
+          <MobileBackdrop
+            key="warmth-write-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+            aria-hidden="true"
+          />
+          <PanelContainer
+            ref={panelRef}
+            key="warmth-write-panel"
+            $panelOpen={panelOpen}
+            initial={{ opacity: 0, x: -20, scale: 0.98 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -20, scale: 0.98 }}
+            transition={{ duration: 0.28, ease: [0.19, 1.15, 0.22, 1] }}
+            role="dialog"
+            aria-modal={isMobile ? 'true' : undefined}
+            aria-label="온기 한 줄 남기기"
+            tabIndex={-1}
+          >
           <ModalHeader>
             <ModalTitle>
               <HugeiconsIcon icon={FlameIcon} size={20} strokeWidth={2} color={palette.juhong[500]} />
@@ -731,6 +824,7 @@ export default function WriteWarmthModal({
           </SubmitBtn>
         </ModalForm>
       </PanelContainer>
+    </>
     )}
   </AnimatePresence>,
   document.body
