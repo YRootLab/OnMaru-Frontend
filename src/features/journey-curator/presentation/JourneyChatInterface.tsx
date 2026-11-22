@@ -251,7 +251,11 @@ const Subtitle = styled.p`
 const Transcript = styled.div`
   min-height: 0;
   overflow-y: auto;
-  padding: 28px clamp(16px, 4vw, 56px);
+  padding: 20px 20px;
+
+  @media (max-width: 720px) {
+    padding: 14px 10px;
+  }
 `;
 
 const LoadOlderButton = styled.button`
@@ -282,7 +286,8 @@ const MessageGroup = styled.article<{ $user?: boolean }>`
   flex-direction: column;
   align-items: ${({ $user }) => ($user ? 'flex-end' : 'flex-start')};
   gap: 8px;
-  margin: 0 0 24px;
+  margin: 0 0 20px;
+  width: 100%;
 `;
 
 const Bubble = styled.div<{ $user?: boolean }>`
@@ -404,9 +409,10 @@ const PlacesScroll = styled.div`
   display: flex;
   gap: 14px;
   overflow-x: auto;
-  padding: 4px 2px 14px;
+  padding: 4px 0 12px;
   scroll-snap-type: x mandatory;
   scrollbar-width: thin;
+  width: 100%;
 
   & > article {
     scroll-snap-align: start;
@@ -567,7 +573,9 @@ const ResultPlaceSummary = styled.p`
 `;
 
 const NarrativeBubble = styled.div`
-  padding: 18px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
   border-radius: 18px 18px 18px 4px;
   background: #fff;
   border: 1px solid #ededeb;
