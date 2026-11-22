@@ -761,19 +761,35 @@ const ComposerArea = styled.div`
   flex-direction: column;
   border-top: 1px solid #ededeb;
   background: #fff;
+  padding: 12px 20px 14px;
+  min-width: 0;
 
   [data-theme='dark'] & {
     border-color: rgba(255, 255, 255, 0.08);
     background: ${surface.dark.app};
   }
+
+  @media (max-width: 720px) {
+    padding: 10px 12px 12px;
+  }
+`;
+
+const ComposerInner = styled.div`
+  width: min(760px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 `;
 
 const QuickChipsRow = styled.div`
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 12px clamp(16px, 4vw, 56px) 6px;
+  padding: 2px 2px 4px;
   scrollbar-width: none;
+  min-width: 0;
 
   &::-webkit-scrollbar {
     display: none;
@@ -792,6 +808,7 @@ const QuickChipButton = styled.button`
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
   transition: all 0.15s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -820,8 +837,10 @@ const QuickChipButton = styled.button`
 
 const Composer = styled.form`
   display: flex;
+  align-items: center;
   gap: 10px;
-  padding: 6px clamp(16px, 4vw, 56px) 12px;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const ComposerNotice = styled.p`
@@ -829,7 +848,7 @@ const ComposerNotice = styled.p`
   text-align: center;
   font-size: 11px;
   color: #999;
-  padding: 0 16px 10px;
+  padding: 2px 0 0;
 
   [data-theme='dark'] & {
     color: rgba(216, 229, 255, 0.45);
@@ -839,44 +858,53 @@ const ComposerNotice = styled.p`
 const Input = styled.input`
   min-width: 0;
   flex: 1;
-  padding: 13px 14px;
-  border: 1px solid #d5d5d2;
-  border-radius: 14px;
+  height: 48px;
+  padding: 0 18px;
+  border: 1.5px solid #d5d5d2;
+  border-radius: 24px;
   background: #fff;
   color: inherit;
   font: inherit;
+  font-size: 14px;
+  box-sizing: border-box;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &:focus {
     outline: none;
     border-color: #FF5500;
-    box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.08);
+    box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.1);
   }
 
   [data-theme='dark'] & {
     background: ${surface.dark.surface};
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.14);
     color: #f5f5f5;
 
     &:focus {
       border-color: #FF6A10;
-      box-shadow: 0 0 0 3px rgba(255, 106, 16, 0.15);
+      box-shadow: 0 0 0 3px rgba(255, 106, 16, 0.18);
     }
   }
 `;
 
 const SendButton = styled.button`
-  padding: 0 18px;
+  flex-shrink: 0;
+  height: 48px;
+  padding: 0 20px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 24px;
   background: #FF5500;
   color: #fff;
   font: inherit;
+  font-size: 14px;
   font-weight: 700;
+  white-space: nowrap;
+  box-sizing: border-box;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
 
   &:hover { background: #E64C00; }
+  &:active { transform: scale(0.98); }
   &:disabled { cursor: not-allowed; opacity: 0.45; }
 
   [data-theme='dark'] & {
@@ -1109,34 +1137,36 @@ export default function JourneyChatInterface({
           </Transcript>
 
           <ComposerArea>
-            <QuickChipsRow aria-label="추천 질문 키워드">
-              {DEFAULT_SUGGESTED_KEYWORDS.map((keyword) => (
-                <QuickChipButton
-                  key={keyword}
-                  type="button"
-                  onClick={() => handleChipClick(keyword)}
-                >
-                  {keyword}
-                </QuickChipButton>
-              ))}
-            </QuickChipsRow>
+            <ComposerInner>
+              <QuickChipsRow aria-label="추천 질문 키워드">
+                {DEFAULT_SUGGESTED_KEYWORDS.map((keyword) => (
+                  <QuickChipButton
+                    key={keyword}
+                    type="button"
+                    onClick={() => handleChipClick(keyword)}
+                  >
+                    {keyword}
+                  </QuickChipButton>
+                ))}
+              </QuickChipsRow>
 
-            <Composer onSubmit={submit}>
-              <Input
-                ref={inputRef}
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                placeholder="여행 조건을 이어서 물어보세요"
-                aria-label="여행 질문"
-                disabled={isRunning}
-              />
-              {isRunning ? (
-                <SendButton type="button" onClick={() => void onCancel()}>취소</SendButton>
-              ) : (
-                <SendButton type="submit" disabled={!draft.trim()}>보내기</SendButton>
-              )}
-            </Composer>
-            <ComposerNotice>AI 응답은 참고용 정보이며 실제 장소 상황과 다를 수 있습니다.</ComposerNotice>
+              <Composer onSubmit={submit}>
+                <Input
+                  ref={inputRef}
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  placeholder="여행 조건을 이어서 물어보세요"
+                  aria-label="여행 질문"
+                  disabled={isRunning}
+                />
+                {isRunning ? (
+                  <SendButton type="button" onClick={() => void onCancel()}>취소</SendButton>
+                ) : (
+                  <SendButton type="submit" disabled={!draft.trim()}>보내기</SendButton>
+                )}
+              </Composer>
+              <ComposerNotice>AI 응답은 참고용 정보이며 실제 장소 상황과 다를 수 있습니다.</ComposerNotice>
+            </ComposerInner>
           </ComposerArea>
         </Chat>
       </Layout>
