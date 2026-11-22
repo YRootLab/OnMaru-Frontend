@@ -885,29 +885,55 @@ const Input = styled.input`
   flex: 1;
   height: 48px;
   padding: 0 18px;
-  border: 1.5px solid #d5d5d2;
+  border: 1.5px solid rgba(255, 85, 0, 0.32);
   border-radius: 24px;
   background: #fff;
   color: inherit;
   font: inherit;
   font-size: 14px;
   box-sizing: border-box;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow:
+    0 0 0 1px rgba(255, 85, 0, 0.1),
+    0 2px 14px rgba(255, 85, 0, 0.12);
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(255, 85, 0, 0.5);
+    box-shadow:
+      0 0 0 1px rgba(255, 85, 0, 0.2),
+      0 4px 18px rgba(255, 85, 0, 0.18);
+  }
 
   &:focus {
     outline: none;
     border-color: #FF5500;
-    box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.1);
+    box-shadow:
+      0 0 0 2px rgba(255, 85, 0, 0.35),
+      0 0 20px rgba(255, 85, 0, 0.24),
+      0 6px 24px rgba(255, 136, 64, 0.2);
   }
 
   [data-theme='dark'] & {
     background: ${surface.dark.surface};
-    border-color: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 106, 16, 0.4);
     color: #f5f5f5;
+    box-shadow:
+      0 0 0 1px rgba(255, 106, 16, 0.15),
+      0 2px 16px rgba(255, 106, 16, 0.16);
+
+    &:hover {
+      border-color: rgba(255, 106, 16, 0.6);
+      box-shadow:
+        0 0 0 1px rgba(255, 106, 16, 0.25),
+        0 4px 22px rgba(255, 106, 16, 0.22);
+    }
 
     &:focus {
       border-color: #FF6A10;
-      box-shadow: 0 0 0 3px rgba(255, 106, 16, 0.18);
+      box-shadow:
+        0 0 0 2px rgba(255, 106, 16, 0.45),
+        0 0 26px rgba(255, 106, 16, 0.32),
+        0 8px 30px rgba(0, 0, 0, 0.5);
     }
   }
 `;
