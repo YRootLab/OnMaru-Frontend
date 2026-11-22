@@ -261,27 +261,14 @@ export default function MapNavRail() {
         <NavItemBtn
           type="button"
           $active={false}
-          onClick={handleGoHome}
-          aria-label="홈으로 이동"
-          title="홈"
+          onClick={() => router.push('/sorimaru')}
+          aria-label="소리마루"
+          title="소리마루"
         >
           <NavItemIcon>
-            <HugeiconsIcon icon={Home01Icon} size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={HeadphonesIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>홈</NavItemLabel>
-        </NavItemBtn>
-
-        <NavItemBtn
-          type="button"
-          $active={isMapActive}
-          onClick={handleSelectInfoMap}
-          aria-label="지도마루"
-          title="지도마루"
-        >
-          <NavItemIcon>
-            <HugeiconsIcon icon={MapIcon} size={19} strokeWidth={2} />
-          </NavItemIcon>
-          <NavItemLabel>지도마루</NavItemLabel>
+          <NavItemLabel>소리마루</NavItemLabel>
         </NavItemBtn>
 
         <NavItemBtn
@@ -300,6 +287,32 @@ export default function MapNavRail() {
         <NavItemBtn
           type="button"
           $active={false}
+          onClick={handleGoHome}
+          aria-label="AI홈마루로 이동"
+          title="AI홈마루"
+        >
+          <NavItemIcon>
+            <HugeiconsIcon icon={Home01Icon} size={19} strokeWidth={2} />
+          </NavItemIcon>
+          <NavItemLabel>AI홈마루</NavItemLabel>
+        </NavItemBtn>
+
+        <NavItemBtn
+          type="button"
+          $active={isMapActive}
+          onClick={handleSelectInfoMap}
+          aria-label="지도마루"
+          title="지도마루"
+        >
+          <NavItemIcon>
+            <HugeiconsIcon icon={MapIcon} size={19} strokeWidth={2} />
+          </NavItemIcon>
+          <NavItemLabel>지도마루</NavItemLabel>
+        </NavItemBtn>
+
+        <NavItemBtn
+          type="button"
+          $active={false}
           onClick={() => router.push('/discover')}
           aria-label="K-마루"
           title="K-마루"
@@ -308,19 +321,6 @@ export default function MapNavRail() {
             <HugeiconsIcon icon={Film01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>K-마루</NavItemLabel>
-        </NavItemBtn>
-
-        <NavItemBtn
-          type="button"
-          $active={false}
-          onClick={() => router.push('/sorimaru')}
-          aria-label="소리마루"
-          title="소리마루"
-        >
-          <NavItemIcon>
-            <HugeiconsIcon icon={HeadphonesIcon} size={19} strokeWidth={2} />
-          </NavItemIcon>
-          <NavItemLabel>소리마루</NavItemLabel>
         </NavItemBtn>
       </NavList>
 

@@ -35,7 +35,10 @@ export default function JourneyChatPage() {
     url.searchParams.delete('query');
     window.history.pushState({}, '', `${url.pathname}${url.search}`);
     setSelectedExplorationId(explorationId);
-  }, []);
+    if (explorationId) {
+      void conversation.loadConversation(explorationId);
+    }
+  }, [conversation]);
 
   useEffect(() => {
     if (!conversation.activeExplorationId || conversation.activeExplorationId === selectedExplorationId) return;

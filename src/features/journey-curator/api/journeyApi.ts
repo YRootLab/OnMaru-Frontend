@@ -17,7 +17,7 @@ export type RunAccepted = {
 };
 
 export type ExplorationSnapshot = {
-  schemaVersion: '1.2';
+  schemaVersion: JourneySchemaVersion;
   id: string;
   stateVersion: number;
   board: BentoJourneyPlan | null;
@@ -44,8 +44,11 @@ export type StartJourneyInput = {
 
 export type JourneyActionBody =
   | { type: 'PIN'; resourceRef: { type: string; id: string } }
+  | { type: 'UNPIN'; resourceRef: { type: string; id: string } }
   | { type: 'EXCLUDE'; resourceRef: { type: string; id: string } }
-  | { type: 'PROPOSAL'; proposalId: string };
+  | { type: 'UNEXCLUDE'; resourceRef: { type: string; id: string } }
+  | { type: 'APPLY_PROPOSAL'; proposalId: string }
+  | { type: 'DISMISS_PROPOSAL'; proposalId: string };
 
 export type ApplyActionInput = {
   explorationId: string;

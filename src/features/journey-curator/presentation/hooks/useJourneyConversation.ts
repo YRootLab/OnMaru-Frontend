@@ -58,7 +58,7 @@ export function useJourneyConversation(
   });
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const loadVersionRef = useRef(0);
-  const activeIdRef = useRef(activeExplorationId);
+  const activeIdRef = useRef<string | null>(null);
   const acceptedRef = useRef<RunAccepted | null>(null);
   const latestSequenceRef = useRef(0);
   const recoveringRunIdsRef = useRef(new Set<string>());
@@ -77,6 +77,9 @@ export function useJourneyConversation(
 
   const loadConversation = useCallback(async (explorationId: string, options?: { preserveTurns?: boolean }) => {
     const version = ++loadVersionRef.current;
+    if (activeIdRef.current !== explorationId) {
+      selectionVersionRef.current += 1;
+    }
     activeIdRef.current = explorationId;
     setState((current) => ({
       ...current,
@@ -87,18 +90,43 @@ export function useJourneyConversation(
     }));
 
     try {
-      const [snapshot, turnPage] = await Promise.all([
-        repository.getExploration(explorationId),
-        repository.listTurns({ explorationId, limit: 20 }),
-      ]);
+      const snapshotPromise = repository.getExploration(explorationId);
+      const turnPagePromise = repository.listTurns({ explorationId, limit: 20 });
+
+      const [snapshot, turnPage] = await Promise.all([snapshotPromise, turnPagePromise]);
       if (version !== loadVersionRef.current || activeIdRef.current !== explorationId) return;
 
       latestSequenceRef.current = snapshot.latestRun?.sequence ?? 0;
+
+      let turns = [...turnPage.items].reverse();
+      if (turns.length === 0 && snapshot.board) {
+        const recentQueries = (snapshot as { recentHistory?: Array<{ query?: string }> }).recentHistory;
+        const queryFromHistory = recentQueries?.find((h) => h?.query)?.query;
+        const initialQuery = queryFromHistory || snapshot.board.querySummary || '추천 여행 일정';
+        turns = [
+          {
+            turnId: snapshot.latestRun?.runId ?? `init-${snapshot.explorationId}`,
+            query: initialQuery,
+            createdAt: snapshot.updatedAt,
+            runId: snapshot.latestRun?.runId ?? null,
+            response: {
+              status: (snapshot.latestRun?.status as any) ?? 'COMPLETED',
+              outcome: snapshot.latestRun?.outcome ?? 'INITIAL_BOARD',
+              summary: snapshot.board.querySummary || `${initialQuery}에 어울리는 추천 여정 코스예요.`,
+              board: snapshot.board,
+              proposal: snapshot.pendingProposal,
+              clarification: snapshot.latestRun?.clarification ?? null,
+              error: snapshot.latestRun?.error ?? null,
+            },
+          },
+        ];
+      }
+
       setState((current) => ({
         ...current,
         activeExplorationId: explorationId,
         snapshot,
-        turns: [...turnPage.items].reverse(),
+        turns,
         progress: isActiveRun(snapshot.latestRun)
           ? {
               runId: snapshot.latestRun!.runId,
@@ -126,7 +154,7 @@ export function useJourneyConversation(
       const { run, snapshot } = await repository.getAcceptedSnapshots(accepted);
       if (activeIdRef.current !== accepted.explorationId) return;
 
-      latestSequenceRef.current = run.sequence;
+      latestSequenceRef.current = run.sequence ?? latestSequenceRef.current;
       setState((current) => ({
         ...current,
         snapshot,

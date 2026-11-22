@@ -1,5 +1,5 @@
 import type { JourneyBoard, JourneyProposal, ResourceRef } from '../types/exploration.types';
-import type { JourneyRunSnapshot } from '../api/journeyContract';
+import type { JourneyRunSnapshot, JourneySchemaVersion } from '../api/journeyContract';
 
 export type ExplorationSummary = {
   explorationId: string;
@@ -12,7 +12,7 @@ export type ExplorationSummary = {
 };
 
 export type ExplorationPage = {
-  schemaVersion: '1.3';
+  schemaVersion: JourneySchemaVersion;
   items: ExplorationSummary[];
   totalCount: number;
   nextCursor: string | null;
@@ -38,14 +38,14 @@ export type ExplorationTurn = {
 };
 
 export type ExplorationTurnPage = {
-  schemaVersion: '1.3';
+  schemaVersion: JourneySchemaVersion;
   items: ExplorationTurn[];
   nextCursor: string | null;
   hasMore: boolean;
 };
 
 export type ConversationSnapshot = {
-  schemaVersion: '1.3';
+  schemaVersion: JourneySchemaVersion;
   explorationId: string;
   stateVersion: number;
   board: JourneyBoard | null;

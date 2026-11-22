@@ -21,13 +21,13 @@ describe('saved journeys repository (FE #95)', () => {
     }) as never);
 
     await repository.list();
-    await repository.create({ explorationId: 'exp-1', baseVersion: 1, title: '제목' });
+    await repository.create({ explorationId: 'exp-1', baseVersion: 1, title: '제목', idempotencyKey: 'key-create' });
     await repository.remove('saved-1');
     await repository.resume('saved-1', 'key-1');
 
     expect(calls).toEqual([
       { path: '/saved-journeys', options: { method: 'GET', cache: 'no-store' } },
-      { path: '/saved-journeys', options: { method: 'POST', body: { explorationId: 'exp-1', baseVersion: 1, title: '제목' }, csrf: true } },
+      { path: '/saved-journeys', options: { method: 'POST', body: { explorationId: 'exp-1', baseVersion: 1, title: '제목' }, csrf: true, idempotencyKey: 'key-create' } },
       { path: '/saved-journeys/saved-1', options: { method: 'DELETE', csrf: true } },
       { path: '/saved-journeys/saved-1/resume', options: { method: 'POST', body: {}, csrf: true, idempotencyKey: 'key-1' } },
     ]);

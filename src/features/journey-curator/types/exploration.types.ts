@@ -30,7 +30,7 @@ export interface CreateExplorationRequest {
 }
 
 export interface AcceptedRun {
-  schemaVersion: '1.0';
+  schemaVersion: string;
   explorationId: string;
   runId: string;
   stateVersion: number;
@@ -40,7 +40,7 @@ export interface AcceptedRun {
 }
 
 export interface RunSnapshot {
-  schemaVersion: '1.0';
+  schemaVersion: string;
   runId: string;
   status: RunStatus;
   stage: RunStage | null;
@@ -177,7 +177,7 @@ export interface JourneyHistoryItem {
 }
 
 export interface ExplorationSnapshot {
-  schemaVersion: '1.0';
+  schemaVersion: string;
   explorationId: string;
   stateVersion: number;
   board: JourneyBoard | null;
@@ -220,6 +220,8 @@ export interface SavedJourneyDetail {
 export type ExplorationAction =
   | { type: 'PIN'; resourceRef: ResourceRef }
   | { type: 'UNPIN'; resourceRef: ResourceRef }
+  | { type: 'EXCLUDE'; resourceRef: ResourceRef }
+  | { type: 'UNEXCLUDE'; resourceRef: ResourceRef }
   | { type: 'APPLY_PROPOSAL'; proposalId: string }
   | { type: 'DISMISS_PROPOSAL'; proposalId: string };
 
@@ -237,9 +239,13 @@ export interface ErrorEnvelope {
       | 'NOT_FOUND'
       | 'ACTIVE_RUN'
       | 'VERSION_CONFLICT'
+      | 'IDEMPOTENCY_CONFLICT'
       | 'RATE_LIMITED'
       | 'AI_TIMEOUT'
       | 'AI_UNAVAILABLE'
+      | 'AI_QUOTA_EXCEEDED'
+      | 'AI_INVALID_RESPONSE'
+      | 'SAFETY_BLOCKED'
       | 'NO_RESULTS'
       | 'RESOURCE_WITHDRAWN';
     message: string;

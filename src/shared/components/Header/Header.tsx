@@ -730,11 +730,11 @@ export default function Header() {
         {}
         <CenterNav $isMapPage={isMapPage}>
           {[
-            { href: '/', label: '홈', icon: Home01Icon, active: pathname === '/' },
-            { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
-            { href: '/hanok', label: '한옥마루', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
-            { href: '/discover', label: 'K-마루', icon: Film01Icon, active: pathname.startsWith('/discover') },
             { href: '/sorimaru', label: '소리마루', icon: HeadphonesIcon, active: isSoriMaruPage },
+            { href: '/hanok', label: '한옥마루', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
+            { href: '/', label: 'AI홈마루', icon: Home01Icon, active: pathname === '/' },
+            { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
+            { href: '/discover', label: 'K-마루', icon: Film01Icon, active: pathname.startsWith('/discover') },
           ].map((item) => {
             const isSelected = item.active;
             return (
@@ -848,6 +848,16 @@ export default function Header() {
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
+              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <HugeiconsIcon icon={HeadphonesIcon} size={15} /> 소리마루
+                </span>
+              </MobileMenuLink>
+              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <HugeiconsIcon icon={BookOpen01Icon} size={15} /> 한옥마루
+                </span>
+              </MobileMenuLink>
               <MobileMenuLink
                 href="/"
                 $isLanding={usesDarkSurface}
@@ -857,7 +867,7 @@ export default function Header() {
                 }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <HugeiconsIcon icon={Home01Icon} size={15} /> 홈
+                  <HugeiconsIcon icon={Home01Icon} size={15} /> AI홈마루
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
@@ -865,19 +875,9 @@ export default function Header() {
                   <HugeiconsIcon icon={MapIcon} size={15} /> 지도마루
                 </span>
               </MobileMenuLink>
-              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <HugeiconsIcon icon={BookOpen01Icon} size={15} /> 한옥마루
-                </span>
-              </MobileMenuLink>
               <MobileMenuLink href="/discover" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <HugeiconsIcon icon={Film01Icon} size={15} /> K-마루
-                </span>
-              </MobileMenuLink>
-              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <HugeiconsIcon icon={HeadphonesIcon} size={15} /> 소리마루
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>

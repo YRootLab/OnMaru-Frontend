@@ -160,22 +160,17 @@ const ConversationButton = styled.button<{ $active: boolean }>`
   text-align: left;
   cursor: pointer;
   transition: background 0.12s ease;
-  ${({ $active }) => $active ? 'border-left: 3px solid #FF5500; padding-left: 9px;' : ''}
 
   &:hover { background: ${({ $active }) => ($active ? '#FFF1E8' : '#e5e5e3')}; }
 
   [data-theme='dark'] & {
     background: ${({ $active }) => ($active ? 'rgba(255, 106, 16, 0.16)' : 'transparent')};
-    ${({ $active }) => $active ? 'border-left-color: #FF6A10;' : ''}
     &:hover { background: ${({ $active }) => ($active ? 'rgba(255, 106, 16, 0.16)' : 'rgba(255, 255, 255, 0.06)')}; }
   }
 
   @media (max-width: 720px) {
     width: 190px;
     flex: 0 0 190px;
-    border-left: 0;
-    padding-left: 12px;
-    ${({ $active }) => $active ? 'border-bottom: 2px solid #FF5500;' : ''}
   }
 `;
 
@@ -256,7 +251,11 @@ const Subtitle = styled.p`
 const Transcript = styled.div`
   min-height: 0;
   overflow-y: auto;
-  padding: 28px clamp(16px, 4vw, 56px);
+  padding: 20px 20px;
+
+  @media (max-width: 720px) {
+    padding: 14px 10px;
+  }
 `;
 
 const LoadOlderButton = styled.button`
@@ -287,7 +286,8 @@ const MessageGroup = styled.article<{ $user?: boolean }>`
   flex-direction: column;
   align-items: ${({ $user }) => ($user ? 'flex-end' : 'flex-start')};
   gap: 8px;
-  margin: 0 0 24px;
+  margin: 0 0 20px;
+  width: 100%;
 `;
 
 const Bubble = styled.div<{ $user?: boolean }>`
@@ -409,9 +409,10 @@ const PlacesScroll = styled.div`
   display: flex;
   gap: 14px;
   overflow-x: auto;
-  padding: 4px 2px 14px;
+  padding: 4px 0 12px;
   scroll-snap-type: x mandatory;
   scrollbar-width: thin;
+  width: 100%;
 
   & > article {
     scroll-snap-align: start;
@@ -572,7 +573,9 @@ const ResultPlaceSummary = styled.p`
 `;
 
 const NarrativeBubble = styled.div`
-  padding: 18px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
   border-radius: 18px 18px 18px 4px;
   background: #fff;
   border: 1px solid #ededeb;
@@ -858,11 +861,149 @@ const QuickChipButton = styled.button`
 `;
 
 const Composer = styled.form`
+  position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 9999px;
+  padding: 6px 8px 6px 22px;
+  border: 1.5px solid rgba(255, 85, 0, 0.32);
+  box-shadow:
+    0 0 0 1px rgba(255, 85, 0, 0.12),
+    0 4px 20px -2px rgba(255, 85, 0, 0.14),
+    0 12px 36px -4px rgba(255, 136, 64, 0.18);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
+
+  @keyframes chatAmbientGlow {
+    0% {
+      background-position: 0% 50%;
+      filter: blur(14px);
+      transform: scale(0.99);
+      opacity: 0.72;
+    }
+    50% {
+      background-position: 100% 50%;
+      filter: blur(18px);
+      transform: scale(1.01);
+      opacity: 0.9;
+    }
+    100% {
+      background-position: 0% 50%;
+      filter: blur(14px);
+      transform: scale(0.99);
+      opacity: 0.72;
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 85, 0, 0.28) 0%,
+      rgba(255, 136, 64, 0.2) 35%,
+      rgba(255, 60, 0, 0.14) 70%,
+      rgba(255, 106, 16, 0.26) 100%
+    );
+    background-size: 250% 250%;
+    filter: blur(14px);
+    opacity: 0.75;
+    pointer-events: none;
+    animation: chatAmbientGlow 7s ease-in-out infinite;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+    z-index: -2;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 9999px;
+    background: radial-gradient(
+      180px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(255, 85, 0, 0.44) 0%,
+      rgba(255, 136, 64, 0.22) 40%,
+      transparent 75%
+    );
+    filter: blur(10px);
+    opacity: var(--mouse-active, 0);
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: -1;
+  }
+
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 1;
+    filter: blur(18px);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(22, 28, 40, 0.82);
+    border: 1.5px solid rgba(255, 106, 16, 0.4);
+    box-shadow:
+      0 0 0 1px rgba(255, 106, 16, 0.2),
+      0 8px 32px 0 rgba(0, 0, 0, 0.45),
+      0 0 24px rgba(255, 106, 16, 0.18);
+
+    &::before {
+      background: linear-gradient(
+        120deg,
+        rgba(255, 106, 16, 0.35) 0%,
+        rgba(255, 136, 64, 0.22) 35%,
+        rgba(255, 60, 0, 0.16) 70%,
+        rgba(255, 106, 16, 0.32) 100%
+      );
+      background-size: 250% 250%;
+      filter: blur(16px);
+      opacity: 0.85;
+      animation: chatAmbientGlow 7s ease-in-out infinite;
+    }
+
+    &::after {
+      background: radial-gradient(
+        180px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(255, 106, 16, 0.5) 0%,
+        rgba(255, 136, 64, 0.26) 40%,
+        transparent 75%
+      );
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before {
+      animation: none;
+    }
+  }
+
+  &:focus-within {
+    transform: translateY(-2px);
+    border-color: #FF5500;
+    box-shadow:
+      0 0 0 2px rgba(255, 85, 0, 0.35),
+      0 0 28px rgba(255, 85, 0, 0.26),
+      0 14px 40px rgba(255, 136, 64, 0.24);
+
+    [data-theme='dark'] & {
+      border-color: #FF6A10;
+      box-shadow:
+        0 0 0 2px rgba(255, 106, 16, 0.45),
+        0 0 32px rgba(255, 106, 16, 0.35),
+        0 14px 44px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  @media (max-width: 640px) {
+    padding: 5px 6px 5px 16px;
+    gap: 8px;
+  }
 `;
 
 const ComposerNotice = styled.p`
@@ -878,65 +1019,145 @@ const ComposerNotice = styled.p`
 `;
 
 const Input = styled.input`
-  min-width: 0;
   flex: 1;
-  height: 48px;
-  padding: 0 18px;
-  border: 1.5px solid #d5d5d2;
-  border-radius: 24px;
-  background: #fff;
-  color: inherit;
-  font: inherit;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  caret-color: #FF5500;
+  font-family: inherit;
   font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  padding: 10px 0;
   box-sizing: border-box;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
-  &:focus {
-    outline: none;
-    border-color: #FF5500;
-    box-shadow: 0 0 0 3px rgba(255, 85, 0, 0.1);
+  &::placeholder {
+    color: #8c8c88;
   }
 
   [data-theme='dark'] & {
-    background: ${surface.dark.surface};
-    border-color: rgba(255, 255, 255, 0.14);
     color: #f5f5f5;
+    caret-color: #FF6A10;
 
-    &:focus {
-      border-color: #FF6A10;
-      box-shadow: 0 0 0 3px rgba(255, 106, 16, 0.18);
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
     }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 `;
 
 const SendButton = styled.button`
   flex-shrink: 0;
-  height: 48px;
-  padding: 0 20px;
+  height: 40px;
+  padding: 0 18px;
   border: 0;
-  border-radius: 24px;
+  border-radius: 9999px;
   background: #FF5500;
   color: #fff;
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
   box-sizing: border-box;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
+  box-shadow: 0 4px 14px 0 rgba(255, 85, 0, 0.38);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
-  &:hover { background: #E64C00; }
-  &:active { transform: scale(0.98); }
-  &:disabled { cursor: not-allowed; opacity: 0.45; }
+  &:hover:not(:disabled) {
+    background: #E64C00;
+    transform: scale(1.04);
+    box-shadow: 0 6px 18px 0 rgba(255, 85, 0, 0.48);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    box-shadow: none;
+  }
 
   [data-theme='dark'] & {
     background: #FF6A10;
-    &:hover { background: #FF8840; }
+
+    &:hover:not(:disabled) {
+      background: #E65A00;
+    }
+  }
+
+  @media (max-width: 640px) {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 12px;
   }
 `;
 
-function findPlaces(board: JourneyBoard | null): PlaceResource[] {
-  return board?.resources.filter((resource): resource is PlaceResource => resource.ref.type === 'PLACE') ?? [];
+export function findPlaces(board: JourneyBoard | null): PlaceResource[] {
+  if (!board) return [];
+
+  // 1) Direct PlaceResource from board.resources
+  if (Array.isArray(board.resources) && board.resources.length > 0) {
+    const places = board.resources.filter((resource): resource is PlaceResource => resource?.ref?.type === 'PLACE');
+    if (places.length > 0) return places;
+  }
+
+  // 2) Fallback: candidate references resolved from resources or containing place
+  if (Array.isArray(board.candidates) && board.candidates.length > 0) {
+    const candidatePlaces = board.candidates
+      .map((c) => {
+        if ((c as any).place) return (c as any).place as PlaceResource;
+        if (Array.isArray(board.resources)) {
+          return board.resources.find(
+            (r): r is PlaceResource => r?.ref?.type === 'PLACE' && r?.ref?.id === c.placeRef?.id,
+          );
+        }
+        return undefined;
+      })
+      .filter((p): p is PlaceResource => Boolean(p));
+    if (candidatePlaces.length > 0) return candidatePlaces;
+  }
+
+  // 3) Fallback: BentoJourneyPlan structure (hanokCard + routeCard)
+  const bento = board as any;
+  const planKey = (board.title || board.querySummary || '').replace(/\W+/g, '').slice(0, 16) || 'plan';
+  const fallbackPlaces: PlaceResource[] = [];
+  if (bento.hanokCard) {
+    fallbackPlaces.push({
+      ref: { type: 'PLACE', id: `place-${planKey}-hanok` },
+      title: bento.hanokCard.title || '추천 한옥',
+      category: '전통 한옥',
+      regionRef: { type: 'REGION', id: 'region-default' },
+      summary: bento.hanokCard.architecturalPoint || bento.hanokCard.location || '고즈넉한 정취의 전통 한옥',
+      image: bento.hanokCard.imageUrl ? { url: bento.hanokCard.imageUrl, alt: bento.hanokCard.title || '추천 한옥', sourceName: '온마루 아카이브' } : null,
+      location: null,
+      sourceRefs: [],
+      unavailableFields: [],
+    });
+  }
+  if (Array.isArray(bento.routeCard?.stops)) {
+    bento.routeCard.stops.forEach((stop: any, idx: number) => {
+      fallbackPlaces.push({
+        ref: { type: 'PLACE', id: `place-${planKey}-stop-${idx + 1}` },
+        title: stop.name,
+        category: stop.category || '명소',
+        regionRef: { type: 'REGION', id: 'region-default' },
+        summary: stop.description || `${stop.time || ''} 방문 코스`.trim(),
+        image: null,
+        location: null,
+        sourceRefs: [],
+        unavailableFields: [],
+      });
+    });
+  }
+
+  return fallbackPlaces;
 }
 
 function ResultPlaceCardItem({ place }: { place: PlaceResource }) {
@@ -1026,7 +1247,12 @@ function AssistantResponse({ turn }: { turn: ExplorationTurn }) {
   if (response.outcome === 'NO_RESULTS') return <Bubble>{response.summary ?? '조건에 맞는 여행 결과를 찾지 못했어요.'}</Bubble>;
 
   const places = findPlaces(response.board);
-  const textSummary = response.summary ?? (response.board ? response.board.querySummary : '여행 결과를 준비했어요.');
+  const textSummary =
+    response.summary ||
+    response.board?.querySummary ||
+    (response.board as any)?.tagline ||
+    (response.board as any)?.title ||
+    '조건에 맞는 맞춤 한옥 여정 코스를 준비했어요. 마음에 드는 장소를 둘러보세요.';
 
   const handleCopy = async () => {
     setCopyStatus('idle');
@@ -1211,7 +1437,18 @@ export default function JourneyChatInterface({
                 ))}
               </QuickChipsRow>
 
-              <Composer onSubmit={submit}>
+              <Composer
+                onSubmit={submit}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                  e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                  e.currentTarget.style.setProperty('--mouse-active', '1');
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.setProperty('--mouse-active', '0');
+                }}
+              >
                 <Input
                   ref={inputRef}
                   value={draft}
