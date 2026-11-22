@@ -5,9 +5,6 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import { Providers } from './providers'
-import Header from '@/shared/components/Header'
-import Footer from '@/shared/components/Footer'
-import PageContainer from '@/shared/components/Layout/PageContainer'
 // [TEMP] 온이 & 반딧불 기능 임시 비활성화
 // import { HanokPresenceOverlay } from '@/features/realtime-presence/presentation/components/HanokPresenceOverlay'
 // import { ROOM_ID_HANOK_ARCHIVE } from '@/features/realtime-presence/domain/presence.rooms'
@@ -73,11 +70,7 @@ j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefo
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <Providers>
-          <Header />
-          <PageContainer>
-            {children}
-          </PageContainer>
-          <Footer />
+          {children}
           {/* [TEMP] <HanokPresenceOverlay roomId={ROOM_ID_HANOK_ARCHIVE} /> */}
           <Analytics />
           <SpeedInsights />

@@ -21,5 +21,10 @@ describe('getPageContainerPresentation', () => {
       background: 'transparent',
       surface: undefined,
     });
+    expect(getPageContainerPresentation('/journey')).toEqual({
+      isFullBleed: true,
+      background: 'transparent',
+      surface: undefined,
+    });
   });
 });

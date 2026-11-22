@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname } from '@/i18n/navigation';
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { surface, type OnmaruTheme } from '@/design-system/tokens';
