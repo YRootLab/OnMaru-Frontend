@@ -880,9 +880,117 @@ const ComposerNotice = styled.p`
   }
 `;
 
-const Input = styled.input`
-  min-width: 0;
+const InputWrapper = styled.div`
+  position: relative;
   flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border-radius: 24px;
+
+  @keyframes chatAmbientGlow {
+    0% {
+      background-position: 0% 50%;
+      filter: blur(12px);
+      transform: scale(0.99);
+      opacity: 0.68;
+    }
+    50% {
+      background-position: 100% 50%;
+      filter: blur(16px);
+      transform: scale(1.01);
+      opacity: 0.88;
+    }
+    100% {
+      background-position: 0% 50%;
+      filter: blur(12px);
+      transform: scale(0.99);
+      opacity: 0.68;
+    }
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 28px;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 85, 0, 0.26) 0%,
+      rgba(255, 136, 64, 0.18) 35%,
+      rgba(255, 60, 0, 0.12) 70%,
+      rgba(255, 106, 16, 0.24) 100%
+    );
+    background-size: 250% 250%;
+    filter: blur(12px);
+    opacity: 0.7;
+    pointer-events: none;
+    animation: chatAmbientGlow 7s ease-in-out infinite;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 26px;
+    background: radial-gradient(
+      140px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(255, 85, 0, 0.44) 0%,
+      rgba(255, 136, 64, 0.2) 40%,
+      transparent 75%
+    );
+    filter: blur(8px);
+    opacity: var(--mouse-active, 0);
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 0;
+  }
+
+  &:hover::before,
+  &:focus-within::before {
+    opacity: 0.95;
+    filter: blur(16px);
+  }
+
+  [data-theme='dark'] & {
+    &::before {
+      background: linear-gradient(
+        120deg,
+        rgba(255, 106, 16, 0.32) 0%,
+        rgba(255, 136, 64, 0.2) 35%,
+        rgba(255, 60, 0, 0.15) 70%,
+        rgba(255, 106, 16, 0.3) 100%
+      );
+      background-size: 250% 250%;
+      filter: blur(14px);
+      opacity: 0.8;
+      animation: chatAmbientGlow 7s ease-in-out infinite;
+    }
+
+    &::after {
+      background: radial-gradient(
+        140px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(255, 106, 16, 0.48) 0%,
+        rgba(255, 136, 64, 0.24) 40%,
+        transparent 75%
+      );
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &::before {
+      animation: none;
+    }
+  }
+`;
+
+const Input = styled.input`
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  width: 100%;
   height: 48px;
   padding: 0 18px;
   border: 1.5px solid rgba(255, 85, 0, 0.32);
@@ -893,15 +1001,15 @@ const Input = styled.input`
   font-size: 14px;
   box-sizing: border-box;
   box-shadow:
-    0 0 0 1px rgba(255, 85, 0, 0.1),
-    0 2px 14px rgba(255, 85, 0, 0.12);
+    0 0 0 1px rgba(255, 85, 0, 0.08),
+    0 2px 12px rgba(255, 85, 0, 0.1);
   transition: all 0.2s ease;
 
   &:hover {
     border-color: rgba(255, 85, 0, 0.5);
     box-shadow:
-      0 0 0 1px rgba(255, 85, 0, 0.2),
-      0 4px 18px rgba(255, 85, 0, 0.18);
+      0 0 0 1px rgba(255, 85, 0, 0.18),
+      0 4px 16px rgba(255, 85, 0, 0.16);
   }
 
   &:focus {
@@ -909,8 +1017,8 @@ const Input = styled.input`
     border-color: #FF5500;
     box-shadow:
       0 0 0 2px rgba(255, 85, 0, 0.35),
-      0 0 20px rgba(255, 85, 0, 0.24),
-      0 6px 24px rgba(255, 136, 64, 0.2);
+      0 0 18px rgba(255, 85, 0, 0.22),
+      0 6px 20px rgba(255, 136, 64, 0.18);
   }
 
   [data-theme='dark'] & {
@@ -918,22 +1026,22 @@ const Input = styled.input`
     border-color: rgba(255, 106, 16, 0.4);
     color: #f5f5f5;
     box-shadow:
-      0 0 0 1px rgba(255, 106, 16, 0.15),
-      0 2px 16px rgba(255, 106, 16, 0.16);
+      0 0 0 1px rgba(255, 106, 16, 0.12),
+      0 2px 14px rgba(255, 106, 16, 0.14);
 
     &:hover {
       border-color: rgba(255, 106, 16, 0.6);
       box-shadow:
-        0 0 0 1px rgba(255, 106, 16, 0.25),
-        0 4px 22px rgba(255, 106, 16, 0.22);
+        0 0 0 1px rgba(255, 106, 16, 0.22),
+        0 4px 18px rgba(255, 106, 16, 0.18);
     }
 
     &:focus {
       border-color: #FF6A10;
       box-shadow:
         0 0 0 2px rgba(255, 106, 16, 0.45),
-        0 0 26px rgba(255, 106, 16, 0.32),
-        0 8px 30px rgba(0, 0, 0, 0.5);
+        0 0 22px rgba(255, 106, 16, 0.28),
+        0 6px 24px rgba(0, 0, 0, 0.5);
     }
   }
 `;
@@ -991,16 +1099,17 @@ function findPlaces(board: JourneyBoard | null): PlaceResource[] {
 
   // 3) Fallback: BentoJourneyPlan structure (hanokCard + routeCard)
   const bento = board as any;
+  const planKey = (board.title || board.querySummary || '').replace(/\W+/g, '').slice(0, 16) || 'plan';
   const fallbackPlaces: PlaceResource[] = [];
   if (bento.hanokCard) {
     fallbackPlaces.push({
-      ref: { type: 'PLACE', id: 'place-hanok-primary' },
+      ref: { type: 'PLACE', id: `place-${planKey}-hanok` },
       title: bento.hanokCard.title || '추천 한옥',
       category: '전통 한옥',
       regionRef: { type: 'REGION', id: 'region-default' },
       summary: bento.hanokCard.architecturalPoint || bento.hanokCard.location || '고즈넉한 정취의 전통 한옥',
       image: bento.hanokCard.imageUrl ? { url: bento.hanokCard.imageUrl, alt: bento.hanokCard.title || '추천 한옥', sourceName: '온마루 아카이브' } : null,
-      location: { latitude: 37.5818, longitude: 126.9682, accuracy: 'APPROXIMATE' },
+      location: null,
       sourceRefs: [],
       unavailableFields: [],
     });
@@ -1008,13 +1117,13 @@ function findPlaces(board: JourneyBoard | null): PlaceResource[] {
   if (Array.isArray(bento.routeCard?.stops)) {
     bento.routeCard.stops.forEach((stop: any, idx: number) => {
       fallbackPlaces.push({
-        ref: { type: 'PLACE', id: `place-stop-${idx + 1}` },
+        ref: { type: 'PLACE', id: `place-${planKey}-stop-${idx + 1}` },
         title: stop.name,
         category: stop.category || '명소',
         regionRef: { type: 'REGION', id: 'region-default' },
         summary: stop.description || `${stop.time || ''} 방문 코스`.trim(),
         image: null,
-        location: { latitude: 37.58 + (idx + 1) * 0.001, longitude: 126.968 + (idx + 1) * 0.001, accuracy: 'APPROXIMATE' },
+        location: null,
         sourceRefs: [],
         unavailableFields: [],
       });
@@ -1302,14 +1411,26 @@ export default function JourneyChatInterface({
               </QuickChipsRow>
 
               <Composer onSubmit={submit}>
-                <Input
-                  ref={inputRef}
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
-                  placeholder="여행 조건을 이어서 물어보세요"
-                  aria-label="여행 질문"
-                  disabled={isRunning}
-                />
+                <InputWrapper
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                    e.currentTarget.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                    e.currentTarget.style.setProperty('--mouse-active', '1');
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.setProperty('--mouse-active', '0');
+                  }}
+                >
+                  <Input
+                    ref={inputRef}
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    placeholder="여행 조건을 이어서 물어보세요"
+                    aria-label="여행 질문"
+                    disabled={isRunning}
+                  />
+                </InputWrapper>
                 {isRunning ? (
                   <SendButton type="button" onClick={() => void onCancel()}>취소</SendButton>
                 ) : (
