@@ -33,7 +33,7 @@ interface CollabState {
   wsStatus: 'connecting' | 'connected' | 'reconnecting' | 'error' | 'closed';
 }
 
-const INITIAL_STATE: CollabState = {
+export const INITIAL_STATE: CollabState = {
   room: null,
   myMemberId: null,
   myDisplayName: null,
@@ -54,7 +54,7 @@ type Action =
   | { type: 'PRESENCE'; memberId: string; online: boolean }
   | { type: 'WS_STATUS'; status: CollabState['wsStatus'] };
 
-function reducer(state: CollabState, action: Action): CollabState {
+export function reducer(state: CollabState, action: Action): CollabState {
   switch (action.type) {
     case 'WELCOME': {
       const members: Member[] = action.payload.members.map((m) => ({
@@ -160,6 +160,7 @@ export function MapCollabProvider({ roomId, children }: Props) {
 
   // ACK/EVENT 중복 제거: 적용된 seq 추적
   const appliedSeqsRef = useRef(new Set<number>());
+  const pendingOpsRef = useRef(new Map<string, string>());
 
   // 커서 throttle
   const lastCursorSentRef = useRef(0);
@@ -275,6 +276,7 @@ export function MapCollabProvider({ roomId, children }: Props) {
       }
       case 'ACK': {
         const p = msg.payload;
+        if (msg.opId) pendingOpsRef.current.forEach((v, k) => { if (v === msg.opId) pendingOpsRef.current.delete(k); });
         if (appliedSeqsRef.current.has(p.seq)) break; // EVENT 먼저 왔으면 무시
         appliedSeqsRef.current.add(p.seq);
         if (p.pin) dispatch({ type: 'PIN_ADDED', seq: p.seq, pin: p.pin });
@@ -297,7 +299,7 @@ export function MapCollabProvider({ roomId, children }: Props) {
         break;
       }
       case 'ERROR': {
-        // 사용자에게 오류 표시
+        if (msg.opId) pendingOpsRef.current.forEach((v, k) => { if (v === msg.opId) pendingOpsRef.current.delete(k); });
         const code = msg.payload.code;
         if (code === 'PIN_ALREADY_EXISTS') {
           toast.error('이미 핀이 있는 장소예요.');
@@ -362,18 +364,25 @@ export function MapCollabProvider({ roomId, children }: Props) {
   // ── API: 핀 추가 ─────────────────────────────────────────────────────────────
   const addPin = useCallback(
     (placeId: string) => {
-      const opId = crypto.randomUUID();
+      const key = `add:${placeId}`;
+      let opId = pendingOpsRef.current.get(key);
+      if (!opId) {
+        opId = crypto.randomUUID();
+        pendingOpsRef.current.set(key, opId);
+      }
       const ws = wsRef.current;
       if (ws?.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ v: 1, type: 'PIN_ADD', opId, payload: { placeId } }));
-      } else {
-        // WS 없으면 REST 폴백
-        mapCollabApi.addPin(roomId, placeId, opId).catch((err) => {
-          const code = (err as { code?: string })?.code;
-          if (code === 'PIN_ALREADY_EXISTS') toast.error('이미 핀이 있는 장소예요.');
-          else if (code === 'PIN_LIMIT_EXCEEDED') toast.error('핀을 더 이상 추가할 수 없어요.');
-        });
+        try {
+          ws.send(JSON.stringify({ v: 1, type: 'PIN_ADD', opId, payload: { placeId } }));
+          return;
+        } catch { /* WS send 실패 — REST 폴백 */ }
       }
+      mapCollabApi.addPin(roomId, placeId, opId).catch((err) => {
+        pendingOpsRef.current.delete(key);
+        const code = (err as { code?: string })?.code;
+        if (code === 'PIN_ALREADY_EXISTS') toast.error('이미 핀이 있는 장소예요.');
+        else if (code === 'PIN_LIMIT_EXCEEDED') toast.error('핀을 더 이상 추가할 수 없어요.');
+      });
     },
     [roomId],
   );
@@ -381,13 +390,22 @@ export function MapCollabProvider({ roomId, children }: Props) {
   // ── API: 핀 제거 ─────────────────────────────────────────────────────────────
   const removePin = useCallback(
     (pinId: string) => {
-      const opId = crypto.randomUUID();
+      const key = `rm:${pinId}`;
+      let opId = pendingOpsRef.current.get(key);
+      if (!opId) {
+        opId = crypto.randomUUID();
+        pendingOpsRef.current.set(key, opId);
+      }
       const ws = wsRef.current;
       if (ws?.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ v: 1, type: 'PIN_REMOVE', opId, payload: { pinId } }));
-      } else {
-        mapCollabApi.removePin(roomId, pinId, opId).catch(() => {});
+        try {
+          ws.send(JSON.stringify({ v: 1, type: 'PIN_REMOVE', opId, payload: { pinId } }));
+          return;
+        } catch { /* WS send 실패 — REST 폴백 */ }
       }
+      mapCollabApi.removePin(roomId, pinId, opId).catch(() => {
+        pendingOpsRef.current.delete(key);
+      });
     },
     [roomId],
   );
@@ -408,7 +426,7 @@ export function MapCollabProvider({ roomId, children }: Props) {
   // ── API: 초대 생성 ────────────────────────────────────────────────────────────
   const createInvite = useCallback(async () => {
     const res = await mapCollabApi.createInvite(roomId);
-    return { shareUrl: res.invite.shareUrl };
+    return { shareUrl: res.invite.shareUrl, inviteId: res.invite.id };
   }, [roomId]);
 
   const ctx: CollabContextValue = {

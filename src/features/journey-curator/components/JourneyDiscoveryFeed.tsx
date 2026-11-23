@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, ArrowRight01Icon, HeartIcon, RotateCcwIcon, VolumeHighIcon } from '@hugeicons/core-free-icons'
 
 import { useJourneyStore } from '../store/useJourneyStore';
-import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
+import { useCuratedCourses, useLatestReviews, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
 import { selectHomeFeaturedCourses } from '../services/homeCourseSelection';
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
+import { OniAvatar } from '@/features/profile/OniAvatar';
+import { formatRelativeTime } from '@/features/map/utils/formatters';
 import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import SharedSectionHeading from '@/shared/components/SectionHeading';
@@ -491,20 +493,6 @@ const SoundMeta = styled.span`
   }
 `;
 
-const SoundRank = styled.span`
-  position: absolute;
-  top: 10px;
-  left: 12px;
-  font-size: 10px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  color: ${palette.juhong[500]};
-  line-height: 1;
-
-  [data-theme='dark'] & {
-    color: ${palette.juhong[400]};
-  }
-`;
 
 const SoundSaveBtn = styled.button`
   flex-shrink: 0;
@@ -820,6 +808,141 @@ const RegionSub = styled.span`
   }
 `;
 
+const ReviewGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 6px 4px 10px;
+  margin: -6px -4px -10px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+`;
+
+const ReviewCard = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: none;
+  text-decoration: none;
+  box-shadow: ${ringShadow.light.card};
+  transition: all 0.22s ease;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.surface};
+    box-shadow: ${ringShadow.dark.card};
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${ringShadow.light.cardHoverGlow};
+
+    [data-theme='dark'] & {
+      box-shadow: ${ringShadow.dark.cardHoverGlow};
+    }
+  }
+`;
+
+const ReviewCardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const ReviewAuthorInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+`;
+
+const ReviewAuthorName = styled.span`
+  font-size: 13px;
+  font-weight: 600;
+  color: #191f28;
+
+  [data-theme='dark'] & {
+    color: #f8f9fa;
+  }
+`;
+
+const ReviewPlaceName = styled.span`
+  font-size: 12px;
+  color: #8b95a1;
+
+  [data-theme='dark'] & {
+    color: #71717a;
+  }
+`;
+
+const ReviewText = styled.p`
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333d4b;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+
+  [data-theme='dark'] & {
+    color: #d4d4d8;
+  }
+`;
+
+const ReviewFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+`;
+
+const ReviewMeta = styled.span`
+  font-size: 12px;
+  color: #8b95a1;
+
+  [data-theme='dark'] & {
+    color: #71717a;
+  }
+`;
+
+const ReviewLikes = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #8b95a1;
+
+  [data-theme='dark'] & {
+    color: #71717a;
+  }
+`;
+
+const ReviewMoodBadge = styled.span<{ $mood: '북적' | '한적' }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: ${({ $mood }) =>
+    $mood === '북적' ? 'rgba(232, 90, 24, 0.1)' : 'rgba(36, 152, 120, 0.1)'};
+  color: ${({ $mood }) =>
+    $mood === '북적' ? '#c2410c' : '#0d9488'};
+
+  [data-theme='dark'] & {
+    background: ${({ $mood }) =>
+      $mood === '북적' ? 'rgba(232, 90, 24, 0.2)' : 'rgba(36, 152, 120, 0.2)'};
+    color: ${({ $mood }) =>
+      $mood === '북적' ? '#fb923c' : '#5eead4'};
+  }
+`;
+
 const COURSE_CATEGORY_LIST = ['HANOK_STAY', 'CULTURE_ART', 'TRADITIONAL_FOOD', 'HANOK_EXPERIENCE', 'LOCAL_SCENE'] as const;
 
 const CategoryFilterRow = styled.div`
@@ -861,6 +984,7 @@ export default function JourneyDiscoveryFeed() {
   const { data: courses, loading: coursesLoading, failed: coursesFailed, unavailable: coursesUnavailable, retry: retryCourses } = useCuratedCourses(selectedCategory);
   const { data: popularSounds, loading: soundsLoading, failed: soundsFailed, unavailable: soundsUnavailable, retry: retrySounds } = usePopularSounds();
   const { data: popularRegions, loading: regionsLoading, failed: regionsFailed, unavailable: regionsUnavailable, retry: retryRegions } = usePopularRegions();
+  const { data: latestReviews, loading: reviewsLoading, failed: reviewsFailed, unavailable: reviewsUnavailable, retry: retryReviews } = useLatestReviews();
   const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>({});
 
   const handleToggleSave = (e: React.MouseEvent, storyId: string, currentlySaved: boolean) => {
@@ -921,6 +1045,29 @@ export default function JourneyDiscoveryFeed() {
     viewport.addEventListener('scroll', updateActiveCourseIndex, { passive: true });
     return () => viewport.removeEventListener('scroll', updateActiveCourseIndex);
   }, [maxCourseIndex]);
+
+  const [isCourseHovered, setIsCourseHovered] = useState(false);
+
+  useEffect(() => {
+    if (coursesLoading || coursesFailed || maxCourseIndex <= 0 || isCourseHovered) return;
+
+    const timer = window.setInterval(() => {
+      setActiveCourseIndex((prev) => {
+        const next = prev >= maxCourseIndex ? 0 : prev + 1;
+        const viewport = courseViewportRef.current;
+        const firstCard = viewport?.querySelector<HTMLElement>('[data-course-card]');
+        const secondCard = viewport?.querySelector<HTMLElement>('[data-course-card]:nth-child(2)');
+        const step = firstCard && secondCard ? secondCard.offsetLeft - firstCard.offsetLeft : firstCard?.offsetWidth ?? 0;
+        const targetLeft = next >= maxCourseIndex
+          ? Math.max(0, (viewport?.scrollWidth ?? 0) - (viewport?.clientWidth ?? 0))
+          : step * next;
+        viewport?.scrollTo({ left: targetLeft, behavior: 'smooth' });
+        return next;
+      });
+    }, 4500);
+
+    return () => window.clearInterval(timer);
+  }, [coursesLoading, coursesFailed, maxCourseIndex, isCourseHovered]);
 
   const moveCourseCarousel = (index: number) => {
     const nextIndex = Math.max(0, Math.min(index, maxCourseIndex));
@@ -1024,6 +1171,10 @@ export default function JourneyDiscoveryFeed() {
                 <CourseStage
                   $showLeading={!courseEdges.atStart}
                   $showTrailing={!courseEdges.atEnd}
+                  onMouseEnter={() => setIsCourseHovered(true)}
+                  onMouseLeave={() => setIsCourseHovered(false)}
+                  onFocus={() => setIsCourseHovered(true)}
+                  onBlur={() => setIsCourseHovered(false)}
                 >
                   <CourseArrow
                     type="button"
@@ -1088,20 +1239,18 @@ export default function JourneyDiscoveryFeed() {
               ))
             : soundsFailed ? (
                 <HomeFeedFailure compact unavailable={soundsUnavailable} onRetry={retrySounds} />
-              ) : popularSounds.map((sound, index) => {
+              ) : [...new Map(popularSounds.map((s) => [s.story?.storyId ?? s.storyId, s])).values()].map((sound) => {
                 const story = sound.story;
                 const storyId = story?.storyId ?? sound.storyId;
                 const title = story?.title ?? sound.audioTitle ?? sound.title;
                 const location = story?.region?.name ?? sound.locationName;
                 const duration = story?.durationSeconds ? `${Math.floor(story.durationSeconds / 60)}분` : sound.formattedDuration || sound.playTime;
-                const rank = sound.rank ?? (index + 1);
                 const rawSaved = story?.savedByMe ?? sound.savedByMe ?? false;
                 const isSaved = storyId in savedOverrides ? savedOverrides[storyId] : rawSaved;
                 const playCount = sound.playCount;
                 const meta = [location, duration, playCount != null ? `재생 ${playCount.toLocaleString()}` : undefined].filter(Boolean).join(' · ');
                 return (
                 <SoundCard key={storyId} href={`/sorimaru?stid=${encodeURIComponent(storyId)}`}>
-                  <SoundRank aria-label={`${rank}위`}>#{rank}</SoundRank>
                   <PlayIconWrap>
                     <HugeiconsIcon icon={VolumeHighIcon} size={20} />
                   </PlayIconWrap>
@@ -1124,6 +1273,60 @@ export default function JourneyDiscoveryFeed() {
 
       {}
       <section>
+        <SectionHeader
+          title="최근 방문 후기"
+          subtitle="여행자들이 남긴 생생한 후기를 만나보세요."
+        />
+
+        <ReviewGrid>
+          {reviewsLoading
+            ? Array.from({ length: 4 }).map((_, i) => (
+                <SkeletonCard key={i} aria-hidden="true" style={{ flexDirection: 'column', gap: 10, padding: '18px 20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <SkeletonCircle style={{ width: 32, height: 32 }} />
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <SkeletonLine $w="50%" $h="13px" />
+                      <SkeletonLine $w="35%" $h="11px" />
+                    </div>
+                  </div>
+                  <SkeletonLine $w="100%" $h="14px" />
+                  <SkeletonLine $w="80%" $h="14px" />
+                </SkeletonCard>
+              ))
+            : reviewsFailed ? (
+                <HomeFeedFailure compact unavailable={reviewsUnavailable} onRetry={retryReviews} />
+              )
+            : latestReviews.map((review) => (
+                <ReviewCard key={review.id} href={`/map?lat=${review.lat}&lng=${review.lng}&level=6`}>
+                  <ReviewCardHeader>
+                    <OniAvatar
+                      characterId={review.author?.characterId}
+                      backgroundId={review.author?.backgroundId}
+                      size={32}
+                    />
+                    <ReviewAuthorInfo>
+                      <ReviewAuthorName>{review.author?.displayName ?? '익명 여행자'}</ReviewAuthorName>
+                      <ReviewPlaceName>{review.placeName}</ReviewPlaceName>
+                    </ReviewAuthorInfo>
+                    {review.mood && <ReviewMoodBadge $mood={review.mood}>{review.mood === '북적' ? '북적' : '한적'}</ReviewMoodBadge>}
+                  </ReviewCardHeader>
+                  <ReviewText>{review.text}</ReviewText>
+                  <ReviewFooter>
+                    <ReviewMeta>{formatRelativeTime(review.createdAt)}</ReviewMeta>
+                    {review.likeCount > 0 && (
+                      <ReviewLikes>
+                        <HugeiconsIcon icon={HeartIcon} size={12} />
+                        {review.likeCount}
+                      </ReviewLikes>
+                    )}
+                  </ReviewFooter>
+                </ReviewCard>
+              ))}
+        </ReviewGrid>
+      </section>
+
+      {popularRegions.some((r) => r.reviewCount > 0) && (
+        <section>
           <SectionHeader
             title="인기 지역"
             subtitle="방문 후기가 많이 쌓인 지역을 둘러보세요."
@@ -1148,6 +1351,7 @@ export default function JourneyDiscoveryFeed() {
           ))}
         </RegionGrid>
       </section>
+      )}
     </FeedContainer>
   );
-}
+}
