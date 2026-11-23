@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { isOnmaruApiError } from '@/lib/api/errors';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { AlertCircleIcon, ChevronLeftIcon, ListIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
+import { AlertCircleIcon, ChevronLeftIcon, ListIcon, RotateCcwIcon, Location01Icon } from '@hugeicons/core-free-icons'
 import { meok, surface, typographyRole } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { listInfoPlaces } from '@/features/map/services/infoMap.service';
@@ -15,8 +15,10 @@ import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { MAP_INFO_CATEGORY_LABELS as CATEGORY_LABELS } from '@/features/map/types';
 import type { Item } from '@/features/map/types';
 import InfoMapEditorialFeed from './InfoMapEditorialFeed';
+import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
 import { focusMapOnPlace } from '@/features/map/presentation/mapPlaceFocus';
 import { useInfoMapHomeNavigation } from '@/features/map/presentation/useInfoMapHomeNavigation';
+import { useInfoMapPresentation } from '@/features/map/presentation/useInfoMapPresentation';
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -149,6 +151,62 @@ const SkeletonBar = styled.div<{ $w: string; $h: string }>`
   animation: ${shimmer} 1.6s ease-in-out infinite;
 `;
 
+const RegionSection = styled.div`
+  padding: 4px 14px 14px;
+`;
+
+const RegionSectionTitle = styled.h3`
+  margin: 0 0 10px;
+  font-size: ${typographyRole.bodySm.fontSize};
+  font-weight: 700;
+  color: ${meok[900]};
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  [data-theme='dark'] & { color: ${meok[100]}; }
+`;
+
+const RegionChips = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const RegionChip = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 9999px;
+  border: 1px solid ${meok[200]};
+  background: #ffffff;
+  font: inherit;
+  font-size: ${typographyRole.label.fontSize};
+  font-weight: 600;
+  color: ${meok[700]};
+  cursor: pointer;
+  transition: all 150ms ease;
+  &:hover { background: ${meok[100]}; color: ${meok[900]}; border-color: ${meok[300]}; }
+  [data-theme='dark'] & {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.1);
+    color: ${meok[300]};
+    &:hover { background: rgba(255,255,255,0.12); color: ${meok[100]}; }
+  }
+`;
+
+const RegionCount = styled.span`
+  font-size: ${typographyRole.caption.fontSize};
+  font-weight: 400;
+  color: ${meok[400]};
+  [data-theme='dark'] & { color: ${meok[500]}; }
+`;
+
+const FestivalSection = styled.div`
+  padding: 8px 0 6px;
+`;
+
 const EmptyBox = styled.div`
   display: flex;
   flex-direction: column;
@@ -197,6 +255,7 @@ export default function InfoPlaceList() {
     isInfoHome,
     returnToInfoHome,
   } = useInfoMapHomeNavigation();
+  const { isDiscovery } = useInfoMapPresentation();
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingMoreRef = useRef(false);
@@ -309,6 +368,23 @@ export default function InfoPlaceList() {
       : `${categoryLabel} ${listTotalCount.toLocaleString()}곳`;
   const editorialItems = useMemo(() => listItems.map(mapInfoPlaceToItem), [listItems]);
 
+  const regionGroups = useMemo(() => {
+    if (!isDiscovery || listItems.length === 0) return [];
+    const counts = new Map<string, { code: string; name: string; count: number }>();
+    for (const item of listItems) {
+      const { regionCode: code, name } = item.region;
+      const existing = counts.get(code);
+      if (existing) existing.count++;
+      else counts.set(code, { code, name, count: 1 });
+    }
+    return [...counts.values()].sort((a, b) => b.count - a.count).slice(0, 8);
+  }, [isDiscovery, listItems]);
+
+  const festivalItems = useMemo(() => {
+    if (!isDiscovery) return [];
+    return editorialItems.filter((item) => item.category === 'festival');
+  }, [isDiscovery, editorialItems]);
+
   return (
     <div>
       {!isInfoHome && (
@@ -329,6 +405,37 @@ export default function InfoPlaceList() {
         loading={isListLoading}
         onPlaceSelect={handleSelect}
       />
+
+      {isDiscovery && (
+        <FestivalSection>
+          <FestivalExhibitionCarousel
+            festivals={festivalItems}
+            loading={isListLoading && listItems.length === 0}
+            onSelect={handleSelect}
+          />
+        </FestivalSection>
+      )}
+
+      {isDiscovery && regionGroups.length > 0 && (
+        <RegionSection>
+          <RegionSectionTitle>
+            <HugeiconsIcon icon={Location01Icon} size={15} strokeWidth={2} color={meok[600]} />
+            지역별 탐색
+          </RegionSectionTitle>
+          <RegionChips>
+            {regionGroups.map((r) => (
+              <RegionChip
+                key={r.code}
+                type="button"
+                onClick={() => setInfoRegionCode(r.code, r.name)}
+              >
+                {r.name}
+                <RegionCount>{r.count}</RegionCount>
+              </RegionChip>
+            ))}
+          </RegionChips>
+        </RegionSection>
+      )}
 
       <StickyHeader>
         <CountLabel aria-live="polite">
