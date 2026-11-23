@@ -47,23 +47,33 @@ export function ShareCollabButton() {
     setLoading(true);
     try {
       let shareUrl: string;
+      let revokeInfo: { roomId: string; inviteId: string } | null = null;
 
       if (ctx) {
-        // 이미 방 안 — 추가 초대 링크 발급
         const res = await ctx.createInvite();
         shareUrl = res.shareUrl;
+        if (res.inviteId) revokeInfo = { roomId: ctx.roomId, inviteId: res.inviteId };
       } else {
-        // 새 방 생성
         const res = await mapCollabApi.createRoom();
         shareUrl = res.invite.shareUrl;
-        // /map?room={roomId} 로 URL 교체 (페이지 이동 없이)
+        if (res.invite.id) revokeInfo = { roomId: res.room.id, inviteId: res.invite.id };
         router.replace(`/map?room=${res.room.id}`);
       }
 
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       toast.success('친구 초대 링크가 복사됐어요!', {
-        description: '친구가 이 링크로 들어오면 같은 지도를 함께 볼 수 있어요. 링크는 72시간 동안 유지돼요.',
+        description: '친구가 이 링크로 들어오면 같은 지도를 함께 볼 수 있어요.',
+        ...(revokeInfo && {
+          action: {
+            label: '초대 취소',
+            onClick: () => {
+              mapCollabApi.deleteInvite(revokeInfo!.roomId, revokeInfo!.inviteId)
+                .then(() => toast.info('초대 링크를 무효화했어요.'))
+                .catch(() => toast.error('초대 취소에 실패했어요.'));
+            },
+          },
+        }),
       });
       setTimeout(() => setCopied(false), 2500);
     } catch {
