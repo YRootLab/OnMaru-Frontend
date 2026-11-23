@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased]
 
+- Windows에서도 `npm run dev:prod-api`가 로컬 Next 프록시를 통해 실제 Spring API에 연결되도록 플랫폼 독립 실행 스크립트를 추가했다.
+
 - 여정 대화 fixture의 턴 반환 순서를 최신순으로 고정하고, 대화 전환 중 대기 중인 생성 요청과 실패한 턴 조회를 안전하게 처리했습니다.
 - Bento 여정 대체 장소 카드가 계획 ID를 사용하고, 계획 ID가 없으면 대화 turn ID를 사용하며, 실제 좌표가 없을 때 위치 정보를 만들지 않도록 회귀 테스트를 추가했습니다.
 
