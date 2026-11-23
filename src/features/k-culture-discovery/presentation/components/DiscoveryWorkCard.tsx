@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useLocale } from 'next-intl';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
@@ -8,6 +9,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { MapPinIcon, ClapperboardIcon, HeadphonesIcon, Camera01Icon, Mic01Icon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
+import { getLocalizedWorkTitle } from '../../domain/discoveryPresentation';
 import type { WorkSummary } from '../../domain/types';
 
 const shimmerAnim = keyframes`
@@ -36,7 +38,7 @@ const Card = styled(motion.button)`
   }
 
   &:hover {
-    background: ${meok[100]};
+    background: #f5f5f4;
     box-shadow: ${ringShadow.light.cardHoverGlow};
 
     [data-theme='dark'] & {
@@ -47,7 +49,7 @@ const Card = styled(motion.button)`
 
   &:active {
     transform: scale(0.985);
-    background: ${meok[200]};
+    background: #e5e5e3;
 
     [data-theme='dark'] & {
       background: rgba(255,255,255,0.07);
@@ -61,7 +63,7 @@ const ArtworkWrap = styled.div`
   height: 56px;
   border-radius: 10px;
   overflow: hidden;
-  background: ${meok[200]};
+  background: #e5e5e3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,7 +86,7 @@ const Info = styled.div`
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 `;
 
 const Title = styled.h3`
@@ -103,11 +105,24 @@ const Title = styled.h3`
   }
 `;
 
+const SecondaryTitle = styled.span`
+  font-size: 11px;
+  color: ${meok[500]};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: rgba(255,255,255,0.42);
+  }
+`;
+
 const Meta = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  margin-top: 2px;
 `;
 
 const Year = styled.span`
@@ -160,12 +175,12 @@ const SkeletonArtwork = styled.div`
   width: 56px;
   height: 56px;
   border-radius: 10px;
-  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
+  background: linear-gradient(90deg, #f5f5f4 25%, #e5e5e3 50%, #f5f5f4 75%);
   background-size: 200% 100%;
   animation: ${shimmerAnim} 1.6s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
     background-size: 200% 100%;
   }
 `;
@@ -181,12 +196,12 @@ const SkeletonLine = styled.div<{ $w?: string; $h?: string }>`
   width: ${({ $w }) => $w ?? '100%'};
   height: ${({ $h }) => $h ?? '14px'};
   border-radius: 6px;
-  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
+  background: linear-gradient(90deg, #f5f5f4 25%, #e5e5e3 50%, #f5f5f4 75%);
   background-size: 200% 100%;
   animation: ${shimmerAnim} 1.6s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
     background-size: 200% 100%;
   }
 `;
@@ -210,19 +225,21 @@ export interface DiscoveryWorkCardProps {
 }
 
 export default function DiscoveryWorkCard({ work, index = 0, onClick }: DiscoveryWorkCardProps) {
+  const locale = useLocale();
   const artist = work.artists[0];
+  const { primary, secondary } = getLocalizedWorkTitle(work, locale);
 
   return (
     <Card
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, delay: index * 0.03, ease: [0.16, 1, 0.3, 1] }}
-      aria-label={`${work.canonicalTitle}${work.releaseYear ? ` (${work.releaseYear})` : ''}`}
+      aria-label={`${primary}${work.releaseYear ? ` (${work.releaseYear})` : ''}`}
       onClick={() => onClick?.(work)}
     >
       <ArtworkWrap>
         {work.workArtwork ? (
-          <ArtworkImg src={work.workArtwork} alt={work.canonicalTitle} loading="lazy" />
+          <ArtworkImg src={work.workArtwork} alt={primary} loading="lazy" />
         ) : (
           <HugeiconsIcon
             icon={
@@ -239,7 +256,8 @@ export default function DiscoveryWorkCard({ work, index = 0, onClick }: Discover
       </ArtworkWrap>
 
       <Info>
-        <Title>{work.canonicalTitle}</Title>
+        <Title>{primary}</Title>
+        {secondary && <SecondaryTitle>{secondary}</SecondaryTitle>}
         <Meta>
           <WorkTypeBadge type={work.type} variant="dark" size={11} />
           {work.releaseYear && <Year>{work.releaseYear}</Year>}

@@ -929,6 +929,49 @@
       "officialPage": "Official Page",
       "notFound": "Work not found. Please go back and try again.",
       "loadFailed": "Could not load data. Please try again later."
+    },
+    "regions": {
+      "seoul": "Seoul",
+      "incheon": "Incheon",
+      "daejeon": "Daejeon",
+      "daegu": "Daegu",
+      "gwangju": "Gwangju",
+      "busan": "Busan",
+      "ulsan": "Ulsan",
+      "sejong": "Sejong",
+      "gyeonggi": "Gyeonggi",
+      "gangwon": "Gangwon",
+      "chungbuk": "Chungbuk",
+      "chungnam": "Chungnam",
+      "jeonbuk": "Jeonbuk",
+      "jeonnam": "Jeonnam",
+      "gyeongbuk": "Gyeongbuk",
+      "gyeongnam": "Gyeongnam",
+      "jeju": "Jeju"
+    },
+    "carousel": {
+      "editorialLabel": "Curated Pick",
+      "carouselLabel": "Featured K-Culture locations carousel",
+      "prevSlide": "Previous featured place",
+      "nextSlide": "Next featured place",
+      "slideIndicator": "Go to featured place {index}"
+    },
+    "workMap": {
+      "mapTitle": "Filming Map & Journey",
+      "mapSubtitle": "Follow the real-world footsteps of this story",
+      "mapAriaLabel": "Filming locations map for {title}",
+      "loadingMap": "Loading filming locations map…",
+      "mapUnavailable": "Map is currently unavailable. Explore the filming spots below.",
+      "noCoordinates": "Coordinates are not yet available. Explore the filming spots below.",
+      "courseCount": "{count} stops",
+      "stopNumber": "Stop {num}",
+      "viewPlace": "Place details",
+      "openAllLocations": "Browse all in Discovery →"
+    },
+    "sceneCard": {
+      "sceneContextLabel": "Scene Context",
+      "viewWorkDetail": "Explore work locations",
+      "verifiedLabel": "Verified"
     }
   },
   "seasons": {
