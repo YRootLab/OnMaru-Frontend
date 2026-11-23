@@ -199,27 +199,55 @@ describe('HeatCanvas interactive circular heatmap', () => {
     expect(farHit.proximity).toBe(0);
   });
 
-  it('activates the interactive FX canvas loop in heatmap mode and draws frames', () => {
+  it('activates the real-time fluid FX canvas loop in heatmap mode and renders frames + hover tooltip', () => {
     const { unmount } = render(<HeatCanvas spots={SAMPLE_SPOTS} />);
 
     const baseCanvas = capturedHolder?.querySelector('.om-heat-canvas') as HTMLCanvasElement | null;
     const fxCanvas = capturedHolder?.querySelector('.om-heat-fx-canvas') as HTMLCanvasElement | null;
+    const tooltip = capturedHolder?.querySelector('.om-heat-tooltip') as HTMLDivElement | null;
 
     expect(baseCanvas).toBeTruthy();
     expect(fxCanvas).toBeTruthy();
-    expect(baseCanvas?.style.opacity).toBe('0.74');
+    expect(tooltip).toBeTruthy();
+    expect(baseCanvas?.style.opacity).toBe('0');
     expect(fxCanvas?.style.display).toBe('block');
     expect(fxCanvas?.style.opacity).toBe('1');
     expect(rafQueue.length).toBeGreaterThan(0);
 
-    // Run one FX animation frame and verify drawing occurred on fxCanvas
+    // Mock bounding rect on fxCanvas and hover right over the center spot (450, 300 in 900x600 canvas)
+    if (fxCanvas) {
+      vi.spyOn(fxCanvas, 'getBoundingClientRect').mockReturnValue({
+        left: 0,
+        top: 0,
+        width: fxCanvas.width,
+        height: fxCanvas.height,
+        right: fxCanvas.width,
+        bottom: fxCanvas.height,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      });
+    }
+
+    mapNode.dispatchEvent(
+      new MouseEvent('pointermove', {
+        bubbles: true,
+        clientX: 450,
+        clientY: 300,
+      }),
+    );
+
+    // Run one FX animation frame and verify fluid drawImage + ripple stroke + tooltip update
     const frameCb = rafQueue.shift();
     frameCb?.(1000);
 
     const fxCtx = fxCanvas ? ctxByCanvas.get(fxCanvas) : null;
     expect(fxCtx?.clearRect).toHaveBeenCalled();
-    expect(fxCtx?.createRadialGradient).toHaveBeenCalled();
+    expect(fxCtx?.drawImage).toHaveBeenCalled();
     expect(fxCtx?.stroke).toHaveBeenCalled();
+    expect(tooltip?.style.opacity).toBe('1');
+    expect(tooltip?.textContent).toContain('북촌 한옥마을');
+    expect(tooltip?.textContent).toContain('급상승');
 
     unmount();
 

@@ -129,15 +129,70 @@ function kernelRadiusPx(
 }
 
 
-const MAX_KERNELS = 160;
-const MAX_AMBIENT_RIPPLES = 28;
+const MAX_KERNELS = 140;
+const MAX_AMBIENT_RIPPLES = 24;
+const MAX_EMBER_SPOTS = 18;
 const MAX_CLICK_BURSTS = 6;
-const BURST_DURATION_MS = 780;
-const ZOOM_RESUME_FALLBACK_MS = 450;
+const BURST_DURATION_MS = 820;
+const ZOOM_RESUME_FALLBACK_MS = 420;
+const FIELD_SCALE = 0.2;
+const FIELD_MAX_DIM = 360;
+const KERNEL_SPRITE_SIZE = 96;
+const CLICK_DRAG_THRESHOLD_PX = 6;
+
+const CONGESTION_LABEL: Record<HeatSpot['congestionLevel'], string> = {
+  relaxed: '여유',
+  moderate: '보통',
+  busy: '붐빔',
+  surge: '급상승',
+};
+
+const CONGESTION_DOT: Record<HeatSpot['congestionLevel'], string> = {
+  relaxed: '#E5A910',
+  moderate: '#FF8A1E',
+  busy: '#FF5500',
+  surge: '#E03E00',
+};
+
+function formatCompactVisitors(count: number): string {
+  if (!Number.isFinite(count) || count <= 0) return '';
+  if (count >= 10000) return `${(count / 10000).toFixed(1).replace(/\.0$/, '')}만명`;
+  if (count >= 1000) return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}천명`;
+  return `${Math.round(count)}명`;
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function createKernelSprite(): HTMLCanvasElement {
+  const sprite = document.createElement('canvas');
+  sprite.width = KERNEL_SPRITE_SIZE;
+  sprite.height = KERNEL_SPRITE_SIZE;
+  const g = sprite.getContext('2d');
+  if (!g) return sprite;
+
+  const half = KERNEL_SPRITE_SIZE / 2;
+  const grad = g.createRadialGradient(half, half, 0, half, half, half);
+  KERNEL_STOPS.forEach((color, i) => grad.addColorStop(i / (KERNEL_STOPS.length - 1), color));
+  g.fillStyle = grad;
+  g.beginPath();
+  g.arc(half, half, half, 0, Math.PI * 2);
+  g.fill();
+  return sprite;
+}
 
 interface VisibleSpot {
   id: string;
   placeId: string;
+  name: string;
+  district: string;
+  visitorCount: number;
   x: number;
   y: number;
   radius: number;
@@ -146,11 +201,15 @@ interface VisibleSpot {
   congestionLevel: HeatSpot['congestionLevel'];
   hoverLevel: number;
   ambientRipple: boolean;
+  emitEmbers: boolean;
+  spot: HeatSpot;
 }
 
 interface PointerState {
   x: number;
   y: number;
+  downClientX: number;
+  downClientY: number;
   active: boolean;
   dragging: boolean;
 }
@@ -172,14 +231,18 @@ export function computePointerProximity(
   const dx = pointerX - spotX;
   const dy = pointerY - spotY;
   const dist = Math.hypot(dx, dy);
-  const influenceR = Math.max(radius * 1.18, 96);
+  const influenceR = Math.max(radius * 1.28, 108);
   if (dist >= influenceR) return { proximity: 0, dist, dx, dy };
-  const proximity = Math.pow(1 - dist / influenceR, 1.45);
+  const proximity = Math.pow(1 - dist / influenceR, 1.35);
   return { proximity, dist, dx, dy };
 }
 
 function drawHeatmapFxFrame(
   ctx: CanvasRenderingContext2D,
+  fieldCanvas: HTMLCanvasElement,
+  fieldCtx: CanvasRenderingContext2D | null,
+  kernelSprite: HTMLCanvasElement,
+  lut: Uint8ClampedArray | null,
   width: number,
   height: number,
   spots: VisibleSpot[],
@@ -190,23 +253,29 @@ function drawHeatmapFxFrame(
   isDark: boolean,
   nowMs: number,
   dtSec: number,
-) {
+): { closestSpot: VisibleSpot | null; closestCenter: { x: number; y: number } | null } {
   ctx.clearRect(0, 0, width, height);
-  if (spots.length === 0 && bursts.length === 0) return;
+  if (spots.length === 0 && bursts.length === 0) {
+    return { closestSpot: null, closestCenter: null };
+  }
 
   const t = nowMs * 0.001;
-  const lerpStep = Math.min(1, Math.max(0.08, dtSec * 8.5));
+  const lerpStep = Math.min(1, Math.max(0.1, dtSec * 9.5));
+
   let maxProximity = 0;
+  let closestSpot: VisibleSpot | null = null;
+  let closestCenter: { x: number; y: number } | null = null;
 
-  // Pass 1: Breathing organic warmth aura & luminous core
-  ctx.save();
-  ctx.globalCompositeOperation = isDark ? 'lighter' : 'source-over';
-
-  const renderedCenters: {
+  const animated: {
     spot: VisibleSpot;
     cx: number;
     cy: number;
     phase: number;
+    breath: number;
+    rx: number;
+    ry: number;
+    angle: number;
+    effectiveWeight: number;
   }[] = [];
 
   for (const spot of spots) {
@@ -226,180 +295,226 @@ function drawHeatmapFxFrame(
       dx = hit.dx;
       dy = hit.dy;
       dist = hit.dist;
-      if (prox > maxProximity) maxProximity = prox;
     }
 
-    const targetHover = Math.max(prox, isBadgeHovered ? 1 : 0, isSelected ? 0.85 : 0);
+    const targetHover = Math.max(prox, isBadgeHovered ? 1 : 0, isSelected ? 0.9 : 0);
     spot.hoverLevel += (targetHover - spot.hoverLevel) * lerpStep;
     if (spot.hoverLevel < 0.002) spot.hoverLevel = 0;
 
     const phase = spot.seed * Math.PI * 2;
-    const freq = 1.05 + spot.weight * 0.95;
-    const breath01 = Math.sin(t * freq + phase) * 0.5 + 0.5;
+    const freq = 1.25 + spot.weight * 1.15;
+    const wave1 = Math.sin(t * freq + phase);
+    const wave2 = Math.sin(t * freq * 1.85 + phase * 2.1);
+    const breath = wave1 * 0.7 + wave2 * 0.3; // -1 .. 1
 
-    // Subtle organic center wander + magnetic attraction toward cursor
-    const driftAmp = spot.radius * (0.045 + spot.weight * 0.03);
-    const driftX = Math.cos(t * 0.65 + phase) * driftAmp;
-    const driftY = Math.sin(t * 0.52 + phase * 1.37) * driftAmp;
+    // Noticeable organic sway + cursor magnetic attraction
+    const driftAmp = spot.radius * (0.07 + spot.weight * 0.045);
+    const driftX = Math.cos(t * 0.85 + phase) * driftAmp;
+    const driftY = Math.sin(t * 0.72 + phase * 1.43) * driftAmp;
 
     let pullX = 0;
     let pullY = 0;
-    if (prox > 0.04 && dist > 1) {
-      const pull = prox * Math.min(14, spot.radius * 0.14);
+    if (prox > 0.03 && dist > 1) {
+      const pull = prox * Math.min(22, spot.radius * 0.22);
       pullX = (dx / dist) * pull;
       pullY = (dy / dist) * pull;
     }
 
     const cx = spot.x + driftX + pullX;
     const cy = spot.y + driftY + pullY;
-    renderedCenters.push({ spot, cx, cy, phase });
 
-    // Organic elliptical breathing aura
-    const angle = spot.seed * Math.PI + Math.sin(t * 0.4 + phase) * 0.25;
-    const hoverScale = 1 + spot.hoverLevel * 0.2;
-    const scaleX = (0.9 + breath01 * (0.16 + spot.weight * 0.08)) * hoverScale;
-    const scaleY =
-      (0.82 + spot.seed * 0.28 + Math.cos(t * freq * 0.85 + phase) * 0.07) * hoverScale;
-    const auraR = spot.radius * 0.94;
-
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(angle);
-    ctx.scale(scaleX, scaleY);
-
-    const aura = ctx.createRadialGradient(0, 0, 0, 0, 0, auraR);
-    if (isDark) {
-      const alpha = Math.min(
-        0.72,
-        0.18 + spot.weight * 0.18 + breath01 * 0.09 + spot.hoverLevel * 0.24,
-      );
-      aura.addColorStop(0, `rgba(255, 232, 148, ${(alpha * 0.92).toFixed(3)})`);
-      aura.addColorStop(0.32, `rgba(255, 168, 52, ${(alpha * 0.72).toFixed(3)})`);
-      aura.addColorStop(0.68, `rgba(255, 92, 16, ${(alpha * 0.34).toFixed(3)})`);
-      aura.addColorStop(1, 'rgba(217, 64, 0, 0)');
-    } else {
-      const alpha = Math.min(
-        0.66,
-        0.16 + spot.weight * 0.16 + breath01 * 0.08 + spot.hoverLevel * 0.22,
-      );
-      aura.addColorStop(0, `rgba(255, 86, 10, ${alpha.toFixed(3)})`);
-      aura.addColorStop(0.35, `rgba(255, 142, 24, ${(alpha * 0.72).toFixed(3)})`);
-      aura.addColorStop(0.68, `rgba(255, 198, 56, ${(alpha * 0.34).toFixed(3)})`);
-      aura.addColorStop(1, 'rgba(255, 220, 100, 0)');
+    if (prox > maxProximity && prox > 0.14) {
+      maxProximity = prox;
+      closestSpot = spot;
+      closestCenter = { x: cx, y: cy };
     }
 
-    ctx.fillStyle = aura;
-    ctx.beginPath();
-    ctx.arc(0, 0, auraR, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    const aspect = 0.84 + spot.seed * 0.32;
+    const hoverScale = 1 + spot.hoverLevel * 0.26;
+    const pulseX = 1 + breath * (0.14 + spot.weight * 0.06);
+    const pulseY = 1 + Math.cos(t * freq * 0.92 + phase) * (0.12 + spot.weight * 0.05);
+    const rx = spot.radius * pulseX * hoverScale;
+    const ry = spot.radius * aspect * pulseY * hoverScale;
+    const angle = spot.seed * Math.PI + Math.sin(t * 0.55 + phase) * 0.35;
+    const effectiveWeight = Math.min(
+      1,
+      spot.weight * (0.86 + (breath * 0.5 + 0.5) * 0.24) + spot.hoverLevel * 0.28,
+    );
 
-    // Luminous ember core shimmer for hotspots and hovered/selected spots
-    if (spot.weight >= 0.45 || spot.hoverLevel > 0.06) {
-      const shimmer = 0.76 + 0.24 * Math.sin(t * (2.5 + spot.seed * 1.5) + phase * 2);
-      const coreR = Math.max(10, spot.radius * (0.24 + spot.hoverLevel * 0.14));
-      const coreAlpha = Math.min(
-        0.75,
-        ((spot.weight - 0.35) * 0.28 + spot.hoverLevel * 0.42) * shimmer,
+    animated.push({ spot, cx, cy, phase, breath, rx, ry, angle, effectiveWeight });
+  }
+
+  // Pass 1: Real-time fluid metaball density field -> LUT -> silky upscaled GPU draw
+  if (fieldCtx && lut && fieldCanvas.width > 1 && fieldCanvas.height > 1) {
+    const fw = fieldCanvas.width;
+    const fh = fieldCanvas.height;
+    const sx = fw / width;
+    const sy = fh / height;
+
+    fieldCtx.clearRect(0, 0, fw, fh);
+    fieldCtx.globalCompositeOperation = 'lighter';
+
+    for (const item of animated) {
+      const { spot, cx, cy, phase, rx, ry, angle, effectiveWeight } = item;
+      const fx = cx * sx;
+      const fy = cy * sy;
+      const frx = rx * sx;
+      const fry = ry * sy;
+
+      fieldCtx.save();
+      fieldCtx.translate(fx, fy);
+      fieldCtx.rotate(angle);
+      fieldCtx.globalAlpha = effectiveWeight;
+      fieldCtx.drawImage(kernelSprite, -frx, -fry, frx * 2, fry * 2);
+
+      // Secondary orbiting thermal eddy breaks up rigid circle silhouettes into organic blobs
+      if (spot.weight >= 0.38 || spot.hoverLevel > 0.12) {
+        const eddyAngle = t * (0.9 + spot.seed * 0.6) + phase;
+        const eddyOffX = Math.cos(eddyAngle) * frx * 0.24;
+        const eddyOffY = Math.sin(eddyAngle) * fry * 0.24;
+        const eddyR = Math.max(frx, fry) * 0.64;
+        fieldCtx.globalAlpha = effectiveWeight * 0.42;
+        fieldCtx.drawImage(kernelSprite, eddyOffX - eddyR, eddyOffY - eddyR, eddyR * 2, eddyR * 2);
+      }
+      fieldCtx.restore();
+    }
+
+    // Cursor liquid warmth bridge: nearby heat blobs reach out & fuse toward the pointer
+    if (pointer.active && !pointer.dragging && maxProximity > 0.08) {
+      const px = pointer.x * sx;
+      const py = pointer.y * sy;
+      const pr = (48 + maxProximity * 44) * sx;
+      fieldCtx.save();
+      fieldCtx.globalAlpha = Math.min(0.68, maxProximity * 0.62);
+      fieldCtx.drawImage(kernelSprite, px - pr, py - pr, pr * 2, pr * 2);
+      fieldCtx.restore();
+    }
+
+    fieldCtx.globalCompositeOperation = 'source-over';
+    fieldCtx.globalAlpha = 1;
+
+    const img = fieldCtx.getImageData(0, 0, fw, fh);
+    const data = img.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const density = data[i + 3];
+      if (density === 0) continue;
+      const at = density * 4;
+      data[i] = lut[at];
+      data[i + 1] = lut[at + 1];
+      data[i + 2] = lut[at + 2];
+      data[i + 3] = lut[at + 3];
+    }
+    fieldCtx.putImageData(img, 0, 0);
+
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(fieldCanvas, 0, 0, width, height);
+    ctx.restore();
+  }
+
+  // Pass 2: Expanding thermal ripple waves & luminous hotspot beacons
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  for (const { spot, cx, cy, phase } of animated) {
+    const isInteractive = spot.hoverLevel > 0.08;
+
+    // Luminous ember heart on notable/hovered spots so hotspots feel tangible & clickable
+    if (spot.ambientRipple || isInteractive) {
+      const pulse = 0.72 + 0.28 * Math.sin(t * (2.6 + spot.seed * 1.4) + phase);
+      const beaconR = (4.2 + spot.weight * 2.8 + spot.hoverLevel * 4.5) * (0.9 + pulse * 0.2);
+      const glowR = beaconR * (3.2 + spot.hoverLevel * 1.4);
+
+      const coreGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+      const glowAlpha = Math.min(0.85, (0.34 + spot.weight * 0.24 + spot.hoverLevel * 0.36) * pulse);
+      if (isDark) {
+        coreGlow.addColorStop(0, `rgba(255, 252, 224, ${glowAlpha.toFixed(3)})`);
+        coreGlow.addColorStop(0.35, `rgba(255, 206, 86, ${(glowAlpha * 0.65).toFixed(3)})`);
+        coreGlow.addColorStop(1, 'rgba(255, 110, 20, 0)');
+      } else {
+        coreGlow.addColorStop(0, `rgba(255, 248, 210, ${(glowAlpha * 0.95).toFixed(3)})`);
+        coreGlow.addColorStop(0.38, `rgba(255, 110, 16, ${(glowAlpha * 0.62).toFixed(3)})`);
+        coreGlow.addColorStop(1, 'rgba(255, 85, 0, 0)');
+      }
+      ctx.fillStyle = coreGlow;
+      ctx.beginPath();
+      ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Crisp inner core dot
+      ctx.beginPath();
+      ctx.arc(cx, cy, beaconR * 0.62, 0, Math.PI * 2);
+      ctx.fillStyle = isDark
+        ? `rgba(255, 250, 225, ${(0.72 + spot.hoverLevel * 0.25).toFixed(3)})`
+        : `rgba(255, 255, 248, ${(0.75 + spot.hoverLevel * 0.22).toFixed(3)})`;
+      ctx.fill();
+    }
+
+    if (!spot.ambientRipple && !isInteractive) continue;
+
+    // Thermal expanding rings
+    const ringCount = spot.congestionLevel === 'surge' || spot.hoverLevel > 0.3 ? 2 : 1;
+    const period = spot.hoverLevel > 0.22 ? 1.85 : Math.max(2.35, 3.85 - spot.weight * 1.25);
+
+    for (let ringIdx = 0; ringIdx < ringCount; ringIdx++) {
+      const progress = (t / period + spot.seed + ringIdx / ringCount) % 1;
+      const eased = 1 - Math.pow(1 - progress, 2.3);
+      const ringR = spot.radius * (0.18 + eased * (1.02 + spot.hoverLevel * 0.26));
+      const envelope = Math.sin(progress * Math.PI);
+      const ringAlpha = Math.min(
+        0.82,
+        envelope * (0.28 + spot.weight * 0.24 + spot.hoverLevel * 0.36),
       );
-      if (coreAlpha > 0.02) {
-        const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-        if (isDark) {
-          coreGrad.addColorStop(0, `rgba(255, 248, 210, ${coreAlpha.toFixed(3)})`);
-          coreGrad.addColorStop(0.45, `rgba(255, 192, 72, ${(coreAlpha * 0.55).toFixed(3)})`);
-          coreGrad.addColorStop(1, 'rgba(255, 120, 20, 0)');
-        } else {
-          coreGrad.addColorStop(0, `rgba(255, 236, 170, ${(coreAlpha * 0.85).toFixed(3)})`);
-          coreGrad.addColorStop(0.42, `rgba(255, 118, 24, ${(coreAlpha * 0.62).toFixed(3)})`);
-          coreGrad.addColorStop(1, 'rgba(255, 85, 0, 0)');
-        }
-        ctx.fillStyle = coreGrad;
+      if (ringAlpha < 0.015) continue;
+
+      const lineW = (1.6 + spot.hoverLevel * 1.4) * (1 - progress * 0.3);
+
+      // Soft outer halo
+      ctx.beginPath();
+      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+      ctx.lineWidth = lineW * 3.4;
+      ctx.strokeStyle = isDark
+        ? `rgba(255, 198, 80, ${(ringAlpha * 0.28).toFixed(3)})`
+        : `rgba(255, 118, 22, ${(ringAlpha * 0.26).toFixed(3)})`;
+      ctx.stroke();
+
+      // High-contrast thermal crest
+      ctx.beginPath();
+      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+      ctx.lineWidth = lineW;
+      ctx.strokeStyle = isDark
+        ? `rgba(255, 242, 178, ${ringAlpha.toFixed(3)})`
+        : `rgba(255, 245, 220, ${(ringAlpha * 0.85).toFixed(3)})`;
+      ctx.stroke();
+    }
+
+    // Floating warm ember motes gently rising from hotspots
+    if (spot.emitEmbers || spot.hoverLevel > 0.35) {
+      const emberCount = spot.hoverLevel > 0.35 ? 4 : 2;
+      for (let eIdx = 0; eIdx < emberCount; eIdx++) {
+        const eSeed = (spot.seed * 7.31 + eIdx * 0.37) % 1;
+        const life = (t * (0.38 + eSeed * 0.22) + eSeed) % 1;
+        const rise = life * spot.radius * (0.78 + spot.hoverLevel * 0.25);
+        const spreadX =
+          (eSeed - 0.5) * spot.radius * 0.55 + Math.sin(t * 2.1 + eSeed * 12) * 8;
+        const ex = cx + spreadX;
+        const ey = cy - rise;
+        const eAlpha = Math.sin(life * Math.PI) * (0.45 + spot.hoverLevel * 0.42);
+        const er = (1.6 + eSeed * 1.8) * (1 - life * 0.45);
+        if (eAlpha < 0.03) continue;
+
         ctx.beginPath();
-        ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+        ctx.arc(ex, ey, er, 0, Math.PI * 2);
+        ctx.fillStyle = isDark
+          ? `rgba(255, 244, 188, ${eAlpha.toFixed(3)})`
+          : `rgba(255, 240, 175, ${eAlpha.toFixed(3)})`;
         ctx.fill();
       }
     }
   }
   ctx.restore();
 
-  // Pass 2: Expanding thermal ripple waves
-  ctx.save();
-  ctx.globalCompositeOperation = 'source-over';
-  for (const { spot, cx, cy } of renderedCenters) {
-    const isInteractive = spot.hoverLevel > 0.08;
-    if (!spot.ambientRipple && !isInteractive) continue;
-
-    const ringCount =
-      spot.congestionLevel === 'surge' || spot.hoverLevel > 0.35 ? 2 : 1;
-    const period =
-      spot.hoverLevel > 0.25 ? 2.15 : Math.max(2.65, 4.35 - spot.weight * 1.35);
-
-    for (let ringIdx = 0; ringIdx < ringCount; ringIdx++) {
-      const offset = ringIdx / ringCount;
-      const progress = (t / period + spot.seed + offset) % 1;
-      const eased = 1 - Math.pow(1 - progress, 2.2);
-      const ringR = spot.radius * (0.22 + eased * (0.96 + spot.hoverLevel * 0.22));
-      const envelope = Math.sin(progress * Math.PI);
-      const ringAlpha = Math.min(
-        0.68,
-        envelope * (0.17 + spot.weight * 0.2 + spot.hoverLevel * 0.34),
-      );
-      if (ringAlpha < 0.015) continue;
-
-      const lineW = (1.35 + spot.hoverLevel * 1.25) * (1 - progress * 0.35);
-
-      // Soft outer thermal halo
-      ctx.beginPath();
-      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
-      ctx.lineWidth = lineW * 3.2;
-      ctx.strokeStyle = isDark
-        ? `rgba(255, 186, 68, ${(ringAlpha * 0.24).toFixed(3)})`
-        : `rgba(255, 120, 24, ${(ringAlpha * 0.22).toFixed(3)})`;
-      ctx.stroke();
-
-      // Crisp thermal wave crest
-      ctx.beginPath();
-      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
-      ctx.lineWidth = lineW;
-      ctx.strokeStyle = isDark
-        ? `rgba(255, 224, 130, ${ringAlpha.toFixed(3)})`
-        : `rgba(255, 86, 12, ${ringAlpha.toFixed(3)})`;
-      ctx.stroke();
-    }
-  }
-  ctx.restore();
-
-  // Pass 3: Subtle cursor warmth shimmer when exploring warm zones
-  if (pointer.active && !pointer.dragging && maxProximity > 0.05) {
-    const cursorR = 54 + maxProximity * 40;
-    const cursorAlpha = Math.min(0.32, maxProximity * 0.28);
-    ctx.save();
-    ctx.globalCompositeOperation = isDark ? 'lighter' : 'source-over';
-    const cursorGrad = ctx.createRadialGradient(
-      pointer.x,
-      pointer.y,
-      0,
-      pointer.x,
-      pointer.y,
-      cursorR,
-    );
-    if (isDark) {
-      cursorGrad.addColorStop(0, `rgba(255, 236, 168, ${cursorAlpha.toFixed(3)})`);
-      cursorGrad.addColorStop(0.5, `rgba(255, 146, 48, ${(cursorAlpha * 0.45).toFixed(3)})`);
-      cursorGrad.addColorStop(1, 'rgba(255, 85, 0, 0)');
-    } else {
-      cursorGrad.addColorStop(0, `rgba(255, 132, 32, ${cursorAlpha.toFixed(3)})`);
-      cursorGrad.addColorStop(0.55, `rgba(255, 190, 56, ${(cursorAlpha * 0.4).toFixed(3)})`);
-      cursorGrad.addColorStop(1, 'rgba(255, 210, 80, 0)');
-    }
-    ctx.fillStyle = cursorGrad;
-    ctx.beginPath();
-    ctx.arc(pointer.x, pointer.y, cursorR, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  // Pass 4: Click/tap ripple bursts
+  // Pass 3: Click/tap thermal shockwave bursts
   if (bursts.length > 0) {
     ctx.save();
     ctx.globalCompositeOperation = 'source-over';
@@ -412,31 +527,33 @@ function drawHeatmapFxFrame(
       }
       const p = elapsed / BURST_DURATION_MS;
       const eased = 1 - Math.pow(1 - p, 2.6);
-      const alpha = (1 - p) * 0.62;
-      const r1 = 10 + eased * burst.maxR;
+      const alpha = (1 - p) * 0.82;
+      const r1 = 12 + eased * burst.maxR;
 
       ctx.beginPath();
       ctx.arc(burst.x, burst.y, r1, 0, Math.PI * 2);
-      ctx.lineWidth = Math.max(0.8, 2.6 * (1 - p * 0.55));
+      ctx.lineWidth = Math.max(1, 3 * (1 - p * 0.5));
       ctx.strokeStyle = isDark
-        ? `rgba(255, 230, 145, ${alpha.toFixed(3)})`
-        : `rgba(255, 85, 0, ${alpha.toFixed(3)})`;
+        ? `rgba(255, 240, 168, ${alpha.toFixed(3)})`
+        : `rgba(255, 86, 12, ${alpha.toFixed(3)})`;
       ctx.stroke();
 
-      if (p > 0.14) {
-        const p2 = (p - 0.14) / 0.86;
-        const r2 = 6 + (1 - Math.pow(1 - p2, 2.2)) * burst.maxR * 0.72;
+      if (p > 0.12) {
+        const p2 = (p - 0.12) / 0.88;
+        const r2 = 8 + (1 - Math.pow(1 - p2, 2.2)) * burst.maxR * 0.74;
         ctx.beginPath();
         ctx.arc(burst.x, burst.y, r2, 0, Math.PI * 2);
-        ctx.lineWidth = Math.max(0.6, 1.8 * (1 - p2 * 0.5));
+        ctx.lineWidth = Math.max(0.8, 2 * (1 - p2 * 0.5));
         ctx.strokeStyle = isDark
-          ? `rgba(255, 180, 72, ${((1 - p2) * 0.42).toFixed(3)})`
-          : `rgba(255, 152, 36, ${((1 - p2) * 0.42).toFixed(3)})`;
+          ? `rgba(255, 190, 72, ${((1 - p2) * 0.55).toFixed(3)})`
+          : `rgba(255, 236, 168, ${((1 - p2) * 0.72).toFixed(3)})`;
         ctx.stroke();
       }
     }
     ctx.restore();
   }
+
+  return { closestSpot, closestCenter };
 }
 
 
@@ -559,7 +676,7 @@ export default function HeatCanvas({ spots }: Props) {
 
   useEffect(() => {
     reducedMotionRef.current = reducedMotion;
-    syncFxRef.current?.();
+    scheduleRef.current?.();
   }, [reducedMotion]);
 
   useEffect(() => {
@@ -622,7 +739,31 @@ export default function HeatCanvas({ spots }: Props) {
     fxCanvas.style.display = 'none';
     holder.appendChild(fxCanvas);
 
+    // Floating interactive tooltip card for hovered heatmap spot (neutral surface, title on top)
+    const tooltip = document.createElement('div');
+    tooltip.className = 'om-heat-tooltip';
+    tooltip.style.cssText = [
+      'position:absolute',
+      'left:0',
+      'top:0',
+      'pointer-events:none',
+      'z-index:12',
+      'opacity:0',
+      'transform:translate(-50%,-100%) translateY(-10px) scale(0.96)',
+      'transition:opacity 140ms ease, transform 140ms ease',
+      'padding:8px 12px',
+      'border-radius:12px',
+      'white-space:nowrap',
+      'backdrop-filter:blur(10px)',
+      isDark
+        ? 'background:rgba(24,24,26,0.92);border:1px solid rgba(255,255,255,0.12);color:#f5f5f4;box-shadow:0 8px 24px rgba(0,0,0,0.42);'
+        : 'background:rgba(255,255,255,0.94);border:1px solid rgba(0,0,0,0.08);color:#18181b;box-shadow:0 8px 24px rgba(0,0,0,0.12);',
+    ].join(';');
+    holder.appendChild(tooltip);
+
     const blurScratch = document.createElement('canvas');
+    const fieldCanvas = document.createElement('canvas');
+    const kernelSprite = createKernelSprite();
 
     const overlay = new window.kakao.maps.CustomOverlay({
       position: map.getCenter(),
@@ -638,10 +779,66 @@ export default function HeatCanvas({ spots }: Props) {
     let lastFxTime = 0;
     let isZooming = false;
     let zoomResumeTimer: ReturnType<typeof setTimeout> | null = null;
+    let activeTooltipId: string | null = null;
 
     let visibleSpots: VisibleSpot[] = [];
-    const pointer: PointerState = { x: 0, y: 0, active: false, dragging: false };
+    const pointer: PointerState = {
+      x: 0,
+      y: 0,
+      downClientX: 0,
+      downClientY: 0,
+      active: false,
+      dragging: false,
+    };
     const bursts: ClickBurst[] = [];
+
+    const hideTooltip = () => {
+      if (activeTooltipId !== null) {
+        activeTooltipId = null;
+        tooltip.style.opacity = '0';
+        tooltip.style.transform = 'translate(-50%,-100%) translateY(-10px) scale(0.96)';
+      }
+    };
+
+    const updateTooltip = (
+      spot: VisibleSpot | null,
+      center: { x: number; y: number } | null,
+      W: number,
+      H: number,
+    ) => {
+      if (!spot || !center || pointer.dragging || isZooming) {
+        hideTooltip();
+        return;
+      }
+
+      const relX = center.x - W / 2;
+      const relY = center.y - H / 2 - Math.min(26, Math.max(12, spot.radius * 0.22));
+      tooltip.style.left = `${relX.toFixed(1)}px`;
+      tooltip.style.top = `${relY.toFixed(1)}px`;
+
+      if (activeTooltipId !== spot.id) {
+        activeTooltipId = spot.id;
+        const title = escapeHtml((spot.name || spot.district || '온기 지역').replace(/\s*일대$/, ''));
+        const statusLabel = CONGESTION_LABEL[spot.congestionLevel] ?? '보통';
+        const dotColor = CONGESTION_DOT[spot.congestionLevel] ?? '#FF8A1E';
+        const visitors = formatCompactVisitors(spot.visitorCount);
+        const subColor = isDark ? '#a1a1aa' : '#52525b';
+
+        tooltip.innerHTML = `
+          <div style="font-size:13px;font-weight:700;line-height:1.25;letter-spacing:-0.01em;">${title}</div>
+          <div style="margin-top:3px;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:${subColor};">
+            <span style="display:inline-flex;align-items:center;gap:4px;">
+              <span style="width:7px;height:7px;border-radius:9999px;background:${dotColor};display:inline-block;"></span>
+              ${statusLabel}
+            </span>
+            ${visitors ? `<span>· 외지인 ${visitors}</span>` : ''}
+          </div>
+        `;
+      }
+
+      tooltip.style.opacity = '1';
+      tooltip.style.transform = 'translate(-50%,-100%) translateY(-4px) scale(1)';
+    };
 
     const stopFxLoop = () => {
       if (fxFrame) {
@@ -649,6 +846,7 @@ export default function HeatCanvas({ spots }: Props) {
         fxFrame = 0;
       }
       lastFxTime = 0;
+      hideTooltip();
     };
 
     const clearFxCanvas = () => {
@@ -671,10 +869,12 @@ export default function HeatCanvas({ spots }: Props) {
       if (!shouldRunFx()) {
         fxFrame = 0;
         lastFxTime = 0;
+        hideTooltip();
         return;
       }
 
       const fxCtx = fxCanvas.getContext('2d');
+      const fieldCtx = fieldCanvas.getContext('2d', { willReadFrequently: true });
       if (!fxCtx) {
         fxFrame = 0;
         return;
@@ -683,8 +883,12 @@ export default function HeatCanvas({ spots }: Props) {
       const dtSec = lastFxTime > 0 ? Math.min(0.05, (nowMs - lastFxTime) * 0.001) : 1 / 60;
       lastFxTime = nowMs;
 
-      drawHeatmapFxFrame(
+      const { closestSpot, closestCenter } = drawHeatmapFxFrame(
         fxCtx,
+        fieldCanvas,
+        fieldCtx,
+        kernelSprite,
+        heatmapLutRef.current,
         fxCanvas.width,
         fxCanvas.height,
         visibleSpots,
@@ -697,6 +901,7 @@ export default function HeatCanvas({ spots }: Props) {
         dtSec,
       );
 
+      updateTooltip(closestSpot, closestCenter, fxCanvas.width, fxCanvas.height);
       fxFrame = requestAnimationFrame(tickFx);
     };
 
@@ -704,7 +909,9 @@ export default function HeatCanvas({ spots }: Props) {
       const isAnimatedHeatmap =
         warmthViewTypeRef.current === 'heatmap' && !reducedMotionRef.current && visibleSpots.length > 0;
 
-      canvas.style.opacity = isAnimatedHeatmap ? '0.74' : '1';
+      // In animated heatmap mode, hide the static base canvas so the fluid real-time
+      // thermal field on fxCanvas drives 100% of the visual motion without frozen edges.
+      canvas.style.opacity = isAnimatedHeatmap ? '0' : '1';
 
       if (!isAnimatedHeatmap) {
         stopFxLoop();
@@ -761,6 +968,11 @@ export default function HeatCanvas({ spots }: Props) {
       fxCanvas.style.width = `${W}px`;
       fxCanvas.style.height = `${H}px`;
 
+      // Size low-res fluid thermal field canvas (fast real-time LUT colorization)
+      const scaleRatio = Math.min(FIELD_SCALE, FIELD_MAX_DIM / Math.max(W, H));
+      fieldCanvas.width = Math.max(48, Math.round(W * scaleRatio));
+      fieldCanvas.height = Math.max(48, Math.round(H * scaleRatio));
+
       const center = map.getCenter();
       overlay.setPosition(center);
       const leftPx = `${-W / 2}px`;
@@ -815,7 +1027,9 @@ export default function HeatCanvas({ spots }: Props) {
 
       if (warmthViewTypeRef.current === 'heatmap') {
         const maxRadius = Math.min(220, Math.max(52, Math.round(baseRadius * 1.55)));
-        ctx.globalCompositeOperation = 'lighter';
+        const needsStaticPaint = reducedMotionRef.current;
+        if (needsStaticPaint) ctx.globalCompositeOperation = 'lighter';
+
         for (const spot of spotsRef.current) {
           if (painted >= MAX_KERNELS) break;
           const { x, y } = project(spot.lng, spot.lat);
@@ -831,10 +1045,15 @@ export default function HeatCanvas({ spots }: Props) {
           const weight = Math.min(1, Math.max(0.18, spot.intensity));
           const radius = Math.round(maxRadius * (0.55 + weight * 0.45));
           const seed = seedFromCoords(spot.lng, spot.lat);
-          stampKernel(ctx, x, y, radius, weight, seed);
+          if (needsStaticPaint) {
+            stampKernel(ctx, x, y, radius, weight, seed);
+          }
           nextVisibleSpots.push({
             id: spot.id,
             placeId: spot.placeId,
+            name: spot.name,
+            district: spot.district,
+            visitorCount: spot.visitorCount,
             x,
             y,
             radius,
@@ -843,23 +1062,36 @@ export default function HeatCanvas({ spots }: Props) {
             congestionLevel: spot.congestionLevel,
             hoverLevel: prevHoverById.get(spot.id) ?? 0,
             ambientRipple: false,
+            emitEmbers: false,
+            spot,
           });
           painted += 1;
         }
-        ctx.globalCompositeOperation = 'source-over';
+        if (needsStaticPaint) ctx.globalCompositeOperation = 'source-over';
 
-        // Pick top hottest visible spots for ambient ripples to keep the map airy
-        const rippleCandidates = nextVisibleSpots
-          .filter(
-            (s) =>
-              s.congestionLevel === 'surge' ||
-              s.congestionLevel === 'busy' ||
-              s.weight >= 0.48,
-          )
-          .sort((a, b) => b.weight - a.weight)
-          .slice(0, MAX_AMBIENT_RIPPLES);
-        for (const candidate of rippleCandidates) {
-          candidate.ambientRipple = true;
+        // Prioritize hottest visible spots for ambient ripples and rising ember motes
+        const rankedSpots = [...nextVisibleSpots].sort((a, b) => b.weight - a.weight);
+        rankedSpots.slice(0, MAX_AMBIENT_RIPPLES).forEach((s, idx) => {
+          if (
+            s.congestionLevel === 'surge' ||
+            s.congestionLevel === 'busy' ||
+            s.weight >= 0.4 ||
+            idx < 8
+          ) {
+            s.ambientRipple = true;
+          }
+        });
+        rankedSpots.slice(0, MAX_EMBER_SPOTS).forEach((s) => {
+          if (s.weight >= 0.42 || s.congestionLevel === 'surge' || s.congestionLevel === 'busy') {
+            s.emitEmbers = true;
+          }
+        });
+
+        visibleSpots = nextVisibleSpots;
+
+        if (!needsStaticPaint) {
+          syncFxLoop();
+          return;
         }
 
         if (painted > 0) {
@@ -968,10 +1200,12 @@ export default function HeatCanvas({ spots }: Props) {
 
     const onDragStart = () => {
       pointer.dragging = true;
+      hideTooltip();
     };
 
     const onZoomStart = () => {
       isZooming = true;
+      hideTooltip();
       syncFxLoop();
       if (zoomResumeTimer !== null) clearTimeout(zoomResumeTimer);
       zoomResumeTimer = setTimeout(() => {
@@ -994,11 +1228,26 @@ export default function HeatCanvas({ spots }: Props) {
     const node = map.getNode?.() as HTMLElement | null;
 
     const updatePointerFromEvent = (e: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      if (rect.width < 2 || rect.height < 2) return;
-      pointer.x = ((e.clientX - rect.left) / rect.width) * fxCanvas.width;
-      pointer.y = ((e.clientY - rect.top) / rect.height) * fxCanvas.height;
+      const targetRect = fxCanvas.style.display !== 'none'
+        ? fxCanvas.getBoundingClientRect()
+        : canvas.getBoundingClientRect();
+      if (targetRect.width < 2 || targetRect.height < 2) return;
+      pointer.x = ((e.clientX - targetRect.left) / targetRect.width) * fxCanvas.width;
+      pointer.y = ((e.clientY - targetRect.top) / targetRect.height) * fxCanvas.height;
       pointer.active = true;
+    };
+
+    const findClosestVisibleSpot = (px: number, py: number) => {
+      let closestSpot: VisibleSpot | null = null;
+      let bestProx = 0;
+      for (const spot of visibleSpots) {
+        const { proximity } = computePointerProximity(px, py, spot.x, spot.y, spot.radius);
+        if (proximity > bestProx) {
+          bestProx = proximity;
+          closestSpot = spot;
+        }
+      }
+      return { closestSpot, bestProx };
     };
 
     const onPointerMove = (e: PointerEvent) => {
@@ -1009,42 +1258,49 @@ export default function HeatCanvas({ spots }: Props) {
     const onPointerLeave = () => {
       pointer.active = false;
       pointer.dragging = false;
+      hideTooltip();
     };
 
     const onPointerDown = (e: PointerEvent) => {
       if (warmthViewTypeRef.current !== 'heatmap' || reducedMotionRef.current) return;
+      pointer.downClientX = e.clientX;
+      pointer.downClientY = e.clientY;
       updatePointerFromEvent(e);
 
-      // Spawn a subtle thermal burst when clicking/tapping inside a warm zone
-      let closestSpot: VisibleSpot | null = null;
-      let bestProx = 0;
-      for (const spot of visibleSpots) {
-        const { proximity } = computePointerProximity(
-          pointer.x,
-          pointer.y,
-          spot.x,
-          spot.y,
-          spot.radius,
-        );
-        if (proximity > bestProx) {
-          bestProx = proximity;
-          closestSpot = spot;
-        }
-      }
-
+      const { closestSpot, bestProx } = findClosestVisibleSpot(pointer.x, pointer.y);
       if (closestSpot && bestProx > 0.08) {
         if (bursts.length >= MAX_CLICK_BURSTS) bursts.shift();
         bursts.push({
           x: pointer.x,
           y: pointer.y,
-          maxR: Math.max(70, closestSpot.radius * 1.12),
+          maxR: Math.max(76, closestSpot.radius * 1.18),
           bornAt: typeof performance !== 'undefined' ? performance.now() : Date.now(),
         });
       }
     };
 
-    const onPointerUp = () => {
+    const onPointerUp = (e: PointerEvent) => {
+      const wasDragging = pointer.dragging;
       pointer.dragging = false;
+      if (warmthViewTypeRef.current !== 'heatmap' || reducedMotionRef.current || wasDragging) return;
+
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('button, a, input, select, textarea, [role="button"], .om-surge-pill-wrap')) {
+        return;
+      }
+
+      const moved = Math.hypot(
+        e.clientX - pointer.downClientX,
+        e.clientY - pointer.downClientY,
+      );
+      if (moved > CLICK_DRAG_THRESHOLD_PX) return;
+
+      updatePointerFromEvent(e);
+      const { closestSpot, bestProx } = findClosestVisibleSpot(pointer.x, pointer.y);
+      if (closestSpot && bestProx > 0.2) {
+        useMapStore.getState().setSelectedHeatSpot(closestSpot.spot);
+        useMapStore.getState().setSelectedId(closestSpot.placeId);
+      }
     };
 
     paint();
@@ -1055,11 +1311,12 @@ export default function HeatCanvas({ spots }: Props) {
     const ro = node ? new ResizeObserver(schedule) : null;
     if (node && ro) ro.observe(node);
 
+    // Use capture phase so Kakao map's internal drag layer never swallows pointer tracking
     if (node) {
-      node.addEventListener('pointermove', onPointerMove, { passive: true });
+      node.addEventListener('pointermove', onPointerMove, { capture: true, passive: true });
       node.addEventListener('pointerleave', onPointerLeave, { passive: true });
-      node.addEventListener('pointerdown', onPointerDown, { passive: true });
-      node.addEventListener('pointerup', onPointerUp, { passive: true });
+      node.addEventListener('pointerdown', onPointerDown, { capture: true, passive: true });
+      node.addEventListener('pointerup', onPointerUp, { capture: true, passive: true });
     }
 
     document.addEventListener('visibilitychange', onVisibilityChange);
@@ -1072,10 +1329,10 @@ export default function HeatCanvas({ spots }: Props) {
       syncFxRef.current = null;
       ro?.disconnect();
       if (node) {
-        node.removeEventListener('pointermove', onPointerMove);
+        node.removeEventListener('pointermove', onPointerMove, { capture: true });
         node.removeEventListener('pointerleave', onPointerLeave);
-        node.removeEventListener('pointerdown', onPointerDown);
-        node.removeEventListener('pointerup', onPointerUp);
+        node.removeEventListener('pointerdown', onPointerDown, { capture: true });
+        node.removeEventListener('pointerup', onPointerUp, { capture: true });
       }
       document.removeEventListener('visibilitychange', onVisibilityChange);
       window.kakao.maps.event.removeListener(map, 'idle', schedule);
