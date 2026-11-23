@@ -1219,57 +1219,62 @@ export default function JourneyDiscoveryFeed() {
         </CourseGrid>
       </section>
 
-      {}
-      <section>
-          <SectionHeader
-            title="지금 인기 있는 한옥 소리"
-            subtitle="처마 밑 빗소리와 대청마루 풍경소리를 들어보세요."
-          />
+      {(() => {
+        const uniqueSounds = [...new Map(popularSounds.map((s) => [s.story?.storyId ?? s.storyId, s])).values()];
+        if (!soundsLoading && !soundsFailed && uniqueSounds.length < 3) return null;
+        return (
+          <section>
+            <SectionHeader
+              title="지금 인기 있는 한옥 소리"
+              subtitle="처마 밑 빗소리와 대청마루 풍경소리를 들어보세요."
+            />
 
-          <SoundGrid>
-            {soundsLoading
-              ? Array.from({ length: 7 }).map((_, i) => (
-                <SkeletonCard key={i} aria-hidden="true">
-                  <SkeletonCircle />
-                  <SoundInfo>
-                    <SkeletonLine $w="70%" $h="16px" />
-                    <SkeletonLine $w="50%" $h="12px" />
-                  </SoundInfo>
-                </SkeletonCard>
-              ))
-            : soundsFailed ? (
-                <HomeFeedFailure compact unavailable={soundsUnavailable} onRetry={retrySounds} />
-              ) : [...new Map(popularSounds.map((s) => [s.story?.storyId ?? s.storyId, s])).values()].map((sound) => {
-                const story = sound.story;
-                const storyId = story?.storyId ?? sound.storyId;
-                const title = story?.title ?? sound.audioTitle ?? sound.title;
-                const location = story?.region?.name ?? sound.locationName;
-                const duration = story?.durationSeconds ? `${Math.floor(story.durationSeconds / 60)}분` : sound.formattedDuration || sound.playTime;
-                const rawSaved = story?.savedByMe ?? sound.savedByMe ?? false;
-                const isSaved = storyId in savedOverrides ? savedOverrides[storyId] : rawSaved;
-                const playCount = sound.playCount;
-                const meta = [location, duration, playCount != null ? `재생 ${playCount.toLocaleString()}` : undefined].filter(Boolean).join(' · ');
-                return (
-                <SoundCard key={storyId} href={`/sorimaru?stid=${encodeURIComponent(storyId)}`}>
-                  <PlayIconWrap>
-                    <HugeiconsIcon icon={VolumeHighIcon} size={20} />
-                  </PlayIconWrap>
-                  <SoundInfo>
-                    <SoundTitle>{title}</SoundTitle>
-                    <SoundMeta>{meta}</SoundMeta>
-                  </SoundInfo>
-                  <SoundSaveBtn
-                    type="button"
-                    data-saved={isSaved}
-                    aria-label={isSaved ? '찜 해제' : '찜하기'}
-                    onClick={(e) => handleToggleSave(e, storyId, isSaved)}
-                  >
-                    <HugeiconsIcon icon={HeartIcon} size={16} fill={isSaved ? '#ef4444' : 'none'} strokeWidth={isSaved ? 0 : 2} />
-                  </SoundSaveBtn>
-                </SoundCard>
-              )})}
-          </SoundGrid>
-      </section>
+            <SoundGrid>
+              {soundsLoading
+                ? Array.from({ length: 7 }).map((_, i) => (
+                  <SkeletonCard key={i} aria-hidden="true">
+                    <SkeletonCircle />
+                    <SoundInfo>
+                      <SkeletonLine $w="70%" $h="16px" />
+                      <SkeletonLine $w="50%" $h="12px" />
+                    </SoundInfo>
+                  </SkeletonCard>
+                ))
+              : soundsFailed ? (
+                  <HomeFeedFailure compact unavailable={soundsUnavailable} onRetry={retrySounds} />
+                ) : uniqueSounds.map((sound) => {
+                  const story = sound.story;
+                  const storyId = story?.storyId ?? sound.storyId;
+                  const title = story?.title ?? sound.audioTitle ?? sound.title;
+                  const location = story?.region?.name ?? sound.locationName;
+                  const duration = story?.durationSeconds ? `${Math.floor(story.durationSeconds / 60)}분` : sound.formattedDuration || sound.playTime;
+                  const rawSaved = story?.savedByMe ?? sound.savedByMe ?? false;
+                  const isSaved = storyId in savedOverrides ? savedOverrides[storyId] : rawSaved;
+                  const playCount = sound.playCount;
+                  const meta = [location, duration, playCount != null ? `재생 ${playCount.toLocaleString()}` : undefined].filter(Boolean).join(' · ');
+                  return (
+                  <SoundCard key={storyId} href={`/sorimaru?stid=${encodeURIComponent(storyId)}`}>
+                    <PlayIconWrap>
+                      <HugeiconsIcon icon={VolumeHighIcon} size={20} />
+                    </PlayIconWrap>
+                    <SoundInfo>
+                      <SoundTitle>{title}</SoundTitle>
+                      <SoundMeta>{meta}</SoundMeta>
+                    </SoundInfo>
+                    <SoundSaveBtn
+                      type="button"
+                      data-saved={isSaved}
+                      aria-label={isSaved ? '찜 해제' : '찜하기'}
+                      onClick={(e) => handleToggleSave(e, storyId, isSaved)}
+                    >
+                      <HugeiconsIcon icon={HeartIcon} size={16} fill={isSaved ? '#ef4444' : 'none'} strokeWidth={isSaved ? 0 : 2} />
+                    </SoundSaveBtn>
+                  </SoundCard>
+                )})}
+            </SoundGrid>
+          </section>
+        );
+      })()}
 
       {}
       <section>

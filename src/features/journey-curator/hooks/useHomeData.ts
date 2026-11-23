@@ -7,6 +7,7 @@ import { CK, TTL_MS } from '@/lib/cache/cacheKeys';
 import {
   homeRepository,
   type CuratedCourse,
+  type HomeReview,
   type PopularRegion,
   type TrendingSound,
   type PopularSound,
@@ -104,6 +105,14 @@ export function usePopularRegions() {
   return useHomeList<PopularRegion>(
     CK.homePopularRegions(),
     () => homeRepository.listPopularRegions(),
+    TTL_MS.HOME_POPULAR,
+  );
+}
+
+export function useLatestReviews() {
+  return useHomeList<HomeReview>(
+    CK.homeLatestReviews(),
+    () => homeRepository.listLatestReviews(6),
     TTL_MS.HOME_POPULAR,
   );
 }

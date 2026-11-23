@@ -15,9 +15,9 @@ describe('JourneyChatInterface', () => {
     const firstPlanPlaces = findPlaces(createBentoBoard('plan-alpha') as never);
     const secondPlanPlaces = findPlaces(createBentoBoard('plan-beta') as never);
 
-    expect(firstPlanPlaces.map((place) => place.ref.id)).toEqual(['place-plan-alpha-hanok', 'place-plan-alpha-stop-1']);
-    expect(secondPlanPlaces.map((place) => place.ref.id)).toEqual(['place-plan-beta-hanok', 'place-plan-beta-stop-1']);
-    expect(firstPlanPlaces.every((place) => place.location === null)).toBe(true);
+    expect(firstPlanPlaces.map((place: { ref: { id: string } }) => place.ref.id)).toEqual(['place-plan-alpha-hanok', 'place-plan-alpha-stop-1']);
+    expect(secondPlanPlaces.map((place: { ref: { id: string } }) => place.ref.id)).toEqual(['place-plan-beta-hanok', 'place-plan-beta-stop-1']);
+    expect(firstPlanPlaces.every((place: { location: unknown }) => place.location === null)).toBe(true);
   });
 
   it('presents a focused conversation canvas for a new journey', () => {
