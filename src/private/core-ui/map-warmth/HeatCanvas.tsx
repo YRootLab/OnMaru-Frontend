@@ -2,36 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { HeatSpot } from '@/features/map/types';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 const RAMP_LIGHT: Record<number, string> = {
@@ -54,9 +27,6 @@ const RAMP_DARK: Record<number, string> = {
   0.85: 'rgba(255, 208, 38, 0.88)',
   1.0: 'rgba(255, 235, 150, 0.95)',
 };
-
-
-
 
 
 const HEATMAP_RAMP_LIGHT: Record<number, string> = {
@@ -101,17 +71,10 @@ function bakeRamp(stops: Record<number, string>): Uint8ClampedArray {
 }
 
 
-
-
-
 function seedFromCoords(lng: number, lat: number): number {
   const s = Math.sin(lng * 12.9898 + lat * 78.233) * 43758.5453;
   return s - Math.floor(s);
 }
-
-
-
-
 
 
 const KERNEL_STOPS = Array.from({ length: 9 }, (_, i) => {
@@ -119,12 +82,6 @@ const KERNEL_STOPS = Array.from({ length: 9 }, (_, i) => {
   const alpha = i === 8 ? 0 : Math.exp(-4.5 * t * t);
   return `rgba(0, 0, 0, ${alpha.toFixed(3)})`;
 });
-
-
-
-
-
-
 
 
 function stampKernel(
@@ -155,22 +112,7 @@ function stampKernel(
 }
 
 
-
-
-
-
-
-
 const KERNEL_METERS = 350;
-
-
-
-
-
-
-
-
-
 
 
 function kernelRadiusPx(
@@ -183,26 +125,319 @@ function kernelRadiusPx(
     new window.kakao.maps.LatLng(center.getLat() + degrees, center.getLng()),
   );
 
-
-
-
-
-
   return Math.min(300, Math.max(40, Math.abs(north.y - here.y)));
 }
 
 
 const MAX_KERNELS = 160;
+const MAX_AMBIENT_RIPPLES = 28;
+const MAX_CLICK_BURSTS = 6;
+const BURST_DURATION_MS = 780;
+const ZOOM_RESUME_FALLBACK_MS = 450;
 
+interface VisibleSpot {
+  id: string;
+  placeId: string;
+  x: number;
+  y: number;
+  radius: number;
+  weight: number;
+  seed: number;
+  congestionLevel: HeatSpot['congestionLevel'];
+  hoverLevel: number;
+  ambientRipple: boolean;
+}
 
+interface PointerState {
+  x: number;
+  y: number;
+  active: boolean;
+  dragging: boolean;
+}
 
+interface ClickBurst {
+  x: number;
+  y: number;
+  maxR: number;
+  bornAt: number;
+}
 
+export function computePointerProximity(
+  pointerX: number,
+  pointerY: number,
+  spotX: number,
+  spotY: number,
+  radius: number,
+): { proximity: number; dist: number; dx: number; dy: number } {
+  const dx = pointerX - spotX;
+  const dy = pointerY - spotY;
+  const dist = Math.hypot(dx, dy);
+  const influenceR = Math.max(radius * 1.18, 96);
+  if (dist >= influenceR) return { proximity: 0, dist, dx, dy };
+  const proximity = Math.pow(1 - dist / influenceR, 1.45);
+  return { proximity, dist, dx, dy };
+}
 
+function drawHeatmapFxFrame(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  spots: VisibleSpot[],
+  pointer: PointerState,
+  bursts: ClickBurst[],
+  selectedSpot: HeatSpot | null,
+  hoveredId: string | null,
+  isDark: boolean,
+  nowMs: number,
+  dtSec: number,
+) {
+  ctx.clearRect(0, 0, width, height);
+  if (spots.length === 0 && bursts.length === 0) return;
 
+  const t = nowMs * 0.001;
+  const lerpStep = Math.min(1, Math.max(0.08, dtSec * 8.5));
+  let maxProximity = 0;
 
+  // Pass 1: Breathing organic warmth aura & luminous core
+  ctx.save();
+  ctx.globalCompositeOperation = isDark ? 'lighter' : 'source-over';
 
+  const renderedCenters: {
+    spot: VisibleSpot;
+    cx: number;
+    cy: number;
+    phase: number;
+  }[] = [];
 
+  for (const spot of spots) {
+    const isSelected =
+      selectedSpot !== null &&
+      (selectedSpot.id === spot.id || selectedSpot.placeId === spot.placeId);
+    const isBadgeHovered =
+      hoveredId !== null && (hoveredId === spot.placeId || hoveredId === spot.id);
 
+    let prox = 0;
+    let dx = 0;
+    let dy = 0;
+    let dist = Infinity;
+    if (pointer.active && !pointer.dragging) {
+      const hit = computePointerProximity(pointer.x, pointer.y, spot.x, spot.y, spot.radius);
+      prox = hit.proximity;
+      dx = hit.dx;
+      dy = hit.dy;
+      dist = hit.dist;
+      if (prox > maxProximity) maxProximity = prox;
+    }
+
+    const targetHover = Math.max(prox, isBadgeHovered ? 1 : 0, isSelected ? 0.85 : 0);
+    spot.hoverLevel += (targetHover - spot.hoverLevel) * lerpStep;
+    if (spot.hoverLevel < 0.002) spot.hoverLevel = 0;
+
+    const phase = spot.seed * Math.PI * 2;
+    const freq = 1.05 + spot.weight * 0.95;
+    const breath01 = Math.sin(t * freq + phase) * 0.5 + 0.5;
+
+    // Subtle organic center wander + magnetic attraction toward cursor
+    const driftAmp = spot.radius * (0.045 + spot.weight * 0.03);
+    const driftX = Math.cos(t * 0.65 + phase) * driftAmp;
+    const driftY = Math.sin(t * 0.52 + phase * 1.37) * driftAmp;
+
+    let pullX = 0;
+    let pullY = 0;
+    if (prox > 0.04 && dist > 1) {
+      const pull = prox * Math.min(14, spot.radius * 0.14);
+      pullX = (dx / dist) * pull;
+      pullY = (dy / dist) * pull;
+    }
+
+    const cx = spot.x + driftX + pullX;
+    const cy = spot.y + driftY + pullY;
+    renderedCenters.push({ spot, cx, cy, phase });
+
+    // Organic elliptical breathing aura
+    const angle = spot.seed * Math.PI + Math.sin(t * 0.4 + phase) * 0.25;
+    const hoverScale = 1 + spot.hoverLevel * 0.2;
+    const scaleX = (0.9 + breath01 * (0.16 + spot.weight * 0.08)) * hoverScale;
+    const scaleY =
+      (0.82 + spot.seed * 0.28 + Math.cos(t * freq * 0.85 + phase) * 0.07) * hoverScale;
+    const auraR = spot.radius * 0.94;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(angle);
+    ctx.scale(scaleX, scaleY);
+
+    const aura = ctx.createRadialGradient(0, 0, 0, 0, 0, auraR);
+    if (isDark) {
+      const alpha = Math.min(
+        0.72,
+        0.18 + spot.weight * 0.18 + breath01 * 0.09 + spot.hoverLevel * 0.24,
+      );
+      aura.addColorStop(0, `rgba(255, 232, 148, ${(alpha * 0.92).toFixed(3)})`);
+      aura.addColorStop(0.32, `rgba(255, 168, 52, ${(alpha * 0.72).toFixed(3)})`);
+      aura.addColorStop(0.68, `rgba(255, 92, 16, ${(alpha * 0.34).toFixed(3)})`);
+      aura.addColorStop(1, 'rgba(217, 64, 0, 0)');
+    } else {
+      const alpha = Math.min(
+        0.66,
+        0.16 + spot.weight * 0.16 + breath01 * 0.08 + spot.hoverLevel * 0.22,
+      );
+      aura.addColorStop(0, `rgba(255, 86, 10, ${alpha.toFixed(3)})`);
+      aura.addColorStop(0.35, `rgba(255, 142, 24, ${(alpha * 0.72).toFixed(3)})`);
+      aura.addColorStop(0.68, `rgba(255, 198, 56, ${(alpha * 0.34).toFixed(3)})`);
+      aura.addColorStop(1, 'rgba(255, 220, 100, 0)');
+    }
+
+    ctx.fillStyle = aura;
+    ctx.beginPath();
+    ctx.arc(0, 0, auraR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    // Luminous ember core shimmer for hotspots and hovered/selected spots
+    if (spot.weight >= 0.45 || spot.hoverLevel > 0.06) {
+      const shimmer = 0.76 + 0.24 * Math.sin(t * (2.5 + spot.seed * 1.5) + phase * 2);
+      const coreR = Math.max(10, spot.radius * (0.24 + spot.hoverLevel * 0.14));
+      const coreAlpha = Math.min(
+        0.75,
+        ((spot.weight - 0.35) * 0.28 + spot.hoverLevel * 0.42) * shimmer,
+      );
+      if (coreAlpha > 0.02) {
+        const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+        if (isDark) {
+          coreGrad.addColorStop(0, `rgba(255, 248, 210, ${coreAlpha.toFixed(3)})`);
+          coreGrad.addColorStop(0.45, `rgba(255, 192, 72, ${(coreAlpha * 0.55).toFixed(3)})`);
+          coreGrad.addColorStop(1, 'rgba(255, 120, 20, 0)');
+        } else {
+          coreGrad.addColorStop(0, `rgba(255, 236, 170, ${(coreAlpha * 0.85).toFixed(3)})`);
+          coreGrad.addColorStop(0.42, `rgba(255, 118, 24, ${(coreAlpha * 0.62).toFixed(3)})`);
+          coreGrad.addColorStop(1, 'rgba(255, 85, 0, 0)');
+        }
+        ctx.fillStyle = coreGrad;
+        ctx.beginPath();
+        ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+  ctx.restore();
+
+  // Pass 2: Expanding thermal ripple waves
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  for (const { spot, cx, cy } of renderedCenters) {
+    const isInteractive = spot.hoverLevel > 0.08;
+    if (!spot.ambientRipple && !isInteractive) continue;
+
+    const ringCount =
+      spot.congestionLevel === 'surge' || spot.hoverLevel > 0.35 ? 2 : 1;
+    const period =
+      spot.hoverLevel > 0.25 ? 2.15 : Math.max(2.65, 4.35 - spot.weight * 1.35);
+
+    for (let ringIdx = 0; ringIdx < ringCount; ringIdx++) {
+      const offset = ringIdx / ringCount;
+      const progress = (t / period + spot.seed + offset) % 1;
+      const eased = 1 - Math.pow(1 - progress, 2.2);
+      const ringR = spot.radius * (0.22 + eased * (0.96 + spot.hoverLevel * 0.22));
+      const envelope = Math.sin(progress * Math.PI);
+      const ringAlpha = Math.min(
+        0.68,
+        envelope * (0.17 + spot.weight * 0.2 + spot.hoverLevel * 0.34),
+      );
+      if (ringAlpha < 0.015) continue;
+
+      const lineW = (1.35 + spot.hoverLevel * 1.25) * (1 - progress * 0.35);
+
+      // Soft outer thermal halo
+      ctx.beginPath();
+      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+      ctx.lineWidth = lineW * 3.2;
+      ctx.strokeStyle = isDark
+        ? `rgba(255, 186, 68, ${(ringAlpha * 0.24).toFixed(3)})`
+        : `rgba(255, 120, 24, ${(ringAlpha * 0.22).toFixed(3)})`;
+      ctx.stroke();
+
+      // Crisp thermal wave crest
+      ctx.beginPath();
+      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+      ctx.lineWidth = lineW;
+      ctx.strokeStyle = isDark
+        ? `rgba(255, 224, 130, ${ringAlpha.toFixed(3)})`
+        : `rgba(255, 86, 12, ${ringAlpha.toFixed(3)})`;
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+
+  // Pass 3: Subtle cursor warmth shimmer when exploring warm zones
+  if (pointer.active && !pointer.dragging && maxProximity > 0.05) {
+    const cursorR = 54 + maxProximity * 40;
+    const cursorAlpha = Math.min(0.32, maxProximity * 0.28);
+    ctx.save();
+    ctx.globalCompositeOperation = isDark ? 'lighter' : 'source-over';
+    const cursorGrad = ctx.createRadialGradient(
+      pointer.x,
+      pointer.y,
+      0,
+      pointer.x,
+      pointer.y,
+      cursorR,
+    );
+    if (isDark) {
+      cursorGrad.addColorStop(0, `rgba(255, 236, 168, ${cursorAlpha.toFixed(3)})`);
+      cursorGrad.addColorStop(0.5, `rgba(255, 146, 48, ${(cursorAlpha * 0.45).toFixed(3)})`);
+      cursorGrad.addColorStop(1, 'rgba(255, 85, 0, 0)');
+    } else {
+      cursorGrad.addColorStop(0, `rgba(255, 132, 32, ${cursorAlpha.toFixed(3)})`);
+      cursorGrad.addColorStop(0.55, `rgba(255, 190, 56, ${(cursorAlpha * 0.4).toFixed(3)})`);
+      cursorGrad.addColorStop(1, 'rgba(255, 210, 80, 0)');
+    }
+    ctx.fillStyle = cursorGrad;
+    ctx.beginPath();
+    ctx.arc(pointer.x, pointer.y, cursorR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Pass 4: Click/tap ripple bursts
+  if (bursts.length > 0) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-over';
+    for (let i = bursts.length - 1; i >= 0; i--) {
+      const burst = bursts[i];
+      const elapsed = nowMs - burst.bornAt;
+      if (elapsed >= BURST_DURATION_MS) {
+        bursts.splice(i, 1);
+        continue;
+      }
+      const p = elapsed / BURST_DURATION_MS;
+      const eased = 1 - Math.pow(1 - p, 2.6);
+      const alpha = (1 - p) * 0.62;
+      const r1 = 10 + eased * burst.maxR;
+
+      ctx.beginPath();
+      ctx.arc(burst.x, burst.y, r1, 0, Math.PI * 2);
+      ctx.lineWidth = Math.max(0.8, 2.6 * (1 - p * 0.55));
+      ctx.strokeStyle = isDark
+        ? `rgba(255, 230, 145, ${alpha.toFixed(3)})`
+        : `rgba(255, 85, 0, ${alpha.toFixed(3)})`;
+      ctx.stroke();
+
+      if (p > 0.14) {
+        const p2 = (p - 0.14) / 0.86;
+        const r2 = 6 + (1 - Math.pow(1 - p2, 2.2)) * burst.maxR * 0.72;
+        ctx.beginPath();
+        ctx.arc(burst.x, burst.y, r2, 0, Math.PI * 2);
+        ctx.lineWidth = Math.max(0.6, 1.8 * (1 - p2 * 0.5));
+        ctx.strokeStyle = isDark
+          ? `rgba(255, 180, 72, ${((1 - p2) * 0.42).toFixed(3)})`
+          : `rgba(255, 152, 36, ${((1 - p2) * 0.42).toFixed(3)})`;
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+}
 
 
 interface DistrictFeature {
@@ -247,11 +482,6 @@ function ringContains(ring: [number, number][], lng: number, lat: number): boole
 }
 
 
-
-
-
-
-
 function findDistrict(
   features: DistrictFeature[],
   lng: number,
@@ -268,10 +498,6 @@ function findDistrict(
 
   return null;
 }
-
-
-
-
 
 
 const districtCache = new Map<string, DistrictFeature | null>();
@@ -299,6 +525,9 @@ export default function HeatCanvas({ spots }: Props) {
   const mode = useMapStore((s) => s.mode);
   const level = useMapStore((s) => s.level);
   const warmthViewType = useMapStore((s) => s.warmthViewType);
+  const selectedHeatSpot = useMapStore((s) => s.selectedHeatSpot);
+  const hoveredId = useMapStore((s) => s.hoveredId);
+  const reducedMotion = usePrefersReducedMotion();
   const { mode: colorMode } = useOnmaruTheme();
   const isDark = colorMode === 'dark';
 
@@ -306,14 +535,13 @@ export default function HeatCanvas({ spots }: Props) {
   const heatmapLutRef = useRef<Uint8ClampedArray | null>(null);
   const warmthViewTypeRef = useRef(warmthViewType);
   const levelRef = useRef(level);
-
-
-
-
-
+  const selectedSpotRef = useRef(selectedHeatSpot);
+  const hoveredIdRef = useRef(hoveredId);
+  const reducedMotionRef = useRef(reducedMotion);
 
   const spotsRef = useRef(spots);
   const scheduleRef = useRef<(() => void) | null>(null);
+  const syncFxRef = useRef<(() => void) | null>(null);
   const districtsRef = useRef<DistrictFeature[]>([]);
 
   const pathCacheRef = useRef<{ key: string; paths: Map<DistrictFeature, Path2D> }>({
@@ -321,6 +549,18 @@ export default function HeatCanvas({ spots }: Props) {
     paths: new Map(),
   });
 
+  useEffect(() => {
+    selectedSpotRef.current = selectedHeatSpot;
+  }, [selectedHeatSpot]);
+
+  useEffect(() => {
+    hoveredIdRef.current = hoveredId;
+  }, [hoveredId]);
+
+  useEffect(() => {
+    reducedMotionRef.current = reducedMotion;
+    syncFxRef.current?.();
+  }, [reducedMotion]);
 
   useEffect(() => {
     warmthViewTypeRef.current = warmthViewType;
@@ -355,11 +595,6 @@ export default function HeatCanvas({ spots }: Props) {
   }, [spots]);
 
 
-
-
-
-
-
   useEffect(() => {
     levelRef.current = level;
   }, [level]);
@@ -367,12 +602,6 @@ export default function HeatCanvas({ spots }: Props) {
   useEffect(() => {
     if (!map || mode !== 'warmth') return;
     if (!window.kakao?.maps) return;
-
-
-
-
-
-
 
     const holder = document.createElement('div');
     holder.className = 'om-heat-holder';
@@ -382,14 +611,16 @@ export default function HeatCanvas({ spots }: Props) {
     canvas.className = 'om-heat-canvas';
     canvas.style.position = 'absolute';
     canvas.style.pointerEvents = 'none';
+    canvas.style.transition = 'opacity 180ms ease';
     holder.appendChild(canvas);
 
-
-
-
-
-
-
+    const fxCanvas = document.createElement('canvas');
+    fxCanvas.className = 'om-heat-fx-canvas';
+    fxCanvas.style.position = 'absolute';
+    fxCanvas.style.pointerEvents = 'none';
+    fxCanvas.style.transition = 'opacity 160ms ease';
+    fxCanvas.style.display = 'none';
+    holder.appendChild(fxCanvas);
 
     const blurScratch = document.createElement('canvas');
 
@@ -402,9 +633,109 @@ export default function HeatCanvas({ spots }: Props) {
     });
     overlay.setMap(map);
 
-    let frame = 0;
+    let paintFrame = 0;
+    let fxFrame = 0;
+    let lastFxTime = 0;
+    let isZooming = false;
+    let zoomResumeTimer: ReturnType<typeof setTimeout> | null = null;
+
+    let visibleSpots: VisibleSpot[] = [];
+    const pointer: PointerState = { x: 0, y: 0, active: false, dragging: false };
+    const bursts: ClickBurst[] = [];
+
+    const stopFxLoop = () => {
+      if (fxFrame) {
+        cancelAnimationFrame(fxFrame);
+        fxFrame = 0;
+      }
+      lastFxTime = 0;
+    };
+
+    const clearFxCanvas = () => {
+      const fxCtx = fxCanvas.getContext('2d');
+      if (fxCtx && fxCanvas.width > 0 && fxCanvas.height > 0) {
+        fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+      }
+    };
+
+    const shouldRunFx = () =>
+      warmthViewTypeRef.current === 'heatmap' &&
+      !reducedMotionRef.current &&
+      !document.hidden &&
+      !isZooming &&
+      visibleSpots.length > 0 &&
+      fxCanvas.width > 1 &&
+      fxCanvas.height > 1;
+
+    const tickFx = (nowMs: number) => {
+      if (!shouldRunFx()) {
+        fxFrame = 0;
+        lastFxTime = 0;
+        return;
+      }
+
+      const fxCtx = fxCanvas.getContext('2d');
+      if (!fxCtx) {
+        fxFrame = 0;
+        return;
+      }
+
+      const dtSec = lastFxTime > 0 ? Math.min(0.05, (nowMs - lastFxTime) * 0.001) : 1 / 60;
+      lastFxTime = nowMs;
+
+      drawHeatmapFxFrame(
+        fxCtx,
+        fxCanvas.width,
+        fxCanvas.height,
+        visibleSpots,
+        pointer,
+        bursts,
+        selectedSpotRef.current,
+        hoveredIdRef.current,
+        isDark,
+        nowMs,
+        dtSec,
+      );
+
+      fxFrame = requestAnimationFrame(tickFx);
+    };
+
+    const syncFxLoop = () => {
+      const isAnimatedHeatmap =
+        warmthViewTypeRef.current === 'heatmap' && !reducedMotionRef.current && visibleSpots.length > 0;
+
+      canvas.style.opacity = isAnimatedHeatmap ? '0.74' : '1';
+
+      if (!isAnimatedHeatmap) {
+        stopFxLoop();
+        clearFxCanvas();
+        fxCanvas.style.display = 'none';
+        fxCanvas.style.opacity = '0';
+        return;
+      }
+
+      fxCanvas.style.display = 'block';
+      fxCanvas.style.opacity = isZooming ? '0' : '1';
+
+      if (shouldRunFx()) {
+        if (!fxFrame) {
+          lastFxTime = 0;
+          fxFrame = requestAnimationFrame(tickFx);
+        }
+      } else {
+        stopFxLoop();
+      }
+    };
+    syncFxRef.current = syncFxLoop;
 
     const paint = () => {
+      if (zoomResumeTimer !== null) {
+        clearTimeout(zoomResumeTimer);
+        zoomResumeTimer = null;
+      }
+      isZooming = false;
+      pointer.dragging = false;
+
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       const projection = map.getProjection?.();
       const node = map.getNode?.();
@@ -414,12 +745,6 @@ export default function HeatCanvas({ spots }: Props) {
 
       const viewW = node.clientWidth;
       const viewH = node.clientHeight;
-
-
-
-
-
-
 
       const W = Math.min(2400, Math.round(viewW * 1.5));
       const H = Math.min(2400, Math.round(viewH * 1.5));
@@ -431,26 +756,23 @@ export default function HeatCanvas({ spots }: Props) {
       canvas.style.width = `${W}px`;
       canvas.style.height = `${H}px`;
 
+      fxCanvas.width = W;
+      fxCanvas.height = H;
+      fxCanvas.style.width = `${W}px`;
+      fxCanvas.style.height = `${H}px`;
 
       const center = map.getCenter();
       overlay.setPosition(center);
-      canvas.style.left = `${-W / 2}px`;
-      canvas.style.top = `${-H / 2}px`;
+      const leftPx = `${-W / 2}px`;
+      const topPx = `${-H / 2}px`;
+      canvas.style.left = leftPx;
+      canvas.style.top = topPx;
+      fxCanvas.style.left = leftPx;
+      fxCanvas.style.top = topPx;
 
       const centerPt = projection.pointFromCoords(center);
       const originX = centerPt.x - W / 2;
       const originY = centerPt.y - H / 2;
-
-
-
-
-
-
-
-
-
-
-
 
       ctx.clearRect(0, 0, W, H);
 
@@ -461,12 +783,6 @@ export default function HeatCanvas({ spots }: Props) {
         const pt = projection.pointFromCoords(new window.kakao.maps.LatLng(lat, lng));
         return { x: pt.x - originX, y: pt.y - originY };
       };
-
-
-
-
-
-
 
       const viewKey = `${levelRef.current}_${Math.round(originX)}_${Math.round(originY)}_${W}x${H}`;
       if (pathCacheRef.current.key !== viewKey) {
@@ -491,20 +807,13 @@ export default function HeatCanvas({ spots }: Props) {
       }
 
       let painted = 0;
+      const prevHoverById = new Map<string, number>();
+      for (const prev of visibleSpots) {
+        if (prev.hoverLevel > 0) prevHoverById.set(prev.id, prev.hoverLevel);
+      }
+      const nextVisibleSpots: VisibleSpot[] = [];
 
       if (warmthViewTypeRef.current === 'heatmap') {
-
-
-
-
-
-
-
-
-
-
-
-
         const maxRadius = Math.min(220, Math.max(52, Math.round(baseRadius * 1.55)));
         ctx.globalCompositeOperation = 'lighter';
         for (const spot of spotsRef.current) {
@@ -521,20 +830,37 @@ export default function HeatCanvas({ spots }: Props) {
 
           const weight = Math.min(1, Math.max(0.18, spot.intensity));
           const radius = Math.round(maxRadius * (0.55 + weight * 0.45));
-          stampKernel(ctx, x, y, radius, weight, seedFromCoords(spot.lng, spot.lat));
+          const seed = seedFromCoords(spot.lng, spot.lat);
+          stampKernel(ctx, x, y, radius, weight, seed);
+          nextVisibleSpots.push({
+            id: spot.id,
+            placeId: spot.placeId,
+            x,
+            y,
+            radius,
+            weight,
+            seed,
+            congestionLevel: spot.congestionLevel,
+            hoverLevel: prevHoverById.get(spot.id) ?? 0,
+            ambientRipple: false,
+          });
           painted += 1;
         }
         ctx.globalCompositeOperation = 'source-over';
 
-
-
-
-
-
-
-
-
-
+        // Pick top hottest visible spots for ambient ripples to keep the map airy
+        const rippleCandidates = nextVisibleSpots
+          .filter(
+            (s) =>
+              s.congestionLevel === 'surge' ||
+              s.congestionLevel === 'busy' ||
+              s.weight >= 0.48,
+          )
+          .sort((a, b) => b.weight - a.weight)
+          .slice(0, MAX_AMBIENT_RIPPLES);
+        for (const candidate of rippleCandidates) {
+          candidate.ambientRipple = true;
+        }
 
         if (painted > 0) {
           blurScratch.width = W;
@@ -551,7 +877,6 @@ export default function HeatCanvas({ spots }: Props) {
           }
         }
       } else {
-
         ctx.fillStyle = '#000000';
         ctx.strokeStyle = '#000000';
         ctx.lineWidth = 1.5;
@@ -562,11 +887,6 @@ export default function HeatCanvas({ spots }: Props) {
           const max = project(feature.bbox[2], feature.bbox[1]);
 
           if (max.x < 0 || max.y < 0 || min.x > W || min.y > H) continue;
-
-
-
-
-
 
           let path = pathCache.get(feature);
 
@@ -585,27 +905,17 @@ export default function HeatCanvas({ spots }: Props) {
             pathCache.set(feature, path);
           }
 
-
-
-
-
-
-
           const cover = (Math.abs(max.x - min.x) * Math.abs(max.y - min.y)) / (W * H);
           const damp = cover > 1 ? Math.max(0.4, 1 / Math.sqrt(cover)) : 1;
 
           ctx.globalAlpha = weight * damp;
           ctx.fill(path);
 
-
-
-
           ctx.globalAlpha = Math.min(1, weight + 0.22);
           ctx.stroke(path);
 
           painted += 1;
         }
-
 
         for (const spot of loose) {
           if (painted >= MAX_KERNELS) break;
@@ -625,9 +935,12 @@ export default function HeatCanvas({ spots }: Props) {
       }
 
       ctx.globalAlpha = 1;
+      visibleSpots = nextVisibleSpots;
 
-      if (painted === 0) return;
-
+      if (painted === 0) {
+        syncFxLoop();
+        return;
+      }
 
       const img = ctx.getImageData(0, 0, W, H);
       const px = img.data;
@@ -644,52 +957,130 @@ export default function HeatCanvas({ spots }: Props) {
       }
 
       ctx.putImageData(img, 0, 0);
+      syncFxLoop();
     };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     const schedule = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(paint);
+      cancelAnimationFrame(paintFrame);
+      paintFrame = requestAnimationFrame(paint);
     };
     scheduleRef.current = schedule;
 
+    const onDragStart = () => {
+      pointer.dragging = true;
+    };
 
+    const onZoomStart = () => {
+      isZooming = true;
+      syncFxLoop();
+      if (zoomResumeTimer !== null) clearTimeout(zoomResumeTimer);
+      zoomResumeTimer = setTimeout(() => {
+        zoomResumeTimer = null;
+        if (isZooming) {
+          isZooming = false;
+          syncFxLoop();
+        }
+      }, ZOOM_RESUME_FALLBACK_MS);
+    };
 
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        stopFxLoop();
+      } else {
+        schedule();
+      }
+    };
 
+    const node = map.getNode?.() as HTMLElement | null;
+
+    const updatePointerFromEvent = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2) return;
+      pointer.x = ((e.clientX - rect.left) / rect.width) * fxCanvas.width;
+      pointer.y = ((e.clientY - rect.top) / rect.height) * fxCanvas.height;
+      pointer.active = true;
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (warmthViewTypeRef.current !== 'heatmap' || reducedMotionRef.current) return;
+      updatePointerFromEvent(e);
+    };
+
+    const onPointerLeave = () => {
+      pointer.active = false;
+      pointer.dragging = false;
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (warmthViewTypeRef.current !== 'heatmap' || reducedMotionRef.current) return;
+      updatePointerFromEvent(e);
+
+      // Spawn a subtle thermal burst when clicking/tapping inside a warm zone
+      let closestSpot: VisibleSpot | null = null;
+      let bestProx = 0;
+      for (const spot of visibleSpots) {
+        const { proximity } = computePointerProximity(
+          pointer.x,
+          pointer.y,
+          spot.x,
+          spot.y,
+          spot.radius,
+        );
+        if (proximity > bestProx) {
+          bestProx = proximity;
+          closestSpot = spot;
+        }
+      }
+
+      if (closestSpot && bestProx > 0.08) {
+        if (bursts.length >= MAX_CLICK_BURSTS) bursts.shift();
+        bursts.push({
+          x: pointer.x,
+          y: pointer.y,
+          maxR: Math.max(70, closestSpot.radius * 1.12),
+          bornAt: typeof performance !== 'undefined' ? performance.now() : Date.now(),
+        });
+      }
+    };
+
+    const onPointerUp = () => {
+      pointer.dragging = false;
+    };
 
     paint();
     window.kakao.maps.event.addListener(map, 'idle', schedule);
+    window.kakao.maps.event.addListener(map, 'dragstart', onDragStart);
+    window.kakao.maps.event.addListener(map, 'zoom_start', onZoomStart);
 
-
-
-
-
-
-    const node = map.getNode?.();
     const ro = node ? new ResizeObserver(schedule) : null;
     if (node && ro) ro.observe(node);
 
+    if (node) {
+      node.addEventListener('pointermove', onPointerMove, { passive: true });
+      node.addEventListener('pointerleave', onPointerLeave, { passive: true });
+      node.addEventListener('pointerdown', onPointerDown, { passive: true });
+      node.addEventListener('pointerup', onPointerUp, { passive: true });
+    }
 
-    document.addEventListener('visibilitychange', schedule);
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
-      cancelAnimationFrame(frame);
+      cancelAnimationFrame(paintFrame);
+      stopFxLoop();
+      if (zoomResumeTimer !== null) clearTimeout(zoomResumeTimer);
       scheduleRef.current = null;
+      syncFxRef.current = null;
       ro?.disconnect();
-      document.removeEventListener('visibilitychange', schedule);
+      if (node) {
+        node.removeEventListener('pointermove', onPointerMove);
+        node.removeEventListener('pointerleave', onPointerLeave);
+        node.removeEventListener('pointerdown', onPointerDown);
+        node.removeEventListener('pointerup', onPointerUp);
+      }
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       window.kakao.maps.event.removeListener(map, 'idle', schedule);
+      window.kakao.maps.event.removeListener(map, 'dragstart', onDragStart);
+      window.kakao.maps.event.removeListener(map, 'zoom_start', onZoomStart);
       overlay.setMap(null);
     };
   }, [map, mode, isDark]);

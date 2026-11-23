@@ -961,6 +961,7 @@ export default function WarmthLayer() {
     }
 
     const specs: OverlaySpec[] = [];
+    let activeHoverSpotId: string | null = null;
 
     const canHover =
       typeof window.matchMedia === 'function'
@@ -1176,12 +1177,20 @@ export default function WarmthLayer() {
       pillWrap.addEventListener('mouseenter', () => {
         setZIndex(99999);
         pillWrap.classList.add('is-hovered');
+        activeHoverSpotId = item.primarySpot.placeId;
+        useMapStore.getState().setHoveredId(item.primarySpot.placeId);
       });
 
       pillWrap.addEventListener('mouseleave', () => {
         pillWrap.classList.remove('is-hovered');
         if (!pillWrap.classList.contains('is-open')) {
           setZIndex(25);
+        }
+        if (useMapStore.getState().hoveredId === item.primarySpot.placeId) {
+          useMapStore.getState().setHoveredId(null);
+        }
+        if (activeHoverSpotId === item.primarySpot.placeId) {
+          activeHoverSpotId = null;
         }
       });
 
@@ -1233,6 +1242,9 @@ export default function WarmthLayer() {
     return () => {
       document.removeEventListener('click', onDocumentClick);
       closeAllPopovers();
+      if (activeHoverSpotId && useMapStore.getState().hoveredId === activeHoverSpotId) {
+        useMapStore.getState().setHoveredId(null);
+      }
       if (cleanup) cleanup();
     };
   }, [map, mode, panelOpen, baseList, level, isDark, heatDays, heatDayIndex, warmthViewType, reducedMotion]);
