@@ -302,9 +302,11 @@ export default function InfoPlaceList() {
   const categoryLabel = infoCategory === 'hanok'
     ? '전통 문화 공간'
     : CATEGORY_LABELS[infoCategory] ?? '장소';
-  const headerTitle = isListLoading && listItems.length === 0
-    ? `${categoryLabel} 목록`
-    : `${categoryLabel} ${listTotalCount.toLocaleString()}곳`;
+  const headerTitle = infoCategory === 'hanok'
+    ? '전통 문화 공간'
+    : isListLoading && listItems.length === 0
+      ? `${categoryLabel} 목록`
+      : `${categoryLabel} ${listTotalCount.toLocaleString()}곳`;
   const editorialItems = useMemo(() => listItems.map(mapInfoPlaceToItem), [listItems]);
 
   return (

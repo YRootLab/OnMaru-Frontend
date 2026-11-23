@@ -1099,7 +1099,7 @@ const SendButton = styled.button`
   }
 `;
 
-export function findPlaces(board: JourneyBoard | null): PlaceResource[] {
+export function findPlaces(board: JourneyBoard | null, fallbackPlanId?: string): PlaceResource[] {
   if (!board) return [];
 
   // 1) Direct PlaceResource from board.resources
@@ -1126,7 +1126,9 @@ export function findPlaces(board: JourneyBoard | null): PlaceResource[] {
 
   // 3) Fallback: BentoJourneyPlan structure (hanokCard + routeCard)
   const bento = board as any;
-  const planKey = typeof bento.id === 'string' ? bento.id.trim() : '';
+  const planKey = typeof bento.id === 'string' && bento.id.trim()
+    ? bento.id.trim()
+    : fallbackPlanId?.trim() ?? '';
   const fallbackPlaces: PlaceResource[] = [];
   if (!planKey) return fallbackPlaces;
   if (bento.hanokCard) {
@@ -1247,7 +1249,7 @@ function AssistantResponse({ turn }: { turn: ExplorationTurn }) {
   if (response.status === 'FAILED') return <Bubble>요청을 완료하지 못했어요. {response.error?.requestId ? `요청 번호: ${response.error.requestId}` : ''}</Bubble>;
   if (response.outcome === 'NO_RESULTS') return <Bubble>{response.summary ?? '조건에 맞는 여행 결과를 찾지 못했어요.'}</Bubble>;
 
-  const places = findPlaces(response.board);
+  const places = findPlaces(response.board, turn.turnId);
   const textSummary =
     response.summary ||
     response.board?.querySummary ||
