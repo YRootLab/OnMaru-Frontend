@@ -4,6 +4,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased]
 
+- 여정 대화 fixture의 턴 반환 순서를 최신순으로 고정하고, 대화 전환 중 대기 중인 생성 요청과 실패한 턴 조회를 안전하게 처리했습니다.
+- Bento 여정 대체 장소 카드가 계획 ID를 사용하며 실제 좌표가 없을 때 위치 정보를 만들지 않도록 회귀 테스트를 추가했습니다.
+
 - Next.js 국제화(`next-intl`) 컨텍스트 및 레이아웃 구조 개선:
   - `RootLayout`(`src/app/layout.tsx`)에서 `Header`, `PageContainer`, `Footer`를 `[locale]/layout.tsx` 내부(`NextIntlClientProvider`)로 이동하여 클라이언트 네비게이션 시 `No intl context found` 런타임 오류 해결.
   - `PageContainer`에서 `@/i18n/navigation`의 `usePathname`을 사용하여 로케일 프리픽스 제거 후 경로 일치 검사하도록 개선.

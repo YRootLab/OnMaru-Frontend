@@ -1,7 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { createConversationHttpRepository } from './conversationHttpRepository';
+import { createConversationHttpRepository, fixtureConversationRepository } from './conversationHttpRepository';
 
 describe('conversation HTTP repository', () => {
+  it('returns fixture turns newest first without changing their stored conversation order', async () => {
+    const accepted = await fixtureConversationRepository.createExploration({
+      query: '첫 번째 질문',
+      idempotencyKey: '11111111-1111-4111-8111-111111111111',
+    });
+
+    await fixtureConversationRepository.createTurn({
+      explorationId: accepted.explorationId,
+      query: '두 번째 질문',
+      baseVersion: accepted.stateVersion,
+      clientTurnId: '22222222-2222-4222-8222-222222222222',
+      idempotencyKey: '33333333-3333-4333-8333-333333333333',
+    });
+
+    const turns = await fixtureConversationRepository.listTurns({ explorationId: accepted.explorationId });
+
+    expect(turns.items.map((turn) => turn.query)).toEqual(['두 번째 질문', '첫 번째 질문']);
+  });
+
   it('reads conversation lists and transcript pages from the public exploration resources', async () => {
     const calls: Array<{ path: string; options: unknown }> = [];
     const repository = createConversationHttpRepository((async (path: string, options: unknown) => {
