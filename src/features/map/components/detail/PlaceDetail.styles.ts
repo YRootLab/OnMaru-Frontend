@@ -627,11 +627,17 @@ export const BottomActionArea = styled.div`
   padding: 12px 16px;
   background: #ffffff;
   display: flex;
+  align-items: center;
   gap: 8px;
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px 12px;
+    gap: 6px;
   }
 `;
 
@@ -642,12 +648,14 @@ export const HeaderActionGroup = styled.div`
 `;
 
 export const BookmarkButton = styled.button<{ $active: boolean }>`
-  flex: 1.1;
+  flex: 1;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   height: 48px;
+  padding: 0 8px;
   border-radius: 16px;
   border: none;
   background: ${({ $active }) =>
@@ -658,7 +666,18 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
   font-size: ${typographyRole.label.fontSize};
   font-weight: 500;
   cursor: pointer;
+  white-space: nowrap;
   transition: all 0.15s ease;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   &:hover {
     background: ${({ $active }) =>
@@ -675,24 +694,45 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
     color: ${({ $active }) =>
       $active ? palette.juhong[400] : meok[200]};
   }
+
+  @media (max-width: 480px) {
+    height: 44px;
+    gap: 4px;
+    padding: 0 6px;
+    border-radius: 14px;
+    font-size: 11.5px;
+  }
 `;
 
 export const ShareButton = styled.button`
-  flex: 0.9;
+  flex: 1;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   height: 48px;
+  padding: 0 8px;
   border: none;
   border-radius: 16px;
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[900]};
   font-family: inherit;
   font-size: ${typographyRole.label.fontSize};
-  font-weight: 400;
+  font-weight: 500;
   cursor: pointer;
+  white-space: nowrap;
   transition: background 0.15s ease;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   &:hover {
     background: rgba(78, 89, 104, 0.14);
@@ -711,25 +751,43 @@ export const ShareButton = styled.button`
       color: #ffffff;
     }
   }
+
+  @media (max-width: 480px) {
+    height: 44px;
+    gap: 4px;
+    padding: 0 6px;
+    border-radius: 14px;
+    font-size: 11.5px;
+  }
 `;
 
 export const NavButton = styled.a`
-  flex: 1.6;
+  flex: 1.35;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   height: 48px;
+  padding: 0 10px;
   border-radius: 16px;
   background: ${meok[900]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${typographyRole.bodySm.fontSize};
-
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
+  white-space: nowrap;
   transition: background 0.15s ease;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  span {
+    white-space: nowrap;
+  }
 
   &:hover {
     background: ${meok[700]};
@@ -746,6 +804,14 @@ export const NavButton = styled.a`
     &:hover {
       background: #e5e5e5;
     }
+  }
+
+  @media (max-width: 480px) {
+    height: 44px;
+    gap: 4px;
+    padding: 0 8px;
+    border-radius: 14px;
+    font-size: 12.5px;
   }
 `;
 

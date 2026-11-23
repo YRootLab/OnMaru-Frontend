@@ -459,7 +459,12 @@ export default function PlaceDetail() {
                   ))}
                 </BadgeRow>
               )}
-              <ContentTagChips tags={data?.contentTags} max={5} />
+              <ContentTagChips
+                tags={placeIsHanok
+                  ? data?.contentTags
+                  : data?.contentTags?.filter((t) => !/(한옥|고택|종택)/.test(t))}
+                max={5}
+              />
               {smartFeatures.length > 0 && (
                 <SmartFeatureRow>
                   {smartFeatures.map((feat, idx) => (
@@ -731,11 +736,11 @@ export default function PlaceDetail() {
           type="button"
           $active={isBookmarked}
           onClick={handleToggleBookmark}
-          aria-label={isBookmarked ? '마음에 담긴 장소' : '마음에 담기'}
-          title={isBookmarked ? '저장 해제' : '마음에 담기'}
+          aria-label={isBookmarked ? '저장 해제' : '장소 저장'}
+          title={isBookmarked ? '저장 해제' : '장소 저장'}
         >
           <HugeiconsIcon icon={Bookmark01Icon} size={16} strokeWidth={2} fill={isBookmarked ? 'currentColor' : 'none'} />
-          <span>{isBookmarked ? '저장됨' : '마음에 담기'}</span>
+          <span>{isBookmarked ? '저장됨' : '저장'}</span>
         </BookmarkButton>
 
         {hasValidCoords && (
@@ -752,9 +757,9 @@ export default function PlaceDetail() {
           </BookmarkButton>
         )}
 
-        <ShareButton type="button" onClick={handleShare} aria-label="장소 링크 공유하기">
+        <ShareButton type="button" onClick={handleShare} aria-label="장소 링크 공유하기" title="장소 링크 공유하기">
           {copied ? <HugeiconsIcon icon={CheckIcon} size={16} color="var(--color-action-secondary)" strokeWidth={2} /> : <HugeiconsIcon icon={Share01Icon} size={16} strokeWidth={2} />}
-          <span>{copied ? '복사됨' : '공유하기'}</span>
+          <span>{copied ? '복사됨' : '공유'}</span>
         </ShareButton>
 
         {hasValidCoords && (
