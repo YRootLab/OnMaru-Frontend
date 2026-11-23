@@ -102,11 +102,16 @@ export function usePopularSounds() {
 }
 
 export function usePopularRegions() {
-  return useHomeList<PopularRegion>(
-    CK.homePopularRegions(),
-    () => homeRepository.listPopularRegions(),
-    TTL_MS.HOME_POPULAR,
-  );
+  const [totalReviewCount, setTotalReviewCount] = useState<number>(0);
+  const key = CK.homePopularRegions();
+  const fetcher = useCallback(async () => {
+    const res = await homeRepository.listPopularRegions();
+    const regionSum = res.items.reduce((s, r) => s + r.reviewCount, 0);
+    setTotalReviewCount(regionSum + (res.unassignedCount ?? 0));
+    return res;
+  }, []);
+  const result = useHomeList<PopularRegion>(key, fetcher, TTL_MS.HOME_POPULAR);
+  return { ...result, totalReviewCount };
 }
 
 export function useLatestReviews() {

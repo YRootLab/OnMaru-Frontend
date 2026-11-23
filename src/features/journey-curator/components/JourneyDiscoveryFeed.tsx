@@ -943,6 +943,27 @@ const ReviewMoodBadge = styled.span<{ $mood: '북적' | '한적' }>`
   }
 `;
 
+const FooterStat = styled.p`
+  text-align: center;
+  font-size: 13px;
+  color: #8b95a1;
+  margin: 0;
+  padding-top: 8px;
+
+  strong {
+    font-weight: 700;
+    color: ${palette.juhong[500]};
+  }
+
+  [data-theme='dark'] & {
+    color: #71717a;
+
+    strong {
+      color: ${palette.juhong[400]};
+    }
+  }
+`;
+
 const COURSE_CATEGORY_LIST = ['HANOK_STAY', 'CULTURE_ART', 'TRADITIONAL_FOOD', 'HANOK_EXPERIENCE', 'LOCAL_SCENE'] as const;
 
 const CategoryFilterRow = styled.div`
@@ -983,7 +1004,7 @@ export default function JourneyDiscoveryFeed() {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const { data: courses, loading: coursesLoading, failed: coursesFailed, unavailable: coursesUnavailable, retry: retryCourses } = useCuratedCourses(selectedCategory);
   const { data: popularSounds, loading: soundsLoading, failed: soundsFailed, unavailable: soundsUnavailable, retry: retrySounds } = usePopularSounds();
-  const { data: popularRegions, loading: regionsLoading, failed: regionsFailed, unavailable: regionsUnavailable, retry: retryRegions } = usePopularRegions();
+  const { data: popularRegions, loading: regionsLoading, failed: regionsFailed, unavailable: regionsUnavailable, retry: retryRegions, totalReviewCount } = usePopularRegions();
   const { data: latestReviews, loading: reviewsLoading, failed: reviewsFailed, unavailable: reviewsUnavailable, retry: retryReviews } = useLatestReviews();
   const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>({});
 
@@ -1356,6 +1377,12 @@ export default function JourneyDiscoveryFeed() {
           ))}
         </RegionGrid>
       </section>
+      )}
+
+      {totalReviewCount > 0 && (
+        <FooterStat>
+          지금까지 <strong>{totalReviewCount.toLocaleString()}</strong>건의 여행 온기가 쌓이고 있어요
+        </FooterStat>
       )}
     </FeedContainer>
   );

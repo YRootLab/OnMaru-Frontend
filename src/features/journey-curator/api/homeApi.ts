@@ -78,11 +78,16 @@ export type HomeReview = {
   author?: { displayName: string; characterId?: string; backgroundId?: string };
 };
 
+export type PopularRegionsResponse = {
+  items: PopularRegion[];
+  unassignedCount?: number;
+};
+
 export type HomeRepository = {
   listCuratedCourses(category?: string): Promise<HomeCursorPage<CuratedCourse>>;
   listTrendingSounds(): Promise<HomeCursorPage<TrendingSound>>;
   listPopularSounds(input?: { limit?: number; window?: 'week' | 'all'; language?: string }): Promise<PopularSoundsResponse>;
-  listPopularRegions(): Promise<{ items: PopularRegion[] }>;
+  listPopularRegions(): Promise<PopularRegionsResponse>;
   listLatestReviews(limit?: number): Promise<{ items: HomeReview[] }>;
 };
 
@@ -110,7 +115,7 @@ export function createHomeRepository(request: RequestFn = apiRequest): HomeRepos
       });
     },
     listPopularRegions() {
-      return request<{ items: PopularRegion[] }>('/home/popular-regions', {
+      return request<PopularRegionsResponse>('/home/popular-regions', {
         method: 'GET',
         cache: 'no-store',
       });
