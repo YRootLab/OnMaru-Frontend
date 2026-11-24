@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import Script from 'next/script';
+import { KAKAO_SDK_SRC } from '@/features/map/hooks/useKakaoMap';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -501,7 +502,7 @@ export default function HanokInteractiveMapFrame({
   villages,
   onSelectVillage,
 }: HanokInteractiveMapFrameProps) {
-  const kakaoAppKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
+  const kakaoAppKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY; // ponytail: guard만 유지, URL은 KAKAO_SDK_SRC 사용
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
   const clustererRef = useRef<KakaoClustererInstance | null>(null);
@@ -822,7 +823,7 @@ export default function HanokInteractiveMapFrame({
     <Frame>
       {kakaoAppKey && (
         <Script
-          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoAppKey}&autoload=false&libraries=services,clusterer`}
+          src={KAKAO_SDK_SRC}
           onReady={initMap}
           onError={() => {
             setErrorMessage(tMap('loadTimeout'));
