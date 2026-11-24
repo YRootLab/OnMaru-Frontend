@@ -196,13 +196,6 @@ const RegionChip = styled.button`
   }
 `;
 
-const RegionCount = styled.span`
-  font-size: ${typographyRole.caption.fontSize};
-  font-weight: 400;
-  color: ${meok[400]};
-  [data-theme='dark'] & { color: ${meok[500]}; }
-`;
-
 const FestivalSection = styled.div`
   padding: 8px 0 6px;
 `;
@@ -377,7 +370,7 @@ export default function InfoPlaceList() {
       if (existing) existing.count++;
       else counts.set(code, { code, name, count: 1 });
     }
-    return [...counts.values()].sort((a, b) => b.count - a.count).slice(0, 8);
+    return [...counts.values()].sort((a, b) => b.count - a.count);
   }, [isDiscovery, listItems]);
 
   const festivalItems = useMemo(() => {
@@ -400,22 +393,6 @@ export default function InfoPlaceList() {
         </Breadcrumb>
       )}
 
-      <InfoMapEditorialFeed
-        items={editorialItems}
-        loading={isListLoading}
-        onPlaceSelect={handleSelect}
-      />
-
-      {isDiscovery && (
-        <FestivalSection>
-          <FestivalExhibitionCarousel
-            festivals={festivalItems}
-            loading={isListLoading && listItems.length === 0}
-            onSelect={handleSelect}
-          />
-        </FestivalSection>
-      )}
-
       {isDiscovery && regionGroups.length > 0 && (
         <RegionSection>
           <RegionSectionTitle>
@@ -430,11 +407,26 @@ export default function InfoPlaceList() {
                 onClick={() => setInfoRegionCode(r.code, r.name)}
               >
                 {r.name}
-                <RegionCount>{r.count}</RegionCount>
               </RegionChip>
             ))}
           </RegionChips>
         </RegionSection>
+      )}
+
+      <InfoMapEditorialFeed
+        items={editorialItems}
+        loading={isListLoading}
+        onPlaceSelect={handleSelect}
+      />
+
+      {isDiscovery && (
+        <FestivalSection>
+          <FestivalExhibitionCarousel
+            festivals={festivalItems}
+            loading={isListLoading && listItems.length === 0}
+            onSelect={handleSelect}
+          />
+        </FestivalSection>
       )}
 
       <StickyHeader>
