@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { meok, fontSize } from '@/design-system/tokens';
 import DiscoveryPlaceCard from './DiscoveryPlaceCard';
 import type { DiscoveryPlaceSummary } from '../../domain/types';
@@ -67,13 +68,14 @@ interface Props {
 }
 
 export default function HorizontalSection({ label, items, onPlaceClick }: Props) {
+  const t = useTranslations('kCulture');
   if (items.length === 0) return null;
 
   return (
     <Section>
       <Header>
         <Label>{label}</Label>
-        <Count>{items.length}곳</Count>
+        <Count>{t('placeCount', { count: items.length })}</Count>
       </Header>
       <ScrollRow>
         {items.map((place, i) => (

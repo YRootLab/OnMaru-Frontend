@@ -1,17 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import EvidenceList from './EvidenceList';
-import type { KContentRelation, RelationType } from '../../domain/types';
+import type { KContentRelation, RelationType, WorkType } from '../../domain/types';
 
-const RELATION_LABELS: Record<RelationType, string> = {
-  FILMING_LOCATION: '촬영지',
-  VISIT_SPOT: '방문 장소',
+const ACCENT_COLOR: Record<WorkType, string> = {
+  DRAMA: lightPalette.juhong[500],
+  MOVIE: lightPalette.kobalt[500],
+  MUSIC_VIDEO: '#9333ea',
+  ARTIST: '#9333ea',
+  VARIETY: lightPalette.cheongrok[500],
 };
 
 const RelationBadge = styled.span<{ $type: RelationType }>`
@@ -32,8 +37,9 @@ const RelationBadge = styled.span<{ $type: RelationType }>`
   }
 `;
 
-const Card = styled.div`
-  padding: 16px;
+const Card = styled.div<{ $accent: string }>`
+  position: relative;
+  padding: 16px 16px 16px 20px;
   border-radius: 14px;
   border: none;
   background: #ffffff;
@@ -41,10 +47,32 @@ const Card = styled.div`
   flex-direction: column;
   gap: 12px;
   box-shadow: ${ringShadow.light.cardElevated};
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: ${({ $accent }) => $accent};
+    border-radius: 14px 0 0 14px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${ringShadow.light.cardLift};
+  }
 
   [data-theme='dark'] & {
     background: ${meok[800]};
     box-shadow: ${ringShadow.dark.cardElevated};
+
+    &:hover {
+      box-shadow: ${ringShadow.dark.cardLift};
+    }
   }
 `;
 
@@ -62,16 +90,23 @@ const WorkInfo = styled.div`
   gap: 4px;
 `;
 
-const WorkTitle = styled.h4`
+const WorkTitle = styled(Link)`
   font-family: var(--font-hanok);
   font-size: ${fontSize.base};
   font-weight: 700;
   color: ${meok[900]};
   margin: 0;
   letter-spacing: -0.02em;
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: ${lightPalette.juhong[600]};
+  }
 
   [data-theme='dark'] & {
     color: ${meok[100]};
+    &:hover { color: ${lightPalette.juhong[400]}; }
   }
 `;
 
@@ -80,14 +115,18 @@ const YearText = styled.span`
   color: ${meok[500]};
 `;
 
-const ContextText = styled.p`
+const ContextText = styled.blockquote`
   font-size: ${fontSize.sm};
   color: ${meok[600]};
   margin: 0;
-  line-height: 1.6;
+  padding: 8px 0 8px 12px;
+  border-left: 2px solid ${meok[200]};
+  line-height: 1.65;
+  font-style: italic;
 
   [data-theme='dark'] & {
     color: ${meok[400]};
+    border-left-color: rgba(255,255,255,0.1);
   }
 `;
 
@@ -139,19 +178,25 @@ export interface KContentRelationCardProps {
 }
 
 export default function KContentRelationCard({ relation }: KContentRelationCardProps) {
+  const t = useTranslations('kCulture');
+  const tp = useTranslations('kCulture.places');
   const [showEvidence, setShowEvidence] = useState(false);
   const { work } = relation;
 
+  const accent = ACCENT_COLOR[work.type] ?? meok[500];
+
   return (
-    <Card>
+    <Card $accent={accent}>
       <Header>
         <WorkInfo>
-          <WorkTitle>{work.canonicalTitle}</WorkTitle>
+          <WorkTitle href={`/discover/works/${encodeURIComponent(work.workId)}`}>
+            {work.canonicalTitle}
+          </WorkTitle>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <WorkTypeBadge type={work.type} variant="dark" />
             {work.releaseYear && <YearText>{work.releaseYear}</YearText>}
             <RelationBadge $type={relation.relationType}>
-              {RELATION_LABELS[relation.relationType]}
+              {t(`relationType.${relation.relationType}`)}
             </RelationBadge>
           </div>
         </WorkInfo>
@@ -182,7 +227,7 @@ export default function KContentRelationCard({ relation }: KContentRelationCardP
               strokeWidth={2.5}
               aria-hidden="true"
             />
-            근거 출처 {relation.evidenceCount}개
+            {tp('evidenceCount', { count: relation.evidenceCount })}
           </EvidenceToggle>
 
           {showEvidence && <EvidenceList evidence={relation.evidence} />}

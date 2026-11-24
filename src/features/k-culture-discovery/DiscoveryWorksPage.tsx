@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft01Icon, Film01Icon } from '@hugeicons/core-free-icons';
@@ -177,19 +178,12 @@ const UnavailableSub = styled.p`
   [data-theme='dark'] & { color: rgba(255,255,255,0.24); }
 `;
 
-const WORK_TYPE_LABELS: Record<WorkType | 'all', string> = {
-  all: '전체',
-  DRAMA: 'K-드라마',
-  ARTIST: '아티스트',
-  MOVIE: '영화',
-  VARIETY: '예능',
-  MUSIC_VIDEO: 'MV',
-};
-
 const TYPE_FILTERS: Array<WorkType | 'all'> = ['all', 'DRAMA', 'ARTIST', 'MOVIE', 'VARIETY', 'MUSIC_VIDEO'];
 
 export default function DiscoveryWorksPage() {
   const router = useRouter();
+  const t = useTranslations('kCulture');
+  const tw = useTranslations('kCulture.works');
   const [activeType, setActiveType] = useState<WorkType | 'all'>('all');
 
   const { items, matchingCount, isLoading, isError, hasMore, loadMore } = useDiscoveryWorks({
@@ -205,7 +199,7 @@ export default function DiscoveryWorksPage() {
     <PageWrap>
       <BackLink href="/discover">
         <HugeiconsIcon icon={ArrowLeft01Icon} size={12} strokeWidth={2.5} />
-        탐색마루
+        {tw('backLink')}
       </BackLink>
 
       <PageHeader>
@@ -213,15 +207,15 @@ export default function DiscoveryWorksPage() {
           <TitleIconWrap aria-hidden="true">
             <HugeiconsIcon icon={Film01Icon} size={18} strokeWidth={1.5} />
           </TitleIconWrap>
-          <PageTitle>작품 목록</PageTitle>
+          <PageTitle>{tw('pageTitle')}</PageTitle>
         </TitleRow>
-        <PageSub>촬영지·방문지가 확인된 K-Culture 작품과 아티스트</PageSub>
+        <PageSub>{tw('pageSub')}</PageSub>
       </PageHeader>
 
       {serviceDown ? (
         <UnavailableBox role="status">
-          <UnavailableTitle>작품 목록 서비스 준비 중입니다</UnavailableTitle>
-          <UnavailableSub>콘텐츠 검수 완료 후 공개 예정입니다.</UnavailableSub>
+          <UnavailableTitle>{tw('serviceTitle')}</UnavailableTitle>
+          <UnavailableSub>{tw('serviceSub')}</UnavailableSub>
         </UnavailableBox>
       ) : (
         <>
@@ -233,14 +227,14 @@ export default function DiscoveryWorksPage() {
                 $active={activeType === type}
                 onClick={() => setActiveType(type)}
               >
-                {WORK_TYPE_LABELS[type]}
+                {type === 'all' ? t('workTypeAll') : t(`workType.${type}`)}
               </Chip>
             ))}
           </FilterRow>
 
           <CountRow>
             <MatchCount>
-              {isLoading && items.length === 0 ? '검색 중…' : `총 ${matchingCount.toLocaleString()}편`}
+              {isLoading && items.length === 0 ? tw('searching') : tw('totalCount', { count: matchingCount.toLocaleString() })}
             </MatchCount>
           </CountRow>
 

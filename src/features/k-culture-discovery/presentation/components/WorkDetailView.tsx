@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -12,9 +13,12 @@ import {
   CheckmarkCircle02Icon,
   ClapperboardIcon,
 } from '@hugeicons/core-free-icons';
+import { useTranslations } from 'next-intl';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
+import DiscoveryPlaceCard, { DiscoveryPlaceCardSkeleton } from './DiscoveryPlaceCard';
 import { useDiscoveryWorkDetail } from '../hooks/useDiscoveryWorkDetail';
+import { useDiscoveryPlaces } from '../hooks/useDiscoveryPlaces';
 
 const shimmerAnim = keyframes`
   0%   { background-position: -200% 0; }
@@ -212,26 +216,36 @@ const Tag = styled.span`
   }
 `;
 
-const PlaceCountBadge = styled(Link)`
+const PlaceScrollRow = styled.div`
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar { display: none; }
+`;
+
+const PlaceCardWrap = styled.div`
+  flex-shrink: 0;
+  width: 200px;
+  @media (min-width: 768px) { width: 220px; }
+`;
+
+const ViewAllLink = styled(Link)`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: ${meok[100]};
-  color: ${meok[600]};
-  font-size: ${fontSize.sm};
+  margin-top: 10px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
+  color: ${meok[500]};
   text-decoration: none;
-  transition: background 0.18s ease;
-
-  &:hover {
-    background: ${meok[200]};
-  }
-
+  transition: color 0.15s ease;
+  &:hover { color: ${meok[800]}; }
   [data-theme='dark'] & {
-    background: ${meok[700]};
-    color: ${meok[300]};
+    color: rgba(255,255,255,0.4);
+    &:hover { color: rgba(255,255,255,0.7); }
   }
 `;
 
@@ -263,14 +277,17 @@ export interface WorkDetailViewProps {
 }
 
 export default function WorkDetailView({ workId, backHref = '/discover/works' }: WorkDetailViewProps) {
+  const router = useRouter();
+  const tw = useTranslations('kCulture.works');
   const { work, isLoading, isNotFound, isError } = useDiscoveryWorkDetail(workId);
+  const { items: placeItems, isLoading: placesLoading } = useDiscoveryPlaces({ workId, limit: 10 });
 
   if (isLoading) {
     return (
       <Page>
         <BackLink href={backHref}>
           <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.5} />
-          작품 목록
+          {tw('backToList')}
         </BackLink>
         <div style={{ display: 'flex', gap: 16, margin: '20px 0' }}>
           <SkeletonBlock style={{ width: 80, height: 80, borderRadius: 14, flexShrink: 0 }} />
@@ -291,12 +308,10 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
       <Page>
         <BackLink href={backHref}>
           <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.5} />
-          작품 목록
+          {tw('backToList')}
         </BackLink>
         <NotFoundBox role="alert">
-          {isNotFound
-            ? '작품 정보를 찾을 수 없습니다. 목록으로 돌아가 다시 선택해 주세요.'
-            : '정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'}
+          {isNotFound ? tw('notFound') : tw('loadFailed')}
         </NotFoundBox>
       </Page>
     );
@@ -306,7 +321,7 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
     <Page>
       <BackLink href={backHref}>
         <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.5} />
-        작품 목록
+        {tw('backToList')}
       </BackLink>
 
       <Header>
@@ -332,7 +347,7 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
 
       {work.summaryPoints.length > 0 && (
         <>
-          <SectionTitle>작품 소개</SectionTitle>
+          <SectionTitle>{tw('workIntro')}</SectionTitle>
           <SummaryList>
             {work.summaryPoints.map((point, i) => (
               <SummaryItem key={i}>
@@ -359,17 +374,35 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
         </TagRow>
       )}
 
-      <SectionTitle>촬영 장소</SectionTitle>
-      {work.publicPlaceCount > 0 ? (
-        <PlaceCountBadge
-          href={`/discover?workId=${encodeURIComponent(work.workId)}`}
-        >
-          <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} aria-hidden="true" />
-          공개된 촬영지 {work.publicPlaceCount}곳 보기
-        </PlaceCountBadge>
+      <SectionTitle>{tw('filmingLocations')}</SectionTitle>
+      {placesLoading ? (
+        <PlaceScrollRow>
+          {[1, 2, 3].map((i) => (
+            <PlaceCardWrap key={i}><DiscoveryPlaceCardSkeleton /></PlaceCardWrap>
+          ))}
+        </PlaceScrollRow>
+      ) : placeItems.length > 0 ? (
+        <>
+          <PlaceScrollRow>
+            {placeItems.map((place, i) => (
+              <PlaceCardWrap key={place.placeId}>
+                <DiscoveryPlaceCard
+                  place={place}
+                  index={i}
+                  onClick={(p) => router.push(`/discover/places/${encodeURIComponent(p.placeId)}`)}
+                />
+              </PlaceCardWrap>
+            ))}
+          </PlaceScrollRow>
+          {work.publicPlaceCount > placeItems.length && (
+            <ViewAllLink href={`/discover?workId=${encodeURIComponent(work.workId)}`}>
+              {tw('viewLocations', { count: work.publicPlaceCount })}
+            </ViewAllLink>
+          )}
+        </>
       ) : (
         <p style={{ fontSize: fontSize.sm, color: meok[500] }}>
-          공개된 촬영지 정보가 없습니다.
+          {tw('noLocations')}
         </p>
       )}
 
@@ -381,7 +414,7 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
             rel="noopener noreferrer"
           >
             <HugeiconsIcon icon={ExternalLinkIcon} size={13} strokeWidth={2} aria-hidden="true" />
-            공식 페이지 바로 가기
+            {tw('officialPage')}
           </OfficialLink>
         </div>
       )}

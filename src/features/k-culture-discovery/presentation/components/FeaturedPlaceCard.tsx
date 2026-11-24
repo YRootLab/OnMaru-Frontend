@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { MapPinIcon, Film01Icon, MusicNote01Icon, Mic01Icon, Camera01Icon } from '@hugeicons/core-free-icons';
@@ -183,16 +184,13 @@ const RoleChip = styled.span`
   font-weight: 600;
 `;
 
-const TYPE_KO: Partial<Record<WorkType, string>> = {
-  DRAMA: '드라마', MOVIE: '영화', MUSIC_VIDEO: 'MV', ARTIST: '아티스트', VARIETY: '예능',
-};
-
 interface Props {
   place: DiscoveryPlaceSummary;
   onClick: (place: DiscoveryPlaceSummary) => void;
 }
 
 export default function FeaturedPlaceCard({ place, onClick }: Props) {
+  const t = useTranslations('kCulture');
   const resolvedImage = useTourApiImage(place.placeId, place.placeImage);
   const relation = place.featuredRelation;
   const workType = relation?.type;
@@ -208,7 +206,7 @@ export default function FeaturedPlaceCard({ place, onClick }: Props) {
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ scale: 1.005 }}
       whileTap={{ scale: 0.995 }}
-      aria-label={`추천 장소: ${place.name}${relation ? ` — ${relation.workTitle}` : ''}`}
+      aria-label={t('featuredPlace', { name: place.name })}
       onClick={() => onClick(place)}
     >
       {resolvedImage ? (
@@ -224,11 +222,11 @@ export default function FeaturedPlaceCard({ place, onClick }: Props) {
       <Scrim />
 
       <TopRow>
-        <FeaturedLabel>추천</FeaturedLabel>
-        {workType && TYPE_KO[workType] && (
+        <FeaturedLabel>{t('featuredLabel')}</FeaturedLabel>
+        {workType && (
           <TypeBadge>
             <HugeiconsIcon icon={FALLBACK_ICON[workType] ?? Film01Icon} size={10} strokeWidth={2} aria-hidden="true" />
-            {TYPE_KO[workType]}
+            {t(`workType.${workType}`)}
           </TypeBadge>
         )}
       </TopRow>
@@ -246,7 +244,7 @@ export default function FeaturedPlaceCard({ place, onClick }: Props) {
           {primaryRole && <RoleChip>{primaryRole.labelKo}</RoleChip>}
           {relation && (
             <RoleChip>
-              {relation.relationType === 'VISIT_SPOT' ? '방문지' : '촬영지'}
+              {t(`relationType.${relation.relationType}`)}
             </RoleChip>
           )}
         </MetaRow>

@@ -4,13 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Search01Icon } from '@hugeicons/core-free-icons';
 import { meok, fontSize, ringShadow } from '@/design-system/tokens';
 import TopicTabBar from './presentation/components/TopicTabBar';
 import DiscoveryPlacesSection from './presentation/components/DiscoveryPlacesSection';
-import FeaturedPlaceCard from './presentation/components/FeaturedPlaceCard';
+import FeaturedCarousel from './presentation/components/FeaturedCarousel';
 import HorizontalSection from './presentation/components/HorizontalSection';
 import { useDiscoveryTopics } from './presentation/hooks/useDiscoveryTopics';
 import { useDiscoveryPlaces } from './presentation/hooks/useDiscoveryPlaces';
@@ -27,13 +28,7 @@ const REGION_MAP: Record<string, string> = {
   '38': '경남', '48': '경남', '39': '제주', '50': '제주',
 };
 
-const TYPE_LABEL: Partial<Record<WorkType, string>> = {
-  DRAMA: '드라마 촬영지',
-  MOVIE: '영화 속 공간',
-  MUSIC_VIDEO: 'MV 배경',
-  ARTIST: '아티스트 공간',
-  VARIETY: '예능 명소',
-};
+const TYPE_SECTION_KEYS: WorkType[] = ['DRAMA', 'MOVIE', 'MUSIC_VIDEO', 'ARTIST', 'VARIETY'];
 
 const PageWrap = styled.div`
   width: min(calc(100% - 32px), 1140px);
@@ -244,6 +239,7 @@ export interface KCultureDiscoveryProps {
 
 export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCultureDiscoveryProps) {
   const router = useRouter();
+  const t = useTranslations('kCulture');
   const [activeTopic, setActiveTopic] = useState<TopicCode | 'all'>(initialTopic);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -266,10 +262,11 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
 
   const isAllNoFilter = activeTopic === 'all' && !q;
 
-  // 전체 탭 + 필터 없을 때만 섹션 분리 (featured[0] 제외하고 나머지 분류)
+  const carouselCount = Math.min(5, items.length);
+
   const grouped = useMemo(() => {
     if (!isAllNoFilter || items.length < 2) return null;
-    const rest = items.slice(1);
+    const rest = items.slice(carouselCount);
 
     const byType = new Map<WorkType, DiscoveryPlaceSummary[]>();
     const byRegion = new Map<string, DiscoveryPlaceSummary[]>();
@@ -290,12 +287,12 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
     });
 
     return { byType, byRegion };
-  }, [isAllNoFilter, items]);
+  }, [isAllNoFilter, items, carouselCount]);
 
   const typeSections = grouped
-    ? (Object.keys(TYPE_LABEL) as WorkType[])
-        .filter(t => (grouped.byType.get(t)?.length ?? 0) >= 2)
-        .map(t => ({ label: TYPE_LABEL[t]!, items: grouped.byType.get(t)! }))
+    ? TYPE_SECTION_KEYS
+        .filter(wt => (grouped.byType.get(wt)?.length ?? 0) >= 2)
+        .map(wt => ({ label: t(`typeSectionLabel.${wt}`), items: grouped.byType.get(wt)! }))
     : [];
 
   const regionSections = grouped
@@ -313,14 +310,14 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
   return (
     <PageWrap>
       <Hero>
-        <HeroTitle>공간이 된 문화의 기록</HeroTitle>
-        <HeroSub>드라마·영화·K-팝의 실제 공간을 탐색하세요.</HeroSub>
+        <HeroTitle>{t('heroTitle')}</HeroTitle>
+        <HeroSub>{t('heroSub')}</HeroSub>
       </Hero>
 
       {serviceDown ? (
         <UnavailableBox role="status">
-          <UnavailableTitle>탐색 서비스 준비 중입니다</UnavailableTitle>
-          <UnavailableSub>콘텐츠 검수 완료 후 공개 예정입니다.</UnavailableSub>
+          <UnavailableTitle>{t('serviceTitle')}</UnavailableTitle>
+          <UnavailableSub>{t('serviceSub')}</UnavailableSub>
         </UnavailableBox>
       ) : (
         <>
@@ -330,10 +327,10 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
             </SearchIconWrap>
             <SearchInput
               type="text"
-              placeholder="장소 이름으로 검색"
+              placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              aria-label="장소 검색"
+              aria-label={t('searchLabel')}
             />
           </SearchRow>
 
@@ -345,7 +342,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
           />
 
           <ActionsBar>
-            <WorksLink href="/discover/works">작품 목록 →</WorksLink>
+            <WorksLink href="/discover/works">{t('worksLink')}</WorksLink>
           </ActionsBar>
 
           <AnimatePresence mode="wait">
@@ -359,7 +356,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
               {/* 전체 탭 + 검색 없을 때: 히어로 + 섹션 */}
               {isAllNoFilter && !isLoading && filteredItems.length > 0 && hasSections ? (
                 <>
-                  <FeaturedPlaceCard place={filteredItems[0]} onClick={handlePlaceClick} />
+                  <FeaturedCarousel items={filteredItems.slice(0, carouselCount)} onClick={handlePlaceClick} />
 
                   {typeSections.map(s => (
                     <HorizontalSection
@@ -373,7 +370,7 @@ export default function KCultureDiscovery({ initialTopic = 'all', workId }: KCul
                   {regionSections.length > 0 && (
                     <>
                       <SectionDivider />
-                      <SectionGroupLabel>지역별</SectionGroupLabel>
+                      <SectionGroupLabel>{t('regionGroupLabel')}</SectionGroupLabel>
                       {regionSections.map(s => (
                         <HorizontalSection
                           key={s.label}

@@ -1,6 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { meok, ringShadow, fontSize } from '@/design-system/tokens';
 import type { DiscoveryTopic, TopicCode } from '../../domain/types';
 
@@ -94,6 +95,8 @@ export interface TopicTabBarProps {
 }
 
 export default function TopicTabBar({ topics, activeCode, isLoading, onChange }: TopicTabBarProps) {
+  const t = useTranslations('kCulture');
+
   if (isLoading) {
     return (
       <ScrollRow aria-busy="true">
@@ -105,7 +108,7 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
   }
 
   return (
-    <ScrollRow role="tablist" aria-label="K-Culture 주제 선택">
+    <ScrollRow role="tablist" aria-label={t('topicTabLabel')}>
       <Tab
         type="button"
         role="tab"
@@ -113,7 +116,7 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
         aria-selected={activeCode === 'all'}
         onClick={() => onChange('all')}
       >
-        전체
+        {t('allTab')}
       </Tab>
 
       {topics.map((topic) => {
@@ -127,7 +130,7 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
             aria-selected={isActive}
             onClick={() => onChange(topic.code)}
           >
-            {topic.labelKo}
+            {t(`topic.${topic.code}`)}
             <Count $active={isActive}>{topic.placeCount}</Count>
           </Tab>
         );

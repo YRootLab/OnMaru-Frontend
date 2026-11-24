@@ -13,13 +13,13 @@ import {
   BookmarkAdd01Icon,
   BookmarkRemove01Icon,
 } from '@hugeicons/core-free-icons';
+import { useTranslations } from 'next-intl';
 import { meok, lightPalette, fontSize } from '@/design-system/tokens';
 import KContentRelationCard from './KContentRelationCard';
 import { useDiscoveryPlaceDetail } from '../hooks/useDiscoveryPlaceDetail';
 import { useKContentRelations } from '../hooks/useKContentRelations';
 import { usePlaceSave } from '../hooks/usePlaceSave';
 import { useTourApiImage } from '../hooks/useTourApiImage';
-import type { TopicCode } from '../../domain/types';
 
 const shimmerAnim = keyframes`
   0%   { background-position: -200% 0; }
@@ -364,16 +364,6 @@ const EmptyRelations = styled.p`
   }
 `;
 
-const TOPIC_LABELS: Record<TopicCode, string> = {
-  TRADITIONAL_SPACE_HERITAGE: '전통 공간·문화유산',
-  TRADITIONAL_EXPERIENCE: '전통 체험·공방',
-  TRADITIONAL_FOOD_TEA: '전통 음식·다례',
-  K_DRAMA: 'K-드라마',
-  K_MOVIE: 'K-영화',
-  K_POP_MV: 'K-POP MV',
-  K_ARTIST: 'K-아티스트',
-};
-
 const SkeletonBlock = styled.div<{ $h?: string; $w?: string; $mb?: string }>`
   height: ${({ $h }) => $h ?? '18px'};
   width: ${({ $w }) => $w ?? '100%'};
@@ -402,6 +392,8 @@ export interface PlaceDetailViewProps {
 }
 
 export default function PlaceDetailView({ placeId, backHref = '/discover' }: PlaceDetailViewProps) {
+  const t = useTranslations('kCulture');
+  const tp = useTranslations('kCulture.places');
   const { place, isLoading, isNotFound, isError } = useDiscoveryPlaceDetail(placeId);
   const { relations, isLoading: relLoading } = useKContentRelations(placeId);
   const { savedByMe, isSaving, toggle } = usePlaceSave({
@@ -416,7 +408,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
       <Page>
         <BackLink href={backHref}>
           <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.5} />
-          목록으로
+          {tp('backToList')}
         </BackLink>
         <SkeletonBlock $h="clamp(200px, 40vw, 420px)" $mb="20px" style={{ borderRadius: 18 }} />
         <SkeletonBlock $h="28px" $w="50%" $mb="10px" />
@@ -432,12 +424,10 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
       <Page>
         <BackLink href={backHref}>
           <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.5} />
-          목록으로
+          {tp('backToList')}
         </BackLink>
         <NotFoundBox role="alert">
-          {isNotFound
-            ? '장소 정보를 찾을 수 없습니다. 목록으로 돌아가 다시 선택해 주세요.'
-            : '정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'}
+          {isNotFound ? tp('notFound') : tp('loadFailed')}
         </NotFoundBox>
       </Page>
     );
@@ -447,7 +437,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
     <Page>
       <BackLink href={backHref}>
         <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.5} />
-        목록으로
+        {tp('backToList')}
       </BackLink>
 
       {/* ─── cinematic hero ─── */}
@@ -482,7 +472,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
             $saved={!!savedByMe}
             disabled={isSaving}
             onClick={toggle}
-            aria-label={savedByMe ? '저장 취소' : '장소 저장'}
+            aria-label={savedByMe ? tp('cancelSaveLabel') : tp('savePlaceLabel')}
           >
             <HugeiconsIcon
               icon={savedByMe ? BookmarkRemove01Icon : BookmarkAdd01Icon}
@@ -490,13 +480,13 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
               strokeWidth={2}
               aria-hidden="true"
             />
-            {savedByMe ? '저장됨' : '저장'}
+            {savedByMe ? tp('saved') : tp('save')}
           </SaveBtn>
         )}
         {place.odii.linked && (
           <OdiiBtn href="/sorimaru">
             <HugeiconsIcon icon={HeadphonesIcon} size={13} strokeWidth={2} aria-hidden="true" />
-            소리마루 오디오{place.odii.storyCount > 0 ? ` ${place.odii.storyCount}편` : ''}
+            {place.odii.storyCount > 0 ? tp('sorimaruAudioCount', { count: place.odii.storyCount }) : tp('sorimaruAudio')}
           </OdiiBtn>
         )}
       </ActionBar>
@@ -513,7 +503,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
       {place.topics.length > 0 && (
         <TopicChips>
           {place.topics.map((code) => (
-            <TopicChip key={code}>{TOPIC_LABELS[code] ?? code}</TopicChip>
+            <TopicChip key={code}>{t(`topic.${code}`)}</TopicChip>
           ))}
         </TopicChips>
       )}
@@ -532,9 +522,9 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
 
       {/* ─── K-Contents 이력 ─── */}
       <SectionHeader>
-        <SectionTitle>촬영·방문 이력</SectionTitle>
+        <SectionTitle>{tp('filmingHistory')}</SectionTitle>
         {!relLoading && relations.length > 0 && (
-          <SectionCount>{relations.length}건</SectionCount>
+          <SectionCount>{tp('historyCount', { count: relations.length })}</SectionCount>
         )}
       </SectionHeader>
 
@@ -545,7 +535,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
           ))}
         </RelationList>
       ) : relations.length === 0 ? (
-        <EmptyRelations>확인된 촬영·방문 기록이 없습니다.</EmptyRelations>
+        <EmptyRelations>{tp('noHistory')}</EmptyRelations>
       ) : (
         <RelationList>
           {relations.map((rel) => (

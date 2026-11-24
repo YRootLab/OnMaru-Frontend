@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
+import { useTranslations } from 'next-intl';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
@@ -94,6 +95,8 @@ export default function DiscoveryWorksSection({
   onLoadMore,
   onWorkClick,
 }: DiscoveryWorksSectionProps) {
+  const t = useTranslations('kCulture.works');
+
   if (isLoading && items.length === 0) {
     return (
       <List aria-busy="true">
@@ -107,14 +110,14 @@ export default function DiscoveryWorksSection({
   if (isError && items.length === 0) {
     return (
       <ErrorBox role="alert">
-        작품 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+        {t('errorLoading')}
       </ErrorBox>
     );
   }
 
   if (!isLoading && items.length === 0) {
     return (
-      <EmptyBox>이 조건에 맞는 작품이 없습니다. 다른 필터를 선택해 보세요.</EmptyBox>
+      <EmptyBox>{t('emptyWorks')}</EmptyBox>
     );
   }
 
@@ -136,7 +139,7 @@ export default function DiscoveryWorksSection({
       {hasMore && !isLoading && (
         <LoadMoreBtn type="button" onClick={onLoadMore}>
           <HugeiconsIcon icon={ArrowDown01Icon} size={15} strokeWidth={2} aria-hidden="true" />
-          더 보기
+          {t('loadMore')}
         </LoadMoreBtn>
       )}
     </>
