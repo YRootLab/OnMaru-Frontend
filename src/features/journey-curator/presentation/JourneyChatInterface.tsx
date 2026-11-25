@@ -638,22 +638,6 @@ const ActionIconButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
-const NoImagePlaceholder = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f1f1ef;
-  color: #888;
-  font-size: 13px;
-
-  [data-theme='dark'] & {
-    background: ${surface.dark.card};
-    color: rgba(216, 229, 255, 0.5);
-  }
-`;
-
 const CopiedBadge = styled.span<{ $error?: boolean }>`
   position: absolute;
   top: -24px;
@@ -1126,7 +1110,12 @@ export function findPlaces(board: JourneyBoard | null): PlaceResource[] {
 
   // 3) Fallback: BentoJourneyPlan structure (hanokCard + routeCard)
   const bento = board as any;
-  const planKey = (board.title || board.querySummary || '').replace(/\W+/g, '').slice(0, 16) || 'plan';
+  // 플랜 식별자: board.id 우선 (ID 안전 문자만 유지), 없으면 제목 기반, 최종 폴백 'plan'
+  // 응답 객체에는 id가 있지만 JourneyBoard 타입에는 아직 선언되지 않아 런타임 값만 안전하게 읽는다.
+  const rawId = (board as { id?: unknown }).id;
+  const idKey = (typeof rawId === 'string' ? rawId : '').replace(/[^\w-]+/g, '').slice(0, 32);
+  const titleKey = (board.title || board.querySummary || '').replace(/\W+/g, '').slice(0, 16);
+  const planKey = idKey || titleKey || 'plan';
   const fallbackPlaces: PlaceResource[] = [];
   if (bento.hanokCard) {
     fallbackPlaces.push({
@@ -1158,6 +1147,18 @@ export function findPlaces(board: JourneyBoard | null): PlaceResource[] {
   }
 
   return fallbackPlaces;
+}
+
+const PLACE_PLACEHOLDER_IMAGE = '/images/hanok/hanok-main.png';
+
+/**
+ * 턴 응답에서 추천 장소를 추출한다.
+ * 1) response.board 우선, 2) 비어 있으면 response.proposal.board 로 폴백.
+ */
+export function extractPlaces(turn: ExplorationTurn): PlaceResource[] {
+  const fromBoard = findPlaces(turn.response.board);
+  if (fromBoard.length > 0) return fromBoard;
+  return findPlaces(turn.response.proposal?.board ?? null);
 }
 
 function ResultPlaceCardItem({ place }: { place: PlaceResource }) {
@@ -1195,9 +1196,7 @@ function ResultPlaceCardItem({ place }: { place: PlaceResource }) {
         {place.image?.url ? (
           <img src={place.image.url} alt={imageAlt} />
         ) : (
-          <NoImagePlaceholder>
-            <span>등록된 사진이 없어요.</span>
-          </NoImagePlaceholder>
+          <img src={PLACE_PLACEHOLDER_IMAGE} alt={`${place.title} 기본 이미지`} />
         )}
         <QuickActionOverlay>
           <QuickCircleButton
@@ -1246,7 +1245,7 @@ function AssistantResponse({ turn }: { turn: ExplorationTurn }) {
   if (response.status === 'FAILED') return <Bubble>요청을 완료하지 못했어요. {response.error?.requestId ? `요청 번호: ${response.error.requestId}` : ''}</Bubble>;
   if (response.outcome === 'NO_RESULTS') return <Bubble>{response.summary ?? '조건에 맞는 여행 결과를 찾지 못했어요.'}</Bubble>;
 
-  const places = findPlaces(response.board);
+  const places = extractPlaces(turn);
   const textSummary =
     response.summary ||
     response.board?.querySummary ||
