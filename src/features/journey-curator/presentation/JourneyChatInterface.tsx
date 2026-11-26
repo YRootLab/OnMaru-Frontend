@@ -1198,9 +1198,9 @@ const PLACE_PLACEHOLDER_IMAGE = '/images/hanok/hanok-main.png';
  * 1) response.board 우선, 2) 비어 있으면 response.proposal.board 로 폴백.
  */
 export function extractPlaces(turn: ExplorationTurn): PlaceResource[] {
-  const fromBoard = findPlaces(turn.response.board);
+  const fromBoard = findPlaces(turn.response.board, turn.turnId);
   if (fromBoard.length > 0) return fromBoard;
-  return findPlaces(turn.response.proposal?.board ?? null);
+  return findPlaces(turn.response.proposal?.board ?? null, turn.turnId);
 }
 
 /** 추천 이유는 candidates[].reason이 있는 경우에만 장소 ID별로 모은다. */
@@ -1376,7 +1376,9 @@ function AssistantResponse({
     return <ClarificationBlock clarification={response.clarification} onAnswer={onAnswerClarification} />;
   }
 
-  const places = findPlaces(response.board, turn.turnId);
+  const places = extractPlaces(turn);
+  const regionTitles = buildRegionTitles([response.board?.resources, response.proposal?.board?.resources]);
+  const reasonByPlace = buildReasonMap([response.board?.candidates, response.proposal?.board?.candidates]);
   const textSummary =
     response.summary ||
     response.board?.querySummary ||
@@ -1601,10 +1603,10 @@ export default function JourneyChatInterface({
                     aria-label="여행 질문"
                     disabled={isRunning}
                   />
-                  {isRunning ? (
+                  {cancelable ? (
                     <SendButton type="button" onClick={() => void onCancel()}>취소</SendButton>
                   ) : (
-                    <SendButton type="submit" disabled={!draft.trim()}>보내기</SendButton>
+                    <SendButton type="submit" disabled={!draft.trim() || isRunning}>보내기</SendButton>
                   )}
                 </Composer>
               </ComposerWrapper>

@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import styled from '@emotion/styled';
 import { useTranslations } from 'next-intl';
+import styled from '@emotion/styled';
 import { meok, fontSize } from '@/design-system/tokens';
 import DiscoveryPlaceCard from './DiscoveryPlaceCard';
 import type { DiscoveryPlaceSummary } from '../../domain/types';

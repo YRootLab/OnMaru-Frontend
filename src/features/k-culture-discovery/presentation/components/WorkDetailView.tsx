@@ -1,24 +1,22 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ArrowLeft01Icon,
   ExternalLinkIcon,
-  MapPinIcon,
   CheckmarkCircle02Icon,
   ClapperboardIcon,
 } from '@hugeicons/core-free-icons';
-import { useTranslations } from 'next-intl';
 import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
-import DiscoveryPlaceCard, { DiscoveryPlaceCardSkeleton } from './DiscoveryPlaceCard';
+import WorkLocationsMapSection from './WorkLocationsMapSection';
 import { useDiscoveryWorkDetail } from '../hooks/useDiscoveryWorkDetail';
-import { useDiscoveryPlaces } from '../hooks/useDiscoveryPlaces';
+import { getLocalizedWorkTitle } from '../../domain/discoveryPresentation';
 
 const shimmerAnim = keyframes`
   0%   { background-position: -200% 0; }
@@ -68,7 +66,7 @@ const ArtworkBox = styled.div`
   width: 80px;
   height: 80px;
   border-radius: 14px;
-  background: ${meok[200]};
+  background: #e5e5e3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,7 +94,7 @@ const Title = styled.h1`
   font-size: clamp(20px, 3.5vw, 28px);
   font-weight: 700;
   color: ${meok[900]};
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   letter-spacing: -0.03em;
   line-height: 1.2;
 
@@ -105,11 +103,22 @@ const Title = styled.h1`
   }
 `;
 
+const SecondaryTitle = styled.p`
+  font-size: ${fontSize.xs};
+  color: ${meok[500]};
+  margin: 0 0 8px;
+
+  [data-theme='dark'] & {
+    color: rgba(255,255,255,0.45);
+  }
+`;
+
 const MetaRow = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  margin-top: 4px;
 `;
 
 const YearText = styled.span`
@@ -170,7 +179,7 @@ const OfficialLink = styled.a`
   padding: 10px 18px;
   border-radius: 10px;
   border: none;
-  background: ${meok[100]};
+  background: #f5f5f4;
   color: ${meok[700]};
   font-size: ${fontSize.sm};
   font-weight: 600;
@@ -179,7 +188,7 @@ const OfficialLink = styled.a`
   transition: background 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
-    background: ${meok[200]};
+    background: #e5e5e3;
     box-shadow: ${ringShadow.light.cardLift};
   }
 
@@ -205,7 +214,7 @@ const TagRow = styled.div`
 const Tag = styled.span`
   padding: 4px 10px;
   border-radius: 6px;
-  background: ${meok[100]};
+  background: #f5f5f4;
   color: ${meok[600]};
   font-size: 11px;
   font-weight: 500;
@@ -216,50 +225,17 @@ const Tag = styled.span`
   }
 `;
 
-const PlaceScrollRow = styled.div`
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  &::-webkit-scrollbar { display: none; }
-`;
-
-const PlaceCardWrap = styled.div`
-  flex-shrink: 0;
-  width: 200px;
-  @media (min-width: 768px) { width: 220px; }
-`;
-
-const ViewAllLink = styled(Link)`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 10px;
-  font-size: ${fontSize.xs};
-  font-weight: 600;
-  color: ${meok[500]};
-  text-decoration: none;
-  transition: color 0.15s ease;
-  &:hover { color: ${meok[800]}; }
-  [data-theme='dark'] & {
-    color: rgba(255,255,255,0.4);
-    &:hover { color: rgba(255,255,255,0.7); }
-  }
-`;
-
 const SkeletonBlock = styled.div<{ $h?: string; $w?: string; $mb?: string }>`
   height: ${({ $h }) => $h ?? '18px'};
   width: ${({ $w }) => $w ?? '100%'};
   border-radius: 8px;
   margin-bottom: ${({ $mb }) => $mb ?? '0'};
-  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
+  background: linear-gradient(90deg, #f5f5f4 25%, #e5e5e3 50%, #f5f5f4 75%);
   background-size: 200% 100%;
   animation: ${shimmerAnim} 1.6s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.05) 75%);
     background-size: 200% 100%;
   }
 `;
@@ -277,17 +253,16 @@ export interface WorkDetailViewProps {
 }
 
 export default function WorkDetailView({ workId, backHref = '/discover/works' }: WorkDetailViewProps) {
-  const router = useRouter();
-  const tw = useTranslations('kCulture.works');
+  const t = useTranslations('kCulture');
+  const locale = useLocale();
   const { work, isLoading, isNotFound, isError } = useDiscoveryWorkDetail(workId);
-  const { items: placeItems, isLoading: placesLoading } = useDiscoveryPlaces({ workId, limit: 10 });
 
   if (isLoading) {
     return (
       <Page>
         <BackLink href={backHref}>
           <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.5} />
-          {tw('backToList')}
+          {t('works.backToList')}
         </BackLink>
         <div style={{ display: 'flex', gap: 16, margin: '20px 0' }}>
           <SkeletonBlock style={{ width: 80, height: 80, borderRadius: 14, flexShrink: 0 }} />
@@ -298,7 +273,8 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
         </div>
         <SkeletonBlock $h="14px" $mb="6px" />
         <SkeletonBlock $h="14px" $w="90%" $mb="6px" />
-        <SkeletonBlock $h="14px" $w="75%" />
+        <SkeletonBlock $h="14px" $w="75%" $mb="24px" />
+        <SkeletonBlock $h="380px" style={{ borderRadius: 16 }} />
       </Page>
     );
   }
@@ -308,33 +284,36 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
       <Page>
         <BackLink href={backHref}>
           <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.5} />
-          {tw('backToList')}
+          {t('works.backToList')}
         </BackLink>
         <NotFoundBox role="alert">
-          {isNotFound ? tw('notFound') : tw('loadFailed')}
+          {isNotFound ? t('works.notFound') : t('works.loadFailed')}
         </NotFoundBox>
       </Page>
     );
   }
 
+  const { primary, secondary } = getLocalizedWorkTitle(work, locale);
+
   return (
     <Page>
       <BackLink href={backHref}>
         <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.5} />
-        {tw('backToList')}
+        {t('works.backToList')}
       </BackLink>
 
       <Header>
         <ArtworkBox>
           {work.workArtwork ? (
-            <ArtworkImg src={work.workArtwork} alt={work.canonicalTitle} />
+            <ArtworkImg src={work.workArtwork} alt={primary} />
           ) : (
             <HugeiconsIcon icon={ClapperboardIcon} size={28} strokeWidth={1.5} aria-hidden="true" />
           )}
         </ArtworkBox>
 
         <TitleBlock>
-          <Title>{work.canonicalTitle}</Title>
+          <Title>{primary}</Title>
+          {secondary && <SecondaryTitle>{secondary}</SecondaryTitle>}
           <MetaRow>
             <WorkTypeBadge type={work.type} variant="dark" />
             {work.releaseYear && <YearText>{work.releaseYear}</YearText>}
@@ -347,7 +326,7 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
 
       {work.summaryPoints.length > 0 && (
         <>
-          <SectionTitle>{tw('workIntro')}</SectionTitle>
+          <SectionTitle>{t('works.workIntro')}</SectionTitle>
           <SummaryList>
             {work.summaryPoints.map((point, i) => (
               <SummaryItem key={i}>
@@ -374,47 +353,21 @@ export default function WorkDetailView({ workId, backHref = '/discover/works' }:
         </TagRow>
       )}
 
-      <SectionTitle>{tw('filmingLocations')}</SectionTitle>
-      {placesLoading ? (
-        <PlaceScrollRow>
-          {[1, 2, 3].map((i) => (
-            <PlaceCardWrap key={i}><DiscoveryPlaceCardSkeleton /></PlaceCardWrap>
-          ))}
-        </PlaceScrollRow>
-      ) : placeItems.length > 0 ? (
-        <>
-          <PlaceScrollRow>
-            {placeItems.map((place, i) => (
-              <PlaceCardWrap key={place.placeId}>
-                <DiscoveryPlaceCard
-                  place={place}
-                  index={i}
-                  onClick={(p) => router.push(`/discover/places/${encodeURIComponent(p.placeId)}`)}
-                />
-              </PlaceCardWrap>
-            ))}
-          </PlaceScrollRow>
-          {work.publicPlaceCount > placeItems.length && (
-            <ViewAllLink href={`/discover?workId=${encodeURIComponent(work.workId)}`}>
-              {tw('viewLocations', { count: work.publicPlaceCount })}
-            </ViewAllLink>
-          )}
-        </>
-      ) : (
-        <p style={{ fontSize: fontSize.sm, color: meok[500] }}>
-          {tw('noLocations')}
-        </p>
-      )}
+      <WorkLocationsMapSection
+        workId={work.workId}
+        workTitle={primary}
+        publicPlaceCount={work.publicPlaceCount}
+      />
 
       {work.officialPageUrl && (
-        <div style={{ marginTop: 24 }}>
+        <div style={{ marginTop: 28 }}>
           <OfficialLink
             href={work.officialPageUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
             <HugeiconsIcon icon={ExternalLinkIcon} size={13} strokeWidth={2} aria-hidden="true" />
-            {tw('officialPage')}
+            {t('works.officialPage')}
           </OfficialLink>
         </div>
       )}

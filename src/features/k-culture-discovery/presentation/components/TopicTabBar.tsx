@@ -1,9 +1,19 @@
 'use client';
 
+import { useLocale, useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
-import { useTranslations } from 'next-intl';
 import { meok, ringShadow, fontSize } from '@/design-system/tokens';
 import type { DiscoveryTopic, TopicCode } from '../../domain/types';
+
+const KNOWN_TOPIC_CODES = new Set<TopicCode>([
+  'TRADITIONAL_SPACE_HERITAGE',
+  'TRADITIONAL_EXPERIENCE',
+  'TRADITIONAL_FOOD_TEA',
+  'K_DRAMA',
+  'K_MOVIE',
+  'K_POP_MV',
+  'K_ARTIST',
+]);
 
 const ScrollRow = styled.div`
   display: flex;
@@ -80,10 +90,10 @@ const SkeletonTab = styled.div`
   flex-shrink: 0;
   height: 36px;
   border-radius: 999px;
-  background: rgba(0,0,0,0.04);
+  background: #e5e5e3;
 
   [data-theme='dark'] & {
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.06);
   }
 `;
 
@@ -96,6 +106,7 @@ export interface TopicTabBarProps {
 
 export default function TopicTabBar({ topics, activeCode, isLoading, onChange }: TopicTabBarProps) {
   const t = useTranslations('kCulture');
+  const locale = useLocale();
 
   if (isLoading) {
     return (
@@ -121,6 +132,11 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
 
       {topics.map((topic) => {
         const isActive = activeCode === topic.code;
+        const label = KNOWN_TOPIC_CODES.has(topic.code)
+          ? t(`topic.${topic.code}`)
+          : locale === 'ko'
+            ? topic.labelKo
+            : topic.labelEn || topic.labelKo;
         return (
           <Tab
             key={topic.code}
@@ -130,7 +146,7 @@ export default function TopicTabBar({ topics, activeCode, isLoading, onChange }:
             aria-selected={isActive}
             onClick={() => onChange(topic.code)}
           >
-            {t(`topic.${topic.code}`)}
+            {label}
             <Count $active={isActive}>{topic.placeCount}</Count>
           </Tab>
         );

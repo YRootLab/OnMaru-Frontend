@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import styled from '@emotion/styled';
 import { useTranslations } from 'next-intl';
+import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ExternalLinkIcon, ShieldCheckIcon } from '@hugeicons/core-free-icons';
 import { meok, lightPalette, fontSize } from '@/design-system/tokens';
@@ -69,11 +69,11 @@ export interface EvidenceListProps {
 }
 
 export default function EvidenceList({ evidence }: EvidenceListProps) {
-  const tp = useTranslations('kCulture.places');
+  const t = useTranslations('kCulture');
   if (evidence.length === 0) return null;
 
   return (
-    <List aria-label={tp('evidenceLabel')}>
+    <List aria-label={t('places.evidenceLabel')}>
       {evidence.map((ev, i) => (
         <Item key={i}>
           <IconWrap>

@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -13,13 +14,24 @@ import {
   BookmarkAdd01Icon,
   BookmarkRemove01Icon,
 } from '@hugeicons/core-free-icons';
-import { useTranslations } from 'next-intl';
 import { meok, lightPalette, fontSize } from '@/design-system/tokens';
 import KContentRelationCard from './KContentRelationCard';
 import { useDiscoveryPlaceDetail } from '../hooks/useDiscoveryPlaceDetail';
 import { useKContentRelations } from '../hooks/useKContentRelations';
 import { usePlaceSave } from '../hooks/usePlaceSave';
 import { useTourApiImage } from '../hooks/useTourApiImage';
+import { getLocalizedRegionName } from '../utils/regionLabel';
+import type { TopicCode } from '../../domain/types';
+
+const KNOWN_TOPIC_CODES = new Set<TopicCode>([
+  'TRADITIONAL_SPACE_HERITAGE',
+  'TRADITIONAL_EXPERIENCE',
+  'TRADITIONAL_FOOD_TEA',
+  'K_DRAMA',
+  'K_MOVIE',
+  'K_POP_MV',
+  'K_ARTIST',
+]);
 
 const shimmerAnim = keyframes`
   0%   { background-position: -200% 0; }
@@ -71,7 +83,7 @@ const HeroWrap = styled.div`
   border-radius: 18px;
   overflow: hidden;
   aspect-ratio: 16 / 9;
-  background: ${meok[200]};
+  background: #e5e5e3;
   margin-bottom: 20px;
 
   @media (max-width: 640px) {
@@ -96,7 +108,7 @@ const HeroFallback = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(155deg, #ede8de 0%, #ddd7c9 100%);
+  background: linear-gradient(155deg, #f5f5f4 0%, #e5e5e3 100%);
   color: ${meok[400]};
 
   [data-theme='dark'] & {
@@ -257,7 +269,7 @@ const TopicChips = styled.div`
 const TopicChip = styled.span`
   padding: 3px 10px;
   border-radius: 6px;
-  background: rgba(0,0,0,0.04);
+  background: #f5f5f4;
   color: ${meok[600]};
   font-size: 11px;
   font-weight: 500;
@@ -285,7 +297,7 @@ const SummaryPoint = styled.li`
   gap: 5px;
   padding: 5px 12px;
   border-radius: 9999px;
-  background: rgba(0,0,0,0.04);
+  background: #f5f5f4;
   color: ${meok[700]};
   font-size: ${fontSize.xs};
   font-weight: 500;
@@ -350,7 +362,7 @@ const SectionCount = styled.span`
 const RelationList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 `;
 
 const EmptyRelations = styled.p`
@@ -369,7 +381,7 @@ const SkeletonBlock = styled.div<{ $h?: string; $w?: string; $mb?: string }>`
   width: ${({ $w }) => $w ?? '100%'};
   border-radius: 8px;
   margin-bottom: ${({ $mb }) => $mb ?? '0'};
-  background: linear-gradient(90deg, #e8e6e2 25%, #dedad5 50%, #e8e6e2 75%);
+  background: linear-gradient(90deg, #f5f5f4 25%, #e5e5e3 50%, #f5f5f4 75%);
   background-size: 200% 100%;
   animation: ${shimmerAnim} 1.6s infinite ease-in-out;
 
@@ -393,7 +405,6 @@ export interface PlaceDetailViewProps {
 
 export default function PlaceDetailView({ placeId, backHref = '/discover' }: PlaceDetailViewProps) {
   const t = useTranslations('kCulture');
-  const tp = useTranslations('kCulture.places');
   const { place, isLoading, isNotFound, isError } = useDiscoveryPlaceDetail(placeId);
   const { relations, isLoading: relLoading } = useKContentRelations(placeId);
   const { savedByMe, isSaving, toggle } = usePlaceSave({
@@ -408,7 +419,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
       <Page>
         <BackLink href={backHref}>
           <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.5} />
-          {tp('backToList')}
+          {t('places.backToList')}
         </BackLink>
         <SkeletonBlock $h="clamp(200px, 40vw, 420px)" $mb="20px" style={{ borderRadius: 18 }} />
         <SkeletonBlock $h="28px" $w="50%" $mb="10px" />
@@ -424,20 +435,22 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
       <Page>
         <BackLink href={backHref}>
           <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.5} />
-          {tp('backToList')}
+          {t('places.backToList')}
         </BackLink>
         <NotFoundBox role="alert">
-          {isNotFound ? tp('notFound') : tp('loadFailed')}
+          {isNotFound ? t('places.notFound') : t('places.loadFailed')}
         </NotFoundBox>
       </Page>
     );
   }
 
+  const regionName = getLocalizedRegionName(place.region, t) ?? place.region.nameKo;
+
   return (
     <Page>
       <BackLink href={backHref}>
         <HugeiconsIcon icon={ArrowLeft01Icon} size={14} strokeWidth={2.5} />
-        {tp('backToList')}
+        {t('places.backToList')}
       </BackLink>
 
       {/* ─── cinematic hero ─── */}
@@ -455,7 +468,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
           <HeroMeta>
             <HeroPill>
               <HugeiconsIcon icon={MapPinIcon} size={10} strokeWidth={2} aria-hidden="true" />
-              {place.region.nameKo}
+              {regionName}
             </HeroPill>
             {place.placeRoles.slice(0, 2).map((role) => (
               <HeroPill key={role.code}>{role.labelKo}</HeroPill>
@@ -472,7 +485,7 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
             $saved={!!savedByMe}
             disabled={isSaving}
             onClick={toggle}
-            aria-label={savedByMe ? tp('cancelSaveLabel') : tp('savePlaceLabel')}
+            aria-label={savedByMe ? t('places.cancelSaveLabel') : t('places.savePlaceLabel')}
           >
             <HugeiconsIcon
               icon={savedByMe ? BookmarkRemove01Icon : BookmarkAdd01Icon}
@@ -480,13 +493,15 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
               strokeWidth={2}
               aria-hidden="true"
             />
-            {savedByMe ? tp('saved') : tp('save')}
+            {savedByMe ? t('places.saved') : t('places.save')}
           </SaveBtn>
         )}
         {place.odii.linked && (
           <OdiiBtn href="/sorimaru">
             <HugeiconsIcon icon={HeadphonesIcon} size={13} strokeWidth={2} aria-hidden="true" />
-            {place.odii.storyCount > 0 ? tp('sorimaruAudioCount', { count: place.odii.storyCount }) : tp('sorimaruAudio')}
+            {place.odii.storyCount > 0
+              ? t('places.sorimaruAudioCount', { count: place.odii.storyCount })
+              : t('places.sorimaruAudio')}
           </OdiiBtn>
         )}
       </ActionBar>
@@ -503,7 +518,9 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
       {place.topics.length > 0 && (
         <TopicChips>
           {place.topics.map((code) => (
-            <TopicChip key={code}>{t(`topic.${code}`)}</TopicChip>
+            <TopicChip key={code}>
+              {KNOWN_TOPIC_CODES.has(code) ? t(`topic.${code}`) : code}
+            </TopicChip>
           ))}
         </TopicChips>
       )}
@@ -522,20 +539,20 @@ export default function PlaceDetailView({ placeId, backHref = '/discover' }: Pla
 
       {/* ─── K-Contents 이력 ─── */}
       <SectionHeader>
-        <SectionTitle>{tp('filmingHistory')}</SectionTitle>
+        <SectionTitle>{t('places.filmingHistory')}</SectionTitle>
         {!relLoading && relations.length > 0 && (
-          <SectionCount>{tp('historyCount', { count: relations.length })}</SectionCount>
+          <SectionCount>{t('places.historyCount', { count: relations.length })}</SectionCount>
         )}
       </SectionHeader>
 
       {relLoading ? (
         <RelationList>
           {[1, 2].map((i) => (
-            <SkeletonBlock key={i} $h="96px" style={{ borderRadius: 12 }} />
+            <SkeletonBlock key={i} $h="132px" style={{ borderRadius: 14 }} />
           ))}
         </RelationList>
       ) : relations.length === 0 ? (
-        <EmptyRelations>{tp('noHistory')}</EmptyRelations>
+        <EmptyRelations>{t('places.noHistory')}</EmptyRelations>
       ) : (
         <RelationList>
           {relations.map((rel) => (

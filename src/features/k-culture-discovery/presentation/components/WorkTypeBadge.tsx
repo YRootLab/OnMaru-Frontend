@@ -1,8 +1,8 @@
 'use client';
 
 import type { ComponentProps } from 'react';
-import styled from '@emotion/styled';
 import { useTranslations } from 'next-intl';
+import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ClapperboardIcon,
@@ -43,13 +43,13 @@ export interface WorkTypeBadgeProps {
 }
 
 export default function WorkTypeBadge({ type, variant = 'dark', size = 12 }: WorkTypeBadgeProps) {
-  const t = useTranslations('kCulture.workType');
-  const icon = WORK_TYPE_ICON[type] ?? WORK_TYPE_ICON.DRAMA;
-  const label = t(type);
+  const t = useTranslations('kCulture');
+  const resolvedType: WorkType = WORK_TYPE_ICON[type] ? type : 'DRAMA';
+  const icon = WORK_TYPE_ICON[resolvedType];
   return (
     <Badge $variant={variant}>
       <HugeiconsIcon icon={icon} size={size} strokeWidth={2} aria-hidden="true" />
-      {label}
+      {t(`workType.${resolvedType}`)}
     </Badge>
   );
 }

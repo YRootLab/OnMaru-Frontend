@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import styled from '@emotion/styled';
 import { useTranslations } from 'next-intl';
+import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
-import { meok, lightPalette, ringShadow, fontSize } from '@/design-system/tokens';
+import { meok, fontSize } from '@/design-system/tokens';
 import DiscoveryWorkCard, { DiscoveryWorkCardSkeleton } from './DiscoveryWorkCard';
 import type { WorkSummary } from '../../domain/types';
 
@@ -30,7 +30,7 @@ const ErrorBox = styled.div`
   padding: 40px 20px;
   text-align: center;
   border-radius: 14px;
-  background: ${meok[100]};
+  background: #f5f5f4;
   color: ${meok[500]};
   font-size: ${fontSize.sm};
 
@@ -50,7 +50,7 @@ const LoadMoreBtn = styled.button`
   padding: 14px;
   border-radius: 12px;
   border: none;
-  background: ${meok[100]};
+  background: #f5f5f4;
   color: ${meok[600]};
   font-size: ${fontSize.xs};
   font-weight: 600;
@@ -59,7 +59,7 @@ const LoadMoreBtn = styled.button`
   transition: background 0.14s ease, color 0.14s ease, transform 0.10s ease;
 
   &:hover {
-    background: ${meok[200]};
+    background: #e5e5e3;
     color: ${meok[800]};
   }
 
@@ -95,7 +95,7 @@ export default function DiscoveryWorksSection({
   onLoadMore,
   onWorkClick,
 }: DiscoveryWorksSectionProps) {
-  const t = useTranslations('kCulture.works');
+  const t = useTranslations('kCulture');
 
   if (isLoading && items.length === 0) {
     return (
@@ -110,14 +110,14 @@ export default function DiscoveryWorksSection({
   if (isError && items.length === 0) {
     return (
       <ErrorBox role="alert">
-        {t('errorLoading')}
+        {t('works.errorLoading')}
       </ErrorBox>
     );
   }
 
   if (!isLoading && items.length === 0) {
     return (
-      <EmptyBox>{t('emptyWorks')}</EmptyBox>
+      <EmptyBox>{t('works.emptyWorks')}</EmptyBox>
     );
   }
 
@@ -139,7 +139,7 @@ export default function DiscoveryWorksSection({
       {hasMore && !isLoading && (
         <LoadMoreBtn type="button" onClick={onLoadMore}>
           <HugeiconsIcon icon={ArrowDown01Icon} size={15} strokeWidth={2} aria-hidden="true" />
-          {t('loadMore')}
+          {t('works.loadMore')}
         </LoadMoreBtn>
       )}
     </>

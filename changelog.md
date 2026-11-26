@@ -5,9 +5,13 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 ## [Unreleased]
 
 - Windows에서도 `npm run dev:prod-api`가 로컬 Next 프록시를 통해 실제 Spring API에 연결되도록 플랫폼 독립 실행 스크립트를 추가했다.
-
 - 여정 대화 fixture의 턴 반환 순서를 최신순으로 고정하고, 대화 전환 중 대기 중인 생성 요청과 실패한 턴 조회를 안전하게 처리했습니다.
 - Bento 여정 대체 장소 카드가 계획 ID를 사용하고, 계획 ID가 없으면 대화 turn ID를 사용하며, 실제 좌표가 없을 때 위치 정보를 만들지 않도록 회귀 테스트를 추가했습니다.
+- K-마루(`/discover`) 해외 방문자 대상 다국어(ko/en/ja/zh) 전면 적용 및 콘텐츠 탐색 고도화:
+  - `k-culture-discovery` 전 페이지·컴포넌트에 `next-intl` 번역과 `@/i18n/navigation` 로케일 라우팅을 적용하고, 17개 시·도 지역명 다국어 매핑 및 비한국어 로케일 작품 영문 제목 우선 표기 지원.
+  - 메인 히어로를 최대 5개 추천 장소를 순환하는 에디토리얼 큐레이션 캐러셀(`FeaturedCarousel`)로 개편하고 `prefers-reduced-motion` 및 키보드 내비게이션을 지원.
+  - 작품 상세(`/discover/works/[workId]`)에 촬영지 카카오 미니맵, 번호 핀·경로 폴리라인, 성지순례 타임라인(`WorkLocationsMapSection`) 추가.
+  - 장소 상세의 K-콘텐츠 이력 카드(`KContentRelationCard`)에 작품 유형별 컬러 액센트 바, 장면 맥락 콜아웃, 검증 배지, 작품 촬영지 바로가기 링크 추가.
 
 - Next.js 국제화(`next-intl`) 컨텍스트 및 레이아웃 구조 개선:
   - `RootLayout`(`src/app/layout.tsx`)에서 `Header`, `PageContainer`, `Footer`를 `[locale]/layout.tsx` 내부(`NextIntlClientProvider`)로 이동하여 클라이언트 네비게이션 시 `No intl context found` 런타임 오류 해결.
@@ -20,6 +24,18 @@ Lightweight human-readable summary of meaningful repository changes. This does n
   - 검색창 바로 위에 추천 질문 키워드 칩(`QuickChipsRow`)을 배치하여 클릭 시 입력창으로 해당 키워드가 자동 입력되도록 지원.
   - 타이틀 앞 주황색 세로 바 가상요소를 제거하고 다크 모드 토큰을 남색 계열(`surface.dark.app`, `surface.dark.card`, `surface.dark.surface`)로 전면 동기화.
   - 데스크톱 카드 레이아웃의 기본 좌우 여백(`padding: 68px 20px 24px`, `max-width: 1240px`) 유지.
+
+## [v0.1.26] - 2026-11-26
+
+- AI 여정 대화 진행 상황을 실시간 타임라인으로 표시:
+  - 질문 이해, 장소 찾기, 장소 선정, 추천 이유 정리, 근거 확인 단계를 순서대로 보여 주고, 검색·선정 완료 시 장소 개수를 함께 표시.
+  - 답변이 끝나면 "정리 과정 보기"로 접어서 다시 펼쳐 볼 수 있도록 함.
+  - 연결이 잠시 끊기면 "연결을 다시 확인하고 있어요"를 안내하고 스냅샷으로 상태를 다시 맞춤.
+  - 취소 버튼은 실행 중일 때만 표시.
+- 추천 결과 장소 카드 개선:
+  - 지역명은 응답의 지역 정보를 사용하고, 주소와 추천 이유가 있는 경우에만 표시.
+  - 추천 결과가 없을 때 사유별 안내 문구(검색 조건, 조건 조정)를 표시하고, 실패·취소 턴은 실패·취소 문구로 구분.
+- 되묻기 응답에 질문과 선택지 칩을 표시하고, 선택지를 누르면 그 답으로 이어서 질문.
 
 ## [v0.1.25] - 2026-11-15
 

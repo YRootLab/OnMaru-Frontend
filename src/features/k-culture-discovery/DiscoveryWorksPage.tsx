@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import styled from '@emotion/styled';
 import { useTranslations } from 'next-intl';
+import { Link, useRouter } from '@/i18n/navigation';
+import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft01Icon, Film01Icon } from '@hugeicons/core-free-icons';
@@ -106,7 +105,7 @@ const Chip = styled.button<{ $active: boolean }>`
   padding: 6px 14px;
   border-radius: 9999px;
   border: none;
-  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[100])};
+  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f5f5f4')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[600])};
   font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
@@ -116,7 +115,7 @@ const Chip = styled.button<{ $active: boolean }>`
 
   &:hover {
     background: ${({ $active }) =>
-      $active ? lightPalette.juhong[400] : meok[200]};
+      $active ? lightPalette.juhong[400] : '#e5e5e3'};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[800])};
   }
 
@@ -153,7 +152,7 @@ const UnavailableBox = styled.div`
   padding: 64px 24px;
   text-align: center;
   border-radius: 16px;
-  background: ${meok[100]};
+  background: #f5f5f4;
 
   [data-theme='dark'] & {
     background: rgba(255,255,255,0.04);
@@ -181,9 +180,8 @@ const UnavailableSub = styled.p`
 const TYPE_FILTERS: Array<WorkType | 'all'> = ['all', 'DRAMA', 'ARTIST', 'MOVIE', 'VARIETY', 'MUSIC_VIDEO'];
 
 export default function DiscoveryWorksPage() {
-  const router = useRouter();
   const t = useTranslations('kCulture');
-  const tw = useTranslations('kCulture.works');
+  const router = useRouter();
   const [activeType, setActiveType] = useState<WorkType | 'all'>('all');
 
   const { items, matchingCount, isLoading, isError, hasMore, loadMore } = useDiscoveryWorks({
@@ -193,13 +191,19 @@ export default function DiscoveryWorksPage() {
   const handleWorkClick = (work: WorkSummary) =>
     router.push(`/discover/works/${encodeURIComponent(work.workId)}`);
 
+  const getTypeLabel = (type: WorkType | 'all') => {
+    if (type === 'all') return t('workTypeAll');
+    if (type === 'DRAMA') return t('workTypeKDrama');
+    return t(`workType.${type}`);
+  };
+
   const serviceDown = isError && items.length === 0 && !isLoading;
 
   return (
     <PageWrap>
       <BackLink href="/discover">
         <HugeiconsIcon icon={ArrowLeft01Icon} size={12} strokeWidth={2.5} />
-        {tw('backLink')}
+        {t('works.backLink')}
       </BackLink>
 
       <PageHeader>
@@ -207,15 +211,15 @@ export default function DiscoveryWorksPage() {
           <TitleIconWrap aria-hidden="true">
             <HugeiconsIcon icon={Film01Icon} size={18} strokeWidth={1.5} />
           </TitleIconWrap>
-          <PageTitle>{tw('pageTitle')}</PageTitle>
+          <PageTitle>{t('works.pageTitle')}</PageTitle>
         </TitleRow>
-        <PageSub>{tw('pageSub')}</PageSub>
+        <PageSub>{t('works.pageSub')}</PageSub>
       </PageHeader>
 
       {serviceDown ? (
         <UnavailableBox role="status">
-          <UnavailableTitle>{tw('serviceTitle')}</UnavailableTitle>
-          <UnavailableSub>{tw('serviceSub')}</UnavailableSub>
+          <UnavailableTitle>{t('works.serviceTitle')}</UnavailableTitle>
+          <UnavailableSub>{t('works.serviceSub')}</UnavailableSub>
         </UnavailableBox>
       ) : (
         <>
@@ -227,14 +231,16 @@ export default function DiscoveryWorksPage() {
                 $active={activeType === type}
                 onClick={() => setActiveType(type)}
               >
-                {type === 'all' ? t('workTypeAll') : t(`workType.${type}`)}
+                {getTypeLabel(type)}
               </Chip>
             ))}
           </FilterRow>
 
           <CountRow>
             <MatchCount>
-              {isLoading && items.length === 0 ? tw('searching') : tw('totalCount', { count: matchingCount.toLocaleString() })}
+              {isLoading && items.length === 0
+                ? t('works.searching')
+                : t('works.totalCount', { count: matchingCount.toLocaleString() })}
             </MatchCount>
           </CountRow>
 

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import styled from '@emotion/styled';
 import { useTranslations } from 'next-intl';
+import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { meok, ringShadow, fontSize } from '@/design-system/tokens';
@@ -43,7 +43,7 @@ const ErrorBox = styled.div`
   padding: 40px 20px;
   text-align: center;
   border-radius: 14px;
-  background: ${meok[100]};
+  background: #f5f5f4;
   color: ${meok[500]};
   font-size: ${fontSize.sm};
 
@@ -198,11 +198,10 @@ export default function DiscoveryPlacesSection({
   onLoadMore,
   onPlaceClick,
 }: DiscoveryPlacesSectionProps) {
-  const t = useTranslations('kCulture.places');
+  const t = useTranslations('kCulture');
   const sectionRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Reset to first page when filtering conditions change
   useEffect(() => {
     setCurrentPage(1);
   }, [filterKey]);
@@ -220,7 +219,7 @@ export default function DiscoveryPlacesSection({
   if (isError && items.length === 0) {
     return (
       <Grid>
-        <ErrorBox role="alert">{t('errorLoading')}</ErrorBox>
+        <ErrorBox role="alert">{t('places.errorLoading')}</ErrorBox>
       </Grid>
     );
   }
@@ -228,7 +227,7 @@ export default function DiscoveryPlacesSection({
   if (!isLoading && items.length === 0) {
     return (
       <Grid>
-        <EmptyBox>{t('emptyPlaces')}</EmptyBox>
+        <EmptyBox>{t('places.emptyPlaces')}</EmptyBox>
       </Grid>
     );
   }
@@ -241,7 +240,6 @@ export default function DiscoveryPlacesSection({
     if (page < 1 || page > totalPages || page === currentPage) return;
     setCurrentPage(page);
 
-    // If nearing the end of fetched items and more are available, pre-fetch next batch
     if (hasMore && (page + 1) * ITEMS_PER_PAGE >= items.length) {
       onLoadMore();
     }
@@ -268,12 +266,12 @@ export default function DiscoveryPlacesSection({
       </Grid>
 
       {totalPages > 1 && (
-        <PaginationContainer role="navigation" aria-label={t('paginationLabel')}>
+        <PaginationContainer role="navigation" aria-label={t('places.paginationLabel')}>
           <ArrowBtn
             type="button"
             disabled={pageToRender === 1}
             onClick={() => handlePageChange(pageToRender - 1)}
-            aria-label={t('prevPage')}
+            aria-label={t('places.prevPage')}
           >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.2} aria-hidden="true" />
           </ArrowBtn>
@@ -288,7 +286,7 @@ export default function DiscoveryPlacesSection({
                 $active={p === pageToRender}
                 onClick={() => handlePageChange(p)}
                 aria-current={p === pageToRender ? 'page' : undefined}
-                aria-label={t('pageLabel', { page: p })}
+                aria-label={t('places.pageLabel', { page: p })}
               >
                 {p}
               </PageBtn>
@@ -299,7 +297,7 @@ export default function DiscoveryPlacesSection({
             type="button"
             disabled={pageToRender === totalPages}
             onClick={() => handlePageChange(pageToRender + 1)}
-            aria-label={t('nextPage')}
+            aria-label={t('places.nextPage')}
           >
             <HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={2.2} aria-hidden="true" />
           </ArrowBtn>
