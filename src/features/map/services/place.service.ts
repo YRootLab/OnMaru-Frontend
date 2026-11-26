@@ -22,8 +22,14 @@ interface BackendMapPlacesResponse {
 }
 
 function mapBackendCategoryToPlaceCategory(category: string): PlaceCategory {
-  if (category === '카페' || category.toUpperCase().includes('CAFE')) return 'cafe';
-  if (category === '숙소' || category.toUpperCase().includes('STAY')) return 'stay';
+  const upper = category.toUpperCase();
+  if (category === '카페' || upper.includes('CAFE')) return 'cafe';
+  if (category === '숙소' || upper.includes('STAY')) return 'stay';
+  if (category === '축제' || upper.includes('FESTIVAL')) return 'festival';
+  if (category === '문화' || upper.includes('CULTURE')) return 'culture';
+  if (category === '체험' || upper.includes('EXPERIENCE')) return 'experience';
+  if (category === '음식' || upper.includes('FOOD') || upper.includes('RESTAURANT')) return 'food';
+  if (category === '시장' || upper.includes('MARKET')) return 'market';
   return 'spot';
 }
 
