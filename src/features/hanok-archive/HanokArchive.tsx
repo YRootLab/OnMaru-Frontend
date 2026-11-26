@@ -231,15 +231,25 @@ export default function HanokArchive({
   useEffect(() => {
     const hanokId = searchParams.get('hanok');
     const stayId = searchParams.get('stay');
-    if (!hanokId && !stayId) return;
+    if (!hanokId && !stayId) {
+      setSelectedDogamVillage(null);
+      setSelectedStay(null);
+      return;
+    }
     const all = archiveData.villages;
     if (all.length === 0) return;
     if (hanokId) {
       const found = all.find((v) => v.id === hanokId);
-      if (found) setSelectedDogamVillage(found);
+      if (found) {
+        setSelectedDogamVillage(found);
+        setSelectedStay(null);
+      }
     } else if (stayId) {
       const found = all.find((v) => v.id === stayId);
-      if (found) setSelectedStay(found);
+      if (found) {
+        setSelectedStay(found);
+        setSelectedDogamVillage(null);
+      }
     }
   }, [searchParams, archiveData.villages]);
 
