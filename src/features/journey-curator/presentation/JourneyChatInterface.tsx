@@ -18,6 +18,7 @@ import type { JourneyClarification } from '../api/journeyContract';
 import { canCancel, isActive, type JourneyProgress } from '../domain/journeyProgress';
 import {
   getAnswerFallbackCopy,
+  isNoResultsReason,
   getCancelledCopy,
   getClarificationCopy,
   getErrorCopy,
@@ -1179,6 +1180,18 @@ export function extractPlaces(turn: ExplorationTurn): PlaceResource[] {
   return findPlaces(turn.response.proposal?.board ?? null);
 }
 
+/** 추천 이유는 candidates[].reason이 있는 경우에만 장소 ID별로 모은다. */
+function buildReasonMap(candidateLists: Array<ReadonlyArray<{ placeRef?: { id?: string }; reason?: string | null }> | undefined>): Map<string, string> {
+  const reasons = new Map<string, string>();
+  for (const list of candidateLists) {
+    for (const candidate of list ?? []) {
+      const id = candidate?.placeRef?.id;
+      if (id && candidate.reason) reasons.set(id, candidate.reason);
+    }
+  }
+  return reasons;
+}
+
 /** 지역명은 응답의 RegionResource.title만 쓴다. 없으면 null(지역 항목 숨김). */
 function buildRegionTitles(resourceLists: Array<ReadonlyArray<unknown> | undefined>): Map<string, string> {
   const titles = new Map<string, string>();
@@ -1191,6 +1204,17 @@ function buildRegionTitles(resourceLists: Array<ReadonlyArray<unknown> | undefin
   return titles;
 }
 
+const ResultPlaceReason = styled.p`
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #444;
+
+  [data-theme='dark'] & {
+    color: rgba(216, 229, 255, 0.8);
+  }
+`;
+
 const ResultPlaceAddress = styled.p`
   margin: 4px 0 0;
   font-size: 12px;
@@ -1201,7 +1225,7 @@ const ResultPlaceAddress = styled.p`
   }
 `;
 
-function ResultPlaceCardItem({ place, regionTitle }: { place: PlaceResource; regionTitle?: string | null }) {
+function ResultPlaceCardItem({ place, regionTitle, reason }: { place: PlaceResource; regionTitle?: string | null; reason?: string | null }) {
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(place.ref.id));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
@@ -1270,6 +1294,7 @@ function ResultPlaceCardItem({ place, regionTitle }: { place: PlaceResource; reg
           )}
         </ResultMetaRow>
         {place.address && <ResultPlaceAddress>{place.address}</ResultPlaceAddress>}
+        {reason && <ResultPlaceReason>{reason}</ResultPlaceReason>}
         {place.summary && <ResultPlaceSummary>{place.summary}</ResultPlaceSummary>}
       </ResultCardBody>
     </ResultPlaceCard>
@@ -1321,13 +1346,16 @@ function AssistantResponse({
     const requestId = response.error?.requestId;
     return <Bubble>{getErrorCopy(response.error?.code)}{requestId ? ` 요청 번호: ${requestId}` : ''}</Bubble>;
   }
-  if (response.outcome === 'NO_RESULTS') return <Bubble>{getNoResultsCopy(response.resultReason)}</Bubble>;
+  if (response.outcome === 'NO_RESULTS') {
+    return <Bubble>{getNoResultsCopy(isNoResultsReason(response.degradedReason) ? response.degradedReason : null)}</Bubble>;
+  }
   if (response.outcome === 'CLARIFICATION_REQUIRED') {
     return <ClarificationBlock clarification={response.clarification} onAnswer={onAnswerClarification} />;
   }
 
   const places = extractPlaces(turn);
   const regionTitles = buildRegionTitles([response.board?.resources, response.proposal?.board?.resources]);
+  const reasonByPlace = buildReasonMap([response.board?.candidates, response.proposal?.board?.candidates]);
   const textSummary =
     response.summary ||
     response.board?.querySummary ||
@@ -1356,7 +1384,7 @@ function AssistantResponse({
       {places.length > 0 && (
         <PlacesScroll aria-label="추천 장소">
           {places.map((place, idx) => (
-            <ResultPlaceCardItem key={place.ref.id || idx} place={place} regionTitle={regionTitles.get(place.regionRef?.id ?? '') ?? null} />
+            <ResultPlaceCardItem key={place.ref.id || idx} place={place} regionTitle={regionTitles.get(place.regionRef?.id ?? '') ?? null} reason={reasonByPlace.get(place.ref.id) ?? null} />
           ))}
         </PlacesScroll>
       )}

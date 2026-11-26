@@ -355,7 +355,7 @@ describe('JourneyChatInterface', () => {
             query: '제주 추천',
             createdAt: '2026-11-26T00:00:00Z',
             runId: 'run-1',
-            response: { status: 'COMPLETED', outcome: 'NO_RESULTS', resultReason: 'NO_RELEVANT_CANDIDATES', summary: null, board: null, proposal: null, clarification: null, error: null },
+            response: { status: 'COMPLETED', outcome: 'NO_RESULTS', degradedReason: 'NO_RELEVANT_CANDIDATES', summary: null, board: null, proposal: null, clarification: null, error: null },
           },
         ] as never}
         pendingQuery={null}
@@ -371,5 +371,83 @@ describe('JourneyChatInterface', () => {
       />,
     );
     expect(markup).toContain('조건을 조금 완화해 볼까요?');
+  });
+
+  describe('turn degradedReason and candidate reasons (BE contract)', () => {
+    const baseTurn = (response: Record<string, unknown>) => ({
+      turnId: 'turn-1',
+      query: '서울 궁궐 추천해줘',
+      createdAt: '2026-11-26T00:00:00Z',
+      runId: 'run-1',
+      response: { status: 'COMPLETED', outcome: 'INITIAL_BOARD', summary: '요약', board: null, proposal: null, clarification: null, error: null, ...response },
+    });
+    const renderTurns = (turns: unknown[]) =>
+      renderToStaticMarkup(
+        <JourneyChatInterface
+          explorations={[]}
+          activeExplorationId="exp-1"
+          turns={turns as never}
+          pendingQuery={null}
+          progress={null}
+          loading={false}
+          loadingOlder={false}
+          hasOlderTurns={false}
+          error={null}
+          onSelectConversation={vi.fn()}
+          onLoadOlder={vi.fn()}
+          onSend={async () => undefined}
+          onCancel={async () => undefined}
+        />,
+      );
+
+    it('reads the 0-result reason from degradedReason and ignores other degradedReason values', () => {
+      const noCandidates = renderTurns([baseTurn({ outcome: 'NO_RESULTS', degradedReason: 'NO_CANDIDATES' })]);
+      expect(noCandidates).toContain('지역 범위를 넓혀 볼까요?');
+      const quota = renderTurns([baseTurn({ outcome: 'NO_RESULTS', degradedReason: 'AI_QUOTA_EXCEEDED' })]);
+      expect(quota).toContain('조건에 맞는 장소를 찾지 못했어요.');
+    });
+
+    it('keeps failed and cancelled turns as failures even when a reason is present', () => {
+      const failed = renderTurns([baseTurn({ status: 'FAILED', outcome: 'NO_RESULTS', degradedReason: 'NO_CANDIDATES', error: { code: 'X', requestId: 'r' } })]);
+      expect(failed).toContain('잠시 연결이 불안정해요');
+      expect(failed).not.toContain('지역 범위를 넓혀 볼까요?');
+      const cancelled = renderTurns([baseTurn({ status: 'CANCELLED', degradedReason: 'NO_CANDIDATES' })]);
+      expect(cancelled).toContain('추천을 멈췄어요.');
+    });
+
+    it('shows the recommendation reason of a candidate place', () => {
+      const place = {
+        ref: { type: 'PLACE', id: 'place-gyeongbokgung' },
+        title: '경복궁', category: '궁궐', regionRef: { type: 'REGION', id: 'kr-11' }, summary: null, image: null, location: null, sourceRefs: [], unavailableFields: [],
+      };
+      const markup = renderTurns([
+        baseTurn({
+          board: {
+            resources: [place, { ref: { type: 'REGION', id: 'kr-11' }, title: '서울' }],
+            candidates: [{ placeRef: { type: 'PLACE', id: 'place-gyeongbokgung' }, reason: '조선 왕궁의 대표 궁궐이라서요', evidenceRefs: [], relationRefs: [], constraintChecks: [] }],
+            legs: [], relations: [], evidence: [], title: '', querySummary: '', regionRef: { type: 'REGION', id: 'kr-11' },
+          },
+        }),
+      ]);
+      expect(markup).toContain('조선 왕궁의 대표 궁궐이라서요');
+    });
+
+    it('shows no reason line when a candidate reason is null', () => {
+      const place = {
+        ref: { type: 'PLACE', id: 'place-gyeongbokgung' },
+        title: '경복궁', category: '궁궐', regionRef: { type: 'REGION', id: 'kr-11' }, summary: null, image: null, location: null, sourceRefs: [], unavailableFields: [],
+      };
+      const markup = renderTurns([
+        baseTurn({
+          board: {
+            resources: [place],
+            candidates: [{ placeRef: { type: 'PLACE', id: 'place-gyeongbokgung' }, reason: null, evidenceRefs: [], relationRefs: [], constraintChecks: [] }],
+            legs: [], relations: [], evidence: [], title: '', querySummary: '', regionRef: { type: 'REGION', id: 'kr-11' },
+          },
+        }),
+      ]);
+      expect(markup).toContain('경복궁');
+      expect(markup).not.toContain('>null<');
+    });
   });
 });

@@ -120,7 +120,7 @@ export interface ConstraintCheck {
 
 export interface JourneyCandidate {
   placeRef: ResourceRef & { type: 'PLACE' };
-  reason: string;
+  reason: string | null;
   evidenceRefs: string[];
   relationRefs: string[];
   constraintChecks: ConstraintCheck[];

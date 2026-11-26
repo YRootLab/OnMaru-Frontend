@@ -99,6 +99,10 @@ const NO_RESULTS_REASON_COPY: Record<NoResultsReason, string> = {
   NO_RELEVANT_CANDIDATES: '검색된 장소는 있지만 요청하신 일정과 조건에 꼭 맞는 곳이 없어요. 조건을 조금 완화해 볼까요?',
 };
 
+export function isNoResultsReason(value: unknown): value is NoResultsReason {
+  return value === 'NO_CANDIDATES' || value === 'NO_RELEVANT_CANDIDATES';
+}
+
 export function getNoResultsCopy(reason?: NoResultsReason | null): string {
   return (reason && NO_RESULTS_REASON_COPY[reason]) || RESULT_COPY.NO_RESULTS;
 }

@@ -22,7 +22,7 @@ export type ExplorationPage = {
 export type TurnResponse = {
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
   outcome: JourneyRunSnapshot['outcome'] | null;
-  resultReason?: 'NO_CANDIDATES' | 'NO_RELEVANT_CANDIDATES' | null;
+  degradedReason?: string | null;
   summary: string | null;
   board: JourneyBoard | null;
   proposal: JourneyProposal | null;
