@@ -1,4 +1,4 @@
-export type JourneySchemaVersion = '1.2' | '1.3';
+export type JourneySchemaVersion = '1.2' | '1.3' | '1.4';
 
 export type JourneyRunStatus = 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'CANCELLED';
 export type JourneyRunStage =
@@ -64,6 +64,7 @@ export type JourneyTerminalFrame = {
     status: 'COMPLETED' | 'FAILED' | 'CANCELLED';
     outcome: JourneyRunOutcome | null;
     errorCode?: string;
+    retryAfterMs?: number;
   };
 };
 
@@ -90,8 +91,35 @@ export type JourneyAuthClosedFrame = {
   data: 0;
 };
 
+export type JourneyItemStartedFrame = {
+  id: string;
+  event: 'run.item.started';
+  data: {
+    schemaVersion: JourneySchemaVersion;
+    runId: string;
+    sequence: number;
+    itemId: string;
+    status?: 'STARTED';
+  };
+};
+
+export type JourneyItemCompletedFrame = {
+  id: string;
+  event: 'run.item.completed';
+  data: {
+    schemaVersion: JourneySchemaVersion;
+    runId: string;
+    sequence: number;
+    itemId: string;
+    status: 'DONE' | 'SKIPPED';
+    detail: { count?: number | null };
+  };
+};
+
 export type JourneySseFrame =
   | JourneyStageFrame
+  | JourneyItemStartedFrame
+  | JourneyItemCompletedFrame
   | JourneyTerminalFrame
   | JourneyHeartbeatFrame
   | JourneyResetFrame

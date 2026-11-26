@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import JourneyChatInterface, { extractPlaces, findPlaces } from './JourneyChatInterface';
+import { applyStageFrame, createProgress, type JourneyProgress } from '../domain/journeyProgress';
 
 describe('JourneyChatInterface', () => {
   it('extracts PLACE resources from a proposal board when the turn board is empty', () => {
@@ -77,7 +78,7 @@ describe('JourneyChatInterface', () => {
           },
         ] as never}
         pendingQuery={null}
-        progressMessage={null}
+        progress={null}
         loading={false}
         loadingOlder={false}
         hasOlderTurns={false}
@@ -136,7 +137,7 @@ describe('JourneyChatInterface', () => {
           },
         ] as never}
         pendingQuery={null}
-        progressMessage={null}
+        progress={null}
         loading={false}
         loadingOlder={false}
         hasOlderTurns={false}
@@ -177,7 +178,7 @@ describe('JourneyChatInterface', () => {
         activeExplorationId={null}
         turns={[]}
         pendingQuery={null}
-        progressMessage={null}
+        progress={null}
         loading={false}
         loadingOlder={false}
         hasOlderTurns={false}
@@ -193,5 +194,153 @@ describe('JourneyChatInterface', () => {
     expect(markup).toContain('data-chat-surface="conversation"');
     expect(markup).toContain('data-message-role="assistant"');
     expect(markup).not.toContain('AI 여정 대화');
+  });
+
+  describe('answer states and progress', () => {
+    const turn = (response: Record<string, unknown>) => ({
+      turnId: 'turn-1',
+      query: '서울 궁궐 추천해줘',
+      createdAt: '2026-11-25T00:00:00Z',
+      runId: 'run-1',
+      response: {
+        status: 'COMPLETED',
+        outcome: null,
+        summary: null,
+        board: null,
+        proposal: null,
+        clarification: null,
+        error: null,
+        ...response,
+      },
+    });
+
+    const renderChat = (options: { turns?: unknown[]; progress?: JourneyProgress | null; pendingQuery?: string | null }) =>
+      renderToStaticMarkup(
+        <JourneyChatInterface
+          explorations={[]}
+          activeExplorationId="exp-1"
+          turns={(options.turns ?? []) as never}
+          pendingQuery={options.pendingQuery ?? null}
+          progress={options.progress ?? null}
+          loading={false}
+          loadingOlder={false}
+          hasOlderTurns={false}
+          error={null}
+          onSelectConversation={vi.fn()}
+          onLoadOlder={vi.fn()}
+          onSend={async () => undefined}
+          onCancel={async () => undefined}
+          onToggleProgress={vi.fn()}
+        />,
+      );
+
+    const runningProgress = (status: 'QUEUED' | 'RUNNING') => {
+      const base = createProgress({ runId: 'run-1', now: Date.now(), status });
+      return applyStageFrame(base, { runId: 'run-1', sequence: 1, stage: 'RETRIEVING', status }, Date.now());
+    };
+
+    it('shows the step timeline and a cancel button only while the run is RUNNING', () => {
+      const markup = renderChat({ pendingQuery: '서울 궁궐 추천해줘', progress: runningProgress('RUNNING') });
+      expect(markup).toContain('조건에 맞는 장소를 찾는 중');
+      expect(markup).toContain('>취소</button>');
+    });
+
+    it('does not offer cancel while the run is still queued', () => {
+      const markup = renderChat({ pendingQuery: '서울 궁궐 추천해줘', progress: runningProgress('QUEUED') });
+      expect(markup).not.toContain('>취소</button>');
+    });
+
+    it('explains a no-results completion instead of a generic summary', () => {
+      const markup = renderChat({ turns: [turn({ outcome: 'NO_RESULTS' })] });
+      expect(markup).toContain('조건에 맞는 장소를 찾지 못했어요. 지역이나 분위기를 조금 넓혀 볼까요?');
+    });
+
+    it('never shows the generic summary when a completed answer is empty', () => {
+      const markup = renderChat({ turns: [turn({ outcome: 'INITIAL_BOARD' })] });
+      expect(markup).toContain('추천 여정을 정리했어요. 아래 장소를 둘러보세요.');
+      expect(markup).not.toContain('맞춤 한옥 여정 코스를 준비했어요');
+    });
+
+    it('asks the clarification question with its choices as chips', () => {
+      const markup = renderChat({
+        turns: [
+          turn({
+            outcome: 'CLARIFICATION_REQUIRED',
+            clarification: {
+              id: 'clar-1',
+              reason: 'REGION_MISSING',
+              question: '어느 지역으로 떠나 볼까요?',
+              choices: [{ id: 'c-seoul', label: '서울', regionCode: 'kr-11' }],
+              allowFreeText: true,
+            },
+          }),
+        ],
+      });
+      expect(markup).toContain('어느 지역으로 떠나 볼까요?');
+      expect(markup).toContain('서울');
+    });
+
+    it('uses the rate-limit copy for a RATE_LIMITED failure', () => {
+      const markup = renderChat({ turns: [turn({ status: 'FAILED', error: { code: 'RATE_LIMITED', requestId: 'req-1' } })] });
+      expect(markup).toContain('잠시 뒤에 다시 시도해 주세요.');
+    });
+  });
+
+  describe('place card fields', () => {
+    const renderWithBoard = (resources: unknown[]) =>
+      renderToStaticMarkup(
+        <JourneyChatInterface
+          explorations={[]}
+          activeExplorationId="exp-1"
+          turns={[
+            {
+              turnId: 'turn-1',
+              query: '서울 궁궐 추천해줘',
+              createdAt: '2026-11-26T00:00:00Z',
+              runId: 'run-1',
+              response: { status: 'COMPLETED', outcome: 'INITIAL_BOARD', summary: '요약', board: { resources, candidates: [] }, proposal: null, clarification: null, error: null },
+            },
+          ] as never}
+          pendingQuery={null}
+          progress={null}
+          loading={false}
+          loadingOlder={false}
+          hasOlderTurns={false}
+          error={null}
+          onSelectConversation={vi.fn()}
+          onLoadOlder={vi.fn()}
+          onSend={async () => undefined}
+          onCancel={async () => undefined}
+        />,
+      );
+
+    const place = (overrides: Record<string, unknown> = {}) => ({
+      ref: { type: 'PLACE', id: 'place-gyeongbokgung' },
+      title: '경복궁',
+      category: '궁궐',
+      regionRef: { type: 'REGION', id: 'kr-11' },
+      summary: null,
+      image: null,
+      location: null,
+      sourceRefs: [],
+      unavailableFields: [],
+      ...overrides,
+    });
+
+    it('shows the region title from the RegionResource instead of the raw region code', () => {
+      const markup = renderWithBoard([place(), { ref: { type: 'REGION', id: 'kr-11' }, title: '서울' }]);
+      expect(markup).toContain('서울');
+      expect(markup).not.toContain('kr-11');
+    });
+
+    it('hides the region item when no RegionResource title is available', () => {
+      const markup = renderWithBoard([place()]);
+      expect(markup).not.toContain('kr-11');
+    });
+
+    it('shows the address when the place has one', () => {
+      const markup = renderWithBoard([place({ address: '서울 종로구 사직로 161' })]);
+      expect(markup).toContain('서울 종로구 사직로 161');
+    });
   });
 });

@@ -76,6 +76,7 @@ export interface PlaceResource {
   summary: string | null;
   image: ImageAsset | null;
   location: GeoPoint | null;
+  address?: string | null;
   sourceRefs: string[];
   unavailableFields: string[];
 }
