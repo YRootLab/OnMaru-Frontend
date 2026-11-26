@@ -92,4 +92,22 @@ describe('journey repository actions/SSE (FE #93)', () => {
 
     expect(onError).toHaveBeenCalledTimes(1);
   });
+
+describe('run item events (BE 1.4)', () => {
+  it('subscribes to run.item events and decodes them', () => {
+    const repository = createJourneyRepository();
+    const fake = new FakeEventSource();
+    const createEventSource: JourneyEventSourceFactory = () => fake as unknown as EventSource;
+    const received: JourneySseFrame[] = [];
+    repository.subscribeToRunEvents('https://journey.example.test/events/run-1', (frame) => received.push(frame), { createEventSource });
+
+    fake.emit('run.item.completed', {
+      lastEventId: '5',
+      data: JSON.stringify({ schemaVersion: '1.4', runId: 'run-1', sequence: 5, itemId: 'SEARCH-4', status: 'DONE', detail: { count: 12 } }),
+    });
+
+    expect(received).toHaveLength(1);
+    expect(received[0]).toMatchObject({ event: 'run.item.completed', data: { itemId: 'SEARCH-4', detail: { count: 12 } } });
+  });
+});
 });

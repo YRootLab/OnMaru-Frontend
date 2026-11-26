@@ -76,6 +76,7 @@ export interface PlaceResource {
   summary: string | null;
   image: ImageAsset | null;
   location: GeoPoint | null;
+  address?: string | null;
   sourceRefs: string[];
   unavailableFields: string[];
 }
@@ -119,7 +120,7 @@ export interface ConstraintCheck {
 
 export interface JourneyCandidate {
   placeRef: ResourceRef & { type: 'PLACE' };
-  reason: string;
+  reason: string | null;
   evidenceRefs: string[];
   relationRefs: string[];
   constraintChecks: ConstraintCheck[];
