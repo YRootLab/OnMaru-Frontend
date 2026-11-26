@@ -28,7 +28,7 @@ describe('journeyStepCopy', () => {
 
   it('describes a finished run with outcome-specific notices', () => {
     expect(getTerminalNotices({ status: 'COMPLETED', outcome: 'NO_RESULTS', errorCode: null, retryAfterMs: 0, engine: 'LLM' }))
-      .toEqual(['조건에 맞는 장소를 찾지 못했어요. 지역이나 분위기를 조금 넓혀 볼까요?']);
+      .toEqual(['조건에 맞는 장소를 찾지 못했어요. 조건을 넓히거나 바꿔 보세요.']);
     expect(getTerminalNotices({ status: 'CANCELLED', outcome: null, errorCode: null, retryAfterMs: 0, engine: 'LLM' }))
       .toEqual(['추천을 멈췄어요.']);
   });
@@ -59,7 +59,7 @@ describe('journeyStepCopy', () => {
   it('exposes the standalone copy used outside the timeline', () => {
     expect(getPreparingCopy()).toBe('여정을 준비하고 있어요.');
     expect(getCancelledCopy()).toBe('추천을 멈췄어요.');
-    expect(getNoResultsCopy()).toBe('조건에 맞는 장소를 찾지 못했어요. 지역이나 분위기를 조금 넓혀 볼까요?');
+    expect(getNoResultsCopy()).toBe('조건에 맞는 장소를 찾지 못했어요. 조건을 넓히거나 바꿔 보세요.');
     expect(getClarificationCopy()).toBe('조금만 더 알려 주시면 더 잘 찾을 수 있어요.');
   });
 
@@ -83,16 +83,16 @@ describe('run item copy (BE 1.4)', () => {
 
 describe('no-results reason copy (AI resultReason)', () => {
   it('explains that no registered place matches the region or condition', () => {
-    expect(getNoResultsCopy('NO_CANDIDATES')).toBe('해당 지역이나 조건에 맞는 등록 장소를 찾지 못했어요. 지역 범위를 넓혀 볼까요?');
+    expect(getNoResultsCopy('NO_CANDIDATES')).toBe('검색 조건에 맞는 등록 장소를 찾지 못했어요. 지역이나 검색어를 넓혀 보세요.');
   });
 
   it('explains that candidates exist but none fit the requested schedule', () => {
-    expect(getNoResultsCopy('NO_RELEVANT_CANDIDATES')).toBe('검색된 장소는 있지만 요청하신 일정과 조건에 꼭 맞는 곳이 없어요. 조건을 조금 완화해 볼까요?');
+    expect(getNoResultsCopy('NO_RELEVANT_CANDIDATES')).toBe('장소는 검색되었지만 조건에 맞는 장소가 없어요. 조건을 조정해 보세요.');
   });
 
   it('keeps the generic no-results copy when no reason is given', () => {
-    expect(getNoResultsCopy(null)).toBe('조건에 맞는 장소를 찾지 못했어요. 지역이나 분위기를 조금 넓혀 볼까요?');
-    expect(getNoResultsCopy()).toBe('조건에 맞는 장소를 찾지 못했어요. 지역이나 분위기를 조금 넓혀 볼까요?');
+    expect(getNoResultsCopy(null)).toBe('조건에 맞는 장소를 찾지 못했어요. 조건을 넓히거나 바꿔 보세요.');
+    expect(getNoResultsCopy()).toBe('조건에 맞는 장소를 찾지 못했어요. 조건을 넓히거나 바꿔 보세요.');
   });
 });
 });

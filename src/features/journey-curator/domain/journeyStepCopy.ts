@@ -56,7 +56,7 @@ export function getStepCopy(stage: JourneyRunStage): StepCopy | null {
 }
 
 const RESULT_COPY = {
-  NO_RESULTS: '조건에 맞는 장소를 찾지 못했어요. 지역이나 분위기를 조금 넓혀 볼까요?',
+  NO_RESULTS: '조건에 맞는 장소를 찾지 못했어요. 조건을 넓히거나 바꿔 보세요.',
   CLARIFICATION_REQUIRED: '조금만 더 알려 주시면 더 잘 찾을 수 있어요.',
   BASELINE: '지금은 간단하게 추천해 드리고 있어요.',
   FAILED: '잠시 연결이 불안정해요. 다시 시도해 주세요.',
@@ -98,8 +98,8 @@ export function getCancelledCopy(): string {
 export type NoResultsReason = 'NO_CANDIDATES' | 'NO_RELEVANT_CANDIDATES';
 
 const NO_RESULTS_REASON_COPY: Record<NoResultsReason, string> = {
-  NO_CANDIDATES: '해당 지역이나 조건에 맞는 등록 장소를 찾지 못했어요. 지역 범위를 넓혀 볼까요?',
-  NO_RELEVANT_CANDIDATES: '검색된 장소는 있지만 요청하신 일정과 조건에 꼭 맞는 곳이 없어요. 조건을 조금 완화해 볼까요?',
+  NO_CANDIDATES: '검색 조건에 맞는 등록 장소를 찾지 못했어요. 지역이나 검색어를 넓혀 보세요.',
+  NO_RELEVANT_CANDIDATES: '장소는 검색되었지만 조건에 맞는 장소가 없어요. 조건을 조정해 보세요.',
 };
 
 export function isNoResultsReason(value: unknown): value is NoResultsReason {

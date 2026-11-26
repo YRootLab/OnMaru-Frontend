@@ -252,7 +252,7 @@ describe('JourneyChatInterface', () => {
 
     it('explains a no-results completion instead of a generic summary', () => {
       const markup = renderChat({ turns: [turn({ outcome: 'NO_RESULTS' })] });
-      expect(markup).toContain('조건에 맞는 장소를 찾지 못했어요. 지역이나 분위기를 조금 넓혀 볼까요?');
+      expect(markup).toContain('조건에 맞는 장소를 찾지 못했어요. 조건을 넓히거나 바꿔 보세요.');
     });
 
     it('never shows the generic summary when a completed answer is empty', () => {
@@ -370,7 +370,7 @@ describe('JourneyChatInterface', () => {
         onCancel={async () => undefined}
       />,
     );
-    expect(markup).toContain('조건을 조금 완화해 볼까요?');
+    expect(markup).toContain('조건을 조정해 보세요.');
   });
 
   describe('turn degradedReason and candidate reasons (BE contract)', () => {
@@ -402,7 +402,7 @@ describe('JourneyChatInterface', () => {
 
     it('reads the 0-result reason from degradedReason and ignores other degradedReason values', () => {
       const noCandidates = renderTurns([baseTurn({ outcome: 'NO_RESULTS', degradedReason: 'NO_CANDIDATES' })]);
-      expect(noCandidates).toContain('지역 범위를 넓혀 볼까요?');
+      expect(noCandidates).toContain('지역이나 검색어를 넓혀 보세요.');
       const quota = renderTurns([baseTurn({ outcome: 'NO_RESULTS', degradedReason: 'AI_QUOTA_EXCEEDED' })]);
       expect(quota).toContain('조건에 맞는 장소를 찾지 못했어요.');
     });
@@ -410,7 +410,7 @@ describe('JourneyChatInterface', () => {
     it('keeps failed and cancelled turns as failures even when a reason is present', () => {
       const failed = renderTurns([baseTurn({ status: 'FAILED', outcome: 'NO_RESULTS', degradedReason: 'NO_CANDIDATES', error: { code: 'X', requestId: 'r' } })]);
       expect(failed).toContain('잠시 연결이 불안정해요');
-      expect(failed).not.toContain('지역 범위를 넓혀 볼까요?');
+      expect(failed).not.toContain('지역이나 검색어를 넓혀 보세요.');
       const cancelled = renderTurns([baseTurn({ status: 'CANCELLED', degradedReason: 'NO_CANDIDATES' })]);
       expect(cancelled).toContain('추천을 멈췄어요.');
     });
@@ -449,5 +449,33 @@ describe('JourneyChatInterface', () => {
       expect(markup).toContain('경복궁');
       expect(markup).not.toContain('>null<');
     });
+  });
+
+  it('never shows place cards for a NO_RESULTS turn, even when the board carries places', () => {
+    const place = {
+      ref: { type: 'PLACE', id: 'place-stale' }, title: '잔여 장소', category: '명소', regionRef: { type: 'REGION', id: 'kr-11' },
+      summary: null, image: null, location: null, sourceRefs: [], unavailableFields: [],
+    };
+    const markup = renderToStaticMarkup(
+      <JourneyChatInterface
+        explorations={[]}
+        activeExplorationId="exp-1"
+        turns={[{ turnId: 't', query: '추천', createdAt: '2026-11-26T00:00:00Z', runId: 'r', response: { status: 'COMPLETED', outcome: 'NO_RESULTS', degradedReason: null, summary: null, board: { resources: [place], candidates: [] }, proposal: null, clarification: null, error: null } }] as never}
+        pendingQuery={null}
+        progress={null}
+        loading={false}
+        loadingOlder={false}
+        hasOlderTurns={false}
+        error={null}
+        onSelectConversation={vi.fn()}
+        onLoadOlder={vi.fn()}
+        onSend={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+    expect(markup).not.toContain('잔여 장소');
+    expect(markup).not.toContain('aria-label="추천 장소"');
+    expect(markup).toContain('조건을 넓히거나 바꿔 보세요.');
+    expect(markup).not.toContain('잠시 연결이 불안정해요');
   });
 });
