@@ -11,7 +11,7 @@ export interface EmphasisBadgeProps extends React.HTMLAttributes<HTMLSpanElement
   showIcon?: boolean;
 }
 
-const StyledBadge = styled.span<{ $size: 'sm' | 'md' }>`
+const StyledBadge = styled.span<{ $size: 'sm' | 'md'; $iconOnly?: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -29,7 +29,10 @@ const StyledBadge = styled.span<{ $size: 'sm' | 'md' }>`
   user-select: none;
 
   /* sm: 목록 카드용, md: 일반 뱃지용 */
-  padding: ${({ $size }) => ($size === 'sm' ? '3px 8px 3px 6px' : '4px 10px 4px 8px')};
+  padding: ${({ $size, $iconOnly }) =>
+    $iconOnly
+      ? ($size === 'sm' ? '3px' : '4px')
+      : ($size === 'sm' ? '3px 8px 3px 6px' : '4px 10px 4px 8px')};
   font-size: ${({ $size }) => ($size === 'sm' ? fontSize.micro : fontSize.xs)};
 
   [data-theme='dark'] & {
@@ -56,9 +59,11 @@ export function EmphasisBadge({
   style,
   ...rest
 }: EmphasisBadgeProps) {
+  const iconOnly = showIcon && !children;
   return (
     <StyledBadge
       $size={size}
+      $iconOnly={iconOnly}
       className={className}
       style={style}
       {...rest}

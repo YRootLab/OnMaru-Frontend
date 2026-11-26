@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
@@ -42,7 +43,7 @@ const ErrorBox = styled.div`
   padding: 40px 20px;
   text-align: center;
   border-radius: 14px;
-  background: ${meok[100]};
+  background: #f5f5f4;
   color: ${meok[500]};
   font-size: ${fontSize.sm};
 
@@ -197,10 +198,10 @@ export default function DiscoveryPlacesSection({
   onLoadMore,
   onPlaceClick,
 }: DiscoveryPlacesSectionProps) {
+  const t = useTranslations('kCulture');
   const sectionRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Reset to first page when filtering conditions change
   useEffect(() => {
     setCurrentPage(1);
   }, [filterKey]);
@@ -218,7 +219,7 @@ export default function DiscoveryPlacesSection({
   if (isError && items.length === 0) {
     return (
       <Grid>
-        <ErrorBox role="alert">탐색 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</ErrorBox>
+        <ErrorBox role="alert">{t('places.errorLoading')}</ErrorBox>
       </Grid>
     );
   }
@@ -226,7 +227,7 @@ export default function DiscoveryPlacesSection({
   if (!isLoading && items.length === 0) {
     return (
       <Grid>
-        <EmptyBox>이 조건에 맞는 장소가 없습니다.</EmptyBox>
+        <EmptyBox>{t('places.emptyPlaces')}</EmptyBox>
       </Grid>
     );
   }
@@ -239,7 +240,6 @@ export default function DiscoveryPlacesSection({
     if (page < 1 || page > totalPages || page === currentPage) return;
     setCurrentPage(page);
 
-    // If nearing the end of fetched items and more are available, pre-fetch next batch
     if (hasMore && (page + 1) * ITEMS_PER_PAGE >= items.length) {
       onLoadMore();
     }
@@ -266,12 +266,12 @@ export default function DiscoveryPlacesSection({
       </Grid>
 
       {totalPages > 1 && (
-        <PaginationContainer role="navigation" aria-label="장소 페이지 이동">
+        <PaginationContainer role="navigation" aria-label={t('places.paginationLabel')}>
           <ArrowBtn
             type="button"
             disabled={pageToRender === 1}
             onClick={() => handlePageChange(pageToRender - 1)}
-            aria-label="이전 페이지"
+            aria-label={t('places.prevPage')}
           >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={15} strokeWidth={2.2} aria-hidden="true" />
           </ArrowBtn>
@@ -286,7 +286,7 @@ export default function DiscoveryPlacesSection({
                 $active={p === pageToRender}
                 onClick={() => handlePageChange(p)}
                 aria-current={p === pageToRender ? 'page' : undefined}
-                aria-label={`${p}페이지`}
+                aria-label={t('places.pageLabel', { page: p })}
               >
                 {p}
               </PageBtn>
@@ -297,7 +297,7 @@ export default function DiscoveryPlacesSection({
             type="button"
             disabled={pageToRender === totalPages}
             onClick={() => handlePageChange(pageToRender + 1)}
-            aria-label="다음 페이지"
+            aria-label={t('places.nextPage')}
           >
             <HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={2.2} aria-hidden="true" />
           </ArrowBtn>

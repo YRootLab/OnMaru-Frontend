@@ -4,6 +4,15 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased]
 
+- Windows에서도 `npm run dev:prod-api`가 로컬 Next 프록시를 통해 실제 Spring API에 연결되도록 플랫폼 독립 실행 스크립트를 추가했다.
+- 여정 대화 fixture의 턴 반환 순서를 최신순으로 고정하고, 대화 전환 중 대기 중인 생성 요청과 실패한 턴 조회를 안전하게 처리했습니다.
+- Bento 여정 대체 장소 카드가 계획 ID를 사용하고, 계획 ID가 없으면 대화 turn ID를 사용하며, 실제 좌표가 없을 때 위치 정보를 만들지 않도록 회귀 테스트를 추가했습니다.
+- K-마루(`/discover`) 해외 방문자 대상 다국어(ko/en/ja/zh) 전면 적용 및 콘텐츠 탐색 고도화:
+  - `k-culture-discovery` 전 페이지·컴포넌트에 `next-intl` 번역과 `@/i18n/navigation` 로케일 라우팅을 적용하고, 17개 시·도 지역명 다국어 매핑 및 비한국어 로케일 작품 영문 제목 우선 표기 지원.
+  - 메인 히어로를 최대 5개 추천 장소를 순환하는 에디토리얼 큐레이션 캐러셀(`FeaturedCarousel`)로 개편하고 `prefers-reduced-motion` 및 키보드 내비게이션을 지원.
+  - 작품 상세(`/discover/works/[workId]`)에 촬영지 카카오 미니맵, 번호 핀·경로 폴리라인, 성지순례 타임라인(`WorkLocationsMapSection`) 추가.
+  - 장소 상세의 K-콘텐츠 이력 카드(`KContentRelationCard`)에 작품 유형별 컬러 액센트 바, 장면 맥락 콜아웃, 검증 배지, 작품 촬영지 바로가기 링크 추가.
+
 - Next.js 국제화(`next-intl`) 컨텍스트 및 레이아웃 구조 개선:
   - `RootLayout`(`src/app/layout.tsx`)에서 `Header`, `PageContainer`, `Footer`를 `[locale]/layout.tsx` 내부(`NextIntlClientProvider`)로 이동하여 클라이언트 네비게이션 시 `No intl context found` 런타임 오류 해결.
   - `PageContainer`에서 `@/i18n/navigation`의 `usePathname`을 사용하여 로케일 프리픽스 제거 후 경로 일치 검사하도록 개선.

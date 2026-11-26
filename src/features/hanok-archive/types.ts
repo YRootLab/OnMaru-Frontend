@@ -6,7 +6,7 @@
 
 
 
-export type VillageType = '고태' | '고궁' | '사찰' | '펜션' | '게스트하우스' | '펜션형숙박시설' | '문화유산' | string;
+export type VillageType = '고택' | '고궁' | '사찰' | '펜션' | '게스트하우스' | '펜션형숙박시설' | '문화유산' | string;
 export const STAY_TYPE: VillageType = '한옥스테이';
 
 export interface Village {

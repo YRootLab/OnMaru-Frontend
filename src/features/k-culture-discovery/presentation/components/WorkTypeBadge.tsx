@@ -1,6 +1,7 @@
 'use client';
 
 import type { ComponentProps } from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -13,12 +14,12 @@ import {
 import { fontSize } from '@/design-system/tokens';
 import type { WorkType } from '../../domain/types';
 
-const WORK_TYPE_META: Record<WorkType, { label: string; icon: ComponentProps<typeof HugeiconsIcon>['icon'] }> = {
-  DRAMA: { label: '드라마', icon: ClapperboardIcon },
-  MOVIE: { label: '영화', icon: Film01Icon },
-  VARIETY: { label: '예능', icon: Tv01Icon },
-  MUSIC_VIDEO: { label: 'MV', icon: Music02Icon },
-  ARTIST: { label: '아티스트', icon: HeadphonesIcon },
+const WORK_TYPE_ICON: Record<WorkType, ComponentProps<typeof HugeiconsIcon>['icon']> = {
+  DRAMA: ClapperboardIcon,
+  MOVIE: Film01Icon,
+  VARIETY: Tv01Icon,
+  MUSIC_VIDEO: Music02Icon,
+  ARTIST: HeadphonesIcon,
 };
 
 const Badge = styled.span<{ $variant: 'dark' | 'light' }>`
@@ -42,11 +43,13 @@ export interface WorkTypeBadgeProps {
 }
 
 export default function WorkTypeBadge({ type, variant = 'dark', size = 12 }: WorkTypeBadgeProps) {
-  const { label, icon } = WORK_TYPE_META[type] ?? WORK_TYPE_META.DRAMA;
+  const t = useTranslations('kCulture');
+  const resolvedType: WorkType = WORK_TYPE_ICON[type] ? type : 'DRAMA';
+  const icon = WORK_TYPE_ICON[resolvedType];
   return (
     <Badge $variant={variant}>
       <HugeiconsIcon icon={icon} size={size} strokeWidth={2} aria-hidden="true" />
-      {label}
+      {t(`workType.${resolvedType}`)}
     </Badge>
   );
 }

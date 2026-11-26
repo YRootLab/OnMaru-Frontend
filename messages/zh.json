@@ -929,6 +929,49 @@
       "officialPage": "前往官方页面",
       "notFound": "找不到作品信息，请返回列表重新选择。",
       "loadFailed": "无法加载数据，请稍后重试。"
+    },
+    "regions": {
+      "seoul": "首尔",
+      "incheon": "仁川",
+      "daejeon": "大田",
+      "daegu": "大邱",
+      "gwangju": "光州",
+      "busan": "釜山",
+      "ulsan": "蔚山",
+      "sejong": "世宗",
+      "gyeonggi": "京畿",
+      "gangwon": "江原",
+      "chungbuk": "忠北",
+      "chungnam": "忠南",
+      "jeonbuk": "全北",
+      "jeonnam": "全南",
+      "gyeongbuk": "庆北",
+      "gyeongnam": "庆南",
+      "jeju": "济州"
+    },
+    "carousel": {
+      "editorialLabel": "精选推荐",
+      "carouselLabel": "K-Culture精选拍摄地轮播",
+      "prevSlide": "上一个推荐地点",
+      "nextSlide": "下一个推荐地点",
+      "slideIndicator": "切换到第{index}个推荐地点"
+    },
+    "workMap": {
+      "mapTitle": "拍摄地地图与路线",
+      "mapSubtitle": "沿着作品足迹开启打卡之旅",
+      "mapAriaLabel": "{title}拍摄地地图",
+      "loadingMap": "正在加载拍摄地地图…",
+      "mapUnavailable": "暂时无法加载地图，请浏览下方拍摄地列表。",
+      "noCoordinates": "暂无坐标信息，请浏览下方拍摄地列表。",
+      "courseCount": "{count}处拍摄地",
+      "stopNumber": "第{num}站",
+      "viewPlace": "查看地点",
+      "openAllLocations": "在探索页查看全部 →"
+    },
+    "sceneCard": {
+      "sceneContextLabel": "场景背景",
+      "viewWorkDetail": "查看作品拍摄地",
+      "verifiedLabel": "已核实"
     }
   },
   "seasons": {

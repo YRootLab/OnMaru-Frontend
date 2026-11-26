@@ -1,26 +1,17 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
-import type { IconSvgElement } from '@hugeicons/react';
 import { Layers01Icon } from '@hugeicons/core-free-icons';
 import { meok, ringShadow } from '@/design-system/tokens';
 import WorkTypeBadge from './WorkTypeBadge';
 import { useTourApiImage } from '../hooks/useTourApiImage';
+import { getLocalizedRegionName } from '../utils/regionLabel';
 import type { DiscoveryPlaceSummary } from '../../domain/types';
-
-const REGION_CODE_MAP: Record<string, string> = {
-  '1': '서울', '2': '인천', '3': '대전', '4': '대구', '5': '광주',
-  '6': '부산', '7': '울산', '8': '세종', '31': '경기', '32': '강원',
-  '33': '충북', '34': '충남', '35': '전북', '36': '전남', '37': '경북',
-  '38': '경남', '39': '제주', '11': '서울', '26': '부산', '27': '대구',
-  '28': '인천', '29': '광주', '30': '대전', '41': '경기', '42': '강원',
-  '43': '충북', '44': '충남', '45': '전북', '46': '전남', '47': '경북',
-  '48': '경남', '50': '제주',
-};
 
 const shimmer = keyframes`
   0%   { background-position: 200% 0; }
@@ -69,7 +60,7 @@ const ImageWrap = styled.div`
   position: relative;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  background: #ccc8c0;
+  background: #d9d9d7;
 
   @media (min-width: 480px) {
     aspect-ratio: 4 / 3;
@@ -92,12 +83,12 @@ const FallbackWrap = styled.div<{ $type?: string }>`
   height: 100%;
   background: ${({ $type }) => {
     switch ($type) {
-      case 'DRAMA':    case 'K_DRAMA':   return 'linear-gradient(160deg, #d6d0e8 0%, #c8c0dc 100%)';
-      case 'MOVIE':    case 'K_MOVIE':   return 'linear-gradient(160deg, #c8ccd8 0%, #bcc0cc 100%)';
+      case 'DRAMA':    case 'K_DRAMA':   return 'linear-gradient(160deg, #d8d4e6 0%, #cac4dc 100%)';
+      case 'MOVIE':    case 'K_MOVIE':   return 'linear-gradient(160deg, #cfd4df 0%, #c1c7d4 100%)';
       case 'MUSIC_VIDEO': case 'K_POP_MV':
-      case 'ARTIST':   case 'K_ARTIST':  return 'linear-gradient(160deg, #d8d0e8 0%, #ccbede 100%)';
-      case 'VARIETY':                     return 'linear-gradient(160deg, #dcd8cc 0%, #cec8bc 100%)';
-      default:                            return 'linear-gradient(160deg, #d4cfc6 0%, #c8c2b8 100%)';
+      case 'ARTIST':   case 'K_ARTIST':  return 'linear-gradient(160deg, #dad2e8 0%, #ccc0de 100%)';
+      case 'VARIETY':                     return 'linear-gradient(160deg, #d6deda 0%, #c8d2cd 100%)';
+      default:                            return 'linear-gradient(160deg, #e5e5e3 0%, #d9d9d7 100%)';
     }
   }};
 
@@ -108,7 +99,7 @@ const FallbackWrap = styled.div<{ $type?: string }>`
         case 'MOVIE':    case 'K_MOVIE':  return 'linear-gradient(160deg, #181c2e 0%, #12162a 100%)';
         case 'MUSIC_VIDEO': case 'K_POP_MV':
         case 'ARTIST':   case 'K_ARTIST': return 'linear-gradient(160deg, #1c1530 0%, #140e28 100%)';
-        case 'VARIETY':                    return 'linear-gradient(160deg, #201e18 0%, #181612 100%)';
+        case 'VARIETY':                    return 'linear-gradient(160deg, #17221f 0%, #111a18 100%)';
         default:                           return 'linear-gradient(160deg, #1a1e2e 0%, #111520 100%)';
       }
     }};
@@ -207,7 +198,7 @@ const MetaSep = styled.span`
 export const SkeletonCard = styled.div`
   border-radius: 16px;
   overflow: hidden;
-  background: ${meok[100]};
+  background: #f5f5f4;
 
   [data-theme='dark'] & {
     background: #161c28;
@@ -216,7 +207,7 @@ export const SkeletonCard = styled.div`
 
 const SkImgWrap = styled.div`
   aspect-ratio: 3 / 4;
-  background: linear-gradient(90deg, ${meok[100]} 25%, #ece9e3 50%, ${meok[100]} 75%);
+  background: linear-gradient(90deg, #f5f5f4 25%, #e5e5e3 50%, #f5f5f4 75%);
   background-size: 200% 100%;
   animation: ${shimmer} 1.8s infinite ease-in-out;
 
@@ -225,7 +216,7 @@ const SkImgWrap = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 75%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
     background-size: 200% 100%;
   }
 `;
@@ -245,14 +236,13 @@ export interface DiscoveryPlaceCardProps {
 }
 
 export default function DiscoveryPlaceCard({ place, index = 0, onClick }: DiscoveryPlaceCardProps) {
+  const t = useTranslations('kCulture');
   const primaryRole = place.placeRoles[0];
   const relation = place.featuredRelation;
   const resolvedImage = useTourApiImage(place.placeId, place.placeImage);
   const workType = relation?.type ?? place.topics?.[0] ?? undefined;
 
-  const rawRegion = place.region?.nameKo?.trim();
-  const regionName = rawRegion || (place.region?.code ? REGION_CODE_MAP[place.region.code] : null);
-
+  const regionName = getLocalizedRegionName(place.region, t);
   const metaSecond = relation?.workTitle ?? primaryRole?.labelKo ?? null;
 
   return (
@@ -278,7 +268,7 @@ export default function DiscoveryPlaceCard({ place, index = 0, onClick }: Discov
           {place.matchingWorkCount > 1 && (
             <MultiPill>
               <HugeiconsIcon icon={Layers01Icon} size={9} strokeWidth={2} aria-hidden="true" />
-              {place.matchingWorkCount}편
+              {t('workCountSuffix', { count: place.matchingWorkCount })}
             </MultiPill>
           )}
         </TopRow>

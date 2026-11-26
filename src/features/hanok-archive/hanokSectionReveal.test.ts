@@ -5,7 +5,7 @@ describe('HANOK_REVEAL_SECTION_IDS', () => {
   it('defines one stable boundary for each major archive section', () => {
     expect(HANOK_REVEAL_SECTION_IDS).toEqual([
       'hanok-intro',
-      'hanok-kculture-themes',
+      'hanok-hero',
       'hanok-structure',
       'hanok-grid',
       'hanok-seasons',

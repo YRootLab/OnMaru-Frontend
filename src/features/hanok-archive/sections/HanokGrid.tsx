@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { useTranslations } from 'next-intl';
-import { meok, surface, typographyRole, spacingLayout, mq } from '@/design-system/tokens';
+import { meok, palette, surface, typographyRole, spacingLayout, mq } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import FilterBar, { type VillageTypeFilter } from '@/features/hanok-archive/components/FilterBar';
 import VillageCard from '@/features/hanok-archive/components/VillageCard';
@@ -82,6 +82,52 @@ const EmptyState = styled.div`
 
 
 
+
+const CURATION_THEMES = [
+  { label: '세계유산 한옥', badge: '세계유산' },
+  { label: '고택 숙박', badge: '고택숙박' },
+  { label: '전통 정원', badge: '전통정원' },
+  { label: '산자락 한옥', badge: '산자락' },
+  { label: '도심 접근', badge: '도심접근' },
+  { label: '온돌 체험', badge: '온돌구들' },
+] as const;
+
+const CurationRow = styled.div`
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 20px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+`;
+
+const CurationChip = styled.button<{ $active: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: ${typographyRole.label.fontSize};
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: 1px solid ${({ $active }) => ($active ? palette.juhong[500] : meok[200])};
+  background: ${({ $active }) => ($active ? palette.juhong[500] : 'transparent')};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+
+  &:hover {
+    border-color: ${palette.juhong[400]};
+    color: ${({ $active }) => ($active ? '#ffffff' : palette.juhong[600])};
+  }
+
+  [data-theme='dark'] & {
+    border-color: ${({ $active }) => ($active ? palette.juhong[500] : 'rgba(255,255,255,0.14)')};
+    background: ${({ $active }) => ($active ? palette.juhong[500] : 'transparent')};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[300])};
+  }
+`;
 
 const ResetAll = styled.button`
   padding: 8px 16px;
@@ -169,6 +215,24 @@ export default function HanokGrid({
         title={t('sectionTitle')}
         subtitle={t('recordCount', { count: filteredCount })}
       />
+
+      <CurationRow>
+        {CURATION_THEMES.filter((theme) =>
+          villages.some((v) => v.badges.includes(theme.badge)),
+        ).map((theme) => {
+          const isActive = state.activeBadges.includes(theme.badge);
+          return (
+            <CurationChip
+              key={theme.badge}
+              type="button"
+              $active={isActive}
+              onClick={() => handleBadgeToggle(theme.badge)}
+            >
+              {theme.label}
+            </CurationChip>
+          );
+        })}
+      </CurationRow>
 
       <FilterBar
         villages={villages}
