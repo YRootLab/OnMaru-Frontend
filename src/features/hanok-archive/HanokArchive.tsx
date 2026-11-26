@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import { meok, surface, typographyRole, spacingLayout, mq } from '@/design-system/tokens';
+import { meok, surface, spacingLayout, mq } from '@/design-system/tokens';
 import HanokGrid from '@/features/hanok-archive/sections/HanokGrid';
 import HanokStayAccordion from '@/features/hanok-archive/sections/HanokStayAccordion';
 import HanokMap from '@/features/hanok-archive/sections/HanokMap';
