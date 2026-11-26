@@ -1321,7 +1321,7 @@ function AssistantResponse({
     const requestId = response.error?.requestId;
     return <Bubble>{getErrorCopy(response.error?.code)}{requestId ? ` 요청 번호: ${requestId}` : ''}</Bubble>;
   }
-  if (response.outcome === 'NO_RESULTS') return <Bubble>{getNoResultsCopy()}</Bubble>;
+  if (response.outcome === 'NO_RESULTS') return <Bubble>{getNoResultsCopy(response.resultReason)}</Bubble>;
   if (response.outcome === 'CLARIFICATION_REQUIRED') {
     return <ClarificationBlock clarification={response.clarification} onAnswer={onAnswerClarification} />;
   }

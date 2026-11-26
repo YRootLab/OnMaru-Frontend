@@ -343,4 +343,33 @@ describe('JourneyChatInterface', () => {
       expect(markup).toContain('서울 종로구 사직로 161');
     });
   });
+
+  it('uses the reason-specific copy for a no-results turn', () => {
+    const markup = renderToStaticMarkup(
+      <JourneyChatInterface
+        explorations={[]}
+        activeExplorationId="exp-1"
+        turns={[
+          {
+            turnId: 'turn-1',
+            query: '제주 추천',
+            createdAt: '2026-11-26T00:00:00Z',
+            runId: 'run-1',
+            response: { status: 'COMPLETED', outcome: 'NO_RESULTS', resultReason: 'NO_RELEVANT_CANDIDATES', summary: null, board: null, proposal: null, clarification: null, error: null },
+          },
+        ] as never}
+        pendingQuery={null}
+        progress={null}
+        loading={false}
+        loadingOlder={false}
+        hasOlderTurns={false}
+        error={null}
+        onSelectConversation={vi.fn()}
+        onLoadOlder={vi.fn()}
+        onSend={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+    expect(markup).toContain('조건을 조금 완화해 볼까요?');
+  });
 });

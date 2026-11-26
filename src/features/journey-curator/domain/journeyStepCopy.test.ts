@@ -80,4 +80,19 @@ describe('run item copy (BE 1.4)', () => {
     expect(getStageForStepKey('CHECK')).toBe('VALIDATING');
   });
 });
+
+describe('no-results reason copy (AI resultReason)', () => {
+  it('explains that no registered place matches the region or condition', () => {
+    expect(getNoResultsCopy('NO_CANDIDATES')).toBe('해당 지역이나 조건에 맞는 등록 장소를 찾지 못했어요. 지역 범위를 넓혀 볼까요?');
+  });
+
+  it('explains that candidates exist but none fit the requested schedule', () => {
+    expect(getNoResultsCopy('NO_RELEVANT_CANDIDATES')).toBe('검색된 장소는 있지만 요청하신 일정과 조건에 꼭 맞는 곳이 없어요. 조건을 조금 완화해 볼까요?');
+  });
+
+  it('keeps the generic no-results copy when no reason is given', () => {
+    expect(getNoResultsCopy(null)).toBe('조건에 맞는 장소를 찾지 못했어요. 지역이나 분위기를 조금 넓혀 볼까요?');
+    expect(getNoResultsCopy()).toBe('조건에 맞는 장소를 찾지 못했어요. 지역이나 분위기를 조금 넓혀 볼까요?');
+  });
+});
 });

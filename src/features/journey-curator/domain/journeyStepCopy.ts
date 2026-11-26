@@ -91,8 +91,16 @@ export function getCancelledCopy(): string {
   return RESULT_COPY.CANCELLED;
 }
 
-export function getNoResultsCopy(): string {
-  return RESULT_COPY.NO_RESULTS;
+/** AI 엔진 resultReason(0건 사유)별 안내. 사유가 없으면 일반 안내를 쓴다. */
+export type NoResultsReason = 'NO_CANDIDATES' | 'NO_RELEVANT_CANDIDATES';
+
+const NO_RESULTS_REASON_COPY: Record<NoResultsReason, string> = {
+  NO_CANDIDATES: '해당 지역이나 조건에 맞는 등록 장소를 찾지 못했어요. 지역 범위를 넓혀 볼까요?',
+  NO_RELEVANT_CANDIDATES: '검색된 장소는 있지만 요청하신 일정과 조건에 꼭 맞는 곳이 없어요. 조건을 조금 완화해 볼까요?',
+};
+
+export function getNoResultsCopy(reason?: NoResultsReason | null): string {
+  return (reason && NO_RESULTS_REASON_COPY[reason]) || RESULT_COPY.NO_RESULTS;
 }
 
 export function getClarificationCopy(): string {
