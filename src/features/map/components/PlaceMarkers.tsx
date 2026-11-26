@@ -822,6 +822,7 @@ export default function PlaceMarkers() {
   const mode = useMapStore((s) => s.mode);
   const viewportItems = useMapStore((s) => s.viewportItems);
   const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
+  const listItems = useMapStore((s) => s.listItems);
   const infoCategory = useMapStore((s) => s.infoCategory);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
@@ -860,9 +861,14 @@ export default function PlaceMarkers() {
     prevLevelRef.current = committedLevel;
 
     const presentation = getInfoPlaceMarkerPresentation(viewportRenderMode);
-    const allActiveItems = presentation === 'full'
+    const rawMarkerItems = presentation === 'full'
       ? selectInfoMarkerItems(viewportRenderMode, viewportItems)
       : [];
+    const allActiveItems = rawMarkerItems.map((item) => {
+      if (item.image) return item;
+      const match = listItems.find((li) => li.placeId === item.id);
+      return match?.thumbnailUrl ? { ...item, image: match.thumbnailUrl } : item;
+    });
     if (!map || mode !== 'info' || allActiveItems.length === 0 || !window.kakao?.maps) {
       // On mode boundary with no new items, retire gracefully
       if (modeChanged && overlayMapRef.current.size > 0) {
@@ -925,7 +931,7 @@ export default function PlaceMarkers() {
         ? `${estimate.distanceStr} · ${estimate.travelTimeStr}`
         : estimate.distanceStr;
 
-      const placeIsHanok = item.isTraditional === true || isHanok(item);
+      const placeIsHanok = isHanok(item);
 
       const catLabel = item.category === 'stay'
         ? (placeIsHanok ? '한옥 숙소' : '주변 숙소')

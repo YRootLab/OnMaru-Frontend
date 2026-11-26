@@ -72,7 +72,7 @@ describe('CulturalDiscoveryCollection', () => {
       />,
     );
 
-    const placeButtons = screen.getAllByRole('button', { name: /^한옥 장소/ });
+    const placeButtons = screen.getAllByRole('button', { name: /^한옥 장소 \d+$/ });
     expect(placeButtons).toHaveLength(4);
     expect(screen.getByRole('button', { name: '한옥 장소 1' })).toBeTruthy();
     expect(screen.getByRole('button', { name: '한옥 장소 4' })).toBeTruthy();

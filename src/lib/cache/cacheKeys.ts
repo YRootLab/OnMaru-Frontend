@@ -24,6 +24,8 @@ export const CK = {
     `home:popular-sounds:${window}:${lang}`,
   homePopularRegions: (lang = 'ko-KR') =>
     `home:popular-regions:${lang}`,
+  homeLatestReviews: () =>
+    'home:latest-reviews',
   hanokArchive: () =>
     'hanok:archive',
   sorimaruStories: (category: string, keyword: string, page: number, rows: number, lang = 'ko-KR') =>

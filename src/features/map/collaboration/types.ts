@@ -38,7 +38,7 @@ export interface CursorState {
 export interface CreateRoomResponse {
   schemaVersion: string;
   room: RoomInfo & { role: RoomRole };
-  invite: { token: string; shareUrl: string; expiresAt: string };
+  invite: { id: string; token: string; shareUrl: string; expiresAt: string };
 }
 
 export interface JoinRoomResponse {
@@ -62,7 +62,7 @@ export interface SnapshotResponse {
 
 export interface InviteResponse {
   schemaVersion: string;
-  invite: { token: string; shareUrl: string; expiresAt: string };
+  invite: { id: string; token: string; shareUrl: string; expiresAt: string };
 }
 
 export interface PinAddResponse {
@@ -157,5 +157,5 @@ export interface CollabContextValue {
   addPin: (placeId: string) => void;
   removePin: (pinId: string) => void;
   sendCursor: (lat: number | null, lng: number | null) => void;
-  createInvite: () => Promise<{ shareUrl: string }>;
+  createInvite: () => Promise<{ shareUrl: string; inviteId: string }>;
 }

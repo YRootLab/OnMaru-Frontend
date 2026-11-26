@@ -382,9 +382,7 @@ function PlaceListItemComponent({
           <BadgeRow>
             <CategoryTag $category={item.category}>{cleanCatLabel}</CategoryTag>
             {placeIsHanok && (
-              <EmphasisBadge size="sm" showIcon title="한옥 인증 및 전통 건축">
-                한옥
-              </EmphasisBadge>
+              <EmphasisBadge size="sm" showIcon title="한옥 인증 및 전통 건축" />
             )}
             {hasSorimaru && (
               <SorimaruBadge title="소리마루 오디오 해설 지원 장소">

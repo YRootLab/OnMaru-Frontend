@@ -1,16 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import { meok, lightPalette, surface, typographyRole, spacingLayout, mq } from '@/design-system/tokens';
+import { meok, surface, spacingLayout, mq } from '@/design-system/tokens';
 import HanokGrid from '@/features/hanok-archive/sections/HanokGrid';
 import HanokStayAccordion from '@/features/hanok-archive/sections/HanokStayAccordion';
 import HanokMap from '@/features/hanok-archive/sections/HanokMap';
 import HanokPolaroidClothesline from '@/features/hanok-archive/sections/HanokPolaroidClothesline';
 import HanokSideIndex from '@/features/hanok-archive/components/HanokSideIndex';
 import HanokManifestoCta from '@/features/hanok-archive/sections/HanokManifestoCta';
+import HanokHero from '@/features/hanok-archive/sections/HanokHero';
 import HanokStructureCards from '@/features/hanok-archive/structure/HanokStructureCards';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 import { useArchiveData } from '@/features/hanok-archive/hooks/useArchiveData';
@@ -18,7 +20,6 @@ import { useHanokSection1 } from '@/features/hanok-archive/hooks/useHanokSection
 import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReveal';
 import type { HanokFilterState } from '@/features/hanok-archive/sections/hanokFilterQuery';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
-import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 import { HanokAtmosphereBackground } from '@/shared/components/HanokBackground';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import HanokArchiveIntroHeading from '@/features/hanok-archive/components/HanokArchiveIntroHeading';
@@ -181,17 +182,6 @@ const Lead = styled.p`
   }
 `;
 
-const SourceNote = styled.p`
-  font-size: ${typographyRole.label.fontSize};
-  color: ${meok[500]};
-  margin: 0;
-
-  strong {
-    font-weight: 700;
-    color: ${lightPalette.juhong[500]};
-  }
-`;
-
 interface HanokArchiveProps {
   villages: Village[];
   meta: VillageMeta;
@@ -206,6 +196,7 @@ export default function HanokArchive({
   initialFilters,
   seasonGateway,
 }: HanokArchiveProps) {
+  const searchParams = useSearchParams();
   const [selectedDogamVillage, setSelectedDogamVillage] = useState<Village | null>(null);
   const [selectedStay, setSelectedStay] = useState<Village | null>(null);
   const archiveData = useArchiveData(villages, meta);
@@ -218,6 +209,49 @@ export default function HanokArchive({
   const section1Villages = rawSection1Villages
     ? rawSection1Villages.filter((v) => Boolean(v.image && v.hasImage !== false))
     : null;
+
+  const pushModal = useCallback((key: 'hanok' | 'stay', id: string | null) => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('hanok');
+    url.searchParams.delete('stay');
+    if (id) url.searchParams.set(key, id);
+    window.history.replaceState(null, '', url.toString());
+  }, []);
+
+  const openDogam = useCallback((v: Village | null) => {
+    setSelectedDogamVillage(v);
+    pushModal('hanok', v?.id ?? null);
+  }, [pushModal]);
+
+  const openStay = useCallback((v: Village | null) => {
+    setSelectedStay(v);
+    pushModal('stay', v?.id ?? null);
+  }, [pushModal]);
+
+  useEffect(() => {
+    const hanokId = searchParams.get('hanok');
+    const stayId = searchParams.get('stay');
+    if (!hanokId && !stayId) {
+      setSelectedDogamVillage(null);
+      setSelectedStay(null);
+      return;
+    }
+    const all = archiveData.villages;
+    if (all.length === 0) return;
+    if (hanokId) {
+      const found = all.find((v) => v.id === hanokId);
+      if (found) {
+        setSelectedDogamVillage(found);
+        setSelectedStay(null);
+      }
+    } else if (stayId) {
+      const found = all.find((v) => v.id === stayId);
+      if (found) {
+        setSelectedStay(found);
+        setSelectedDogamVillage(null);
+      }
+    }
+  }, [searchParams, archiveData.villages]);
 
   useEffect(
     () =>
@@ -258,7 +292,7 @@ export default function HanokArchive({
                   {section1Villages ? (
                     <HanokPolaroidClothesline
                       villages={section1Villages}
-                      onSelectVillage={setSelectedDogamVillage}
+                      onSelectVillage={openDogam}
                     />
                   ) : (
                     <OniSearchEmpty
@@ -277,26 +311,25 @@ export default function HanokArchive({
           </IntroStage>
         </StyledVesselReveal>
 
-        {
+        {section1Villages && section1Villages.length >= 2 && (
+          <ChapterBreak>
+            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.hero}>
+              <SectionContainer>
+                <HanokHero
+                  villages={section1Villages}
+                  onSelectVillage={openDogam}
+                />
+              </SectionContainer>
+            </StyledVesselReveal>
+          </ChapterBreak>
+        )}
 
-
-
-}
-        <ChapterBreak>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure}>
-            <SectionContainer>
-              <HanokStructureCards />
-            </SectionContainer>
-          </StyledVesselReveal>
-        </ChapterBreak>
-
-        {}
         <ChapterBreak>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.grid}>
             <SectionContainer>
               <HanokGrid
                 villages={archiveData.villages}
-                onSelectVillage={setSelectedDogamVillage}
+                onSelectVillage={openDogam}
                 initialFilters={initialFilters}
               />
             </SectionContainer>
@@ -313,7 +346,7 @@ export default function HanokArchive({
               <SectionContainer>
                 <HanokStayAccordion
                   villages={archiveData.villages}
-                  onSelectStay={setSelectedStay}
+                  onSelectStay={openStay}
                 />
               </SectionContainer>
             </StyledVesselReveal>
@@ -328,9 +361,9 @@ export default function HanokArchive({
                 villages={archiveData.villages}
                 onSelectVillage={(v) => {
                   if (v.type === '한옥스테이') {
-                    setSelectedStay(v);
+                    openStay(v);
                   } else {
-                    setSelectedDogamVillage(v);
+                    openDogam(v);
                   }
                 }}
               />
@@ -338,12 +371,14 @@ export default function HanokArchive({
           </StyledVesselReveal>
         </ChapterBreak>
 
-        {}
-        {
+        <ChapterBreak>
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure}>
+            <SectionContainer>
+              <HanokStructureCards />
+            </SectionContainer>
+          </StyledVesselReveal>
+        </ChapterBreak>
 
-
-
-}
         <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.manifesto}>
           <HanokManifestoCta />
         </StyledVesselReveal>
@@ -354,7 +389,7 @@ export default function HanokArchive({
         <HanokDogamDetailModal
           key={selectedDogamVillage.id}
           village={selectedDogamVillage}
-          onClose={() => setSelectedDogamVillage(null)}
+          onClose={() => openDogam(null)}
         />
       )}
 
@@ -363,7 +398,7 @@ export default function HanokArchive({
         <HanokStayDetailModal
           key={selectedStay.id}
           stay={selectedStay}
-          onClose={() => setSelectedStay(null)}
+          onClose={() => openStay(null)}
         />
       )}
     </Root>

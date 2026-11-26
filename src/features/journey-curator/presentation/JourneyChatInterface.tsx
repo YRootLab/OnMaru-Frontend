@@ -863,43 +863,29 @@ const QuickChipButton = styled.button`
   }
 `;
 
-const Composer = styled.form`
+const ComposerWrapper = styled.div`
   position: relative;
   width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 9999px;
-  padding: 6px 8px 6px 22px;
-  border: 1.5px solid rgba(255, 85, 0, 0.32);
-  box-shadow:
-    0 0 0 1px rgba(255, 85, 0, 0.12),
-    0 4px 20px -2px rgba(255, 85, 0, 0.14),
-    0 12px 36px -4px rgba(255, 136, 64, 0.18);
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  box-sizing: border-box;
+  isolation: isolate;
 
   @keyframes chatAmbientGlow {
     0% {
       background-position: 0% 50%;
       filter: blur(14px);
-      transform: scale(0.99);
-      opacity: 0.72;
+      transform: scale(0.995);
+      opacity: 0.75;
     }
     50% {
       background-position: 100% 50%;
       filter: blur(18px);
-      transform: scale(1.01);
-      opacity: 0.9;
+      transform: scale(1.008);
+      opacity: 0.95;
     }
     100% {
       background-position: 0% 50%;
       filter: blur(14px);
-      transform: scale(0.99);
-      opacity: 0.72;
+      transform: scale(0.995);
+      opacity: 0.75;
     }
   }
 
@@ -910,18 +896,18 @@ const Composer = styled.form`
     border-radius: 9999px;
     background: linear-gradient(
       120deg,
-      rgba(255, 85, 0, 0.28) 0%,
-      rgba(255, 136, 64, 0.2) 35%,
-      rgba(255, 60, 0, 0.14) 70%,
-      rgba(255, 106, 16, 0.26) 100%
+      rgba(255, 85, 0, 0.32) 0%,
+      rgba(255, 136, 64, 0.24) 35%,
+      rgba(255, 60, 0, 0.16) 70%,
+      rgba(255, 106, 16, 0.3) 100%
     );
     background-size: 250% 250%;
     filter: blur(14px);
-    opacity: 0.75;
+    opacity: 0.8;
     pointer-events: none;
     animation: chatAmbientGlow 7s ease-in-out infinite;
     transition: opacity 0.3s ease, filter 0.3s ease;
-    z-index: -2;
+    z-index: 0;
   }
 
   &::after {
@@ -931,15 +917,15 @@ const Composer = styled.form`
     border-radius: 9999px;
     background: radial-gradient(
       180px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-      rgba(255, 85, 0, 0.44) 0%,
-      rgba(255, 136, 64, 0.22) 40%,
+      rgba(255, 85, 0, 0.48) 0%,
+      rgba(255, 136, 64, 0.25) 40%,
       transparent 75%
     );
     filter: blur(10px);
     opacity: var(--mouse-active, 0);
     pointer-events: none;
     transition: opacity 0.25s ease;
-    z-index: -1;
+    z-index: 1;
   }
 
   &:hover::before,
@@ -949,20 +935,13 @@ const Composer = styled.form`
   }
 
   [data-theme='dark'] & {
-    background: rgba(22, 28, 40, 0.82);
-    border: 1.5px solid rgba(255, 106, 16, 0.4);
-    box-shadow:
-      0 0 0 1px rgba(255, 106, 16, 0.2),
-      0 8px 32px 0 rgba(0, 0, 0, 0.45),
-      0 0 24px rgba(255, 106, 16, 0.18);
-
     &::before {
       background: linear-gradient(
         120deg,
-        rgba(255, 106, 16, 0.35) 0%,
-        rgba(255, 136, 64, 0.22) 35%,
-        rgba(255, 60, 0, 0.16) 70%,
-        rgba(255, 106, 16, 0.32) 100%
+        rgba(255, 106, 16, 0.38) 0%,
+        rgba(255, 136, 64, 0.24) 35%,
+        rgba(255, 60, 0, 0.18) 70%,
+        rgba(255, 106, 16, 0.35) 100%
       );
       background-size: 250% 250%;
       filter: blur(16px);
@@ -973,8 +952,8 @@ const Composer = styled.form`
     &::after {
       background: radial-gradient(
         180px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        rgba(255, 106, 16, 0.5) 0%,
-        rgba(255, 136, 64, 0.26) 40%,
+        rgba(255, 106, 16, 0.52) 0%,
+        rgba(255, 136, 64, 0.28) 40%,
         transparent 75%
       );
     }
@@ -985,20 +964,66 @@ const Composer = styled.form`
       animation: none;
     }
   }
+`;
+
+const Composer = styled.form`
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 9999px;
+  padding: 6px 8px 6px 22px;
+  border: 1.5px solid rgba(255, 85, 0, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(255, 85, 0, 0.12),
+    0 4px 20px -2px rgba(255, 85, 0, 0.14),
+    0 12px 36px -4px rgba(255, 136, 64, 0.18);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+
+  &:hover {
+    border-color: rgba(255, 85, 0, 0.55);
+    box-shadow:
+      0 0 0 1.5px rgba(255, 85, 0, 0.2),
+      0 6px 24px -2px rgba(255, 85, 0, 0.2),
+      0 14px 40px -4px rgba(255, 136, 64, 0.22);
+  }
 
   &:focus-within {
     transform: translateY(-2px);
     border-color: #FF5500;
     box-shadow:
-      0 0 0 2px rgba(255, 85, 0, 0.35),
-      0 0 28px rgba(255, 85, 0, 0.26),
+      0 0 0 2px rgba(255, 85, 0, 0.38),
+      0 0 28px rgba(255, 85, 0, 0.28),
       0 14px 40px rgba(255, 136, 64, 0.24);
+  }
 
-    [data-theme='dark'] & {
+  [data-theme='dark'] & {
+    background: rgba(22, 28, 40, 0.88);
+    border: 1.5px solid rgba(255, 106, 16, 0.45);
+    box-shadow:
+      0 0 0 1px rgba(255, 106, 16, 0.2),
+      0 8px 32px 0 rgba(0, 0, 0, 0.45),
+      0 0 24px rgba(255, 106, 16, 0.18);
+
+    &:hover {
+      border-color: rgba(255, 106, 16, 0.65);
+      box-shadow:
+        0 0 0 1.5px rgba(255, 106, 16, 0.28),
+        0 8px 32px 0 rgba(0, 0, 0, 0.5),
+        0 0 28px rgba(255, 106, 16, 0.25);
+    }
+
+    &:focus-within {
       border-color: #FF6A10;
       box-shadow:
-        0 0 0 2px rgba(255, 106, 16, 0.45),
-        0 0 32px rgba(255, 106, 16, 0.35),
+        0 0 0 2px rgba(255, 106, 16, 0.48),
+        0 0 32px rgba(255, 106, 16, 0.38),
         0 14px 44px rgba(0, 0, 0, 0.6);
     }
   }
@@ -1102,7 +1127,7 @@ const SendButton = styled.button`
   }
 `;
 
-export function findPlaces(board: JourneyBoard | null): PlaceResource[] {
+export function findPlaces(board: JourneyBoard | null, fallbackPlanId?: string): PlaceResource[] {
   if (!board) return [];
 
   // 1) Direct PlaceResource from board.resources
@@ -1129,13 +1154,11 @@ export function findPlaces(board: JourneyBoard | null): PlaceResource[] {
 
   // 3) Fallback: BentoJourneyPlan structure (hanokCard + routeCard)
   const bento = board as any;
-  // 플랜 식별자: board.id 우선 (ID 안전 문자만 유지), 없으면 제목 기반, 최종 폴백 'plan'
-  // 응답 객체에는 id가 있지만 JourneyBoard 타입에는 아직 선언되지 않아 런타임 값만 안전하게 읽는다.
-  const rawId = (board as { id?: unknown }).id;
-  const idKey = (typeof rawId === 'string' ? rawId : '').replace(/[^\w-]+/g, '').slice(0, 32);
-  const titleKey = (board.title || board.querySummary || '').replace(/\W+/g, '').slice(0, 16);
-  const planKey = idKey || titleKey || 'plan';
+  const planKey = typeof bento.id === 'string' && bento.id.trim()
+    ? bento.id.trim()
+    : fallbackPlanId?.trim() ?? '';
   const fallbackPlaces: PlaceResource[] = [];
+  if (!planKey) return fallbackPlaces;
   if (bento.hanokCard) {
     fallbackPlaces.push({
       ref: { type: 'PLACE', id: `place-${planKey}-hanok` },
@@ -1175,9 +1198,9 @@ const PLACE_PLACEHOLDER_IMAGE = '/images/hanok/hanok-main.png';
  * 1) response.board 우선, 2) 비어 있으면 response.proposal.board 로 폴백.
  */
 export function extractPlaces(turn: ExplorationTurn): PlaceResource[] {
-  const fromBoard = findPlaces(turn.response.board);
+  const fromBoard = findPlaces(turn.response.board, turn.turnId);
   if (fromBoard.length > 0) return fromBoard;
-  return findPlaces(turn.response.proposal?.board ?? null);
+  return findPlaces(turn.response.proposal?.board ?? null, turn.turnId);
 }
 
 /** 추천 이유는 candidates[].reason이 있는 경우에만 장소 ID별로 모은다. */
@@ -1560,8 +1583,7 @@ export default function JourneyChatInterface({
                 ))}
               </QuickChipsRow>
 
-              <Composer
-                onSubmit={submit}
+              <ComposerWrapper
                 onMouseMove={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   e.currentTarget.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
@@ -1572,20 +1594,22 @@ export default function JourneyChatInterface({
                   e.currentTarget.style.setProperty('--mouse-active', '0');
                 }}
               >
-                <Input
-                  ref={inputRef}
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
-                  placeholder="여행 조건을 이어서 물어보세요"
-                  aria-label="여행 질문"
-                  disabled={isRunning}
-                />
-                {cancelable ? (
-                  <SendButton type="button" onClick={() => void onCancel()}>취소</SendButton>
-                ) : (
-                  <SendButton type="submit" disabled={!draft.trim() || isRunning}>보내기</SendButton>
-                )}
-              </Composer>
+                <Composer onSubmit={submit}>
+                  <Input
+                    ref={inputRef}
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    placeholder="여행 조건을 이어서 물어보세요"
+                    aria-label="여행 질문"
+                    disabled={isRunning}
+                  />
+                  {cancelable ? (
+                    <SendButton type="button" onClick={() => void onCancel()}>취소</SendButton>
+                  ) : (
+                    <SendButton type="submit" disabled={!draft.trim() || isRunning}>보내기</SendButton>
+                  )}
+                </Composer>
+              </ComposerWrapper>
               <ComposerNotice>AI 응답은 참고용 정보이며 실제 장소 상황과 다를 수 있습니다.</ComposerNotice>
             </ComposerInner>
           </ComposerArea>

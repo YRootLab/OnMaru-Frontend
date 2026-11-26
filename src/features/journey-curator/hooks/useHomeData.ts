@@ -7,6 +7,7 @@ import { CK, TTL_MS } from '@/lib/cache/cacheKeys';
 import {
   homeRepository,
   type CuratedCourse,
+  type HomeReview,
   type PopularRegion,
   type TrendingSound,
   type PopularSound,
@@ -101,9 +102,22 @@ export function usePopularSounds() {
 }
 
 export function usePopularRegions() {
-  return useHomeList<PopularRegion>(
-    CK.homePopularRegions(),
-    () => homeRepository.listPopularRegions(),
+  const [totalReviewCount, setTotalReviewCount] = useState<number>(0);
+  const key = CK.homePopularRegions();
+  const fetcher = useCallback(async () => {
+    const res = await homeRepository.listPopularRegions();
+    const regionSum = res.items.reduce((s, r) => s + r.reviewCount, 0);
+    setTotalReviewCount(regionSum + (res.unassignedCount ?? 0));
+    return res;
+  }, []);
+  const result = useHomeList<PopularRegion>(key, fetcher, TTL_MS.HOME_POPULAR);
+  return { ...result, totalReviewCount };
+}
+
+export function useLatestReviews() {
+  return useHomeList<HomeReview>(
+    CK.homeLatestReviews(),
+    () => homeRepository.listLatestReviews(6),
     TTL_MS.HOME_POPULAR,
   );
 }

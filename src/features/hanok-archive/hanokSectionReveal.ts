@@ -4,7 +4,7 @@
 
 export const HANOK_REVEAL_SECTIONS = {
   intro: 'hanok-intro',
-  kculture: 'hanok-kculture-themes',
+  hero: 'hanok-hero',
   structure: 'hanok-structure',
   grid: 'hanok-grid',
   seasons: 'hanok-seasons',

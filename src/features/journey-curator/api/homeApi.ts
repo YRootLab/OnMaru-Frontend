@@ -1,4 +1,5 @@
 import { apiRequest, type ApiRequestOptions } from '@/lib/api/client';
+import type { CursorPage } from '@/lib/api/cursor';
 import type { JourneySchemaVersion } from './journeyContract';
 
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
@@ -61,11 +62,33 @@ export type PopularRegion = {
 
 export type PopularSoundsResponse = { items: PopularSound[]; basis?: string; languageStatus?: LanguageStatus };
 
+export type HomeReview = {
+  id: string;
+  placeId: string;
+  placeName: string;
+  lat: number;
+  lng: number;
+  text: string;
+  mood?: '북적' | '한적';
+  score?: 1 | 2 | 3 | 4 | 5;
+  tags?: string[];
+  likeCount: number;
+  likedByMe: boolean;
+  createdAt: string;
+  author?: { displayName: string; characterId?: string; backgroundId?: string };
+};
+
+export type PopularRegionsResponse = {
+  items: PopularRegion[];
+  unassignedCount?: number;
+};
+
 export type HomeRepository = {
   listCuratedCourses(category?: string): Promise<HomeCursorPage<CuratedCourse>>;
   listTrendingSounds(): Promise<HomeCursorPage<TrendingSound>>;
   listPopularSounds(input?: { limit?: number; window?: 'week' | 'all'; language?: string }): Promise<PopularSoundsResponse>;
-  listPopularRegions(): Promise<{ items: PopularRegion[] }>;
+  listPopularRegions(): Promise<PopularRegionsResponse>;
+  listLatestReviews(limit?: number): Promise<{ items: HomeReview[] }>;
 };
 
 export function createHomeRepository(request: RequestFn = apiRequest): HomeRepository {
@@ -92,10 +115,18 @@ export function createHomeRepository(request: RequestFn = apiRequest): HomeRepos
       });
     },
     listPopularRegions() {
-      return request<{ items: PopularRegion[] }>('/home/popular-regions', {
+      return request<PopularRegionsResponse>('/home/popular-regions', {
         method: 'GET',
         cache: 'no-store',
       });
+    },
+    async listLatestReviews(limit = 6) {
+      const page = await request<CursorPage<HomeReview>>('/visit-reviews', {
+        method: 'GET',
+        params: { scope: 'ALL', limit },
+        cache: 'no-store',
+      });
+      return { items: page.items };
     },
   };
 }

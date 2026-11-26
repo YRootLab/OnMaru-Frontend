@@ -211,8 +211,8 @@ export default function HanokManifestoCta() {
       transition: shouldReduceMotion
         ? { duration: 0 }
         : {
-            delay: totalDelay + 0.3,
-            duration: 1.4,
+            delay: 1.5,
+            duration: 1.0,
             ease: [0.25, 0.1, 0.25, 1] as const,
           },
     },

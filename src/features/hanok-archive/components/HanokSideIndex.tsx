@@ -13,10 +13,10 @@ import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReve
 
 
 const SIDE_INDEX_SECTIONS = [
-  { id: HANOK_REVEAL_SECTIONS.structure, key: 'structure3D' },
   { id: HANOK_REVEAL_SECTIONS.grid, key: 'nationwideDogam' },
   { id: HANOK_REVEAL_SECTIONS.stay, key: 'regionalStay' },
   { id: HANOK_REVEAL_SECTIONS.map, key: 'nationwideMap' },
+  { id: HANOK_REVEAL_SECTIONS.structure, key: 'structure3D' },
 ] as const;
 
 const Rail = styled.nav<{ $visible: boolean }>`

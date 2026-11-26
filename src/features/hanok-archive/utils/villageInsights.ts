@@ -5,7 +5,7 @@ export function inferStructureTags(village: Village): string[] {
   const t = village.type;
   if (t === '고궁') return ['팔작지붕', '공포식', '기단', '기와'];
   if (t === '서원·향교') return ['맞배지붕', '홑처마', '기와'];
-  if (t === '고태' || t === '고택' || t === '생가') return ['기와집', '안채·사랑채', '전통마루'];
+  if (t === '고택' || t === '생가') return ['기와집', '안채·사랑채', '전통마루'];
   if (t === '민속마을') return ['초가', '기와', '전통담장'];
   if (t === '사찰') return ['팔작지붕', '다포식', '기단'];
   return ['기와'];
