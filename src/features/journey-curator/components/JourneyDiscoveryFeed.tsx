@@ -1291,7 +1291,8 @@ export default function JourneyDiscoveryFeed() {
                       <HugeiconsIcon icon={HeartIcon} size={16} fill={isSaved ? '#ef4444' : 'none'} strokeWidth={isSaved ? 0 : 2} />
                     </SoundSaveBtn>
                   </SoundCard>
-                )})}
+                );
+              })}
             </SoundGrid>
           </section>
         );
