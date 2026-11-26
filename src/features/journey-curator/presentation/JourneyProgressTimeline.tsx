@@ -91,7 +91,7 @@ function FinishedView({ progress, onToggle }: { progress: JourneyProgress; onTog
 
 function StepItem({ step }: { step: JourneyProgressStep }) {
   const copy = getStepCopy(step.stage);
-  const label = step.state === 'done' ? getStepDoneCopy(step.stage, step.count) : copy?.active;
+  const label = step.state === 'done' ? getStepDoneCopy(step.stage, step.count) : step.state === 'stopped' ? copy?.done : copy?.active;
   return (
     <StepRow data-state={step.state}>
       <StepMark aria-hidden data-spinning={step.state === 'active' ? 'true' : undefined}>

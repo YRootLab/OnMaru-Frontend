@@ -14,10 +14,10 @@ describe('JourneyProgressTimeline', () => {
   it('shows finished steps, the active step, and keeps the live region on the active label', () => {
     const markup = renderToStaticMarkup(<JourneyProgressTimeline progress={runningAt('RETRIEVING')} onToggle={vi.fn()} />);
 
-    expect(markup).toContain('질문을 이해했어요');
-    expect(markup).toContain('조건에 맞는 장소를 찾는 중');
+    expect(markup).toContain('질문 이해');
+    expect(markup).toContain('장소 찾기 중');
     expect(markup).toContain('aria-live="polite"');
-    expect(markup).not.toContain('추천 이유를 정리하는 중');
+    expect(markup).not.toContain('추천 이유 정리 중');
   });
 
   it('never shows internal stage names or the hidden PERSISTING stage', () => {
@@ -45,7 +45,7 @@ describe('JourneyProgressTimeline', () => {
 
     expect(markup).toContain('정리 과정 보기');
     expect(markup).toContain('aria-expanded="false"');
-    expect(markup).not.toContain('질문을 이해했어요');
+    expect(markup).not.toContain('질문 이해');
     expect(markup).toContain('조건에 맞는 장소를 찾지 못했어요');
   });
 
@@ -61,7 +61,7 @@ describe('JourneyProgressTimeline', () => {
 
     expect(markup).toContain('정리 과정 접기');
     expect(markup).toContain('aria-expanded="true"');
-    expect(markup).toContain('장소를 찾았어요');
+    expect(markup).toContain('장소 찾기');
     expect(markup).toContain('지금은 간단하게 추천해 드리고 있어요.');
   });
 
@@ -69,6 +69,6 @@ describe('JourneyProgressTimeline', () => {
     let p = createProgress({ runId: 'run-1', now: NOW, status: 'RUNNING' });
     p = applyItemFrame(p, { kind: 'completed', runId: 'run-1', sequence: 1, itemId: 'SEARCH-1', status: 'DONE', count: 12 }, NOW);
     const markup = renderToStaticMarkup(<JourneyProgressTimeline progress={p} onToggle={vi.fn()} />);
-    expect(markup).toContain('장소 12곳을 찾았어요');
+    expect(markup).toContain('장소 찾기 · 12곳');
   });
 });

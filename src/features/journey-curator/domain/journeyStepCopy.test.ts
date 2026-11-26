@@ -20,10 +20,10 @@ describe('journeyStepCopy', () => {
   });
 
   it('returns active and done copy for each visible stage', () => {
-    expect(getStepCopy('RETRIEVING')).toEqual({ active: '조건에 맞는 장소를 찾는 중', done: '장소를 찾았어요' });
-    expect(getStepCopy('SELECTING_EVIDENCE')).toEqual({ active: '마음에 드는 장소를 고르는 중', done: '장소를 골랐어요' });
-    expect(getStepCopy('GENERATING')?.active).toBe('추천 이유를 정리하는 중');
-    expect(getStepCopy('VALIDATING')).toEqual({ active: '근거를 확인하는 중', done: '근거를 확인했어요' });
+    expect(getStepCopy('RETRIEVING')).toEqual({ active: '장소 찾기 중', done: '장소 찾기' });
+    expect(getStepCopy('SELECTING_EVIDENCE')).toEqual({ active: '장소 선정 중', done: '장소 선정' });
+    expect(getStepCopy('GENERATING')?.active).toBe('추천 이유 정리 중');
+    expect(getStepCopy('VALIDATING')).toEqual({ active: '근거 확인 중', done: '근거 확인' });
   });
 
   it('describes a finished run with outcome-specific notices', () => {
@@ -65,13 +65,13 @@ describe('journeyStepCopy', () => {
 
 describe('run item copy (BE 1.4)', () => {
   it('shows the candidate and selected place counts when those steps finish', () => {
-    expect(getStepDoneCopy('RETRIEVING', 12)).toBe('장소 12곳을 찾았어요');
-    expect(getStepDoneCopy('SELECTING_EVIDENCE', 3)).toBe('맞춤 장소 3곳 선정 완료');
+    expect(getStepDoneCopy('RETRIEVING', 12)).toBe('장소 찾기 · 12곳');
+    expect(getStepDoneCopy('SELECTING_EVIDENCE', 3)).toBe('장소 선정 · 3곳');
   });
 
   it('falls back to the plain done copy when there is no count', () => {
-    expect(getStepDoneCopy('RETRIEVING', null)).toBe('장소를 찾았어요');
-    expect(getStepDoneCopy('INTERPRETING', 5)).toBe('질문을 이해했어요');
+    expect(getStepDoneCopy('RETRIEVING', null)).toBe('장소 찾기');
+    expect(getStepDoneCopy('INTERPRETING', 5)).toBe('질문 이해');
   });
 
   it('maps backend step keys to the visible stages', () => {

@@ -21,13 +21,18 @@ export type VisibleStage = (typeof VISIBLE_STAGES)[number];
 
 type StepCopy = { active: string; done: string };
 
-const STEP_COPY: Record<VisibleStage, StepCopy> = {
-  INTERPRETING: { active: '질문을 살펴보는 중', done: '질문을 이해했어요' },
-  RETRIEVING: { active: '조건에 맞는 장소를 찾는 중', done: '장소를 찾았어요' },
-  SELECTING_EVIDENCE: { active: '마음에 드는 장소를 고르는 중', done: '장소를 골랐어요' },
-  GENERATING: { active: '추천 이유를 정리하는 중', done: '추천 이유를 정리했어요' },
-  VALIDATING: { active: '근거를 확인하는 중', done: '근거를 확인했어요' },
+/** 체크리스트처럼 훑이도록 짧은 명사형 라벨. 진행 중은 "{라벨} 중". */
+const STEP_LABEL: Record<VisibleStage, string> = {
+  INTERPRETING: '질문 이해',
+  RETRIEVING: '장소 찾기',
+  SELECTING_EVIDENCE: '장소 선정',
+  GENERATING: '추천 이유 정리',
+  VALIDATING: '근거 확인',
 };
+
+const STEP_COPY: Record<VisibleStage, StepCopy> = Object.fromEntries(
+  VISIBLE_STAGES.map((stage) => [stage, { active: `${STEP_LABEL[stage]} 중`, done: STEP_LABEL[stage] }]),
+) as Record<VisibleStage, StepCopy>;
 
 /** 백엔드 run.item 프레임의 stepKey. */
 export const ITEM_STEP_KEYS = ['UNDERSTAND', 'SEARCH', 'SELECT', 'WRITE', 'CHECK'] as const;
@@ -75,11 +80,9 @@ export function getAnswerFallbackCopy(outcome: JourneyRunOutcome | null): string
 
 /** 완료된 단계의 문구. 검색·선정 단계는 개수가 있으면 개수를 넣는다. */
 export function getStepDoneCopy(stage: VisibleStage, count?: number | null): string {
-  if (count != null) {
-    if (stage === 'RETRIEVING') return `장소 ${count}곳을 찾았어요`;
-    if (stage === 'SELECTING_EVIDENCE') return `맞춤 장소 ${count}곳 선정 완료`;
-  }
-  return STEP_COPY[stage].done;
+  const label = STEP_COPY[stage].done;
+  const countable = stage === 'RETRIEVING' || stage === 'SELECTING_EVIDENCE';
+  return countable && count != null ? `${label} · ${count}곳` : label;
 }
 
 /** 요청은 보냈지만 아직 단계 정보가 없을 때. */

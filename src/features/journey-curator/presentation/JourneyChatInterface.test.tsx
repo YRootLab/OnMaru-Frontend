@@ -241,7 +241,7 @@ describe('JourneyChatInterface', () => {
 
     it('shows the step timeline and a cancel button only while the run is RUNNING', () => {
       const markup = renderChat({ pendingQuery: '서울 궁궐 추천해줘', progress: runningProgress('RUNNING') });
-      expect(markup).toContain('조건에 맞는 장소를 찾는 중');
+      expect(markup).toContain('장소 찾기 중');
       expect(markup).toContain('>취소</button>');
     });
 
