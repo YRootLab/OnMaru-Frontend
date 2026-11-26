@@ -14,20 +14,35 @@ import { surface } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { ExplorationSummary, ExplorationTurn } from '../domain/conversation';
 import type { JourneyBoard, PlaceResource } from '../types/exploration.types';
+import type { JourneyClarification } from '../api/journeyContract';
+import { canCancel, isActive, type JourneyProgress } from '../domain/journeyProgress';
+import {
+  getAnswerFallbackCopy,
+  isNoResultsReason,
+  getCancelledCopy,
+  getClarificationCopy,
+  getErrorCopy,
+  getNoResultsCopy,
+  getPreparingCopy,
+} from '../domain/journeyStepCopy';
+import JourneyProgressTimeline from './JourneyProgressTimeline';
+
+export type ClarificationAnswer = { clarificationId: string; choiceId: string | null; text: string | null };
 
 type Props = {
   explorations: ExplorationSummary[];
   activeExplorationId: string | null;
   turns: ExplorationTurn[];
   pendingQuery: string | null;
-  progressMessage: string | null;
+  progress: JourneyProgress | null;
+  onToggleProgress?: () => void;
   loading: boolean;
   loadingOlder: boolean;
   hasOlderTurns: boolean;
   error: string | null;
   onSelectConversation: (explorationId: string | null) => void;
   onLoadOlder: () => void;
-  onSend: (query: string) => Promise<void>;
+  onSend: (query: string, clarificationAnswer?: ClarificationAnswer) => Promise<void>;
   onCancel: () => Promise<void>;
 };
 
@@ -372,6 +387,10 @@ const SearchingTile = styled.div<{ $delay: number }>`
     0%, 100% { opacity: 0.85; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.02); }
   }
+`;
+
+const SearchingTimelineArea = styled.div`
+  padding: 4px 6px 0;
 `;
 
 const SearchingStatusRow = styled.div`
@@ -1161,7 +1180,52 @@ export function extractPlaces(turn: ExplorationTurn): PlaceResource[] {
   return findPlaces(turn.response.proposal?.board ?? null);
 }
 
-function ResultPlaceCardItem({ place }: { place: PlaceResource }) {
+/** 추천 이유는 candidates[].reason이 있는 경우에만 장소 ID별로 모은다. */
+function buildReasonMap(candidateLists: Array<ReadonlyArray<{ placeRef?: { id?: string }; reason?: string | null }> | undefined>): Map<string, string> {
+  const reasons = new Map<string, string>();
+  for (const list of candidateLists) {
+    for (const candidate of list ?? []) {
+      const id = candidate?.placeRef?.id;
+      if (id && candidate.reason) reasons.set(id, candidate.reason);
+    }
+  }
+  return reasons;
+}
+
+/** 지역명은 응답의 RegionResource.title만 쓴다. 없으면 null(지역 항목 숨김). */
+function buildRegionTitles(resourceLists: Array<ReadonlyArray<unknown> | undefined>): Map<string, string> {
+  const titles = new Map<string, string>();
+  for (const list of resourceLists) {
+    for (const resource of list ?? []) {
+      const region = resource as { ref?: { type?: string; id?: string }; title?: string };
+      if (region?.ref?.type === 'REGION' && region.ref.id && region.title) titles.set(region.ref.id, region.title);
+    }
+  }
+  return titles;
+}
+
+const ResultPlaceReason = styled.p`
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #444;
+
+  [data-theme='dark'] & {
+    color: rgba(216, 229, 255, 0.8);
+  }
+`;
+
+const ResultPlaceAddress = styled.p`
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #888;
+
+  [data-theme='dark'] & {
+    color: rgba(216, 229, 255, 0.5);
+  }
+`;
+
+function ResultPlaceCardItem({ place, regionTitle, reason }: { place: PlaceResource; regionTitle?: string | null; reason?: string | null }) {
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(place.ref.id));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
@@ -1222,36 +1286,82 @@ function ResultPlaceCardItem({ place }: { place: PlaceResource }) {
         <ResultPlaceTitle>{place.title}</ResultPlaceTitle>
         <ResultMetaRow>
           <span>{place.category}</span>
-          {place.regionRef?.id && (
+          {regionTitle && (
             <>
               <span>·</span>
-              <span>{place.regionRef.id}</span>
+              <span>{regionTitle}</span>
             </>
           )}
         </ResultMetaRow>
+        {place.address && <ResultPlaceAddress>{place.address}</ResultPlaceAddress>}
+        {reason && <ResultPlaceReason>{reason}</ResultPlaceReason>}
         {place.summary && <ResultPlaceSummary>{place.summary}</ResultPlaceSummary>}
       </ResultCardBody>
     </ResultPlaceCard>
   );
 }
 
-function AssistantResponse({ turn }: { turn: ExplorationTurn }) {
+function ClarificationBlock({
+  clarification,
+  onAnswer,
+}: {
+  clarification: JourneyClarification | null;
+  onAnswer?: (label: string, answer: ClarificationAnswer) => void;
+}) {
+  if (!clarification) return <Bubble>{getClarificationCopy()}</Bubble>;
+  return (
+    <ResponseContainer>
+      <Bubble>{clarification.question}</Bubble>
+      {clarification.choices.length > 0 && (
+        <QuickChipsRow aria-label="선택지">
+          {clarification.choices.map((choice) => (
+            <QuickChipButton
+              key={choice.id}
+              type="button"
+              onClick={() => onAnswer?.(choice.label, { clarificationId: clarification.id, choiceId: choice.id, text: null })}
+            >
+              {choice.label}
+            </QuickChipButton>
+          ))}
+        </QuickChipsRow>
+      )}
+    </ResponseContainer>
+  );
+}
+
+function AssistantResponse({
+  turn,
+  onAnswerClarification,
+}: {
+  turn: ExplorationTurn;
+  onAnswerClarification?: (label: string, answer: ClarificationAnswer) => void;
+}) {
   const { response } = turn;
   const [feedback, setFeedback] = useState<'up' | 'down' | null>(null);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
   if (response.status === 'PENDING') return null;
-  if (response.status === 'CANCELLED') return <Bubble>요청이 취소되었어요.</Bubble>;
-  if (response.status === 'FAILED') return <Bubble>요청을 완료하지 못했어요. {response.error?.requestId ? `요청 번호: ${response.error.requestId}` : ''}</Bubble>;
-  if (response.outcome === 'NO_RESULTS') return <Bubble>{response.summary ?? '조건에 맞는 여행 결과를 찾지 못했어요.'}</Bubble>;
+  if (response.status === 'CANCELLED') return <Bubble>{getCancelledCopy()}</Bubble>;
+  if (response.status === 'FAILED') {
+    const requestId = response.error?.requestId;
+    return <Bubble>{getErrorCopy(response.error?.code)}{requestId ? ` 요청 번호: ${requestId}` : ''}</Bubble>;
+  }
+  if (response.outcome === 'NO_RESULTS') {
+    return <Bubble>{getNoResultsCopy(isNoResultsReason(response.degradedReason) ? response.degradedReason : null)}</Bubble>;
+  }
+  if (response.outcome === 'CLARIFICATION_REQUIRED') {
+    return <ClarificationBlock clarification={response.clarification} onAnswer={onAnswerClarification} />;
+  }
 
   const places = extractPlaces(turn);
+  const regionTitles = buildRegionTitles([response.board?.resources, response.proposal?.board?.resources]);
+  const reasonByPlace = buildReasonMap([response.board?.candidates, response.proposal?.board?.candidates]);
   const textSummary =
     response.summary ||
     response.board?.querySummary ||
     (response.board as any)?.tagline ||
     (response.board as any)?.title ||
-    '조건에 맞는 맞춤 한옥 여정 코스를 준비했어요. 마음에 드는 장소를 둘러보세요.';
+    getAnswerFallbackCopy(response.outcome);
 
   const handleCopy = async () => {
     setCopyStatus('idle');
@@ -1274,7 +1384,7 @@ function AssistantResponse({ turn }: { turn: ExplorationTurn }) {
       {places.length > 0 && (
         <PlacesScroll aria-label="추천 장소">
           {places.map((place, idx) => (
-            <ResultPlaceCardItem key={place.ref.id || idx} place={place} />
+            <ResultPlaceCardItem key={place.ref.id || idx} place={place} regionTitle={regionTitles.get(place.regionRef?.id ?? '') ?? null} reason={reasonByPlace.get(place.ref.id) ?? null} />
           ))}
         </PlacesScroll>
       )}
@@ -1325,7 +1435,8 @@ export default function JourneyChatInterface({
   activeExplorationId,
   turns,
   pendingQuery,
-  progressMessage,
+  progress,
+  onToggleProgress,
   loading,
   loadingOlder,
   hasOlderTurns,
@@ -1337,7 +1448,9 @@ export default function JourneyChatInterface({
 }: Props) {
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const isRunning = Boolean(progressMessage);
+  const activeProgress = progress && isActive(progress) ? progress : null;
+  const isRunning = activeProgress !== null;
+  const cancelable = progress !== null && canCancel(progress);
 
   const handleChipClick = (keyword: string) => {
     setDraft(keyword);
@@ -1396,11 +1509,16 @@ export default function JourneyChatInterface({
             {turns.map((turn) => (
               <div key={turn.turnId}>
                 <MessageGroup $user><Bubble $user>{turn.query}</Bubble></MessageGroup>
-                <MessageGroup data-message-role="assistant"><AssistantResponse turn={turn} /></MessageGroup>
+                <MessageGroup data-message-role="assistant"><AssistantResponse turn={turn} onAnswerClarification={(label, answer) => void onSend(label, answer)} /></MessageGroup>
               </div>
             ))}
+            {progress?.finished && (
+              <MessageGroup data-message-role="assistant">
+                <JourneyProgressTimeline progress={progress} onToggle={onToggleProgress} />
+              </MessageGroup>
+            )}
             {pendingQuery && <MessageGroup $user><Bubble $user>{pendingQuery}</Bubble></MessageGroup>}
-            {(isRunning || Boolean(progressMessage) || Boolean(pendingQuery)) && (
+            {(isRunning || Boolean(pendingQuery)) && (
               <MessageGroup data-message-role="assistant">
                 <SearchingCard>
                   <SearchingGrid>
@@ -1410,12 +1528,18 @@ export default function JourneyChatInterface({
                       </SearchingTile>
                     ))}
                   </SearchingGrid>
-                  <SearchingStatusRow>
-                    <span className="sparkle-icon">
-                      <SparkleClusterIcon />
-                    </span>
-                    <span>{progressMessage || '조건에 맞는 장소를 찾고 있어요…'}</span>
-                  </SearchingStatusRow>
+                  {activeProgress ? (
+                    <SearchingTimelineArea>
+                      <JourneyProgressTimeline progress={activeProgress} />
+                    </SearchingTimelineArea>
+                  ) : (
+                    <SearchingStatusRow>
+                      <span className="sparkle-icon">
+                        <SparkleClusterIcon />
+                      </span>
+                      <span>{getPreparingCopy()}</span>
+                    </SearchingStatusRow>
+                  )}
                 </SearchingCard>
               </MessageGroup>
             )}
@@ -1456,10 +1580,10 @@ export default function JourneyChatInterface({
                   aria-label="여행 질문"
                   disabled={isRunning}
                 />
-                {isRunning ? (
+                {cancelable ? (
                   <SendButton type="button" onClick={() => void onCancel()}>취소</SendButton>
                 ) : (
-                  <SendButton type="submit" disabled={!draft.trim()}>보내기</SendButton>
+                  <SendButton type="submit" disabled={!draft.trim() || isRunning}>보내기</SendButton>
                 )}
               </Composer>
               <ComposerNotice>AI 응답은 참고용 정보이며 실제 장소 상황과 다를 수 있습니다.</ComposerNotice>
