@@ -1,8 +1,158 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
-import JourneyChatInterface, { findPlaces } from './JourneyChatInterface';
+import JourneyChatInterface, { extractPlaces, findPlaces } from './JourneyChatInterface';
 
 describe('JourneyChatInterface', () => {
+  it('extracts PLACE resources from a proposal board when the turn board is empty', () => {
+    const place = {
+      ref: { type: 'PLACE', id: 'place-gyeongbokgung' },
+      title: '경복궁',
+      category: '궁궐',
+      regionRef: { type: 'REGION', id: 'kr-11' },
+      summary: '조선의 정궁',
+      image: null,
+      location: null,
+      sourceRefs: [],
+      unavailableFields: [],
+    };
+    const turn = {
+      turnId: 'turn-1',
+      query: '서울 경복궁과 같은 궁궐이나 한옥 추천해줘',
+      createdAt: '2026-11-25T00:00:00Z',
+      runId: 'run-1',
+      response: {
+        status: 'COMPLETED',
+        outcome: 'PROPOSAL',
+        summary: null,
+        board: null,
+        proposal: {
+          id: 'proposal-1',
+          baseVersion: 1,
+          expiresAt: '2026-11-26T00:00:00Z',
+          keptRefs: [],
+          addedRefs: [place.ref],
+          removedRefs: [],
+          board: { resources: [place], candidates: [] },
+          unknowns: [],
+        },
+        clarification: null,
+        error: null,
+      },
+    };
+
+    expect(extractPlaces(turn as never).map((p) => p.title)).toEqual(['경복궁']);
+  });
+
+  it('shows the hanok placeholder image when a place has no photo', () => {
+    const place = {
+      ref: { type: 'PLACE', id: 'place-gyeongbokgung' },
+      title: '경복궁',
+      category: '궁궐',
+      regionRef: { type: 'REGION', id: 'kr-11' },
+      summary: null,
+      image: null,
+      location: null,
+      sourceRefs: [],
+      unavailableFields: [],
+    };
+    const markup = renderToStaticMarkup(
+      <JourneyChatInterface
+        explorations={[]}
+        activeExplorationId="exp-1"
+        turns={[
+          {
+            turnId: 'turn-1',
+            query: '서울 경복궁 추천해줘',
+            createdAt: '2026-11-25T00:00:00Z',
+            runId: 'run-1',
+            response: {
+              status: 'COMPLETED',
+              outcome: 'PROPOSAL',
+              summary: '요약',
+              board: { resources: [place], candidates: [] },
+              proposal: null,
+              clarification: null,
+              error: null,
+            },
+          },
+        ] as never}
+        pendingQuery={null}
+        progressMessage={null}
+        loading={false}
+        loadingOlder={false}
+        hasOlderTurns={false}
+        error={null}
+        onSelectConversation={vi.fn()}
+        onLoadOlder={vi.fn()}
+        onSend={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    expect(markup).toContain('src="/images/hanok/hanok-main.png"');
+    expect(markup).not.toContain('등록된 사진이 없어요.');
+  });
+
+  it('renders proposal place cards in the assistant response', () => {
+    const place = {
+      ref: { type: 'PLACE', id: 'place-gyeongbokgung' },
+      title: '경복궁',
+      category: '궁궐',
+      regionRef: { type: 'REGION', id: 'kr-11' },
+      summary: '조선의 정궁',
+      image: null,
+      location: null,
+      sourceRefs: [],
+      unavailableFields: [],
+    };
+    const markup = renderToStaticMarkup(
+      <JourneyChatInterface
+        explorations={[]}
+        activeExplorationId="exp-1"
+        turns={[
+          {
+            turnId: 'turn-1',
+            query: '서울 경복궁 추천해줘',
+            createdAt: '2026-11-25T00:00:00Z',
+            runId: 'run-1',
+            response: {
+              status: 'COMPLETED',
+              outcome: 'PROPOSAL',
+              summary: '서울 궁궐 코스를 준비했어요.',
+              board: null,
+              proposal: {
+                id: 'proposal-1',
+                baseVersion: 1,
+                expiresAt: '2026-11-26T00:00:00Z',
+                keptRefs: [],
+                addedRefs: [place.ref],
+                removedRefs: [],
+                board: { resources: [place], candidates: [] },
+                unknowns: [],
+              },
+              clarification: null,
+              error: null,
+            },
+          },
+        ] as never}
+        pendingQuery={null}
+        progressMessage={null}
+        loading={false}
+        loadingOlder={false}
+        hasOlderTurns={false}
+        error={null}
+        onSelectConversation={vi.fn()}
+        onLoadOlder={vi.fn()}
+        onSend={async () => undefined}
+        onCancel={async () => undefined}
+      />,
+    );
+
+    expect(markup).toContain('aria-label="추천 장소"');
+    expect(markup).toContain('경복궁');
+    expect(markup).toContain('서울 궁궐 코스를 준비했어요.');
+  });
+
   it('uses the Bento plan ID for fallback place IDs without inventing coordinates', () => {
     const createBentoBoard = (id: string) => ({
       id,
