@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link, useRouter } from '@/i18n/navigation';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -105,7 +105,7 @@ const Chip = styled.button<{ $active: boolean }>`
   padding: 6px 14px;
   border-radius: 9999px;
   border: none;
-  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[100])};
+  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f5f5f4')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[600])};
   font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
@@ -115,7 +115,7 @@ const Chip = styled.button<{ $active: boolean }>`
 
   &:hover {
     background: ${({ $active }) =>
-      $active ? lightPalette.juhong[400] : meok[200]};
+      $active ? lightPalette.juhong[400] : '#e5e5e3'};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[800])};
   }
 
@@ -152,7 +152,7 @@ const UnavailableBox = styled.div`
   padding: 64px 24px;
   text-align: center;
   border-radius: 16px;
-  background: ${meok[100]};
+  background: #f5f5f4;
 
   [data-theme='dark'] & {
     background: rgba(255,255,255,0.04);
@@ -177,18 +177,10 @@ const UnavailableSub = styled.p`
   [data-theme='dark'] & { color: rgba(255,255,255,0.24); }
 `;
 
-const WORK_TYPE_LABELS: Record<WorkType | 'all', string> = {
-  all: '전체',
-  DRAMA: 'K-드라마',
-  ARTIST: '아티스트',
-  MOVIE: '영화',
-  VARIETY: '예능',
-  MUSIC_VIDEO: 'MV',
-};
-
 const TYPE_FILTERS: Array<WorkType | 'all'> = ['all', 'DRAMA', 'ARTIST', 'MOVIE', 'VARIETY', 'MUSIC_VIDEO'];
 
 export default function DiscoveryWorksPage() {
+  const t = useTranslations('kCulture');
   const router = useRouter();
   const [activeType, setActiveType] = useState<WorkType | 'all'>('all');
 
@@ -199,13 +191,19 @@ export default function DiscoveryWorksPage() {
   const handleWorkClick = (work: WorkSummary) =>
     router.push(`/discover/works/${encodeURIComponent(work.workId)}`);
 
+  const getTypeLabel = (type: WorkType | 'all') => {
+    if (type === 'all') return t('workTypeAll');
+    if (type === 'DRAMA') return t('workTypeKDrama');
+    return t(`workType.${type}`);
+  };
+
   const serviceDown = isError && items.length === 0 && !isLoading;
 
   return (
     <PageWrap>
       <BackLink href="/discover">
         <HugeiconsIcon icon={ArrowLeft01Icon} size={12} strokeWidth={2.5} />
-        탐색마루
+        {t('works.backLink')}
       </BackLink>
 
       <PageHeader>
@@ -213,15 +211,15 @@ export default function DiscoveryWorksPage() {
           <TitleIconWrap aria-hidden="true">
             <HugeiconsIcon icon={Film01Icon} size={18} strokeWidth={1.5} />
           </TitleIconWrap>
-          <PageTitle>작품 목록</PageTitle>
+          <PageTitle>{t('works.pageTitle')}</PageTitle>
         </TitleRow>
-        <PageSub>촬영지·방문지가 확인된 K-Culture 작품과 아티스트</PageSub>
+        <PageSub>{t('works.pageSub')}</PageSub>
       </PageHeader>
 
       {serviceDown ? (
         <UnavailableBox role="status">
-          <UnavailableTitle>작품 목록 서비스 준비 중입니다</UnavailableTitle>
-          <UnavailableSub>콘텐츠 검수 완료 후 공개 예정입니다.</UnavailableSub>
+          <UnavailableTitle>{t('works.serviceTitle')}</UnavailableTitle>
+          <UnavailableSub>{t('works.serviceSub')}</UnavailableSub>
         </UnavailableBox>
       ) : (
         <>
@@ -233,14 +231,16 @@ export default function DiscoveryWorksPage() {
                 $active={activeType === type}
                 onClick={() => setActiveType(type)}
               >
-                {WORK_TYPE_LABELS[type]}
+                {getTypeLabel(type)}
               </Chip>
             ))}
           </FilterRow>
 
           <CountRow>
             <MatchCount>
-              {isLoading && items.length === 0 ? '검색 중…' : `총 ${matchingCount.toLocaleString()}편`}
+              {isLoading && items.length === 0
+                ? t('works.searching')
+                : t('works.totalCount', { count: matchingCount.toLocaleString() })}
             </MatchCount>
           </CountRow>
 

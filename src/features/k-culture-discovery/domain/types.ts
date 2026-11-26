@@ -53,6 +53,7 @@ export interface DiscoveryPlaceSummary {
   matchingWorkCount: number;
   saveAvailable: boolean;
   savedByMe: boolean | null;
+  coordinates?: Coordinates | null;
 }
 
 export interface Coordinates {
