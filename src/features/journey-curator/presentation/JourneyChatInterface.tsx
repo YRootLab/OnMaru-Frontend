@@ -1126,7 +1126,7 @@ export function findPlaces(board: JourneyBoard | null): PlaceResource[] {
 
   // 3) Fallback: BentoJourneyPlan structure (hanokCard + routeCard)
   const bento = board as any;
-  const planKey = (board.title || board.querySummary || '').replace(/\W+/g, '').slice(0, 16) || 'plan';
+  const planKey = board.id || 'plan';
   const fallbackPlaces: PlaceResource[] = [];
   if (bento.hanokCard) {
     fallbackPlaces.push({
