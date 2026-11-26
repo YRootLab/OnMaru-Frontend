@@ -99,7 +99,6 @@ export type JourneyItemStartedFrame = {
     runId: string;
     sequence: number;
     itemId: string;
-    status?: 'STARTED';
   };
 };
 

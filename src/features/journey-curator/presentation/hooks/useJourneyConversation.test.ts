@@ -178,4 +178,27 @@ describe('useJourneyConversation progress timeline', () => {
 
     expect(result.current.progress?.steps.find((step) => step.stage === 'RETRIEVING')).toEqual({ stage: 'RETRIEVING', state: 'done', count: 12 });
   });
+
+  it('keeps a count received earlier when the stream falls back to a snapshot re-sync', async () => {
+    vi.useFakeTimers();
+    const fake = createFakeRepository([
+      runSnapshot({ status: 'RUNNING', stage: 'RETRIEVING', sequence: 2 }),
+      runSnapshot({ status: 'RUNNING', stage: 'GENERATING', sequence: 5 }),
+    ]);
+    const { result } = renderHook(() => useJourneyConversation(null, fake.repository));
+
+    await act(async () => {
+      await result.current.startConversation('서울 궁궐 추천');
+    });
+    fake.emit({ id: '3', event: 'run.item.started', data: { schemaVersion: '1.4', runId: 'run-1', sequence: 3, itemId: 'SEARCH-3' } } as never);
+    fake.emit({ id: '4', event: 'run.item.completed', data: { schemaVersion: '1.4', runId: 'run-1', sequence: 4, itemId: 'SEARCH-3', status: 'DONE', detail: { count: 12 } } } as never);
+
+    fake.fail();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5_000);
+    });
+
+    expect(result.current.progress?.currentStage).toBe('GENERATING');
+    expect(result.current.progress?.steps.find((step) => step.stage === 'RETRIEVING')).toEqual({ stage: 'RETRIEVING', state: 'done', count: 12 });
+  });
 });

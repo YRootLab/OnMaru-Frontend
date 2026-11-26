@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  mergeRecovered,
   applyHeartbeat,
   applyItemFrame,
   parseItemId,
@@ -167,6 +168,53 @@ describe('run item frames (BE 1.4)', () => {
     p = applyItemFrame(p, { kind: 'completed', runId: 'run-1', sequence: 5, itemId: 'SEARCH-1', status: 'DONE', count: 12 }, T0);
     const stale = applyItemFrame(p, { kind: 'completed', runId: 'run-1', sequence: 3, itemId: 'SEARCH-1', status: 'DONE', count: 99 }, T0);
     expect(stale).toBe(p);
+  });
+});
+
+describe('recovery keeps counts received in this session (BE 1.4)', () => {
+  it('keeps item counts that were already received when a snapshot re-syncs the run', () => {
+    let prev = createProgress({ runId: 'run-1', now: T0, status: 'RUNNING' });
+    prev = applyItemFrame(prev, { kind: 'completed', runId: 'run-1', sequence: 2, itemId: 'SEARCH-1', status: 'DONE', count: 12 }, T0);
+    const next = progressFromRun(
+      { runId: 'run-1', status: 'RUNNING', stage: 'GENERATING', sequence: 5, engine: 'LLM', outcome: null, error: null, retryAfterMs: 0 },
+      T0,
+    );
+
+    const merged = mergeRecovered(prev, next);
+    expect(merged.steps.find((step) => step.stage === 'RETRIEVING')).toEqual({ stage: 'RETRIEVING', state: 'done', count: 12 });
+    expect(merged.currentStage).toBe('GENERATING');
+    expect(merged.lastSequence).toBe(5);
+  });
+
+  it('shows stage-only steps when this session never received a count', () => {
+    const prev = createProgress({ runId: 'run-1', now: T0, status: 'RUNNING' });
+    const next = progressFromRun(
+      { runId: 'run-1', status: 'RUNNING', stage: 'RETRIEVING', sequence: 2, engine: 'LLM', outcome: null, error: null, retryAfterMs: 0 },
+      T0,
+    );
+    const merged = mergeRecovered(prev, next);
+    expect(merged.steps).toEqual([
+      { stage: 'INTERPRETING', state: 'done' },
+      { stage: 'RETRIEVING', state: 'active' },
+    ]);
+  });
+
+  it('keeps counts in a finished recovered run', () => {
+    let prev = createProgress({ runId: 'run-1', now: T0, status: 'RUNNING' });
+    prev = applyItemFrame(prev, { kind: 'completed', runId: 'run-1', sequence: 2, itemId: 'SELECT-3', status: 'DONE', count: 3 }, T0);
+    const next = progressFromRun(
+      { runId: 'run-1', status: 'COMPLETED', stage: 'VALIDATING', sequence: 6, engine: 'LLM', outcome: 'INITIAL_BOARD', error: null, retryAfterMs: 0 },
+      T0,
+    );
+    const merged = mergeRecovered(prev, next);
+    expect(merged.finished).toBe(true);
+    expect(merged.steps.find((step) => step.stage === 'SELECTING_EVIDENCE')).toEqual({ stage: 'SELECTING_EVIDENCE', state: 'done', count: 3 });
+  });
+
+  it('returns the snapshot progress unchanged for a different run', () => {
+    const prev = createProgress({ runId: 'run-old', now: T0, status: 'RUNNING' });
+    const next = progressFromRun({ runId: 'run-new', status: 'RUNNING', stage: null, sequence: 0, engine: 'LLM', outcome: null, error: null, retryAfterMs: 0 }, T0);
+    expect(mergeRecovered(prev, next)).toBe(next);
   });
 });
 });

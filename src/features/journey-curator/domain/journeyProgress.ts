@@ -190,6 +190,28 @@ export function finishProgress(progress: JourneyProgress, input: FinishInput): J
   };
 }
 
+/**
+ * 스냅샷으로 진행 상태를 다시 맞춘다. 같은 실행이면 이 세션에서 받은 항목 개수를 유지하고,
+ * 받은 적 없는 개수는 만들지 않는다(단계 문구만 보임). 다른 실행이면 스냅샷 값을 그대로 쓴다.
+ */
+export function mergeRecovered(prev: JourneyProgress | null, next: JourneyProgress): JourneyProgress {
+  if (!prev || prev.runId !== next.runId) return next;
+  const merged: JourneyProgress = {
+    ...next,
+    items: prev.items,
+    steps: buildSteps(next.currentStage, prev.items),
+    lastSequence: Math.max(prev.lastSequence, next.lastSequence),
+  };
+  if (!next.finished) return merged;
+  return finishProgress(merged, {
+    status: next.status as TerminalStatus,
+    outcome: next.outcome,
+    errorCode: next.errorCode,
+    retryAfterMs: next.retryAfterMs,
+    engine: next.engine,
+  });
+}
+
 export function toggleCollapsed(progress: JourneyProgress): JourneyProgress {
   return { ...progress, collapsed: !progress.collapsed };
 }

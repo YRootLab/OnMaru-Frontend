@@ -14,6 +14,7 @@ import {
   createProgress,
   finishProgress,
   markReconnecting,
+  mergeRecovered,
   progressFromRun,
   toggleCollapsed,
   type JourneyProgress,
@@ -173,7 +174,7 @@ export function useJourneyConversation(
       setState((current) => ({
         ...current,
         snapshot,
-        progress: progressFromRun(run, Date.now()),
+        progress: mergeRecovered(current.progress, progressFromRun(run, Date.now())),
       }));
 
       if (!isActiveRun(run)) {
