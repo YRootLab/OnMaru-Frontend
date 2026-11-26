@@ -7,22 +7,37 @@ import type {
   ExplorationSummary,
   ExplorationTurn,
 } from '../../domain/conversation';
-import { getJourneyStageMessage } from '../../domain/journeyConversation';
+import {
+  applyHeartbeat,
+  applyItemFrame,
+  applyStageFrame,
+  createProgress,
+  finishProgress,
+  markReconnecting,
+  mergeRecovered,
+  progressFromRun,
+  toggleCollapsed,
+  type JourneyProgress,
+} from '../../domain/journeyProgress';
 import { conversationHttpRepository } from '../../infrastructure/conversationHttpRepository';
 import type { RunAccepted } from '../../api/journeyApi';
 import type { JourneyRunSnapshot, JourneySseFrame } from '../../api/journeyContract';
 import { generateUUID } from '@/lib/uuid';
 
-type ConversationProgress = {
-  runId: string;
-  stage: string | null;
-  message: string;
-} | null;
-
 const createUuid = generateUUID;
+
+/** 스트림 오류 후 이 시간 안에 프레임이 다시 오지 않으면 스냅샷으로 진행 상태를 다시 맞춘다. */
+const RECONNECT_FALLBACK_MS = 5_000;
 
 function isActiveRun(run: JourneyRunSnapshot | null): boolean {
   return run?.status === 'QUEUED' || run?.status === 'RUNNING';
+}
+
+/** 다시 불러온 대화에서 진행 상태를 정한다. 같은 실행이 끝났다면 완료된 기록을 유지한다. */
+function resolveLoadedProgress(current: JourneyProgress | null, run: JourneyRunSnapshot | null): JourneyProgress | null {
+  if (run && isActiveRun(run)) return progressFromRun(run, Date.now());
+  if (current?.finished && run && current.runId === run.runId) return current;
+  return null;
 }
 
 export type JourneyConversationState = {
@@ -30,7 +45,7 @@ export type JourneyConversationState = {
   activeExplorationId: string | null;
   snapshot: ConversationSnapshot | null;
   turns: ExplorationTurn[];
-  progress: ConversationProgress;
+  progress: JourneyProgress | null;
   pendingQuery: string | null;
   loading: boolean;
   loadingOlder: boolean;
@@ -64,11 +79,18 @@ export function useJourneyConversation(
   const recoveringRunIdsRef = useRef(new Set<string>());
   const selectionVersionRef = useRef(0);
   const requestInFlightRef = useRef(false);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelReconnectFallback = useCallback(() => {
+    if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+    reconnectTimerRef.current = null;
+  }, []);
 
   const closeStream = useCallback(() => {
+    cancelReconnectFallback();
     unsubscribeRef.current?.();
     unsubscribeRef.current = null;
-  }, []);
+  }, [cancelReconnectFallback]);
 
   const refreshSidebar = useCallback(async () => {
     const page = await repository.listExplorations({ limit: 20 });
@@ -127,13 +149,7 @@ export function useJourneyConversation(
         activeExplorationId: explorationId,
         snapshot,
         turns,
-        progress: isActiveRun(snapshot.latestRun)
-          ? {
-              runId: snapshot.latestRun!.runId,
-              stage: snapshot.latestRun!.stage,
-              message: getJourneyStageMessage(snapshot.latestRun!.stage),
-            }
-          : null,
+        progress: resolveLoadedProgress(current.progress, snapshot.latestRun),
         pendingQuery: null,
         loading: false,
         olderCursor: turnPage.nextCursor,
@@ -158,9 +174,7 @@ export function useJourneyConversation(
       setState((current) => ({
         ...current,
         snapshot,
-        progress: isActiveRun(run)
-          ? { runId: run.runId, stage: run.stage, message: getJourneyStageMessage(run.stage) }
-          : null,
+        progress: mergeRecovered(current.progress, progressFromRun(run, Date.now())),
       }));
 
       if (!isActiveRun(run)) {
@@ -173,7 +187,31 @@ export function useJourneyConversation(
         accepted.eventsUrl,
         (frame: JourneySseFrame) => {
           if (activeIdRef.current !== accepted.explorationId) return;
-          if (frame.event === 'reset' || frame.event === 'run.terminal') {
+          cancelReconnectFallback();
+          if (frame.event === 'heartbeat') {
+            setState((current) => (current.progress
+              ? { ...current, progress: applyHeartbeat(current.progress, frame.data, Date.now()) }
+              : current));
+            return;
+          }
+          if (frame.event === 'run.terminal') {
+            const terminal = frame.data;
+            setState((current) => (current.progress?.runId === terminal.runId
+              ? {
+                  ...current,
+                  progress: finishProgress(current.progress, {
+                    status: terminal.status,
+                    outcome: terminal.outcome,
+                    errorCode: terminal.errorCode ?? null,
+                    retryAfterMs: terminal.retryAfterMs ?? 0,
+                    engine: null,
+                  }),
+                }
+              : current));
+            void recoverAcceptedRun(accepted);
+            return;
+          }
+          if (frame.event === 'reset') {
             void recoverAcceptedRun(accepted);
             return;
           }
@@ -185,18 +223,37 @@ export function useJourneyConversation(
           if (frame.data.sequence <= latestSequenceRef.current) return;
           latestSequenceRef.current = frame.data.sequence;
           if (frame.event === 'run.stage') {
+            const now = Date.now();
             setState((current) => ({
               ...current,
-              progress: {
-                runId: frame.data.runId,
-                stage: frame.data.stage,
-                message: getJourneyStageMessage(frame.data.stage),
-              },
+              progress: applyStageFrame(current.progress ?? createProgress({ runId: frame.data.runId, now }), frame.data, now),
+            }));
+          }
+          if (frame.event === 'run.item.started' || frame.event === 'run.item.completed') {
+            const now = Date.now();
+            const item = frame.data;
+            const update = frame.event === 'run.item.started'
+              ? { kind: 'started' as const }
+              : { kind: 'completed' as const, status: frame.data.status, count: frame.data.detail?.count ?? null };
+            setState((current) => ({
+              ...current,
+              progress: applyItemFrame(
+                current.progress ?? createProgress({ runId: item.runId, now }),
+                { runId: item.runId, sequence: item.sequence, itemId: item.itemId, ...update },
+                now,
+              ),
             }));
           }
         },
         () => {
-          // EventSource retries itself. A server terminal/reset is handled by its explicit event.
+          // EventSource가 스스로 재연결한다. 일정 시간 안에 프레임이 돌아오지 않으면 스냅샷으로 맞춘다.
+          if (activeIdRef.current !== accepted.explorationId) return;
+          setState((current) => (current.progress ? { ...current, progress: markReconnecting(current.progress, true) } : current));
+          cancelReconnectFallback();
+          reconnectTimerRef.current = setTimeout(() => {
+            reconnectTimerRef.current = null;
+            void recoverAcceptedRun(accepted);
+          }, RECONNECT_FALLBACK_MS);
         },
       );
     } catch {
@@ -206,7 +263,7 @@ export function useJourneyConversation(
     } finally {
       recoveringRunIdsRef.current.delete(accepted.runId);
     }
-  }, [closeStream, loadConversation, refreshSidebar, repository]);
+  }, [cancelReconnectFallback, closeStream, loadConversation, refreshSidebar, repository]);
 
   const beginRun = useCallback(async (accepted: RunAccepted) => {
     acceptedRef.current = accepted;
@@ -293,6 +350,10 @@ export function useJourneyConversation(
     }
   }, [loadConversation, recoverAcceptedRun, repository, state.snapshot]);
 
+  const toggleProgress = useCallback(() => {
+    setState((current) => (current.progress ? { ...current, progress: toggleCollapsed(current.progress) } : current));
+  }, []);
+
   const recoverCurrentRun = useCallback(async () => {
     if (acceptedRef.current) await recoverAcceptedRun(acceptedRef.current);
   }, [recoverAcceptedRun]);
@@ -317,12 +378,6 @@ export function useJourneyConversation(
     return closeStream;
   }, [activeExplorationId, closeStream, loadConversation]);
 
-  useEffect(() => {
-    const accepted = acceptedRef.current;
-    const run = state.snapshot?.latestRun;
-    if (accepted && run && isActiveRun(run) && accepted.explorationId === state.activeExplorationId && accepted.runId === run.runId) void recoverAcceptedRun(accepted);
-  }, [recoverAcceptedRun, state.activeExplorationId, state.snapshot?.latestRun?.runId, state.snapshot?.latestRun?.status]);
-
   useEffect(() => () => closeStream(), [closeStream]);
 
   return {
@@ -332,6 +387,7 @@ export function useJourneyConversation(
     sendTurn,
     loadOlderTurns,
     cancelRun,
+    toggleProgress,
     recoverCurrentRun,
     refreshSidebar,
   };

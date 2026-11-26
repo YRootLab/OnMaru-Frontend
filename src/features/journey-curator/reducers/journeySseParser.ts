@@ -29,6 +29,9 @@ export function parseJourneySseFrame(input: RawFrame): JourneySseFrame | null {
       return { id: requireReplayId(input.event, input.id), event: input.event, data } as JourneySseFrame;
     case 'run.terminal':
       return { id: requireReplayId(input.event, input.id), event: input.event, data } as JourneySseFrame;
+    case 'run.item.started':
+    case 'run.item.completed':
+      return { id: requireReplayId(input.event, input.id), event: input.event, data } as JourneySseFrame;
     case 'heartbeat':
       return { id: requireReplayId(input.event, input.id), event: input.event, data } as JourneySseFrame;
     case 'reset':
