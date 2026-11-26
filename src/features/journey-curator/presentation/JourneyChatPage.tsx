@@ -64,15 +64,16 @@ export default function JourneyChatPage() {
       activeExplorationId={conversation.activeExplorationId}
       turns={conversation.turns}
       pendingQuery={conversation.pendingQuery}
-      progressMessage={conversation.progress?.message ?? null}
+      progress={conversation.progress}
+      onToggleProgress={() => conversation.toggleProgress()}
       loading={conversation.loading}
       loadingOlder={conversation.loadingOlder}
       hasOlderTurns={conversation.hasOlderTurns}
       error={conversation.error}
       onSelectConversation={selectConversation}
       onLoadOlder={() => void conversation.loadOlderTurns()}
-      onSend={async (query) => {
-        if (conversation.activeExplorationId) await conversation.sendTurn(query);
+      onSend={async (query, clarificationAnswer) => {
+        if (conversation.activeExplorationId) await conversation.sendTurn(query, clarificationAnswer);
         else await conversation.startConversation(query);
       }}
       onCancel={() => conversation.cancelRun()}

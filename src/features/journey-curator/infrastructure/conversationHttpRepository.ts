@@ -77,7 +77,7 @@ export function createConversationHttpRepository(request: RequestFn = apiRequest
     },
     subscribeToRunEvents(eventsUrl, onEvent, onError) {
       const source = new EventSource(resolveJourneyEventsUrl(eventsUrl), { withCredentials: true });
-      const eventNames = ['run.stage', 'run.terminal', 'heartbeat', 'reset', 'auth_closed'] as const;
+      const eventNames = ['run.stage', 'run.item.started', 'run.item.completed', 'run.terminal', 'heartbeat', 'reset', 'auth_closed'] as const;
       const listeners = eventNames.map((eventName) => {
         const listener = (event: Event) => {
           const messageEvent = event as MessageEvent<string>;
