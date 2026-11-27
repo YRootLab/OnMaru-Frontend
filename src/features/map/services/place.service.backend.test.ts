@@ -125,4 +125,35 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
     expect(items[0].id).toBe('p-2');
     expect(tourApiGetMock).not.toHaveBeenCalled();
   });
+
+  it('maps festival, culture, experience, food, and market backend categories accurately', async () => {
+    process.env.NEXT_PUBLIC_API_URL = 'https://api.onmaru.test';
+    const base = {
+      region: { regionCode: 'kr-11', name: '서울' },
+      coordinates: { lat: 37.5796, lng: 126.977 },
+      thumbnailUrl: null,
+      summary: '설명',
+      savedByMe: false,
+    };
+    apiGetMock.mockResolvedValue({
+      items: [
+        { ...base, placeId: 'p-fest', name: '궁중문화축전', category: '축제' },
+        { ...base, placeId: 'p-cult', name: '국립고궁박물관', category: 'CULTURE_ART' },
+        { ...base, placeId: 'p-exp', name: '전통 다도 체험', category: 'HANOK_EXPERIENCE' },
+        { ...base, placeId: 'p-food', name: '전통 한정식', category: 'TRADITIONAL_FOOD' },
+        { ...base, placeId: 'p-mkt', name: '통인시장', category: '시장' },
+      ],
+    });
+
+    const { PlaceService } = await import('./place.service');
+    const items = await PlaceService.getNearbyPlaces({ lat: 37.5796, lng: 126.977, radius: 5000 });
+
+    expect(items.map((item) => [item.id, item.category])).toEqual([
+      ['p-fest', 'festival'],
+      ['p-cult', 'culture'],
+      ['p-exp', 'experience'],
+      ['p-food', 'food'],
+      ['p-mkt', 'market'],
+    ]);
+  });
 });

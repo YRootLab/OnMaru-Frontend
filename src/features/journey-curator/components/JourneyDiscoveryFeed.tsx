@@ -3,11 +3,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from '@/i18n/navigation';
 import styled from '@emotion/styled';
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft01Icon, ArrowRight01Icon, HeartIcon, RotateCcwIcon, VolumeHighIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowLeft01Icon, ArrowRight01Icon, HeartIcon, RotateCcwIcon, SparklesIcon, VolumeHighIcon } from '@hugeicons/core-free-icons';
 
 import { useJourneyStore } from '../store/useJourneyStore';
-import { useCuratedCourses, useLatestReviews, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
+import { useCuratedCourses, useFestivals, useLatestReviews, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
 import { selectHomeFeaturedCourses } from '../services/homeCourseSelection';
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 import { OniAvatar } from '@/features/profile/OniAvatar';
@@ -964,6 +964,157 @@ const FooterStat = styled.p`
   }
 `;
 
+const FestivalScroller = styled.div`
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 6px 4px 14px;
+  margin: -6px -4px -14px;
+
+  &::-webkit-scrollbar { display: none; }
+`;
+
+const FestivalCard = styled(Link)`
+  flex: none;
+  width: 260px;
+  scroll-snap-align: start;
+  border-radius: 18px;
+  background: #ffffff;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: ${ringShadow.light.card};
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.surface};
+    box-shadow: ${ringShadow.dark.card};
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${ringShadow.light.cardHoverGlow};
+
+    [data-theme='dark'] & {
+      box-shadow: ${ringShadow.dark.cardHoverGlow};
+    }
+  }
+
+  @media (max-width: 640px) {
+    width: 220px;
+  }
+`;
+
+const FestivalThumb = styled.div`
+  position: relative;
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  background: #e5e5e3;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+  }
+
+  @media (max-width: 640px) {
+    height: 120px;
+  }
+`;
+
+const FestivalImg = styled.img`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+
+  ${FestivalCard}:hover & {
+    transform: scale(1.05);
+  }
+`;
+
+const FestivalBadge = styled.span`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  background: ${palette.juhong[500]};
+  box-shadow: 0 1px 4px rgba(232, 90, 24, 0.3);
+`;
+
+const FestivalBody = styled.div`
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const FestivalTitle = styled.h4`
+  font-family: var(--font-hanok);
+  font-size: ${fontSize.base};
+  line-height: 22px;
+  font-weight: 600;
+  color: #191f28;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: #f8f9fa;
+  }
+`;
+
+const FestivalAddr = styled.span`
+  font-size: 12px;
+  line-height: 18px;
+  color: #8b95a1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: #71717a;
+  }
+`;
+
+const FestivalSkeletonCard = styled.div`
+  flex: none;
+  width: 260px;
+  scroll-snap-align: start;
+  border-radius: 18px;
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: ${ringShadow.light.card};
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.surface};
+    box-shadow: ${ringShadow.dark.card};
+  }
+
+  @media (max-width: 640px) {
+    width: 220px;
+  }
+`;
+
+const FestivalSkeletonThumb = styled(SkeletonPulse)`
+  width: 100%;
+  height: 140px;
+
+  @media (max-width: 640px) {
+    height: 120px;
+  }
+`;
+
 const COURSE_CATEGORY_LIST = ['HANOK_STAY', 'CULTURE_ART', 'TRADITIONAL_FOOD', 'HANOK_EXPERIENCE', 'LOCAL_SCENE'] as const;
 
 const CategoryFilterRow = styled.div`
@@ -1006,6 +1157,7 @@ export default function JourneyDiscoveryFeed() {
   const { data: popularSounds, loading: soundsLoading, failed: soundsFailed, unavailable: soundsUnavailable, retry: retrySounds } = usePopularSounds();
   const { data: popularRegions, loading: regionsLoading, failed: regionsFailed, unavailable: regionsUnavailable, retry: retryRegions, totalReviewCount } = usePopularRegions();
   const { data: latestReviews, loading: reviewsLoading, failed: reviewsFailed, unavailable: reviewsUnavailable, retry: retryReviews } = useLatestReviews();
+  const { data: festivals, loading: festivalsLoading, failed: festivalsFailed, unavailable: festivalsUnavailable, retry: retryFestivals } = useFestivals();
   const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>({});
 
   const handleToggleSave = (e: React.MouseEvent, storyId: string, currentlySaved: boolean) => {
@@ -1378,6 +1530,54 @@ export default function JourneyDiscoveryFeed() {
           ))}
         </RegionGrid>
       </section>
+      )}
+
+      {(festivalsLoading || festivalsFailed || festivals.length > 0) && (
+        <section>
+          <SectionHeader
+            title="진행 중인 축제·기획전"
+            subtitle="전통과 문화가 어우러진 특별한 행사를 만나보세요."
+          />
+
+          {festivalsFailed ? (
+            <HomeFeedFailure compact unavailable={festivalsUnavailable} onRetry={retryFestivals} />
+          ) : (
+            <FestivalScroller>
+              {festivalsLoading
+                ? Array.from({ length: 5 }).map((_, i) => (
+                    <FestivalSkeletonCard key={i} aria-hidden="true">
+                      <FestivalSkeletonThumb />
+                      <FestivalBody>
+                        <SkeletonLine $w="72%" $h="22px" />
+                        <SkeletonLine $w="50%" $h="18px" />
+                      </FestivalBody>
+                    </FestivalSkeletonCard>
+                  ))
+                : festivals.slice(0, 12).map((item) => (
+                    <FestivalCard key={item.id} href={`/map?lat=${item.lat}&lng=${item.lng}&level=5&cat=festival`}>
+                      <FestivalThumb>
+                        {item.image && (
+                          <FestivalImg
+                            src={item.image}
+                            alt={item.name}
+                            loading="lazy"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        )}
+                        <FestivalBadge>
+                          <HugeiconsIcon icon={SparklesIcon} size={10} />
+                          축제·기획전
+                        </FestivalBadge>
+                      </FestivalThumb>
+                      <FestivalBody>
+                        <FestivalTitle title={item.name}>{item.name}</FestivalTitle>
+                        <FestivalAddr>{item.addr || '전통 한옥 명소'}</FestivalAddr>
+                      </FestivalBody>
+                    </FestivalCard>
+                  ))}
+            </FestivalScroller>
+          )}
+        </section>
       )}
 
       {totalReviewCount > 0 && (

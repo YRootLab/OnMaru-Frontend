@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased]
 
+- 홈 탐색 피드에 '진행 중인 축제·기획전' 가로 스크롤 섹션과 1:1 규격 동기화 스켈레톤 및 재시도 오류 상태를 추가하고, 백엔드 지도 장소 카테고리(`축제`, `문화`, `체험`, `음식`, `시장`) 매핑을 보강했다.
 - Windows에서도 `npm run dev:prod-api`가 로컬 Next 프록시를 통해 실제 Spring API에 연결되도록 플랫폼 독립 실행 스크립트를 추가했다.
 - 여정 대화 fixture의 턴 반환 순서를 최신순으로 고정하고, 대화 전환 중 대기 중인 생성 요청과 실패한 턴 조회를 안전하게 처리했습니다.
 - Bento 여정 대체 장소 카드가 계획 ID를 사용하고, 계획 ID가 없으면 대화 turn ID를 사용하며, 실제 좌표가 없을 때 위치 정보를 만들지 않도록 회귀 테스트를 추가했습니다.

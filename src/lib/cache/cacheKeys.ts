@@ -26,6 +26,8 @@ export const CK = {
     `home:popular-regions:${lang}`,
   homeLatestReviews: () =>
     'home:latest-reviews',
+  homeFestivals: () =>
+    'home:festivals',
   hanokArchive: () =>
     'hanok:archive',
   sorimaruStories: (category: string, keyword: string, page: number, rows: number, lang = 'ko-KR') =>

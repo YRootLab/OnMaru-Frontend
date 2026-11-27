@@ -12,6 +12,8 @@ import {
   type TrendingSound,
   type PopularSound,
 } from '../api/homeApi';
+import { PlaceService } from '@/features/map/services/place.service';
+import type { Item } from '@/features/map/types';
 
 type LoadState<T> = {
   data: T[];
@@ -120,4 +122,14 @@ export function useLatestReviews() {
     () => homeRepository.listLatestReviews(6),
     TTL_MS.HOME_POPULAR,
   );
+}
+
+export function useFestivals() {
+  const fetcher = useCallback(async () => {
+    const items = await PlaceService.getNearbyPlaces({
+      lat: 36.5, lng: 127.5, radius: 300_000, category: 'festival',
+    });
+    return { items };
+  }, []);
+  return useHomeList<Item>(CK.homeFestivals(), fetcher, TTL_MS.HOME_CURATED);
 }
