@@ -25,6 +25,13 @@ Lightweight human-readable summary of meaningful repository changes. This does n
   - 타이틀 앞 주황색 세로 바 가상요소를 제거하고 다크 모드 토큰을 남색 계열(`surface.dark.app`, `surface.dark.card`, `surface.dark.surface`)로 전면 동기화.
   - 데스크톱 카드 레이아웃의 기본 좌우 여백(`padding: 68px 20px 24px`, `max-width: 1240px`) 유지.
 
+## [v0.1.27] - 2026-11-27
+
+- 홈 검색바와 AI 대화 하단 입력창의 강조(호버·포커스) 글로우를 약하게 조정:
+  - 마우스를 따라가는 빛의 강도와 반경을 줄이고, 포커스 시 바깥 글로우를 낮춤 (라이트·다크 모두).
+  - 포커스 링은 유지해 키보드 사용자의 현재 위치를 계속 알 수 있도록 함.
+- API 생성 타입을 운영 명세 기준으로 다시 생성해, 여정 턴의 사유(degradedReason)·주소(address) 등 신규 필드를 반영.
+
 ## [v0.1.26] - 2026-11-26
 
 - AI 여정 대화 진행 상황을 실시간 타임라인으로 표시:
